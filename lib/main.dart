@@ -120,6 +120,8 @@ class DefinitionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -128,19 +130,18 @@ class DefinitionTile extends StatelessWidget {
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
             Text(definition.partOfSpeech,
-                style: Theme.of(context)
-                    .textTheme
-                    .titleLarge!
+                style: textTheme.titleLarge!
                     .copyWith(fontWeight: FontWeight.bold)),
             if (definition.phoneticUk != null)
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text('🇬🇧${definition.phoneticUk!}'),
+                  Text('🇬🇧${definition.phoneticUk!}',
+                      style: textTheme.bodyLarge),
                   InkWell(
                     onTap: () {},
                     child: Icon(CupertinoIcons.volume_up,
-                        size: Theme.of(context).textTheme.titleLarge!.fontSize),
+                        size: textTheme.bodyLarge!.fontSize),
                   ),
                 ],
               ),
@@ -148,87 +149,127 @@ class DefinitionTile extends StatelessWidget {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text('🇺🇸${definition.phoneticUs!}'),
+                  Text('🇺🇸${definition.phoneticUs!}',
+                      style: textTheme.bodyLarge),
                   InkWell(
                     onTap: () {},
                     child: Icon(CupertinoIcons.volume_up,
-                        size: Theme.of(context).textTheme.titleLarge!.fontSize),
+                        size: textTheme.bodyLarge!.fontSize),
                   ),
                 ],
               ),
           ],
         ),
-        const Divider(height: 1),
+        const Divider(height: 4),
         if (definition.inflection != null)
           Wrap(
             spacing: 8,
             children: definition.inflection!
                 .split(", ")
+                .toSet()
                 .map((e) => Container(
                       padding: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
                       decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.primaryContainer,
-                          borderRadius: BorderRadius.circular(Theme.of(context)
-                              .textTheme
-                              .bodyMedium!
-                              .fontSize!)),
+                          color: colorScheme.primaryContainer,
+                          borderRadius: BorderRadius.circular(
+                              textTheme.bodyMedium!.fontSize!)),
                       child: Text(e,
-                          style: TextStyle(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onPrimaryContainer)),
+                          style:
+                              TextStyle(color: colorScheme.onPrimaryContainer)),
                     ))
                 .toList(),
           ),
         if (definition.translate != null) Text(definition.translate!),
         for (final explain in definition.explanations) ...[
-          Text.rich(TextSpan(children: [
-            if (explain.subscript != null)
+          Text.rich(
+            TextSpan(children: [
+              if (explain.subscript != null)
+                TextSpan(
+                    text: '[${explain.subscript!}]\t',
+                    style:
+                        textTheme.bodyLarge!.apply(color: colorScheme.primary)),
               TextSpan(
-                  text: '[${explain.subscript!}]\t',
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyLarge!
-                      .apply(color: Theme.of(context).colorScheme.primary)),
-            TextSpan(
-                text: explain.explain,
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyLarge!
-                    .copyWith(fontWeight: FontWeight.bold)),
-          ])),
+                  text: explain.explain,
+                  style: textTheme.bodyLarge!
+                      .copyWith(fontWeight: FontWeight.bold, height: 1.25)),
+            ]),
+          ),
           for (final example in explain.examples)
-            Row(
-              children: [
-                Expanded(
-                  child: Text.rich(
-                    TextSpan(
-                      children: [
-                        TextSpan(text: "\t" * 4),
-                        WidgetSpan(
-                            child: Icon(
-                          CupertinoIcons.circle_fill,
-                          size: Theme.of(context).textTheme.bodySmall!.fontSize,
-                          color: Theme.of(context).colorScheme.primary,
-                        )),
-                        TextSpan(text: "\t"),
-                        TextSpan(text: example),
-                      ],
-                    ),
-                    style: TextStyle(
-                        color:
-                            Theme.of(context).colorScheme.onPrimaryContainer),
-                  ),
-                ),
-                InkWell(
-                  onTap: () {},
-                  child: Icon(CupertinoIcons.volume_up,
-                      size: Theme.of(context).textTheme.bodyLarge!.fontSize),
-                ),
-              ],
-            )
+            ExampleParagraph(example: example)
         ]
       ],
+    );
+  }
+}
+
+class ExampleParagraph extends StatelessWidget {
+  const ExampleParagraph({
+    super.key,
+    required this.example,
+  });
+
+  final String example;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    final textExpanded = GlobalKey();
+    double? leftSideHeight;
+    return StatefulBuilder(
+      builder: (context, setState) {
+        if (leftSideHeight == null) {
+          WidgetsBinding.instance.addPostFrameCallback(
+            (_) => setState(() {
+              final renderBox =
+                  textExpanded.currentContext?.findRenderObject() as RenderBox;
+              leftSideHeight = renderBox.size.height;
+            }),
+          );
+        }
+        // print(leftSideHeight);
+        final bodyText = textTheme.bodyMedium!;
+        print(bodyText.fontSize! * bodyText.height!);
+        final padding = leftSideHeight == null
+            ? 0.0
+            : (leftSideHeight! - bodyText.fontSize! * bodyText.height!)
+                .clamp(0.0, leftSideHeight!);
+        return Row(
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(left: 8, right: 4),
+              child: Container(
+                // color: Colors.red,
+                padding: EdgeInsets.only(bottom: padding),
+                height: leftSideHeight,
+                child: Icon(
+                  CupertinoIcons.circle_fill,
+                  size: textTheme.bodySmall!.fontSize,
+                  color: colorScheme.primary,
+                ),
+              ),
+            ),
+            Expanded(
+              child: Text.rich(
+                  TextSpan(children: [
+                    TextSpan(text: example),
+                    const TextSpan(text: '\t\t'),
+                    WidgetSpan(
+                      child: InkWell(
+                        onTap: () {},
+                        child: Icon(CupertinoIcons.volume_up,
+                            size: textTheme.bodyLarge!.fontSize),
+                      ),
+                    )
+                  ]),
+                  key: textExpanded,
+                  style: TextStyle(
+                    color: colorScheme.onPrimaryContainer,
+                  )),
+            ),
+          ],
+        );
+      },
     );
   }
 }
