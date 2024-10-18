@@ -35,7 +35,7 @@ mixin ClickableTextStateMixin<T extends StatefulWidget> on State<T> {
                 backgroundColor: Theme.of(context).colorScheme.primary,
                 color: Theme.of(context).colorScheme.onPrimary),
         recognizer: word.contains(RegExp(r'(?=\s+|[,.!?=\[\]\(\)\/])')) ||
-                word.contains(RegExp(r"('s|'re|'d|'ve|'m|'ll)"))
+                word.contains(RegExp(r"('s|'re|'d|'ve|'m|'ll|^[-|+]?\d+)"))
             ? null
             : TapGestureRecognizer()
           ?..onTap = () {

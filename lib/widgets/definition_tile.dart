@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../model/vocabulary.dart';
-import '../utils/clicable_text_mixin.dart';
+import '../utils/clickable_text_mixin.dart';
 
 class DefinitionTile extends StatelessWidget {
   const DefinitionTile({
