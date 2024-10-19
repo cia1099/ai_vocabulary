@@ -8,9 +8,11 @@ class DefinitionTile extends StatelessWidget {
   const DefinitionTile({
     super.key,
     required this.definition,
+    required this.word,
   });
 
   final Definition definition;
+  final String word;
 
   @override
   Widget build(BuildContext context) {
@@ -77,7 +79,13 @@ class DefinitionTile extends StatelessWidget {
         for (final explain in definition.explanations) ...[
           DefinitionParagraph(explain: explain),
           ...explain.examples.map(
-            (example) => ExampleParagraph(example: example),
+            (example) {
+              final explainWord = explain.explain.split(' ');
+              return ExampleParagraph(
+                  example: example,
+                  inflection: definition.inflection?.split(", ") ??
+                      [word] + (explainWord.length == 1 ? explainWord : []));
+            },
           ),
         ]
       ],
@@ -109,9 +117,11 @@ class _DefinitionParagraphState extends State<DefinitionParagraph>
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
-    final spans = clickableWords(
-        '[${widget.explain.subscript!}]\t' + widget.explain.explain);
-    final firstSpan = clickableWords('[${widget.explain.subscript!}]\t');
+    final subscript = widget.explain.subscript == null
+        ? ''
+        : '[${widget.explain.subscript!}]\t';
+    final spans = clickableWords(subscript + widget.explain.explain);
+    final firstSpan = clickableWords(subscript);
     return Text.rich(
       TextSpan(children: [
         if (widget.explain.subscript != null)
@@ -131,9 +141,11 @@ class ExampleParagraph extends StatefulWidget {
   const ExampleParagraph({
     super.key,
     required this.example,
+    required this.inflection,
   });
 
   final String example;
+  final Iterable<String> inflection;
 
   @override
   State<ExampleParagraph> createState() => _ExampleParagraphState();
@@ -186,7 +198,9 @@ class _ExampleParagraphState extends State<ExampleParagraph>
         Expanded(
           child: Text.rich(
               TextSpan(children: [
-                TextSpan(children: clickableWords(widget.example)),
+                TextSpan(
+                    children: clickableWords(widget.example,
+                        inflection: widget.inflection)),
                 const TextSpan(text: '\t\t'),
                 WidgetSpan(
                   child: InkWell(

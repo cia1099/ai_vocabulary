@@ -4,9 +4,11 @@ import 'package:flutter/material.dart';
 mixin ClickableTextStateMixin<T extends StatefulWidget> on State<T> {
   Future<T?> Function<T>(String)? onTap;
 
-  List<TextSpan> clickableWords(String text) {
+  List<TextSpan> clickableWords(String text,
+      {Iterable<String> inflection = const []}) {
     final words = _splitWords(text);
-    return List.generate(words.length, (i) => _assignWord(words[i], i));
+    return List.generate(
+        words.length, (i) => _assignWord(words[i], i, inflection));
   }
 
   int? _selectedIndex;
@@ -26,11 +28,13 @@ mixin ClickableTextStateMixin<T extends StatefulWidget> on State<T> {
         .toList();
   }
 
-  TextSpan _assignWord(String word, int index) {
+  TextSpan _assignWord(String word, int index, Iterable<String> inflection) {
     return TextSpan(
         text: word,
         style: _selectedIndex != index
-            ? null
+            ? !inflection.contains(word)
+                ? null
+                : TextStyle(color: Theme.of(context).colorScheme.inversePrimary)
             : TextStyle(
                 backgroundColor: Theme.of(context).colorScheme.primary,
                 color: Theme.of(context).colorScheme.onPrimary),

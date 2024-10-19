@@ -71,9 +71,11 @@ class _MyHomePageState extends State<MyHomePage> {
           SafeArea(
             child: ListView.builder(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                itemCount: record.definitions.length,
-                itemBuilder: (context, index) =>
-                    DefinitionTile(definition: record.definitions[index])),
+                itemCount: abdomen.definitions.length,
+                itemBuilder: (context, index) => DefinitionTile(
+                      definition: abdomen.definitions[index],
+                      word: abdomen.word,
+                    )),
           ),
           // Center(
           //   child: Padding(
