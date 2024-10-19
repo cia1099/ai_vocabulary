@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_lorem/flutter_lorem.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
+import 'bottom_sheet/retrieval_bottom_sheet.dart';
 import 'mock_data.dart';
 import 'widgets/definition_tile.dart';
 
@@ -97,59 +98,16 @@ class _MyHomePageState extends State<MyHomePage> {
                       word: apple.word,
                     ),
                   PlatformElevatedButton(
-                    onPressed: () => showModalBottomSheet(
+                    onPressed: () => showPlatformModalSheet(
                       context: context,
-                      useSafeArea: true,
-                      isScrollControlled: true,
+                      material: MaterialModalSheetData(
+                        useSafeArea: true,
+                        isScrollControlled: true,
+                      ),
                       builder: (context) => StatefulBuilder(
                         builder: (context, setState) {
                           final content = lorem(paragraphs: 10, words: 500);
-                          return DraggableScrollableSheet(
-                            expand: false,
-                            snap: true,
-                            minChildSize: .1,
-                            snapSizes: [.3, .98],
-                            initialChildSize: .3,
-                            builder: (context, scrollController) => Column(
-                              children: [
-                                SingleChildScrollView(
-                                  controller: scrollController,
-                                  physics: ClampingScrollPhysics(),
-                                  child: Container(
-                                    height: 25,
-                                    padding:
-                                        EdgeInsets.symmetric(horizontal: 8),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        SizedBox(),
-                                        Icon(CupertinoIcons
-                                            .chevron_up_chevron_down),
-                                        Icon(CupertinoIcons.xmark_circle_fill)
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                                Flexible(
-                                    child: ListView.builder(
-                                  itemCount: 50,
-                                  itemBuilder: (context, index) =>
-                                      ListTile(title: Text('Item $index')),
-                                )
-                                    // SingleChildScrollView(
-                                    //     // controller: scrollController,
-                                    //     physics: BouncingScrollPhysics(),
-                                    //     child: Column(
-                                    //       children: List.generate(
-                                    //           50,
-                                    //           (index) => ListTile(
-                                    //               title: Text('Item $index'))),
-                                    //     )),
-                                    ),
-                              ],
-                            ),
-                          );
+                          return RetrievalBottomSheet();
                         },
                       ),
                     ),
