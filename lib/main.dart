@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_web_frame/flutter_web_frame.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_lorem/flutter_lorem.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
 import 'bottom_sheet/retrieval_bottom_sheet.dart';
@@ -58,6 +57,14 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       _counter++;
     });
+    showPlatformModalSheet(
+      context: context,
+      material: MaterialModalSheetData(
+        useSafeArea: true,
+        isScrollControlled: true,
+      ),
+      builder: (context) => RetrievalBottomSheet(),
+    );
   }
 
   @override
@@ -81,39 +88,29 @@ class _MyHomePageState extends State<MyHomePage> {
           Center(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  const Text(
-                    'You have pushed the button this many times:',
-                  ),
-                  Text(
-                    '$_counter',
-                    style: Theme.of(context).textTheme.headlineMedium,
-                  ),
-                  SizedBox(height: 20),
-                  for (final defApple in apple.definitions)
-                    DefinitionTile(
-                      definition: defApple,
-                      word: apple.word,
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    const Text(
+                      'You have pushed the button this many times:',
                     ),
-                  PlatformElevatedButton(
-                    onPressed: () => showPlatformModalSheet(
-                      context: context,
-                      material: MaterialModalSheetData(
-                        useSafeArea: true,
-                        isScrollControlled: true,
-                      ),
-                      builder: (context) => StatefulBuilder(
-                        builder: (context, setState) {
-                          final content = lorem(paragraphs: 10, words: 500);
-                          return RetrievalBottomSheet();
-                        },
-                      ),
+                    Text(
+                      '$_counter',
+                      style: Theme.of(context).textTheme.headlineMedium,
                     ),
-                    child: const Text('showModalBottomSheet'),
-                  )
-                ],
+                    SizedBox(height: 20),
+                    for (final defApple in apple.definitions)
+                      DefinitionTile(
+                        definition: defApple,
+                        word: apple.word,
+                      ),
+                    PlatformElevatedButton(
+                      onPressed: _incrementCounter,
+                      child: const Text('showModalBottomSheet'),
+                    )
+                  ],
+                ),
               ),
             ),
           ),
