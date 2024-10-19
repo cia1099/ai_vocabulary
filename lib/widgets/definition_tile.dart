@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
 import '../model/vocabulary.dart';
 import '../utils/clickable_text_mixin.dart';
@@ -34,8 +35,11 @@ class DefinitionTile extends StatelessWidget {
                 children: [
                   Text('🇬🇧${definition.phoneticUk!}',
                       style: textTheme.bodyLarge),
-                  InkWell(
-                    onTap: () {},
+                  PlatformWidgetBuilder(
+                    material: (_, child, __) =>
+                        InkWell(onTap: () {}, child: child),
+                    cupertino: (_, child, __) =>
+                        GestureDetector(onTap: () {}, child: child),
                     child: Icon(CupertinoIcons.volume_up,
                         size: textTheme.bodyLarge!.fontSize),
                   ),
@@ -47,8 +51,11 @@ class DefinitionTile extends StatelessWidget {
                 children: [
                   Text('🇺🇸${definition.phoneticUs!}',
                       style: textTheme.bodyLarge),
-                  InkWell(
-                    onTap: () {},
+                  PlatformWidgetBuilder(
+                    material: (_, child, __) =>
+                        InkWell(onTap: () {}, child: child),
+                    cupertino: (_, child, __) =>
+                        GestureDetector(onTap: () {}, child: child),
                     child: Icon(CupertinoIcons.volume_up,
                         size: textTheme.bodyLarge!.fontSize),
                   ),
@@ -203,8 +210,11 @@ class _ExampleParagraphState extends State<ExampleParagraph>
                         inflection: widget.inflection)),
                 const TextSpan(text: '\t\t'),
                 WidgetSpan(
-                  child: InkWell(
-                    onTap: () {},
+                  child: PlatformWidgetBuilder(
+                    material: (_, child, __) =>
+                        InkWell(onTap: () {}, child: child),
+                    cupertino: (_, child, __) =>
+                        GestureDetector(onTap: () {}, child: child),
                     child: Icon(CupertinoIcons.volume_up,
                         size: textTheme.bodyLarge!.fontSize),
                   ),
