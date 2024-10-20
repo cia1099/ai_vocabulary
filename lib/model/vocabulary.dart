@@ -13,6 +13,17 @@ class Vocabulary {
     this.asset,
   });
 
+  Iterable<String> get getInflection => definitions
+      .map((d) => (d.inflection ?? '').split(', '))
+      .reduce((d1, d2) => d1 + d2)
+      .toSet();
+
+  Iterable<String> get getExamples => definitions
+      .map((d) => d.explanations)
+      .reduce((e1, e2) => e1 + e2)
+      .map((e) => e.examples)
+      .reduce((e1, e2) => e1 + e2);
+
   factory Vocabulary.fromRawJson(String str) =>
       Vocabulary.fromJson(json.decode(str));
 

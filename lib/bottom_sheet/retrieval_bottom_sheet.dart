@@ -25,8 +25,6 @@ class _RetrievalBottomSheetState extends State<RetrievalBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-    final colorScheme = Theme.of(context).colorScheme;
     final hPadding = MediaQuery.of(context).size.width / 16;
     final screenHeight = MediaQuery.of(context).size.height;
     return DraggableScrollableSheet(
@@ -81,114 +79,40 @@ class _RetrievalBottomSheetState extends State<RetrievalBottomSheet> {
                         if (words == null)
                           return Center(
                               child: PlatformCircularProgressIndicator());
-                        final inflections = words.definitions
-                            .map((d) => (d.inflection ?? '').split(', '))
-                            .reduce((d1, d2) => d1 + d2)
-                            .toSet();
-                        return SingleChildScrollView(
-                            physics: BouncingScrollPhysics(),
-                            child: Column(
-                                //PageView a word
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(words.word,
-                                      style: textTheme.titleLarge!.copyWith(
-                                          fontWeight: FontWeight.bold)),
-                                  Wrap(
-                                    spacing: hPadding / 4,
-                                    children: inflections
-                                        .map((e) => Container(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      vertical: 2,
-                                                      horizontal: 4),
-                                              decoration: BoxDecoration(
-                                                  border: Border.all(
-                                                      color: colorScheme
-                                                          .secondary),
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          textTheme.labelMedium!
-                                                              .fontSize!)),
-                                              child: Text(e,
-                                                  style: textTheme.labelMedium!
-                                                      .apply(
-                                                          color: colorScheme
-                                                              .secondary)),
-                                            ))
-                                        .toList(),
-                                  ),
-                                  Wrap(
-                                    spacing: hPadding,
-                                    children: [
-                                      Text("translation"),
-                                      Text("explanation"),
-                                    ],
-                                  ),
-                                  SizedBox(height: hPadding / 2),
-                                  for (final definition in words.definitions)
-                                    if (definition.translate != null)
-                                      AlignParagraph(
-                                        markWidget: Text(
-                                          speechShortcut[
-                                                  definition.partOfSpeech] ??
-                                              '${definition.partOfSpeech.substring(0, 3)}.',
-                                          style: textTheme.titleMedium!
-                                              .copyWith(
-                                                  fontWeight: FontWeight.bold),
+
+                        return SearchWordPage(
+                          word: words,
+                          hPadding: hPadding,
+                          buildExamples: (_) => Container(
+                            height: scale < .05 ? 0 : null,
+                            child: Transform.scale(
+                              alignment: Alignment.topCenter,
+                              scaleY: scale,
+                              child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    for (final definition in words.definitions)
+                                      if (definition.explanations
+                                          .map((e) => e.examples)
+                                          .reduce((e1, e2) => e1 + e2)
+                                          .isNotEmpty) ...[
+                                        PartOfSpeechTitle(
+                                          definition: definition,
                                         ),
-                                        paragraph: Text(definition.translate!),
-                                        xInterval: hPadding / 4,
-                                      ),
-                                  for (final definition in words.definitions)
-                                    AlignParagraph(
-                                      markWidget: Text(
-                                        speechShortcut[
-                                                definition.partOfSpeech] ??
-                                            '${definition.partOfSpeech.substring(0, 3)}.',
-                                        style: textTheme.titleMedium!.copyWith(
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                      paragraph: Text(definition.explanations
-                                          .map((e) => e.explain)
-                                          .reduce((e1, e2) =>
-                                              e1.length < e2.length ? e1 : e2)),
-                                      xInterval: hPadding / 4,
-                                    ),
-                                  SizedBox(height: hPadding),
-                                  Container(
-                                    height: scale < .05 ? 0 : null,
-                                    child: Transform.scale(
-                                      alignment: Alignment.topCenter,
-                                      scaleY: scale,
-                                      child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            for (final definition
-                                                in words.definitions)
-                                              if (definition.explanations
-                                                  .map((e) => e.examples)
-                                                  .reduce((e1, e2) => e1 + e2)
-                                                  .isNotEmpty) ...[
-                                                PartOfSpeechTitle(
-                                                  definition: definition,
-                                                ),
-                                                const Divider(height: 4),
-                                                for (final explain
-                                                    in definition.explanations)
-                                                  ...explain.examples.map(
-                                                    (example) =>
-                                                        ExampleParagraph(
-                                                            example: example,
-                                                            inflection:
-                                                                inflections),
-                                                  ),
-                                              ]
-                                          ]),
-                                    ),
-                                  ),
-                                ]));
+                                        const Divider(height: 4),
+                                        for (final explain
+                                            in definition.explanations)
+                                          ...explain.examples.map(
+                                            (example) => ExampleParagraph(
+                                                example: example,
+                                                inflection:
+                                                    words.getInflection),
+                                          ),
+                                      ]
+                                  ]),
+                            ),
+                          ),
+                        );
                       },
                     ),
                   ),
@@ -199,6 +123,118 @@ class _RetrievalBottomSheetState extends State<RetrievalBottomSheet> {
         ),
       ),
     );
+  }
+}
+
+class SearchWordPage extends StatelessWidget {
+  const SearchWordPage({
+    super.key,
+    required this.word,
+    required this.hPadding,
+    this.buildExamples,
+  });
+
+  final Vocabulary word;
+  final double hPadding;
+  final Widget Function(BuildContext)? buildExamples;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final colorScheme = Theme.of(context).colorScheme;
+    return SingleChildScrollView(
+        physics: BouncingScrollPhysics(),
+        child: Column(
+            //PageView a word
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(word.word,
+                  style: textTheme.titleLarge!
+                      .copyWith(fontWeight: FontWeight.bold)),
+              Wrap(
+                spacing: hPadding / 4,
+                children: word.getInflection
+                    .map((e) => Container(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 2, horizontal: 4),
+                          decoration: BoxDecoration(
+                              border: Border.all(color: colorScheme.secondary),
+                              borderRadius: BorderRadius.circular(
+                                  textTheme.labelMedium!.fontSize!)),
+                          child: Text(e,
+                              style: textTheme.labelMedium!
+                                  .apply(color: colorScheme.secondary)),
+                        ))
+                    .toList(),
+              ),
+              Wrap(
+                spacing: hPadding,
+                children: [
+                  Text("translation"),
+                  Text("explanation"),
+                ],
+              ),
+              SizedBox(height: hPadding / 2),
+              for (final definition in word.definitions)
+                if (definition.translate != null)
+                  AlignParagraph(
+                    markWidget: Text(
+                      speechShortcut[definition.partOfSpeech] ??
+                          '${definition.partOfSpeech.substring(0, 3)}.',
+                      style: textTheme.titleMedium!
+                          .copyWith(fontWeight: FontWeight.bold),
+                    ),
+                    paragraph: Text(definition.translate!),
+                    xInterval: hPadding / 4,
+                  ),
+              for (final definition in word.definitions)
+                AlignParagraph(
+                  markWidget: Text(
+                    speechShortcut[definition.partOfSpeech] ??
+                        '${definition.partOfSpeech.substring(0, 3)}.',
+                    style: textTheme.titleMedium!
+                        .copyWith(fontWeight: FontWeight.bold),
+                  ),
+                  paragraph: Text(definition.explanations
+                      .map((e) => e.explain)
+                      .reduce((e1, e2) => e1.length < e2.length ? e1 : e2)),
+                  xInterval: hPadding / 4,
+                ),
+              SizedBox(height: hPadding),
+              if (buildExamples != null) buildExamples!(context)
+              // Container(
+              //   height: scale < .05 ? 0 : null,
+              //   child: Transform.scale(
+              //     alignment: Alignment.topCenter,
+              //     scaleY: scale,
+              //     child: Column(
+              //         crossAxisAlignment:
+              //             CrossAxisAlignment.start,
+              //         children: [
+              //           for (final definition
+              //               in words.definitions)
+              //             if (definition.explanations
+              //                 .map((e) => e.examples)
+              //                 .reduce((e1, e2) => e1 + e2)
+              //                 .isNotEmpty) ...[
+              //               PartOfSpeechTitle(
+              //                 definition: definition,
+              //               ),
+              //               const Divider(height: 4),
+              //               for (final explain
+              //                   in definition.explanations)
+              //                 ...explain.examples.map(
+              //                   (example) =>
+              //                       ExampleParagraph(
+              //                           example: example,
+              //                           inflection:
+              //                               inflections),
+              //                 ),
+              //             ]
+              //         ]),
+              //   ),
+              // ),
+            ]));
   }
 }
 
