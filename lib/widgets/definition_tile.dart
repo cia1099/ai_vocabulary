@@ -4,6 +4,7 @@ import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
 import '../model/vocabulary.dart';
 import '../utils/clickable_text_mixin.dart';
+import 'example_paragraph.dart';
 
 class DefinitionTile extends StatelessWidget {
   const DefinitionTile({
@@ -22,47 +23,7 @@ class DefinitionTile extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Wrap(
-          spacing: 8,
-          crossAxisAlignment: WrapCrossAlignment.center,
-          children: [
-            Text(definition.partOfSpeech,
-                style: textTheme.titleLarge!
-                    .copyWith(fontWeight: FontWeight.bold)),
-            if (definition.phoneticUk != null)
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text('🇬🇧${definition.phoneticUk!}',
-                      style: textTheme.bodyLarge),
-                  PlatformWidgetBuilder(
-                    material: (_, child, __) =>
-                        InkWell(onTap: () {}, child: child),
-                    cupertino: (_, child, __) =>
-                        GestureDetector(onTap: () {}, child: child),
-                    child: Icon(CupertinoIcons.volume_up,
-                        size: textTheme.bodyLarge!.fontSize),
-                  ),
-                ],
-              ),
-            if (definition.phoneticUs != null)
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text('🇺🇸${definition.phoneticUs!}',
-                      style: textTheme.bodyLarge),
-                  PlatformWidgetBuilder(
-                    material: (_, child, __) =>
-                        InkWell(onTap: () {}, child: child),
-                    cupertino: (_, child, __) =>
-                        GestureDetector(onTap: () {}, child: child),
-                    child: Icon(CupertinoIcons.volume_up,
-                        size: textTheme.bodyLarge!.fontSize),
-                  ),
-                ],
-              ),
-          ],
-        ),
+        PartOfSpeechTitle(definition: definition),
         const Divider(height: 4),
         if (definition.inflection != null)
           Wrap(
@@ -90,7 +51,7 @@ class DefinitionTile extends StatelessWidget {
               final explainWord = explain.explain.split(' ');
               return ExampleParagraph(
                   example: example,
-                  inflection: definition.inflection?.split(", ") ??
+                  patterns: definition.inflection?.split(", ") ??
                       [word] + (explainWord.length == 1 ? explainWord : []));
             },
           ),
@@ -144,87 +105,51 @@ class _DefinitionParagraphState extends State<DefinitionParagraph>
   }
 }
 
-class ExampleParagraph extends StatefulWidget {
-  const ExampleParagraph({
+class PartOfSpeechTitle extends StatelessWidget {
+  const PartOfSpeechTitle({
     super.key,
-    required this.example,
-    required this.inflection,
+    required this.definition,
   });
 
-  final String example;
-  final Iterable<String> inflection;
-
-  @override
-  State<ExampleParagraph> createState() => _ExampleParagraphState();
-}
-
-class _ExampleParagraphState extends State<ExampleParagraph>
-    with ClickableTextStateMixin {
-  final textExpanded = GlobalKey();
-  double? leftSideHeight;
-  late final colorScheme = Theme.of(context).colorScheme;
-  late final textTheme = Theme.of(context).textTheme;
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback(
-      (_) => setState(() {
-        final renderBox =
-            textExpanded.currentContext?.findRenderObject() as RenderBox;
-        leftSideHeight = renderBox.size.height;
-        // print(leftSideHeight);
-      }),
-    );
-    onTap = <T>(_) => Future<T>.delayed(Durations.long2);
-  }
+  final Definition definition;
 
   @override
   Widget build(BuildContext context) {
-    final bodyText = textTheme.bodyMedium!;
-    // print(bodyText.fontSize! * bodyText.height!);
-    final padding = leftSideHeight == null
-        ? 0.0
-        : (leftSideHeight! - bodyText.fontSize! * bodyText.height!)
-            .clamp(0.0, leftSideHeight!);
-    return Row(
+    final textTheme = Theme.of(context).textTheme;
+    return Wrap(
+      spacing: 8,
+      crossAxisAlignment: WrapCrossAlignment.center,
       children: [
-        Padding(
-          padding: const EdgeInsets.only(left: 8, right: 4),
-          child: Container(
-            // color: Colors.red,
-            padding: EdgeInsets.only(bottom: padding),
-            height: leftSideHeight,
-            child: Icon(
-              CupertinoIcons.circle_fill,
-              size: textTheme.bodySmall!.fontSize,
-              color: colorScheme.primary,
-            ),
+        Text(definition.partOfSpeech,
+            style: textTheme.titleLarge!.copyWith(fontWeight: FontWeight.bold)),
+        if (definition.phoneticUk != null)
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('🇬🇧${definition.phoneticUk!}', style: textTheme.bodyLarge),
+              PlatformWidgetBuilder(
+                material: (_, child, __) => InkWell(onTap: () {}, child: child),
+                cupertino: (_, child, __) =>
+                    GestureDetector(onTap: () {}, child: child),
+                child: Icon(CupertinoIcons.volume_up,
+                    size: textTheme.bodyLarge!.fontSize),
+              ),
+            ],
           ),
-        ),
-        Expanded(
-          child: Text.rich(
-              TextSpan(children: [
-                TextSpan(
-                    children: clickableWords(widget.example,
-                        inflection: widget.inflection)),
-                const TextSpan(text: '\t\t'),
-                WidgetSpan(
-                  child: PlatformWidgetBuilder(
-                    material: (_, child, __) =>
-                        InkWell(onTap: () {}, child: child),
-                    cupertino: (_, child, __) =>
-                        GestureDetector(onTap: () {}, child: child),
-                    child: Icon(CupertinoIcons.volume_up,
-                        size: textTheme.bodyLarge!.fontSize),
-                  ),
-                )
-              ]),
-              key: textExpanded,
-              style: TextStyle(
-                color: colorScheme.onPrimaryContainer,
-              )),
-        ),
+        if (definition.phoneticUs != null)
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('🇺🇸${definition.phoneticUs!}', style: textTheme.bodyLarge),
+              PlatformWidgetBuilder(
+                material: (_, child, __) => InkWell(onTap: () {}, child: child),
+                cupertino: (_, child, __) =>
+                    GestureDetector(onTap: () {}, child: child),
+                child: Icon(CupertinoIcons.volume_up,
+                    size: textTheme.bodyLarge!.fontSize),
+              ),
+            ],
+          ),
       ],
     );
   }

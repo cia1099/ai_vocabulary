@@ -64,7 +64,7 @@ class ExplanationBoard extends StatefulWidget {
 }
 
 class _ExplanationBoardState extends State<ExplanationBoard> {
-  var selectedIndex = 0;
+  var selectedIndex = 0; //TODO: used User setting as default value
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
@@ -83,7 +83,9 @@ class _ExplanationBoardState extends State<ExplanationBoard> {
                       setState(() {});
                     }
                   },
-                  child: selectedIndex == i ? HighlineText(text) : Text(text));
+                  child: selectedIndex == i
+                      ? HighlineText(text, style: textTheme.titleMedium)
+                      : Text(text, style: textTheme.titleMedium));
             })),
         SizedBox(height: widget.hPadding / 8),
         AnimatedSwitcher(

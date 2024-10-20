@@ -1,4 +1,3 @@
-import 'package:ai_vocabulary/model/vocabulary.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
@@ -6,6 +5,7 @@ import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import '../mock_data.dart';
 import '../pages/matching_word_page.dart';
 import '../widgets/definition_tile.dart';
+import '../widgets/example_paragraph.dart';
 
 class RetrievalBottomSheet extends StatefulWidget {
   const RetrievalBottomSheet({
@@ -20,7 +20,7 @@ class _RetrievalBottomSheetState extends State<RetrievalBottomSheet>
     with TickerProviderStateMixin {
   final futureWords = Future.delayed(
     Duration(milliseconds: 500),
-    () => drunk,
+    () => [abdomen, record] + drunk,
   );
   TabController? tabController;
 
@@ -116,6 +116,16 @@ class _RetrievalBottomSheetState extends State<RetrievalBottomSheet>
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
+                                        Offstage(
+                                          offstage: word.getExamples.isEmpty,
+                                          child: Container(
+                                            margin: EdgeInsets.only(
+                                                bottom: hPadding / 8),
+                                            child: Text(
+                                              "Examples:",
+                                            ),
+                                          ),
+                                        ),
                                         for (final definition
                                             in word.definitions)
                                           if (definition.explanations
@@ -131,8 +141,8 @@ class _RetrievalBottomSheetState extends State<RetrievalBottomSheet>
                                               ...explain.examples.map(
                                                 (example) => ExampleParagraph(
                                                     example: example,
-                                                    inflection:
-                                                        word.getInflection),
+                                                    patterns: word
+                                                        .getMatchingPatterns),
                                               ),
                                           ]
                                       ]),
@@ -150,56 +160,6 @@ class _RetrievalBottomSheetState extends State<RetrievalBottomSheet>
           },
         ),
       ),
-    );
-  }
-}
-
-class PartOfSpeechTitle extends StatelessWidget {
-  const PartOfSpeechTitle({
-    super.key,
-    required this.definition,
-  });
-
-  final Definition definition;
-
-  @override
-  Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-    return Wrap(
-      spacing: 8,
-      crossAxisAlignment: WrapCrossAlignment.center,
-      children: [
-        Text(definition.partOfSpeech,
-            style: textTheme.titleLarge!.copyWith(fontWeight: FontWeight.bold)),
-        if (definition.phoneticUk != null)
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text('🇬🇧${definition.phoneticUk!}', style: textTheme.bodyLarge),
-              PlatformWidgetBuilder(
-                material: (_, child, __) => InkWell(onTap: () {}, child: child),
-                cupertino: (_, child, __) =>
-                    GestureDetector(onTap: () {}, child: child),
-                child: Icon(CupertinoIcons.volume_up,
-                    size: textTheme.bodyLarge!.fontSize),
-              ),
-            ],
-          ),
-        if (definition.phoneticUs != null)
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text('🇺🇸${definition.phoneticUs!}', style: textTheme.bodyLarge),
-              PlatformWidgetBuilder(
-                material: (_, child, __) => InkWell(onTap: () {}, child: child),
-                cupertino: (_, child, __) =>
-                    GestureDetector(onTap: () {}, child: child),
-                child: Icon(CupertinoIcons.volume_up,
-                    size: textTheme.bodyLarge!.fontSize),
-              ),
-            ],
-          ),
-      ],
     );
   }
 }

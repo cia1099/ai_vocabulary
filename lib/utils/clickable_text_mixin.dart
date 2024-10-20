@@ -5,10 +5,10 @@ mixin ClickableTextStateMixin<T extends StatefulWidget> on State<T> {
   Future<T?> Function<T>(String)? onTap;
 
   List<TextSpan> clickableWords(String text,
-      {Iterable<String> inflection = const []}) {
+      {Iterable<String> patterns = const []}) {
     final words = _splitWords(text);
     return List.generate(
-        words.length, (i) => _assignWord(words[i], i, inflection));
+        words.length, (i) => _assignWord(words[i], i, patterns));
   }
 
   int? _selectedIndex;
@@ -28,18 +28,19 @@ mixin ClickableTextStateMixin<T extends StatefulWidget> on State<T> {
         .toList();
   }
 
-  TextSpan _assignWord(String word, int index, Iterable<String> inflection) {
+  TextSpan _assignWord(String word, int index, Iterable<String> patterns) {
     return TextSpan(
         text: word,
         style: _selectedIndex != index
-            ? !inflection.contains(word)
+            ? !patterns.contains(word)
                 ? null
                 : TextStyle(color: Theme.of(context).colorScheme.inversePrimary)
             : TextStyle(
                 backgroundColor: Theme.of(context).colorScheme.primary,
                 color: Theme.of(context).colorScheme.onPrimary),
         recognizer: word.contains(RegExp(r'(?=\s+|[,.!?=\[\]\(\)\/])')) ||
-                word.contains(RegExp(r"('s|'re|'d|'ve|'m|'ll|^[-|+]?\d+)"))
+                word.contains(RegExp(r"('s|'re|'d|'ve|'m|'ll|^[-|+]?\d+)")) ||
+                patterns.contains(word)
             ? null
             : TapGestureRecognizer()
           ?..onTap = () {

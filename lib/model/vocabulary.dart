@@ -20,6 +20,20 @@ class Vocabulary {
         if (d.isNotEmpty) yield d;
       }).toSet();
 
+  Iterable<String> get getMatchingPatterns {
+    final selfExplainWord = definitions
+        .map((d) => d.explanations)
+        .reduce((e1, e2) => e1 + e2)
+        .map((e) => e.explain)
+        .expand((e) sync* {
+      final explainWord = e.split(' ');
+      if (explainWord.length == 1) yield explainWord[0];
+    });
+    return Set.from(getInflection)
+      ..add(word)
+      ..addAll(selfExplainWord);
+  }
+
   Iterable<String> get getExamples => definitions
       .map((d) => d.explanations)
       .reduce((e1, e2) => e1 + e2)
