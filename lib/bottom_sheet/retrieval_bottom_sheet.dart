@@ -20,7 +20,7 @@ class RetrievalBottomSheet extends StatefulWidget {
 class _RetrievalBottomSheetState extends State<RetrievalBottomSheet> {
   late final futureWords = Future.delayed(
     Duration(milliseconds: 500),
-    () => record,
+    () => apple,
   );
 
   @override
@@ -80,7 +80,7 @@ class _RetrievalBottomSheetState extends State<RetrievalBottomSheet> {
                           return Center(
                               child: PlatformCircularProgressIndicator());
 
-                        return SearchWordPage(
+                        return MatchingWordPage(
                           word: words,
                           hPadding: hPadding,
                           buildExamples: (_) => Container(
@@ -126,8 +126,8 @@ class _RetrievalBottomSheetState extends State<RetrievalBottomSheet> {
   }
 }
 
-class SearchWordPage extends StatelessWidget {
-  const SearchWordPage({
+class MatchingWordPage extends StatelessWidget {
+  const MatchingWordPage({
     super.key,
     required this.word,
     required this.hPadding,
@@ -167,74 +167,119 @@ class SearchWordPage extends StatelessWidget {
                         ))
                     .toList(),
               ),
-              Wrap(
-                spacing: hPadding,
-                children: [
-                  Text("translation"),
-                  Text("explanation"),
-                ],
-              ),
-              SizedBox(height: hPadding / 2),
-              for (final definition in word.definitions)
-                if (definition.translate != null)
-                  AlignParagraph(
-                    markWidget: Text(
-                      speechShortcut[definition.partOfSpeech] ??
-                          '${definition.partOfSpeech.substring(0, 3)}.',
-                      style: textTheme.titleMedium!
-                          .copyWith(fontWeight: FontWeight.bold),
-                    ),
-                    paragraph: Text(definition.translate!),
-                    xInterval: hPadding / 4,
-                  ),
-              for (final definition in word.definitions)
-                AlignParagraph(
-                  markWidget: Text(
-                    speechShortcut[definition.partOfSpeech] ??
-                        '${definition.partOfSpeech.substring(0, 3)}.',
-                    style: textTheme.titleMedium!
-                        .copyWith(fontWeight: FontWeight.bold),
-                  ),
-                  paragraph: Text(definition.explanations
-                      .map((e) => e.explain)
-                      .reduce((e1, e2) => e1.length < e2.length ? e1 : e2)),
-                  xInterval: hPadding / 4,
-                ),
+              SizedBox(height: hPadding / 4),
+              ExplanationBoard(word: word, hPadding: hPadding),
               SizedBox(height: hPadding),
               if (buildExamples != null) buildExamples!(context)
-              // Container(
-              //   height: scale < .05 ? 0 : null,
-              //   child: Transform.scale(
-              //     alignment: Alignment.topCenter,
-              //     scaleY: scale,
-              //     child: Column(
-              //         crossAxisAlignment:
-              //             CrossAxisAlignment.start,
-              //         children: [
-              //           for (final definition
-              //               in words.definitions)
-              //             if (definition.explanations
-              //                 .map((e) => e.examples)
-              //                 .reduce((e1, e2) => e1 + e2)
-              //                 .isNotEmpty) ...[
-              //               PartOfSpeechTitle(
-              //                 definition: definition,
-              //               ),
-              //               const Divider(height: 4),
-              //               for (final explain
-              //                   in definition.explanations)
-              //                 ...explain.examples.map(
-              //                   (example) =>
-              //                       ExampleParagraph(
-              //                           example: example,
-              //                           inflection:
-              //                               inflections),
-              //                 ),
-              //             ]
-              //         ]),
-              //   ),
-              // ),
             ]));
+  }
+}
+
+class ExplanationBoard extends StatefulWidget {
+  const ExplanationBoard(
+      {super.key, required this.word, required this.hPadding});
+  final Vocabulary word;
+  final double hPadding;
+
+  @override
+  State<ExplanationBoard> createState() => _ExplanationBoardState();
+}
+
+class _ExplanationBoardState extends State<ExplanationBoard> {
+  var selectedIndex = 0;
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final selection = ["translation", "explanation"];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Wrap(
+            spacing: widget.hPadding,
+            children: List.generate(selection.length, (i) {
+              final text = selection[i];
+              return GestureDetector(
+                  onTap: () {
+                    if (selectedIndex != i) {
+                      selectedIndex = i;
+                      setState(() {});
+                    }
+                  },
+                  child: selectedIndex == i ? HighlineText(text) : Text(text));
+            })),
+        SizedBox(height: widget.hPadding / 8),
+        AnimatedSwitcher(
+            duration: Durations.short4,
+            transitionBuilder: (child, animation) => SlideTransition(
+                position:
+                    Tween<Offset>(begin: const Offset(-1, 0), end: Offset.zero)
+                        .animate(animation),
+                child: FadeTransition(opacity: animation, child: child)),
+            child: Column(
+              key: ValueKey(selectedIndex),
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (selectedIndex == 0)
+                  for (final definition in widget.word.definitions)
+                    if (definition.translate != null)
+                      AlignParagraph(
+                        markWidget: Text(
+                          speechShortcut[definition.partOfSpeech] ??
+                              '${definition.partOfSpeech.substring(0, 3)}.',
+                          style: textTheme.titleMedium!
+                              .copyWith(fontWeight: FontWeight.bold),
+                        ),
+                        paragraph: Text(definition.translate!),
+                        xInterval: widget.hPadding / 4,
+                      ),
+                if (selectedIndex == 1)
+                  for (final definition in widget.word.definitions)
+                    AlignParagraph(
+                      markWidget: Text(
+                        speechShortcut[definition.partOfSpeech] ??
+                            '${definition.partOfSpeech.substring(0, 3)}.',
+                        style: textTheme.titleMedium!
+                            .copyWith(fontWeight: FontWeight.bold),
+                      ),
+                      paragraph: Text(definition.explanations
+                          .map((e) => e.explain)
+                          .reduce((e1, e2) => e1.length < e2.length ? e1 : e2)),
+                      xInterval: widget.hPadding / 4,
+                    ),
+              ],
+            )),
+      ],
+    );
+  }
+}
+
+class HighlineText extends StatelessWidget {
+  final String text;
+  final TextStyle? style;
+  const HighlineText(
+    this.text, {
+    super.key,
+    this.style,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Container(
+      decoration: BoxDecoration(
+          gradient: LinearGradient(
+        colors: [
+          Colors.transparent,
+          colorScheme.inversePrimary,
+          colorScheme.inversePrimary,
+          Colors.transparent,
+        ],
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        stops: [.6, .61, .85, .86],
+      )),
+      child: Text(text, style: style),
+    );
   }
 }
 
