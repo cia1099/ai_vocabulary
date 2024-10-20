@@ -14,9 +14,11 @@ class Vocabulary {
   });
 
   Iterable<String> get getInflection => definitions
-      .map((d) => (d.inflection ?? '').split(', '))
-      .reduce((d1, d2) => d1 + d2)
-      .toSet();
+          .map((d) => (d.inflection ?? '').split(', '))
+          .reduce((d1, d2) => d1 + d2)
+          .expand((d) sync* {
+        if (d.isNotEmpty) yield d;
+      }).toSet();
 
   Iterable<String> get getExamples => definitions
       .map((d) => d.explanations)
