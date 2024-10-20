@@ -16,11 +16,13 @@ class RetrievalBottomSheet extends StatefulWidget {
   State<RetrievalBottomSheet> createState() => _RetrievalBottomSheetState();
 }
 
-class _RetrievalBottomSheetState extends State<RetrievalBottomSheet> {
-  late final futureWords = Future.delayed(
+class _RetrievalBottomSheetState extends State<RetrievalBottomSheet>
+    with TickerProviderStateMixin {
+  final futureWords = Future.delayed(
     Duration(milliseconds: 500),
-    () => [apple],
+    () => drunk,
   );
+  TabController? tabController;
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +49,7 @@ class _RetrievalBottomSheetState extends State<RetrievalBottomSheet> {
                 ((sheetHeight - .32 * screenHeight) / (.9 - .32) / screenHeight)
                     .clamp(0.0, 1.0);
             return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              // crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SingleChildScrollView(
                   controller: scrollController,
@@ -56,14 +58,31 @@ class _RetrievalBottomSheetState extends State<RetrievalBottomSheet> {
                     height: 32,
                     padding: EdgeInsets.only(
                         top: 16, right: hPadding / 2, left: hPadding / 2),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    child: Stack(
                       children: [
-                        const SizedBox(),
-                        const Icon(CupertinoIcons.chevron_up_chevron_down),
-                        GestureDetector(
-                            onTap: () => Navigator.of(context).pop(),
-                            child: Icon(CupertinoIcons.xmark_circle_fill)),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const SizedBox(),
+                            const Icon(CupertinoIcons.chevron_up_chevron_down),
+                            GestureDetector(
+                                onTap: () => Navigator.of(context).pop(),
+                                child: Icon(CupertinoIcons.xmark_circle_fill)),
+                          ],
+                        ),
+                        FutureBuilder(
+                            future: futureWords,
+                            builder: (context, snapshot) {
+                              final words = snapshot.data;
+                              if (words == null || words.length < 2)
+                                return const SizedBox();
+
+                              tabController ??= TabController(
+                                  length: words.length, vsync: this);
+                              return TabPageSelector(
+                                controller: tabController,
+                              );
+                            }),
                       ],
                     ),
                   ),
@@ -81,6 +100,8 @@ class _RetrievalBottomSheetState extends State<RetrievalBottomSheet> {
 
                         return PageView.builder(
                           itemCount: words.length,
+                          onPageChanged: (value) =>
+                              tabController?.index = value,
                           itemBuilder: (context, index) {
                             final word = words[index];
                             return MatchingWordPage(
