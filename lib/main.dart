@@ -1,3 +1,4 @@
+import 'package:ai_vocabulary/pages/vocabulary_page.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_web_frame/flutter_web_frame.dart';
 import 'package:flutter/cupertino.dart';
@@ -30,7 +31,8 @@ class MyApp extends StatelessWidget {
             DefaultCupertinoLocalizations.delegate,
           ],
           home: FlutterWebFrame(
-            builder: (context) => MyHomePage(title: 'Flutter Demo Home Page'),
+            builder: (context) => VocabularyPage(
+                word: record), //MyHomePage(title: 'Flutter Demo Home Page'),
             maximumSize: Size(300, 812.0), // Maximum size
             enabled: kIsWeb,
             backgroundColor: Colors.grey,
