@@ -2,7 +2,6 @@ import 'package:ai_vocabulary/model/vocabulary.dart';
 import 'package:ai_vocabulary/widgets/definition_tile.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
 class VocabularyPage extends StatelessWidget {
   const VocabularyPage({super.key, required this.word});
@@ -11,12 +10,10 @@ class VocabularyPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // return SliverCase();
     double headerHeight = 150;
-    final sliverColor = ColorTween(begin: Colors.grey, end: Colors.red);
     final textTheme = Theme.of(context).textTheme;
     final hPadding = MediaQuery.of(context).size.width / 16;
-    return PlatformScaffold(
+    return Scaffold(
       body: SafeArea(
         child: DefaultTabController(
           length: 1,
@@ -33,14 +30,14 @@ class VocabularyPage extends StatelessWidget {
                           builder: (context, constraints) {
                             final height =
                                 constraints.maxHeight - kToolbarHeight - 48;
-                            // final borderRadius = Tween(end: 0.0, begin: 25.0);
+                            final borderRadius =
+                                Tween(end: 0.0, begin: kToolbarHeight);
                             final h = height / headerHeight;
                             return Column(
                               children: [
-                                ClipRRect(
-                                  child: Container(
-                                      height: height + kToolbarHeight,
-                                      // color: sliverColor.transform(h),
+                                Container(
+                                    height: height + kToolbarHeight,
+                                    child: ClipRRect(
                                       child: CustomPaint(
                                         painter: h > 0
                                             ? RadialGradientPainter(
@@ -49,12 +46,27 @@ class VocabularyPage extends StatelessWidget {
                                             : null,
                                         child: Stack(
                                           children: [
-                                            Center(
-                                              child: Transform.scale(
-                                                  scale: h + 1,
-                                                  child: Text(word.word,
-                                                      style: textTheme
-                                                          .headlineMedium)),
+                                            CustomSingleChildLayout(
+                                              delegate: BackGroudLayoutDelegate(
+                                                  headerHeight),
+                                              child: Container(
+                                                decoration: BoxDecoration(
+                                                  color: Colors.blue
+                                                      .withOpacity(0.5),
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                    borderRadius.transform(h),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            CustomPaint(
+                                              foregroundPainter: TitlePainter(
+                                                title: word.word,
+                                                headerHeight: headerHeight,
+                                                style: textTheme.headlineMedium,
+                                              ),
+                                              size: constraints.biggest,
                                             ),
                                             Align(
                                                 alignment: FractionalOffset(
@@ -67,8 +79,8 @@ class VocabularyPage extends StatelessWidget {
                                                     ])),
                                           ],
                                         ),
-                                      )),
-                                ),
+                                      ),
+                                    )),
                                 Container(
                                   // color: Colors.green,
                                   height: 48,
@@ -123,6 +135,67 @@ class VocabularyPage extends StatelessWidget {
   }
 }
 
+class BackGroudLayoutDelegate extends SingleChildLayoutDelegate {
+  final double headerHeight;
+  BackGroudLayoutDelegate(
+    this.headerHeight,
+  );
+
+  @override
+  BoxConstraints getConstraintsForChild(BoxConstraints constraints) {
+    final height = constraints.maxHeight - kToolbarHeight;
+    final size = SizeTween(
+        end: Size(constraints.maxWidth, headerHeight + kToolbarHeight),
+        begin: Size(0, kToolbarHeight));
+    return BoxConstraints.tight(
+        size.transform(height / headerHeight) ?? constraints.biggest);
+  }
+
+  @override
+  Offset getPositionForChild(Size size, Size childSize) {
+    final dOffset =
+        Tween<Offset>(end: Offset.zero, begin: Offset(size.width / 2, 0));
+    final height = size.height - kToolbarHeight;
+    return dOffset.transform(height / headerHeight);
+  }
+
+  @override
+  bool shouldRelayout(covariant BackGroudLayoutDelegate oldDelegate) => false;
+}
+
+class TitlePainter extends CustomPainter {
+  final String title;
+  final double headerHeight;
+  final TextStyle? style;
+
+  TitlePainter(
+      {super.repaint,
+      required this.title,
+      required this.headerHeight,
+      this.style});
+  @override
+  void paint(Canvas canvas, Size size) {
+    final h = (size.height - kToolbarHeight) / headerHeight;
+    final textPainter = TextPainter(
+        maxLines: 1,
+        ellipsis: '...',
+        textScaler: TextScaler.linear(1 + h),
+        text: TextSpan(text: title, style: style),
+        textDirection: TextDirection.ltr)
+      ..layout(maxWidth: size.width);
+    final textRect = Offset.zero & textPainter.size;
+    final dOffset = Tween<Offset>(
+        end: Offset(16, headerHeight) - textRect.centerLeft / 2,
+        begin: Offset(size.width / 2, 0) +
+            textRect.centerLeft / 2 -
+            textRect.topRight / 2);
+    textPainter.paint(canvas, dOffset.transform(h));
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
 class RadialGradientPainter extends CustomPainter {
   final ColorScheme colorScheme;
 
@@ -169,201 +242,4 @@ class RadialGradientPainter extends CustomPainter {
   bool shouldRepaint(CustomPainter oldDelegate) {
     return false; // 因为我们不需要重绘，所以返回 false
   }
-}
-
-class SliverCase extends StatelessWidget {
-  const SliverCase({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return DefaultTabController(
-        length: 2,
-        child: Scaffold(
-          body: NestedScrollView(
-              physics: BouncingScrollPhysics(),
-              headerSliverBuilder: (context, innerScrolled) => <Widget>[
-                    SliverOverlapAbsorber(
-                      handle: NestedScrollView.sliverOverlapAbsorberHandleFor(
-                          context),
-                      sliver: SliverAppBar(
-                          pinned: true,
-                          stretch: true,
-                          title: Text('username'),
-                          expandedHeight: 325,
-                          toolbarHeight: 0,
-                          flexibleSpace: FlexibleSpaceBar(
-                              stretchModes: <StretchMode>[
-                                StretchMode.zoomBackground,
-                                StretchMode.blurBackground,
-                              ],
-                              background: Image.network(
-                                  'https://i.imgur.com/QCNbOAo.png',
-                                  fit: BoxFit.cover)),
-                          bottom: TabBar(
-                              tabs: <Widget>[Text('test1'), Text('test2')])),
-                    )
-                  ],
-              body: TabBarView(children: [
-                Center(
-                  child: Builder(
-                    builder: (context) => CustomScrollView(
-                      slivers: <Widget>[
-                        SliverOverlapInjector(
-                            handle:
-                                NestedScrollView.sliverOverlapAbsorberHandleFor(
-                                    context)),
-                        SliverFixedExtentList(
-                            delegate: SliverChildBuilderDelegate(
-                                (_, index) => Text('not working $index'),
-                                childCount: 100),
-                            itemExtent: 25)
-                      ],
-                    ),
-                  ),
-                ),
-                Center(child: Text('working'))
-              ])),
-        ));
-  }
-}
-
-class SliverAppBarExample extends StatefulWidget {
-  const SliverAppBarExample({super.key});
-
-  @override
-  State<SliverAppBarExample> createState() => _SliverAppBarExampleState();
-}
-
-class _SliverAppBarExampleState extends State<SliverAppBarExample> {
-  bool _pinned = true;
-  bool _snap = false;
-  bool _floating = false;
-
-// [SliverAppBar]s are typically used in [CustomScrollView.slivers], which in
-// turn can be placed in a [Scaffold.body].
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: CustomScrollView(
-        slivers: <Widget>[
-          SliverAppBar(
-            pinned: _pinned,
-            snap: _snap,
-            floating: _floating,
-            expandedHeight: 160.0,
-            flexibleSpace: const FlexibleSpaceBar(
-              title: Text('SliverAppBar'),
-              background: FlutterLogo(),
-            ),
-          ),
-          const SliverToBoxAdapter(
-            child: SizedBox(
-              height: 20,
-              child: Center(
-                child: Text('Scroll to see the SliverAppBar in effect.'),
-              ),
-            ),
-          ),
-          SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (BuildContext context, int index) {
-                return Container(
-                  color: index.isOdd ? Colors.white : Colors.black12,
-                  height: 100.0,
-                  child: Center(
-                    child:
-                        Text('$index', textScaler: const TextScaler.linear(5)),
-                  ),
-                );
-              },
-              childCount: 20,
-            ),
-          ),
-        ],
-      ),
-      bottomNavigationBar: BottomAppBar(
-        child: Padding(
-          padding: const EdgeInsets.all(8),
-          child: OverflowBar(
-            overflowAlignment: OverflowBarAlignment.center,
-            children: <Widget>[
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  const Text('pinned'),
-                  Switch(
-                    onChanged: (bool val) {
-                      setState(() {
-                        _pinned = val;
-                      });
-                    },
-                    value: _pinned,
-                  ),
-                ],
-              ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  const Text('snap'),
-                  Switch(
-                    onChanged: (bool val) {
-                      setState(() {
-                        _snap = val;
-                        // Snapping only applies when the app bar is floating.
-                        _floating = _floating || _snap;
-                      });
-                    },
-                    value: _snap,
-                  ),
-                ],
-              ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  const Text('floating'),
-                  Switch(
-                    onChanged: (bool val) {
-                      setState(() {
-                        _floating = val;
-                        _snap = _snap && _floating;
-                      });
-                    },
-                    value: _floating,
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class CustomLayoutDelegate extends SingleChildLayoutDelegate {
-  final double sliverHeight;
-  final dOffset = Tween<Offset>(end: Offset.zero, begin: Offset(50, 0));
-  CustomLayoutDelegate(this.sliverHeight);
-
-  // @override
-  // BoxConstraints getConstraintsForChild(BoxConstraints constraints) {
-  //   final height = constraints.maxHeight - kToolbarHeight;
-  //   final size = SizeTween(
-  //       end: Size(constraints.maxWidth, sliverHeight + kToolbarHeight),
-  //       begin: Size(50, 50));
-  //   return BoxConstraints.tight(
-  //       size.transform(height / sliverHeight) ?? constraints.biggest);
-  // }
-
-  @override
-  Offset getPositionForChild(Size size, Size childSize) {
-    final height = size.height - kToolbarHeight;
-    return dOffset.transform(height / sliverHeight);
-  }
-
-  @override
-  bool shouldRelayout(covariant CustomLayoutDelegate oldDelegate) =>
-      sliverHeight != oldDelegate.sliverHeight;
 }
