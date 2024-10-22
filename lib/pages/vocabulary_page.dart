@@ -12,7 +12,7 @@ class VocabularyPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // return SliverCase();
-    double headerHeight = 200;
+    double headerHeight = 150;
     final sliverColor = ColorTween(begin: Colors.grey, end: Colors.red);
     final textTheme = Theme.of(context).textTheme;
     final hPadding = MediaQuery.of(context).size.width / 16;
@@ -37,18 +37,42 @@ class VocabularyPage extends StatelessWidget {
                             final h = height / headerHeight;
                             return Column(
                               children: [
-                                Container(
-                                    alignment: Alignment.center,
-                                    height: height + kToolbarHeight,
-                                    color: sliverColor.transform(h),
-                                    child: Transform.scale(
-                                        scale: h + 1,
-                                        child: Text(word.word,
-                                            style: textTheme.headlineMedium))),
+                                ClipRRect(
+                                  child: Container(
+                                      height: height + kToolbarHeight,
+                                      // color: sliverColor.transform(h),
+                                      child: CustomPaint(
+                                        painter: h > 0
+                                            ? RadialGradientPainter(
+                                                colorScheme: Theme.of(context)
+                                                    .colorScheme)
+                                            : null,
+                                        child: Stack(
+                                          children: [
+                                            Center(
+                                              child: Transform.scale(
+                                                  scale: h + 1,
+                                                  child: Text(word.word,
+                                                      style: textTheme
+                                                          .headlineMedium)),
+                                            ),
+                                            Align(
+                                                alignment: FractionalOffset(
+                                                    .98, h / 2.5 + .5),
+                                                child: Wrap(
+                                                    spacing: 8,
+                                                    children: [
+                                                      Text("Unknow"),
+                                                      Text("Naive")
+                                                    ])),
+                                          ],
+                                        ),
+                                      )),
+                                ),
                                 Container(
                                   // color: Colors.green,
                                   height: 48,
-                                  child: TabBar.secondary(
+                                  child: const TabBar.secondary(
                                       isScrollable: true,
                                       tabAlignment: TabAlignment.start,
                                       tabs: [
@@ -96,6 +120,54 @@ class VocabularyPage extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class RadialGradientPainter extends CustomPainter {
+  final ColorScheme colorScheme;
+
+  RadialGradientPainter({super.repaint, required this.colorScheme});
+  @override
+  void paint(Canvas canvas, Size size) {
+    // 定义径向渐变
+    final Rect rect = Offset.zero & size;
+    final RadialGradient gradient1 = RadialGradient(
+      center: const Alignment(.9, -.9), // 中心位置
+      radius: 1, // 渐变的半径
+      colors: [
+        colorScheme.inversePrimary,
+        colorScheme.onInverseSurface,
+        colorScheme.inversePrimary,
+        // Colors.transparent,
+      ],
+      stops: [0.0, 0.6, .8], // 每个颜色的分布位置
+    );
+    final RadialGradient gradient2 = RadialGradient(
+      center: Alignment(-1, 1),
+      radius: 1, // 渐变的半径
+      colors: [
+        colorScheme.inversePrimary,
+        colorScheme.onInverseSurface,
+        colorScheme.inversePrimary,
+        // Colors.transparent,
+      ],
+      stops: [0.0, 0.6, .8], // 每个颜色的分布位置
+    );
+
+    // 创建 Paint 对象，并设置 shader 为径向渐变
+    // final Paint paint = Paint()..shader = gradient.createShader(rect);
+
+    // 在画布上绘制矩形并填充渐变
+    // canvas.drawRect(rect, paint);
+    canvas.drawCircle(Offset(size.width, 0), size.height / 2,
+        Paint()..shader = gradient1.createShader(rect));
+    canvas.drawCircle(Offset(0, size.height), size.height / 2,
+        Paint()..shader = gradient2.createShader(rect));
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) {
+    return false; // 因为我们不需要重绘，所以返回 false
   }
 }
 
