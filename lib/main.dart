@@ -31,8 +31,7 @@ class MyApp extends StatelessWidget {
             DefaultCupertinoLocalizations.delegate,
           ],
           home: FlutterWebFrame(
-            builder: (context) => VocabularyPage(
-                word: record), //MyHomePage(title: 'Flutter Demo Home Page'),
+            builder: (context) => MyHomePage(title: 'Flutter Demo Home Page'),
             maximumSize: Size(300, 812.0), // Maximum size
             enabled: kIsWeb,
             backgroundColor: Colors.grey,

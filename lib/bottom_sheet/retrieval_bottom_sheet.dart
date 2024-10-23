@@ -25,6 +25,12 @@ class _RetrievalBottomSheetState extends State<RetrievalBottomSheet>
   TabController? tabController;
 
   @override
+  void dispose() {
+    tabController?.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final hPadding = MediaQuery.of(context).size.width / 16;
     final screenHeight = MediaQuery.of(context).size.height;
