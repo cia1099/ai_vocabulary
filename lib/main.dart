@@ -31,8 +31,7 @@ class MyApp extends StatelessWidget {
             DefaultCupertinoLocalizations.delegate,
           ],
           home: FlutterWebFrame(
-            builder: (context) => VocabularyPage(
-                word: record), //MyHomePage(title: 'Flutter Demo Home Page'),
+            builder: (context) => MyHomePage(title: 'Flutter Demo Home Page'),
             maximumSize: Size(300, 812.0), // Maximum size
             enabled: kIsWeb,
             backgroundColor: Colors.grey,
@@ -69,12 +68,53 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  final bottomItems = const [
+    BottomNavigationBarItem(
+        icon: Icon(CupertinoIcons.book), label: "vocabulary"),
+    BottomNavigationBarItem(
+        icon: Icon(CupertinoIcons.chat_bubble_2), label: "chat"),
+    BottomNavigationBarItem(
+        icon: Icon(CupertinoIcons.doc_chart), label: "charts"),
+    BottomNavigationBarItem(
+        icon: Icon(CupertinoIcons.settings), label: "setting"),
+  ];
+
   @override
   Widget build(BuildContext context) {
+    // return simpleScaffold(context);
+    return PlatformTabScaffold(
+      tabController: PlatformTabController(),
+      iosContentPadding: true,
+      appBarBuilder: (_, index) => PlatformAppBar(
+        title: Text('${platform(context)} Page Title'),
+        material: (_, __) => MaterialAppBarData(
+          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        ),
+      ),
+      bodyBuilder: (_, index) => IndexedStack(
+        index: index,
+        children: List.generate(
+          bottomItems.length,
+          (i) => Center(child: Text("Page ${i + 1}")),
+        ),
+      ),
+      items: bottomItems,
+      cupertino: (_, __) => CupertinoTabScaffoldData(
+          appBarBuilder: (_, index) => CupertinoNavigationBar(
+                middle: Text('iOS ${index + 1} page'),
+              ),
+          tabViewDataBuilder: (_, __) => CupertinoTabViewData(
+              defaultTitle: '${platform(context)} Page Title')),
+    );
+  }
+
+  PlatformScaffold simpleScaffold(BuildContext context) {
     return PlatformScaffold(
       appBar: PlatformAppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
+        material: (_, __) => MaterialAppBarData(
+          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        ),
       ),
       body: Stack(
         children: [
