@@ -64,7 +64,7 @@ class _MyHomePageState extends State<MyHomePage> {
         useSafeArea: true,
         isScrollControlled: true,
       ),
-      builder: (context) => RetrievalBottomSheet(),
+      builder: (context) => RetrievalBottomSheet(queryWord: "apple"),
     );
   }
 

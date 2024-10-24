@@ -1,15 +1,21 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:ai_vocabulary/api/dict_api.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
-import '../mock_data.dart';
+import '../model/vocabulary.dart';
 import '../pages/matching_word_page.dart';
 import '../widgets/definition_tile.dart';
 import '../widgets/example_paragraph.dart';
 
 class RetrievalBottomSheet extends StatefulWidget {
+  final String queryWord;
   const RetrievalBottomSheet({
     super.key,
+    required this.queryWord,
   });
 
   @override
@@ -18,11 +24,18 @@ class RetrievalBottomSheet extends StatefulWidget {
 
 class _RetrievalBottomSheetState extends State<RetrievalBottomSheet>
     with TickerProviderStateMixin {
-  final futureWords = Future.delayed(
-    Duration(milliseconds: 500),
-    () => [abdomen, record] + drunk,
-  );
+  late final futureWords = fetchWords();
   TabController? tabController;
+
+  Future<List<Vocabulary>> fetchWords() async {
+    final res = await retrievalWord(widget.queryWord);
+    if (res.status == 200) {
+      return List<Vocabulary>.from(
+          json.decode(res.content).map((json) => Vocabulary.fromJson(json)));
+    } else {
+      throw HttpException(res.toRawJson());
+    }
+  }
 
   @override
   void dispose() {
@@ -100,6 +113,15 @@ class _RetrievalBottomSheetState extends State<RetrievalBottomSheet>
                       future: futureWords,
                       builder: (context, snapshot) {
                         final words = snapshot.data;
+                        if (snapshot.hasError) {
+                          return Center(
+                            child: Text(snapshot.error.toString(),
+                                style: TextStyle(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onErrorContainer)),
+                          );
+                        }
                         if (words == null)
                           return Center(
                               child: PlatformCircularProgressIndicator());
