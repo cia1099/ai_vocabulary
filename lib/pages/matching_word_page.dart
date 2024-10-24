@@ -22,34 +22,31 @@ class MatchingWordPage extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     return SingleChildScrollView(
         physics: BouncingScrollPhysics(),
-        child: Column(
-            //PageView a word
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(word.word,
-                  style: textTheme.titleLarge!
-                      .copyWith(fontWeight: FontWeight.bold)),
-              Wrap(
-                spacing: hPadding / 4,
-                children: word.getInflection
-                    .map((e) => Container(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 2, horizontal: 4),
-                          decoration: BoxDecoration(
-                              border: Border.all(color: colorScheme.secondary),
-                              borderRadius: BorderRadius.circular(
-                                  textTheme.labelMedium!.fontSize!)),
-                          child: Text(e,
-                              style: textTheme.labelMedium!
-                                  .apply(color: colorScheme.secondary)),
-                        ))
-                    .toList(),
-              ),
-              SizedBox(height: hPadding / 4),
-              ExplanationBoard(word: word, hPadding: hPadding),
-              SizedBox(height: hPadding),
-              if (buildExamples != null) buildExamples!(context)
-            ]));
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(word.word,
+              style:
+                  textTheme.titleLarge!.copyWith(fontWeight: FontWeight.bold)),
+          Wrap(
+            spacing: hPadding / 4,
+            children: word.getInflection
+                .map((e) => Container(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 2, horizontal: 4),
+                      decoration: BoxDecoration(
+                          border: Border.all(color: colorScheme.secondary),
+                          borderRadius: BorderRadius.circular(
+                              textTheme.labelMedium!.fontSize!)),
+                      child: Text(e,
+                          style: textTheme.labelMedium!
+                              .apply(color: colorScheme.secondary)),
+                    ))
+                .toList(),
+          ),
+          SizedBox(height: hPadding / 4),
+          ExplanationBoard(word: word, hPadding: hPadding),
+          SizedBox(height: hPadding),
+          if (buildExamples != null) buildExamples!(context)
+        ]));
   }
 }
 
@@ -64,7 +61,7 @@ class ExplanationBoard extends StatefulWidget {
 }
 
 class _ExplanationBoardState extends State<ExplanationBoard> {
-  var selectedIndex = 0; //TODO: used User setting as default value
+  var selectedIndex = 1; //TODO: used User setting as default value
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
@@ -121,9 +118,7 @@ class _ExplanationBoardState extends State<ExplanationBoard> {
                         style: textTheme.titleMedium!
                             .copyWith(fontWeight: FontWeight.bold),
                       ),
-                      paragraph: Text(definition.explanations
-                          .map((e) => e.explain)
-                          .reduce((e1, e2) => e1.length < e2.length ? e1 : e2)),
+                      paragraph: Text(definition.index2Explanation()),
                       xInterval: widget.hPadding / 4,
                     ),
               ],

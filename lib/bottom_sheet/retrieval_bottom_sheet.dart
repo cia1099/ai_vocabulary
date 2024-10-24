@@ -155,24 +155,31 @@ class _RetrievalBottomSheetState extends State<RetrievalBottomSheet>
                                           ),
                                         ),
                                         for (final definition
-                                            in word.definitions)
-                                          if (definition.explanations
-                                              .map((e) => e.examples)
-                                              .reduce((e1, e2) => e1 + e2)
-                                              .isNotEmpty) ...[
-                                            PartOfSpeechTitle(
-                                              definition: definition,
+                                            in word.definitions) ...[
+                                          PartOfSpeechTitle(
+                                            definition: definition,
+                                          ),
+                                          const Divider(height: 4),
+                                          for (int i = 0;
+                                              i <
+                                                  definition
+                                                      .explanations.length;
+                                              i++)
+                                            ...definition
+                                                .explanations[i].examples
+                                                .map(
+                                              (example) => ExampleParagraph(
+                                                  mark: Text('${i + 1}.',
+                                                      style: TextStyle(
+                                                        color: Theme.of(context)
+                                                            .colorScheme
+                                                            .onPrimaryContainer,
+                                                      )),
+                                                  example: example,
+                                                  patterns:
+                                                      word.getMatchingPatterns),
                                             ),
-                                            const Divider(height: 4),
-                                            for (final explain
-                                                in definition.explanations)
-                                              ...explain.examples.map(
-                                                (example) => ExampleParagraph(
-                                                    example: example,
-                                                    patterns: word
-                                                        .getMatchingPatterns),
-                                              ),
-                                          ]
+                                        ]
                                       ]),
                                 ),
                               ),

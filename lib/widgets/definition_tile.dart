@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
+import '../bottom_sheet/retrieval_bottom_sheet.dart';
 import '../model/vocabulary.dart';
 import '../utils/clickable_text_mixin.dart';
 import 'example_paragraph.dart';
@@ -78,7 +79,14 @@ class _DefinitionParagraphState extends State<DefinitionParagraph>
   @override
   void initState() {
     super.initState();
-    onTap = <T>(_) => Future<T>.delayed(Durations.long2);
+    onTap = <T>(word) => showPlatformModalSheet<T>(
+          context: context,
+          material: MaterialModalSheetData(
+            useSafeArea: true,
+            isScrollControlled: true,
+          ),
+          builder: (context) => RetrievalBottomSheet(queryWord: word),
+        );
   }
 
   @override

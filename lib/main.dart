@@ -31,7 +31,8 @@ class MyApp extends StatelessWidget {
             DefaultCupertinoLocalizations.delegate,
           ],
           home: FlutterWebFrame(
-            builder: (context) => MyHomePage(title: 'Flutter Demo Home Page'),
+            builder: (context) => VocabularyPage(
+                word: record), //MyHomePage(title: 'Flutter Demo Home Page'),
             maximumSize: Size(300, 812.0), // Maximum size
             enabled: kIsWeb,
             backgroundColor: Colors.grey,
@@ -64,7 +65,7 @@ class _MyHomePageState extends State<MyHomePage> {
         useSafeArea: true,
         isScrollControlled: true,
       ),
-      builder: (context) => RetrievalBottomSheet(queryWord: "apple"),
+      builder: (context) => RetrievalBottomSheet(queryWord: "abdominal"),
     );
   }
 
