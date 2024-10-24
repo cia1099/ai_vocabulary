@@ -1,7 +1,7 @@
 void main() {
   // 测试字符串
   String original =
-      "Hello, world! 1000 This's a(=shit man)? -1.2 who've +10 you're I'd [hello count]test.";
+      "Hello, world! 1000 This's a(=shit man)? 去你妈 -1.2 who've +10 you're I'd [hello count]test.";
   print("Original sentence: $original");
   // 使用正则表达式拆分字符串，将标点符号和空格与单词分开
   List<String> wordsList = original
@@ -19,7 +19,7 @@ void main() {
 
   print('分割后的单词和标点符号列表: $wordsList');
   final onlyWords = wordsList.expand((e) sync* {
-    if (!e.contains(RegExp(r'(?=\s+|[,.!?=\[\]\(\)\/])')) &&
+    if (!e.contains(RegExp(r'(?=\s+|[,.!?=\[\]\(\)\/])|(?<=[^\x00-\x7F])')) &&
         !e.contains(RegExp(r"('s|'re|'d|'ve|'m|'ll|^[-|+]?\d+)"))) yield e;
   });
   print('Only words list: ${onlyWords.toList()}');
