@@ -1,4 +1,5 @@
 import 'package:ai_vocabulary/pages/vocabulary_page.dart';
+import 'package:ai_vocabulary/widgets/alphabet_list_sheet.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_web_frame/flutter_web_frame.dart';
 import 'package:flutter/cupertino.dart';
@@ -68,15 +69,31 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  final bottomItems = const [
+  final bottomItems = [
     BottomNavigationBarItem(
-        icon: Icon(CupertinoIcons.book), label: "vocabulary"),
+        icon: PlatformWidget(
+          material: (_, __) => Icon(Icons.book_outlined),
+          cupertino: (_, __) => Icon(CupertinoIcons.book),
+        ),
+        label: "vocabulary"),
     BottomNavigationBarItem(
-        icon: Icon(CupertinoIcons.chat_bubble_2), label: "chat"),
+        icon: PlatformWidget(
+          material: (_, __) => Icon(Icons.chat_bubble_outline),
+          cupertino: (_, __) => Icon(CupertinoIcons.chat_bubble_2),
+        ),
+        label: "chat"),
     BottomNavigationBarItem(
-        icon: Icon(CupertinoIcons.doc_chart), label: "charts"),
+        icon: PlatformWidget(
+          material: (_, __) => Icon(Icons.bar_chart),
+          cupertino: (_, __) => Icon(CupertinoIcons.doc_chart),
+        ),
+        label: "charts"),
     BottomNavigationBarItem(
-        icon: Icon(CupertinoIcons.settings), label: "setting"),
+        icon: PlatformWidget(
+          material: (_, __) => Icon(Icons.settings),
+          cupertino: (_, __) => Icon(CupertinoIcons.gear),
+        ),
+        label: "setting"),
   ];
 
   @override
@@ -91,13 +108,14 @@ class _MyHomePageState extends State<MyHomePage> {
           backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         ),
       ),
-      bodyBuilder: (_, index) => IndexedStack(
-        index: index,
-        children: List.generate(
-          bottomItems.length,
-          (i) => Center(child: Text("Page ${i + 1}")),
-        ),
-      ),
+      bodyBuilder: (_, index) => IndexedStack(index: index, children: [
+        Center(child: Text("Page ${index + 1}")),
+        AlphabetListSheet(
+            contacts: List.generate(
+                512, (i) => ClientModel(name: createName(), userId: i + 1))),
+        Center(child: Text("Page ${index + 1}")),
+        Center(child: Text("Page ${index + 1}")),
+      ]),
       items: bottomItems,
       cupertino: (_, __) => CupertinoTabScaffoldData(
           appBarBuilder: (_, index) => CupertinoNavigationBar(
