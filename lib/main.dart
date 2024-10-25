@@ -1,5 +1,7 @@
 import 'package:ai_vocabulary/pages/vocabulary_page.dart';
-import 'package:ai_vocabulary/widgets/alphabet_list_sheet.dart';
+import 'package:ai_vocabulary/views/alphabet_list_tab.dart';
+import 'package:ai_vocabulary/views/chart_tab.dart';
+import 'package:ai_vocabulary/views/setting_tab.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_web_frame/flutter_web_frame.dart';
 import 'package:flutter/cupertino.dart';
@@ -103,26 +105,20 @@ class _MyHomePageState extends State<MyHomePage> {
       tabController: PlatformTabController(),
       iosContentPadding: true,
       appBarBuilder: (_, index) => PlatformAppBar(
-        title: Text('${platform(context)} Page Title'),
+        title: Text('${bottomItems[index].label}'),
         material: (_, __) => MaterialAppBarData(
           backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         ),
       ),
       bodyBuilder: (_, index) => IndexedStack(index: index, children: [
         Center(child: Text("Page ${index + 1}")),
-        AlphabetListSheet(
+        AlphabetListTab(
             contacts: List.generate(
                 512, (i) => ClientModel(name: createName(), userId: i + 1))),
-        Center(child: Text("Page ${index + 1}")),
-        Center(child: Text("Page ${index + 1}")),
+        ChartTab(),
+        SettingTab(),
       ]),
       items: bottomItems,
-      cupertino: (_, __) => CupertinoTabScaffoldData(
-          appBarBuilder: (_, index) => CupertinoNavigationBar(
-                middle: Text('iOS ${index + 1} page'),
-              ),
-          tabViewDataBuilder: (_, __) => CupertinoTabViewData(
-              defaultTitle: '${platform(context)} Page Title')),
     );
   }
 

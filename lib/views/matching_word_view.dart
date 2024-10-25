@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import '../utils/shortcut.dart';
 import '../widgets/align_paragraph.dart';
 
-class MatchingWordPage extends StatelessWidget {
-  const MatchingWordPage({
+class MatchingWordView extends StatelessWidget {
+  const MatchingWordView({
     super.key,
     required this.word,
     required this.hPadding,

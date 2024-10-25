@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
 import '../model/vocabulary.dart';
-import '../pages/matching_word_page.dart';
+import '../views/matching_word_view.dart';
 import '../widgets/definition_tile.dart';
 import '../widgets/example_paragraph.dart';
 
@@ -132,7 +132,7 @@ class _RetrievalBottomSheetState extends State<RetrievalBottomSheet>
                               tabController?.index = value,
                           itemBuilder: (context, index) {
                             final word = words[index];
-                            return MatchingWordPage(
+                            return MatchingWordView(
                               word: word,
                               hPadding: hPadding,
                               buildExamples: (_) => Container(

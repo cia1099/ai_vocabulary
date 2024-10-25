@@ -62,7 +62,7 @@ class _ImLineChartState extends State<ImLineChart> {
           (i < xData.length - 1 ? self(self, i + 1) : []);
     }, 0)
       ..sort((a, b) => a.x.compareTo(b.x));
-    debugPrint('${'=' * 20}\nminY=$minProfit\nmaxY=$maxProfit\n${'=' * 20}');
+    // debugPrint('${'=' * 20}\nminY=$minProfit\nmaxY=$maxProfit\n${'=' * 20}');
     final flow = dataFlow(spots);
     return AspectRatio(
       aspectRatio: 1.70,
@@ -270,7 +270,7 @@ class _ImLineChartState extends State<ImLineChart> {
       spots: spots,
       isCurved: true,
       preventCurveOverShooting: true,
-      color: CupertinoColors.secondaryLabel, //ImColor.accentColor,
+      color: CupertinoColors.systemBlue, //ImColor.accentColor,
       barWidth: 2.5,
       isStrokeCapRound: true,
       dotData: const FlDotData(

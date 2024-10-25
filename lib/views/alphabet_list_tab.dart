@@ -9,16 +9,16 @@ import 'package:azlistview/azlistview.dart';
  * by Johannes Milke alphabet list
  */
 
-class AlphabetListSheet extends StatefulWidget {
+class AlphabetListTab extends StatefulWidget {
   final List<ClientModel> contacts;
   final void Function(List<int> selectedId)? onConfirm;
-  const AlphabetListSheet({super.key, required this.contacts, this.onConfirm});
+  const AlphabetListTab({super.key, required this.contacts, this.onConfirm});
 
   @override
-  State<AlphabetListSheet> createState() => _AlphabetListSheetState();
+  State<AlphabetListTab> createState() => _AlphabetListTabState();
 }
 
-class _AlphabetListSheetState extends State<AlphabetListSheet> {
+class _AlphabetListTabState extends State<AlphabetListTab> {
   final _selectedId = <int>{};
 
   late List<ClientModel> azContacts = widget.contacts;
@@ -30,7 +30,7 @@ class _AlphabetListSheetState extends State<AlphabetListSheet> {
     final maxHeight = MediaQuery.of(context).size.height -
         kToolbarHeight -
         kBottomNavigationBarHeight -
-        34;
+        32;
     return Column(
       children: [
         // Container(
@@ -72,22 +72,26 @@ class _AlphabetListSheetState extends State<AlphabetListSheet> {
             onChanged: (name) => filterName(name),
           ),
         ),
-        SizedBox(
+        Container(
+          // color: CupertinoColors.systemGreen,
           height: maxHeight - 100,
-          child: AzListView(
-            data: azContacts,
-            itemCount: azContacts.length,
-            itemBuilder: (context, index) =>
-                _buildAzListItem(azContacts[index]),
-            indexBarItemHeight: (maxHeight / 1.5) / 26,
-            indexBarData:
-                List.generate(26, (index) => String.fromCharCode(index + 65)),
-            indexBarOptions: const IndexBarOptions(
-                textStyle: TextStyle(color: Color(0xFF243BB2))),
+          child: LayoutBuilder(
+            builder: (context, constraints) => AzListView(
+              data: azContacts,
+              itemCount: azContacts.length,
+              itemBuilder: (context, index) =>
+                  _buildAzListItem(azContacts[index]),
+              indexBarItemHeight: (constraints.maxHeight - 32) / 26,
+              indexBarData:
+                  List.generate(26, (index) => String.fromCharCode(index + 65)),
+              indexBarOptions: IndexBarOptions(
+                  textStyle: TextStyle(
+                color:
+                    Theme.of(context).colorScheme.primary, //Color(0xFF243BB2),
+                // backgroundColor: CupertinoColors.inactiveGray,
+              )),
+            ),
           ),
-        ),
-        const SizedBox(
-          height: 34,
         ),
       ],
     );
