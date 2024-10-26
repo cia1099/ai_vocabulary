@@ -42,6 +42,63 @@ class HomePage extends StatelessWidget {
           ),
           label: "setting"),
     ];
+    return Scaffold(
+      appBar: PreferredSize(
+          preferredSize: Size.fromHeight(kToolbarHeight),
+          child: PlatformAppBar()),
+      body: DefaultTabController(
+        length: bottomItems.length,
+        child: TabBarView(
+            physics: NeverScrollableScrollPhysics(),
+            children: List.generate(
+              4,
+              (index) => IndexedStack(index: index, children: [
+                Center(child: Text("Page ${index + 1}")),
+                AlphabetListTab(
+                    contacts: List.generate(512,
+                        (i) => ClientModel(name: createName(), userId: i + 1))),
+                ChartTab(),
+                SettingTab(),
+              ]),
+            )),
+      ),
+      bottomNavigationBar: BottomAppBar(
+        height: kBottomNavigationBarHeight + 28,
+        // color: Colors.red,
+        shape: CircularNotchedRectangle(),
+        child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: List.generate(bottomItems.length + 1, (i) {
+              var index = i;
+              if (i == 2)
+                return SizedBox(width: 28);
+              else if (i > 2) {
+                index -= 1;
+              }
+              return IconButton(
+                  onPressed: () {
+                    final tabController = DefaultTabController.of(context);
+                    setState(() {
+                      tabController.index = index;
+                    });
+                  },
+                  tooltip: bottomItems[index].tooltip,
+                  icon: Column(
+                    children: [
+                      bottomItems[index].icon,
+                      Text('${bottomItems[index].label}')
+                    ],
+                  ));
+            })),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {},
+        child: Icon(CupertinoIcons.add),
+        shape: CircleBorder(),
+        elevation: 0,
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+    );
     return PlatformTabScaffold(
       tabController: PlatformTabController(),
       iosContentPadding: true,
@@ -60,6 +117,8 @@ class HomePage extends StatelessWidget {
         SettingTab(),
       ]),
       items: bottomItems,
+      cupertino: (_, __) => CupertinoTabScaffoldData(),
+      cupertinoTabs: (_, __) => CupertinoTabBarData(),
     );
   }
 
