@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:core';
+import 'dart:io';
 
 import 'package:http/http.dart' as http;
 
@@ -11,8 +13,12 @@ Future<ApiResponse> retrievalWord(String word) async {
   try {
     final res = await http.get(url).timeout(timeOut);
     return ApiResponse.fromRawJson(res.body);
+  } on TimeoutException {
+    rethrow;
+  } on http.ClientException catch (e) {
+    throw TimeoutException("$e");
   } catch (e) {
-    return ApiResponse(status: 408, content: '$e');
+    return ApiResponse(status: 500, content: '$e');
   }
 }
 
@@ -39,6 +45,16 @@ class ApiResponse {
         "status": status,
         "content": content,
       };
+}
+
+class ApiException implements Exception {
+  final String message;
+
+  ApiException(this.message);
+  @override
+  String toString() {
+    return message.isEmpty ? "ApiException" : "ApiException: $message";
+  }
 }
 
 void main() async {

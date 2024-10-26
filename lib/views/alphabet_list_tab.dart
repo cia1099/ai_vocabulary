@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 
 import 'package:azlistview/azlistview.dart';
+import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
 /**
  * ref. https://www.youtube.com/watch?v=mGgizUoyeYY
@@ -115,7 +116,7 @@ class _AlphabetListTabState extends State<AlphabetListTab> {
                     ),
               )),
         ),
-        ListTile(
+        PlatformListTile(
           title: Text(
             item.name,
             style: textTheme.titleMedium,
@@ -145,6 +146,7 @@ class _AlphabetListTabState extends State<AlphabetListTab> {
               ],
             ),
           ),
+          cupertino: (_, __) => CupertinoListTileData(leadingSize: 68),
         ),
       ],
     );
@@ -178,7 +180,7 @@ class _CheckButtonState extends State<_CheckButton> {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
+    return GestureDetector(
       onTap: () {
         widget.onClick?.call();
         setState(() {

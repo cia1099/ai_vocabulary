@@ -1,5 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
+import 'dart:math';
 
 import 'package:ai_vocabulary/api/dict_api.dart';
 import 'package:flutter/cupertino.dart';
@@ -24,7 +25,7 @@ class RetrievalBottomSheet extends StatefulWidget {
 
 class _RetrievalBottomSheetState extends State<RetrievalBottomSheet>
     with TickerProviderStateMixin {
-  late final futureWords = fetchWords();
+  late var futureWords = fetchWords();
   TabController? tabController;
 
   Future<List<Vocabulary>> fetchWords() async {
@@ -33,7 +34,7 @@ class _RetrievalBottomSheetState extends State<RetrievalBottomSheet>
       return List<Vocabulary>.from(
           json.decode(res.content).map((json) => Vocabulary.fromJson(json)));
     } else {
-      throw HttpException(res.toRawJson());
+      throw ApiException(res.content);
     }
   }
 
@@ -114,13 +115,30 @@ class _RetrievalBottomSheetState extends State<RetrievalBottomSheet>
                       builder: (context, snapshot) {
                         final words = snapshot.data;
                         if (snapshot.hasError) {
-                          return Center(
-                            child: Text(snapshot.error.toString(),
-                                style: TextStyle(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onErrorContainer)),
-                          );
+                          var error = snapshot.error;
+                          if (error is TimeoutException) {
+                            return Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Text(
+                                    "Do not detect network or request timeout"),
+                                PlatformTextButton(
+                                  onPressed: () => setState(() {
+                                    futureWords = fetchWords();
+                                  }),
+                                  child: Text("Reload"),
+                                )
+                              ],
+                            );
+                          } else {
+                            return Center(
+                              child: Text('$error',
+                                  style: TextStyle(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onErrorContainer)),
+                            );
+                          }
                         }
                         if (words == null)
                           return Center(
