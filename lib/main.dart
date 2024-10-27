@@ -1,3 +1,5 @@
+import 'package:ai_vocabulary/mock_data.dart';
+import 'package:ai_vocabulary/pages/entry_page.dart';
 import 'package:ai_vocabulary/pages/home_page.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_web_frame/flutter_web_frame.dart';
@@ -27,7 +29,10 @@ class MyApp extends StatelessWidget {
             DefaultCupertinoLocalizations.delegate,
           ],
           home: FlutterWebFrame(
-            builder: (context) => HomePage(),
+            builder: (context) =>
+                //
+                EntryPage(word: record),
+            // HomePage(),
             maximumSize: Size(300, 812.0), // Maximum size
             enabled: kIsWeb,
             backgroundColor: Colors.grey,

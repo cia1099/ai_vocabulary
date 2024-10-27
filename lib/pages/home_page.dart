@@ -7,6 +7,7 @@ import '../mock_data.dart';
 import '../views/alphabet_list_tab.dart';
 import '../views/chart_tab.dart';
 import '../views/setting_tab.dart';
+import '../views/vocabulary_tab.dart';
 import '../widgets/definition_tile.dart';
 
 class HomePage extends StatefulWidget {
@@ -51,7 +52,7 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       appBar: PreferredSize(
-          preferredSize: Size.fromHeight(kToolbarHeight),
+          preferredSize: const Size.fromHeight(kToolbarHeight),
           child: PlatformAppBar(
             title: Text('${bottomItems[_index].label}'),
             material: (_, __) => MaterialAppBarData(
@@ -59,7 +60,7 @@ class _HomePageState extends State<HomePage> {
             ),
           )),
       body: IndexedStack(index: _index, children: [
-        Center(child: Text("Page ${_index + 1}")),
+        VocabularyTab(),
         AlphabetListTab(
             contacts: List.generate(
                 512, (i) => ClientModel(name: createName(), userId: i + 1))),
