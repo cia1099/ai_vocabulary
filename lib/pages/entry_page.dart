@@ -12,6 +12,7 @@ class EntryPage extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
     final screenWidth = MediaQuery.of(context).size.width;
+    final hPadding = screenWidth / 16;
     return PlatformScaffold(
       appBar: PlatformAppBar(
         material: (_, __) => MaterialAppBarData(
@@ -20,7 +21,7 @@ class EntryPage extends StatelessWidget {
       ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          padding: EdgeInsets.symmetric(horizontal: hPadding),
           child: Column(
             children: [
               Container(

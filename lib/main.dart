@@ -1,4 +1,5 @@
 import 'package:ai_vocabulary/mock_data.dart';
+import 'package:ai_vocabulary/pages/cloze_page.dart';
 import 'package:ai_vocabulary/pages/entry_page.dart';
 import 'package:ai_vocabulary/pages/home_page.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -31,7 +32,8 @@ class MyApp extends StatelessWidget {
           home: FlutterWebFrame(
             builder: (context) =>
                 //
-                EntryPage(word: record),
+                // EntryPage(word: record),
+                ClozePage(),
             // HomePage(),
             maximumSize: Size(300, 812.0), // Maximum size
             enabled: kIsWeb,

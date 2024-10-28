@@ -1,8 +1,11 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
+import 'regex.dart';
+
 mixin ClickableTextStateMixin<T extends StatefulWidget> on State<T> {
   Future<T?> Function<T>(String)? onTap;
+  int? _selectedIndex;
   final _tapRecognizers = <TapGestureRecognizer>[];
 
   @override
@@ -18,26 +21,9 @@ mixin ClickableTextStateMixin<T extends StatefulWidget> on State<T> {
 
   List<TextSpan> clickableWords(String text,
       {Iterable<String> patterns = const []}) {
-    final words = _splitWords(text);
+    final words = splitWords(text).toList();
     return List.generate(
         words.length, (i) => _assignWord(words[i], i, patterns));
-  }
-
-  int? _selectedIndex;
-  List<String> _splitWords(String text) {
-    return text
-        .split(RegExp(r'(?=\s+|[,.!?=\[\]\(\)\/])|(?<=\s+|[,.!?=\[\]\(\)\/])'))
-        .expand((word) sync* {
-          final match =
-              RegExp(r"(\w+)?('s|'re|'d|'ve|'m|'ll)").firstMatch(word);
-          if (match != null) {
-            for (final m in match.groups([1, 2])) yield m ?? '';
-          } else {
-            yield word;
-          }
-        })
-        .where((w) => w.isNotEmpty)
-        .toList();
   }
 
   TextSpan _assignWord(String word, int index, Iterable<String> patterns) {
