@@ -74,7 +74,7 @@ class ClozePage extends StatelessWidget {
                   animation: tip,
                   builder: (context, child) => Text(
                         tip.value,
-                        style: TextStyle(
+                        style: textTheme.bodyLarge!.apply(
                             color: tip.value == defaultTip
                                 ? null
                                 : CupertinoColors.destructiveRed),
@@ -109,18 +109,14 @@ class ClozePage extends StatelessWidget {
                 tip.value = defaultTip;
                 if (input.contains(RegExp(r'\s+'))) {
                   inputController.text = input.replaceAll(RegExp(r'\s+'), '');
-                  tip.value = inputController.text == s
-                      ? 'Correct'
-                      : "Your answer is wrong!";
+                  tip.value = verifyAnswer(s, matches);
                 }
                 check.value = s.contains(RegExp(inputController.text));
               },
               style: TextStyle(
                   color: check.value ? colorScheme.primary : colorScheme.error),
               onFieldSubmitted: (_) {
-                tip.value = inputController.text == s
-                    ? 'Correct'
-                    : "Your answer is wrong!";
+                tip.value = verifyAnswer(s, matches);
               },
               controller: inputController,
               decoration: InputDecoration(
@@ -134,5 +130,18 @@ class ClozePage extends StatelessWidget {
       }
       return TextSpan(text: s);
     }).toList();
+  }
+
+  String verifyAnswer(String correctWord, Iterable<String> matches) {
+    if (inputController.text == correctWord) return "Correct";
+    if (matches.contains(inputController.text)) {
+      final index = matches.toList().indexOf(correctWord);
+      if (index < 2) {
+        return 'Check Subject and Plural form';
+      } else {
+        return 'Check Tense and Participle forms';
+      }
+    }
+    return 'Your answer is wrong!';
   }
 }
