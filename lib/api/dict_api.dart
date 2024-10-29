@@ -9,6 +9,27 @@ const timeOut = Duration(seconds: 5);
 
 Future<ApiResponse> retrievalWord(String word) async {
   final url = Uri.https(baseURL, '/dict/retrieval', {'word': word});
+  return httpGet(url);
+}
+
+Future<ApiResponse> getMaxId() async {
+  final url = Uri.https(baseURL, '/dict/words/max_id');
+  return httpGet(url);
+}
+
+Future<ApiResponse> getWords(Iterable<int> ids) async {
+  final query = ids.map((id) => 'id=$id').join('&');
+  const path = '/dict/words';
+  final url = Uri.parse('https://$baseURL$path?$query');
+  return httpGet(url);
+}
+
+Future<ApiResponse> getWordById(int id) async {
+  final url = Uri.https(baseURL, '/dict/word_id/$id');
+  return httpGet(url);
+}
+
+Future<ApiResponse> httpGet(Uri url) async {
   try {
     final res = await http.get(url).timeout(timeOut);
     return ApiResponse.fromRawJson(res.body);
@@ -57,6 +78,8 @@ class ApiException implements Exception {
 }
 
 void main() async {
-  final res = await retrievalWord("shit");
+  // final res = await retrievalWord("shit");
+  // print(res.toRawJson());
+  final res = await getWordById(16852 + 1);
   print(res.toRawJson());
 }
