@@ -1,44 +1,32 @@
-import 'dart:convert';
-
 import 'package:ai_vocabulary/api/dict_api.dart';
-import 'package:ai_vocabulary/model/vocabulary.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  // group("Dictionary API test in client", () {
+  // group("Dictionary API test by client", () {
   test('Get Maximum Id of word', () async {
-    final res = await getMaxId();
-    expect(res.status, 200);
-    final maxId = int.tryParse(res.content);
+    final maxId = await getMaxId();
     expect(maxId, greaterThanOrEqualTo(16852));
-  });
+  }, tags: 'direct_api');
   test('retrieval word API', () async {
-    final res = await retrievalWord('apple');
-    expect(res.status, 200);
-    final words = List<Vocabulary>.from(
-        json.decode(res.content).map((json) => Vocabulary.fromJson(json)));
+    final words = await retrievalWord('apple');
     expect(words.first.word, 'apple');
-  });
+  }, tags: 'direct_api');
   test('Get words by Ids', () async {
-    final res = await getWords([830, 30]);
-    expect(res.status, 200);
-    final words = List<Vocabulary>.from(
-        json.decode(res.content).map((json) => Vocabulary.fromJson(json)));
+    final words = await getWords([830, 30]);
     expect(words.length, greaterThan(1));
-  });
+  }, tags: 'direct_api');
   test('Get words by a Id', () async {
     const wordId = 830;
-    final res = await getWordById(wordId);
-    expect(res.status, 200);
-    final word = Vocabulary.fromRawJson(res.content);
+    final word = await getWordById(wordId);
     expect(word.wordId, wordId);
-  });
+  }, tags: 'direct_api');
   test('Test failure case by Id', () async {
-    var res = await getMaxId();
-    final maxId = int.tryParse(res.content);
-    expect(maxId, isNotNull, reason: 'Guarantee max Id exist');
-    res = await getWords([maxId! + 1]);
-    expect(res.status, 404);
-  });
-  // });
+    final maxId = await getMaxId();
+    expect(maxId, greaterThan(0), reason: 'Guarantee max Id exist');
+    expect(
+        () async => await getWordById(maxId + 1), throwsA(isA<ApiException>()));
+    expect(
+        () async => await getWords([maxId + 1]), throwsA(isA<ApiException>()));
+  }, tags: 'except_api');
+  // }, skip: true);
 }

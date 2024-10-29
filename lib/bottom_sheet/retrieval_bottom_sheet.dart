@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:ai_vocabulary/api/dict_api.dart';
 import 'package:flutter/cupertino.dart';
@@ -28,13 +27,7 @@ class _RetrievalBottomSheetState extends State<RetrievalBottomSheet>
   TabController? tabController;
 
   Future<List<Vocabulary>> fetchWords() async {
-    final res = await retrievalWord(widget.queryWord);
-    if (res.status == 200) {
-      return List<Vocabulary>.from(
-          json.decode(res.content).map((json) => Vocabulary.fromJson(json)));
-    } else {
-      throw ApiException(res.content);
-    }
+    return await retrievalWord(widget.queryWord);
   }
 
   @override

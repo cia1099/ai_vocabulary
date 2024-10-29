@@ -2,31 +2,54 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:core';
 
+import 'package:ai_vocabulary/model/vocabulary.dart';
 import 'package:http/http.dart' as http;
 
 const baseURL = 'www.cia1099.cloudns.ch';
 const timeOut = Duration(seconds: 5);
 
-Future<ApiResponse> retrievalWord(String word) async {
+Future<List<Vocabulary>> retrievalWord(String word) async {
   final url = Uri.https(baseURL, '/dict/retrieval', {'word': word});
-  return httpGet(url);
+  final res = await httpGet(url);
+  if (res.status == 200) {
+    return List<Vocabulary>.from(
+        json.decode(res.content).map((json) => Vocabulary.fromJson(json)));
+  } else {
+    throw ApiException(res.content);
+  }
 }
 
-Future<ApiResponse> getMaxId() async {
+Future<int> getMaxId() async {
   final url = Uri.https(baseURL, '/dict/words/max_id');
-  return httpGet(url);
+  final res = await httpGet(url);
+  if (res.status == 200) {
+    return int.parse(res.content);
+  } else {
+    throw ApiException(res.content);
+  }
 }
 
-Future<ApiResponse> getWords(Iterable<int> ids) async {
+Future<List<Vocabulary>> getWords(Iterable<int> ids) async {
   final query = ids.map((id) => 'id=$id').join('&');
   const path = '/dict/words';
   final url = Uri.parse('https://$baseURL$path?$query');
-  return httpGet(url);
+  final res = await httpGet(url);
+  if (res.status == 200) {
+    return List<Vocabulary>.from(
+        json.decode(res.content).map((json) => Vocabulary.fromJson(json)));
+  } else {
+    throw ApiException(res.content);
+  }
 }
 
-Future<ApiResponse> getWordById(int id) async {
+Future<Vocabulary> getWordById(int id) async {
   final url = Uri.https(baseURL, '/dict/word_id/$id');
-  return httpGet(url);
+  final res = await httpGet(url);
+  if (res.status == 200) {
+    return Vocabulary.fromRawJson(res.content);
+  } else {
+    throw ApiException(res.content);
+  }
 }
 
 Future<ApiResponse> httpGet(Uri url) async {
@@ -80,6 +103,6 @@ class ApiException implements Exception {
 void main() async {
   // final res = await retrievalWord("shit");
   // print(res.toRawJson());
-  final res = await getWordById(16852 + 1);
-  print(res.toRawJson());
+  final word = await getWordById(16852 + 1);
+  print(word);
 }

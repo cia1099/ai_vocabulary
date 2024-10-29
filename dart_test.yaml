@@ -1,0 +1,7 @@
+tags:
+  direct_api:
+    skip: false
+  except_api:
+    skip: false
+
+timeout: 10s
