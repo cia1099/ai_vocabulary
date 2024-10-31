@@ -19,8 +19,8 @@ class WordProvider {
   late final _provider = _providerState.stream.asBroadcastStream();
   late final StreamSubscription subscript;
   var studyCount = 20, _learnedIndex = 0;
-  var appDirectory = '';
   final fileName = 'today.json';
+  var appDirectory = '';
 
   static WordProvider? _instance;
   WordProvider._internal() {
@@ -36,6 +36,8 @@ class WordProvider {
   Vocabulary? get currentWord => _currentWord;
 
   Future<void> _init() async {
+    // final documentsDirectory = await getApplicationDocumentsDirectory();
+    // appDirectory = documentsDirectory.path;
     final file = File(p.join(appDirectory, fileName));
     if (shouldResample(file)) {
       final wordIds = await _sampleWordIds({}, studyCount);
@@ -61,7 +63,7 @@ class WordProvider {
       }),
       onDone: () => print("only read = $_learnedIndex"),
     );
-    popWord();
+    popWord(_learnedIndex);
   }
 
   void dispose() {
@@ -112,7 +114,14 @@ class WordProvider {
     if (index == null) {
       _learnedIndex = min(_learnedIndex + 1, _studyWords.length);
       _currentWord = word;
-      _providerState.add(_currentWord);
+    }
+    _providerState.add(word);
+    if (_studyWords.isNotEmpty) {
+      if (_learnedIndex == _studyWords.length) {
+        subscript.pause();
+      } else if (subscript.isPaused) {
+        subscript.resume();
+      }
     }
     return word;
   }
@@ -134,6 +143,7 @@ void main() async {
       provider.popWord();
     }
   }
+  provider.dispose();
 
   for (int i = 0; i < 5; i++) {
     // await Future.delayed(const Duration(milliseconds: 500));

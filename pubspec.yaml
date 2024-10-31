@@ -16,6 +16,7 @@ dependencies:
   im_charts:
     path: im_charts
   path_provider: ^2.1.5
+  sqlite3: ^2.4.7
 
 dev_dependencies:
   flutter_test:
