@@ -7,14 +7,34 @@ import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
 import '../mock_data.dart';
 
-class ClozePage extends StatelessWidget {
-  ClozePage({super.key});
+class ClozePage extends StatefulWidget {
+  const ClozePage({super.key});
 
+  @override
+  State<ClozePage> createState() => _ClozePageState();
+}
+
+class _ClozePageState extends State<ClozePage> {
   final defaultTip = 'Press enter or space to submit answer';
   late final tip = ValueNotifier(defaultTip);
   final inputController = TextEditingController();
   final rng = Random();
   final focusNode = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) => focusNode.requestFocus());
+  }
+
+  @override
+  void dispose() {
+    focusNode.dispose();
+    inputController.dispose();
+    tip.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,8 +51,6 @@ class ClozePage extends StatelessWidget {
       idx = rng.nextInt(explanation.examples.length);
       example = explanation.examples[idx];
     }
-    WidgetsBinding.instance
-        .addPostFrameCallback((_) => focusNode.requestFocus());
 
     final textTheme = Theme.of(context).textTheme;
     final hPadding = MediaQuery.of(context).size.width / 16;
@@ -45,14 +63,14 @@ class ClozePage extends StatelessWidget {
           direction: Axis.vertical,
           spacing: hPadding,
           children: [
-            Container(
+            SizedBox(
               // color: Colors.red,
               width: hPadding * 14,
               child: Text(explain,
                   style: textTheme.bodyLarge!
                       .copyWith(fontWeight: FontWeight.bold, height: 1.25)),
             ),
-            Container(
+            SizedBox(
                 // color: Colors.green,
                 width: hPadding * 14,
                 child: Text.rich(
@@ -116,6 +134,7 @@ class ClozePage extends StatelessWidget {
               style: TextStyle(
                   color: check.value ? colorScheme.primary : colorScheme.error),
               onFieldSubmitted: (_) {
+                focusNode.requestFocus();
                 tip.value = verifyAnswer(s, matches);
               },
               controller: inputController,

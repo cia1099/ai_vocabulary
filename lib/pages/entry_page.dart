@@ -36,21 +36,21 @@ class EntryPage extends StatelessWidget {
                     Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text("Review today"),
+                        const Text("Review today"),
                         Text("0/120", style: textTheme.headlineSmall),
                       ],
                     ),
                     Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text("New today"),
+                        const Text("New today"),
                         Text("0/40", style: textTheme.headlineSmall),
                       ],
                     ),
                     Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text("Learning today"),
+                        const Text("Learning today"),
                         Text("1min", style: textTheme.headlineSmall),
                       ],
                     ),
@@ -61,20 +61,20 @@ class EntryPage extends StatelessWidget {
                 // color: Colors.green,
                 height: 250,
                 width: double.maxFinite,
-                margin: EdgeInsets.only(top: 16),
+                margin: const EdgeInsets.only(top: 16),
                 child: Column(
                   children: [
-                    Container(
+                    SizedBox(
                       height: 250 - 80,
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           Container(
-                            padding: EdgeInsets.all(4),
-                            child: Text("Learned 3 month ago"),
+                            padding: const EdgeInsets.all(4),
                             decoration: BoxDecoration(
                                 border:
                                     Border.all(color: CupertinoColors.black)),
+                            child: const Text("Learned 3 month ago"),
                           ),
                           Text(word.word, style: textTheme.displayMedium),
                           RichText(
@@ -89,7 +89,8 @@ class EntryPage extends StatelessWidget {
                               WidgetSpan(
                                   child: GestureDetector(
                                       onTap: () {},
-                                      child: Icon(CupertinoIcons.volume_up)))
+                                      child:
+                                          const Icon(CupertinoIcons.volume_up)))
                             ], style: textTheme.titleLarge),
                           ),
                         ],
@@ -104,7 +105,7 @@ class EntryPage extends StatelessWidget {
                           spacing: 8,
                           children: word.getInflection
                               .map((e) => Container(
-                                    padding: EdgeInsets.symmetric(
+                                    padding: const EdgeInsets.symmetric(
                                         vertical: 4, horizontal: 8),
                                     decoration: BoxDecoration(
                                         color: colorScheme.primaryContainer,
@@ -131,7 +132,7 @@ class EntryPage extends StatelessWidget {
                 label: Text('Mark as too easy',
                     style: TextStyle(color: colorScheme.onSurfaceVariant)),
               ),
-              Expanded(child: SizedBox()),
+              const Expanded(child: SizedBox()),
               Wrap(
                 spacing: screenWidth / 12,
                 children: [
