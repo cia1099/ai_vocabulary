@@ -17,6 +17,7 @@ class WordProvider {
   Vocabulary? _currentWord;
   final _providerState = StreamController<Vocabulary?>();
   late final _provider = _providerState.stream.asBroadcastStream();
+  late final StreamSubscription subscript;
   var studyCount = 20, _learnedIndex = 0;
   var appDirectory = '';
   final fileName = 'today.json';
@@ -38,17 +39,35 @@ class WordProvider {
     final file = File(p.join(appDirectory, fileName));
     if (shouldResample(file)) {
       final wordIds = await _sampleWordIds({}, studyCount);
-      await requestWords(wordIds);
+      _studyWords.addAll(await requestWords(wordIds));
       final now = DateTime.now();
       final dateTime =
           DateTime(now.year, now.month, now.day).millisecondsSinceEpoch ~/ 1000;
-      await file.writeAsString(
-          json.encode({'dateTime': dateTime, 'wordIds': wordIds.toList()}));
+      await file.writeAsString(json.encode({
+        'dateTime': dateTime,
+        'learnedIndex': _learnedIndex,
+        'wordIds': wordIds.toList()
+      }));
     } else {
       final wordIds = json.decode(file.readAsStringSync())['wordIds'];
       print(
           'local wordId: ${wordIds.map((e) => '\x1b[32m$e\x1b[0m').join(', ')}');
     }
+    subscript = _provider.listen(
+      (_) => file.readAsString().then((jstr) {
+        final fobj = json.decode(jstr);
+        fobj['learnedIndex'] = _learnedIndex;
+        file.writeAsString(json.encode(fobj));
+      }),
+      onDone: () => print("only read = $_learnedIndex"),
+    );
+    popWord();
+  }
+
+  void dispose() {
+    _studyWords.clear();
+    subscript.cancel();
+    _providerState.close();
   }
 
   Future<Set<int>> _sampleWordIds(Set<int> wordIds, final int count) async {
@@ -67,16 +86,13 @@ class WordProvider {
     return now - obj['dateTime'] >= 86400;
   }
 
-  Future<void> requestWords(Set<int> wordIds) async {
+  Future<List<Vocabulary>> requestWords(Set<int> wordIds) async {
+    var words = <Vocabulary>[];
     Exception? error = ApiException('initial');
     while (error != null) {
       try {
-        final words = await getWords(wordIds);
+        words = await getWords(wordIds);
         error = null;
-        _studyWords.clear();
-        _learnedIndex = _studyWords.length;
-        _studyWords.addAll(words);
-        popWord();
       } on ApiException catch (e) {
         final errorIds = splitWords(e.message).expand((w) sync* {
           if (w.contains(RegExp(r'^-?\d+$'))) yield w;
@@ -87,6 +103,7 @@ class WordProvider {
         error = e;
       }
     }
+    return words;
   }
 
   Vocabulary? popWord([int? index]) {
