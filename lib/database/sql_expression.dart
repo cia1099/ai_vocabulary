@@ -1,3 +1,13 @@
+const insertWord = r'INSERT INTO words (id, word) VALUES (?, ?)';
+const insertDefinition = '''
+INSERT INTO definitions (word_id, part_of_speech, inflection, alphabet_us, alphabet_uk, audio_us, audio_uk, chinese) VALUES (?, ?, ?, ?, ?, ?, ?, ?) RETURNING definitions.id
+''';
+const insertExplanation =
+    r'INSERT INTO explanations (word_id, definition_id, explain, subscript) VALUES (?, ?, ?, ?) RETURNING explanations.id';
+const insertExample =
+    r'INSERT INTO examples (word_id, explanation_id, example) VALUES (?, ?, ?)';
+const insertAsset = r'INSERT INTO assets (word_id, filename) VALUES (?, ?)';
+
 const createDictionary = '''
 CREATE TABLE words (
         id INTEGER NOT NULL, 
@@ -49,13 +59,3 @@ CREATE TABLE assets (
         FOREIGN KEY(word_id) REFERENCES words (id)
 );
 ''';
-
-const insertWord = r'INSERT INTO words (id, word) VALUES (?, ?)';
-const insertDefinition = '''
-INSERT INTO definitions (word_id, part_of_speech, inflection, alphabet_us, alphabet_uk, audio_us, audio_uk, chinese) VALUES (?, ?, ?, ?, ?, ?, ?, ?) RETURNING definitions.id
-''';
-const insertExplanation =
-    r'INSERT INTO explanations (word_id, definition_id, explain, subscript) VALUES (?, ?, ?, ?) RETURNING explanations.id';
-const insertExample =
-    r'INSERT INTO examples (word_id, explanation_id, example) VALUES (?, ?, ?)';
-const insertAsset = r'INSERT INTO assets (word_id, filename) VALUES (?, ?)';

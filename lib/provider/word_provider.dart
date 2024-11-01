@@ -18,7 +18,7 @@ class WordProvider {
   final _providerState = StreamController<Vocabulary?>();
   late final _provider = _providerState.stream.asBroadcastStream();
   late final StreamSubscription subscript;
-  var studyCount = 20, _learnedIndex = 0;
+  var studyCount = 25, _learnedIndex = 0;
   final fileName = 'today.json';
   var appDirectory = '';
 
@@ -56,7 +56,7 @@ class WordProvider {
       final jsonIds = json.decode(file.readAsStringSync())['wordIds'];
       _studyWords.addAll(await requestWords(Set.from(jsonIds)));
       wordIds = List<int>.from(jsonIds);
-      shuffleStudyWords(wordIds);
+      _mappingWordId(wordIds);
       print(
           'local wordId: ${wordIds.map((e) => '\x1b[32m$e\x1b[0m').join(', ')}');
       print(
@@ -70,7 +70,7 @@ class WordProvider {
       }),
       onDone: () => print("only read = $_learnedIndex"),
     );
-    shuffleStudyWords(wordIds);
+    _mappingWordId(wordIds);
     popWord(_learnedIndex);
   }
 
@@ -89,19 +89,20 @@ class WordProvider {
     return wordIds;
   }
 
-  bool shuffleStudyWords(List<int> wordIds) {
-    if (_studyWords.length != wordIds.length) return false;
-    for (var i = 0; i < _studyWords.length;) {
+  void _mappingWordId(List<int> wordIds) {
+    assert(_studyWords.length == wordIds.length,
+        'The length of _studyWords must equal to wordIds');
+    for (var i = 0, j = _studyWords.length - 1; i < j;) {
       final word = _studyWords[i];
       final idx = wordIds.indexOf(word.wordId);
-      if (idx == i)
+      if (idx == i || idx < 0)
         i++;
       else {
         _studyWords[i] = _studyWords[idx];
         _studyWords[idx] = word;
       }
+      while (_studyWords[j].wordId == wordIds[j] && j > i) j--;
     }
-    return true;
   }
 
   bool shouldResample(final File file) {
