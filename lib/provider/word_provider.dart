@@ -38,10 +38,12 @@ class WordProvider {
   Future<void> _init() async {
     // final documentsDirectory = await getApplicationDocumentsDirectory();
     // appDirectory = documentsDirectory.path;
+    var wordIds = <int>[];
     final file = File(p.join(appDirectory, fileName));
     if (shouldResample(file)) {
-      final wordIds = await _sampleWordIds({}, studyCount);
-      _studyWords.addAll(await requestWords(wordIds));
+      final setIds = await _sampleWordIds({}, studyCount);
+      _studyWords.addAll(await requestWords(setIds));
+      wordIds = setIds.toList();
       final now = DateTime.now();
       final dateTime =
           DateTime(now.year, now.month, now.day).millisecondsSinceEpoch ~/ 1000;
@@ -51,9 +53,14 @@ class WordProvider {
         'wordIds': wordIds.toList()
       }));
     } else {
-      final wordIds = json.decode(file.readAsStringSync())['wordIds'];
+      final jsonIds = json.decode(file.readAsStringSync())['wordIds'];
+      _studyWords.addAll(await requestWords(Set.from(jsonIds)));
+      wordIds = List<int>.from(jsonIds);
+      shuffleStudyWords(wordIds);
       print(
           'local wordId: ${wordIds.map((e) => '\x1b[32m$e\x1b[0m').join(', ')}');
+      print(
+          'retieval wordId: ${_studyWords.map((w) => '\x1b[31m${w.wordId}\x1b[0m').join(', ')}');
     }
     subscript = _provider.listen(
       (_) => file.readAsString().then((jstr) {
@@ -63,6 +70,7 @@ class WordProvider {
       }),
       onDone: () => print("only read = $_learnedIndex"),
     );
+    shuffleStudyWords(wordIds);
     popWord(_learnedIndex);
   }
 
@@ -79,6 +87,21 @@ class WordProvider {
       wordIds.add(rng.nextInt(maxId) + 1);
     }
     return wordIds;
+  }
+
+  bool shuffleStudyWords(List<int> wordIds) {
+    if (_studyWords.length != wordIds.length) return false;
+    for (var i = 0; i < _studyWords.length;) {
+      final word = _studyWords[i];
+      final idx = wordIds.indexOf(word.wordId);
+      if (idx == i)
+        i++;
+      else {
+        _studyWords[i] = _studyWords[idx];
+        _studyWords[idx] = word;
+      }
+    }
+    return true;
   }
 
   bool shouldResample(final File file) {
