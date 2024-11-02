@@ -1,6 +1,6 @@
 const insertWord = r'INSERT INTO words (id, word) VALUES (?, ?)';
 const insertDefinition = '''
-INSERT INTO definitions (word_id, part_of_speech, inflection, alphabet_us, alphabet_uk, audio_us, audio_uk, chinese) VALUES (?, ?, ?, ?, ?, ?, ?, ?) RETURNING definitions.id
+INSERT INTO definitions (word_id, part_of_speech, inflection, alphabet_us, alphabet_uk, audio_us, audio_uk, translate) VALUES (?, ?, ?, ?, ?, ?, ?, ?) RETURNING definitions.id
 ''';
 const insertExplanation =
     r'INSERT INTO explanations (word_id, definition_id, explain, subscript) VALUES (?, ?, ?, ?) RETURNING explanations.id';
@@ -24,7 +24,7 @@ CREATE TABLE definitions (
         alphabet_uk VARCHAR, 
         audio_us VARCHAR, 
         audio_uk VARCHAR, 
-        chinese VARCHAR, 
+        translate VARCHAR, 
         PRIMARY KEY (id), 
         CONSTRAINT definition_unique UNIQUE (word_id, id), 
         FOREIGN KEY(word_id) REFERENCES words (id)

@@ -94,7 +94,7 @@ class WordProvider {
         'The length of _studyWords must equal to wordIds');
     for (var i = 0, j = _studyWords.length - 1; i < j;) {
       final word = _studyWords[i];
-      final idx = wordIds.indexOf(word.wordId);
+      final idx = wordIds.indexOf(word.wordId, i);
       if (idx == i || idx < 0)
         i++;
       else {
