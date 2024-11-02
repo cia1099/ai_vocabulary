@@ -3,12 +3,13 @@ import 'dart:io';
 
 import 'package:ai_vocabulary/model/vocabulary.dart';
 
+import '../mock_data.dart';
 import 'sql_expression.dart';
 import 'package:path/path.dart' as p;
 import 'package:sqlite3/sqlite3.dart';
 
 class MyDB {
-  var appDirectory = '';
+  late final String _appDirectory;
 
   /// Singleton pattern
   static const _dbName = 'my.db';
@@ -19,10 +20,13 @@ class MyDB {
   static MyDB get instance => _instance ??= MyDB._internal();
   factory MyDB() => instance;
 
+  String get appDirectory => _appDirectory;
+
   Future<void> _init() async {
+    _appDirectory = '';
     // final documentsDirectory = await getApplicationDocumentsDirectory();
     // print("Application directory: $documentsDirectory");
-    // appDirectory = documentsDirectory.path;
+    // _appDirectory = documentsDirectory.path;
     final dbPath = p.join(appDirectory, _dbName);
     if (File(dbPath).existsSync()) return;
     final db = sqlite3.open(dbPath);
@@ -45,7 +49,7 @@ class MyDB {
       try {
         stmts[0].execute([word.wordId, word.word]);
         for (final definition in word.definitions) {
-          final definitionId = stmts[1].select([
+          final definitionID = stmts[1].select([
             word.wordId,
             definition.partOfSpeech,
             definition.inflection,
@@ -56,14 +60,14 @@ class MyDB {
             definition.translate
           ]).first['id'] as int;
           for (final explanation in definition.explanations) {
-            final explanationId = stmts[2].select([
+            final explanationID = stmts[2].select([
               word.wordId,
-              definitionId,
+              definitionID,
               explanation.explain,
               explanation.subscript
             ]).first['id'] as int;
             for (final example in explanation.examples) {
-              stmts[3].execute([word.wordId, explanationId, example]);
+              stmts[3].execute([word.wordId, explanationID, example]);
             } //for example
           } //for explanation
         } //for definition
@@ -120,7 +124,7 @@ WHERE words.id IN (${wordIds.map((_) => '?').join(',')})
             },
           ]),
           wordMaps);
-      if (!wordMaps.any(((d) => d['word_id'] == row['id']))) {
+      if (!wordMaps.any(((w) => w['word_id'] == row['id']))) {
         wordMaps.add(wordMap);
       }
     }
@@ -178,9 +182,9 @@ Map<String, dynamic> traceWord(
 
 void main() {
   final myDB = MyDB();
-  // myDB.insertWords(Stream.fromIterable([record]));
-  final words = myDB.fetchWords([12316]);
-  for (final word in words) {
-    print(word.toRawJson());
-  }
+  myDB.insertWords(Stream.fromIterable([apple, apple]));
+  // final words = myDB.fetchWords([12316]);
+  // for (final word in words) {
+  //   print(word.toRawJson());
+  // }
 }

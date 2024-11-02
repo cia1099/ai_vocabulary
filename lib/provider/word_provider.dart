@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
+import 'package:ai_vocabulary/database/my_db.dart';
 import 'package:path/path.dart' as p;
 import 'package:ai_vocabulary/api/dict_api.dart';
 import 'package:ai_vocabulary/model/vocabulary.dart';
@@ -17,10 +18,9 @@ class WordProvider {
   Vocabulary? _currentWord;
   final _providerState = StreamController<Vocabulary?>();
   late final _provider = _providerState.stream.asBroadcastStream();
-  late final StreamSubscription subscript;
+  late final StreamSubscription _subscript;
   var studyCount = 25, _learnedIndex = 0;
   final fileName = 'today.json';
-  var appDirectory = '';
 
   static WordProvider? _instance;
   WordProvider._internal() {
@@ -36,13 +36,12 @@ class WordProvider {
   Vocabulary? get currentWord => _currentWord;
 
   Future<void> _init() async {
-    // final documentsDirectory = await getApplicationDocumentsDirectory();
-    // appDirectory = documentsDirectory.path;
     var wordIds = <int>[];
-    final file = File(p.join(appDirectory, fileName));
+    final file = File(p.join(MyDB().appDirectory, fileName));
     if (shouldResample(file)) {
       final setIds = await _sampleWordIds({}, studyCount);
-      _studyWords.addAll(await requestWords(setIds));
+      final words = await requestWords(setIds);
+      _studyWords.addAll(words);
       wordIds = setIds.toList();
       final now = DateTime.now();
       final dateTime =
@@ -52,17 +51,22 @@ class WordProvider {
         'learnedIndex': _learnedIndex,
         'wordIds': wordIds.toList()
       }));
+      MyDB.instance.insertWords(Stream.fromIterable(words));
     } else {
-      final jsonIds = json.decode(file.readAsStringSync())['wordIds'];
-      _studyWords.addAll(await requestWords(Set.from(jsonIds)));
-      wordIds = List<int>.from(jsonIds);
-      _mappingWordId(wordIds);
+      final today =
+          json.decode(file.readAsStringSync()) as Map<String, dynamic>;
+      _learnedIndex = today['learnedIndex'] ?? 0;
+      final todayIDs = today['wordIds'];
+      wordIds = List<int>.from(todayIDs);
+      final words = MyDB.instance.fetchWords(wordIds);
+      _studyWords.addAll(words);
+      // _mappingWordId(wordIds);
       print(
           'local wordId: ${wordIds.map((e) => '\x1b[32m$e\x1b[0m').join(', ')}');
       print(
           'retieval wordId: ${_studyWords.map((w) => '\x1b[31m${w.wordId}\x1b[0m').join(', ')}');
     }
-    subscript = _provider.listen(
+    _subscript = _provider.listen(
       (_) => file.readAsString().then((jstr) {
         final fobj = json.decode(jstr);
         fobj['learnedIndex'] = _learnedIndex;
@@ -76,7 +80,7 @@ class WordProvider {
 
   void dispose() {
     _studyWords.clear();
-    subscript.cancel();
+    _subscript.cancel();
     _providerState.close();
   }
 
@@ -133,7 +137,6 @@ class WordProvider {
   }
 
   Vocabulary? popWord([int? index]) {
-    // if (_learnedIndex > _studyWords.length) _learnedIndex = 0;
     final word = _studyWords.elementAtOrNull(index ?? _learnedIndex);
     if (index == null) {
       _learnedIndex = min(_learnedIndex + 1, _studyWords.length);
@@ -142,9 +145,9 @@ class WordProvider {
     _providerState.add(word);
     if (_studyWords.isNotEmpty) {
       if (_learnedIndex == _studyWords.length) {
-        subscript.pause();
-      } else if (subscript.isPaused) {
-        subscript.resume();
+        _subscript.pause();
+      } else {
+        _subscript.resume();
       }
     }
     return word;
@@ -167,15 +170,15 @@ void main() async {
       provider.popWord();
     }
   }
-  provider.dispose();
 
   for (int i = 0; i < 5; i++) {
-    // await Future.delayed(const Duration(milliseconds: 500));
+    await Future.delayed(const Duration(milliseconds: 500));
     // final word = provider.popWord();
     // print('$idx:\x1b[32m${word?.word}\x1b[0m shit');
-    print('don\'t print this shit');
+    print('don\'t print this shit main');
   }
   stream.cancel();
+  provider.dispose();
 
   // final message = 'word@[15508, 20] not found';
   // final split = splitWords(message).expand((w) sync* {
