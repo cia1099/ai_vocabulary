@@ -1,14 +1,14 @@
 import 'dart:math';
 
+import 'package:ai_vocabulary/model/vocabulary.dart';
 import 'package:ai_vocabulary/utils/regex.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
-import '../mock_data.dart';
-
 class ClozePage extends StatefulWidget {
-  const ClozePage({super.key});
+  const ClozePage({super.key, required this.word});
+  final Vocabulary word;
 
   @override
   State<ClozePage> createState() => _ClozePageState();
@@ -38,7 +38,7 @@ class _ClozePageState extends State<ClozePage> {
 
   @override
   Widget build(BuildContext context) {
-    final word = record;
+    final word = widget.word;
     var idx = rng.nextInt(word.definitions.length);
     var example = '', explain = '';
     final definition = word.definitions[idx];

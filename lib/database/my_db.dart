@@ -2,6 +2,7 @@ import 'dart:collection';
 import 'dart:io';
 
 import 'package:ai_vocabulary/model/vocabulary.dart';
+import 'package:path_provider/path_provider.dart';
 
 import '../mock_data.dart';
 import 'sql_expression.dart';
@@ -21,12 +22,14 @@ class MyDB {
   factory MyDB() => instance;
 
   String get appDirectory => _appDirectory;
+  Future<String> get futureAppDirectory async =>
+      getApplicationDocumentsDirectory().then((value) => value.path);
 
   Future<void> _init() async {
-    _appDirectory = '';
-    // final documentsDirectory = await getApplicationDocumentsDirectory();
-    // print("Application directory: $documentsDirectory");
-    // _appDirectory = documentsDirectory.path;
+    // _appDirectory = '';
+    final documentsDirectory = await getApplicationDocumentsDirectory();
+    print("Application directory: $documentsDirectory");
+    _appDirectory = documentsDirectory.path;
     final dbPath = p.join(appDirectory, _dbName);
     if (File(dbPath).existsSync()) return;
     final db = sqlite3.open(dbPath);

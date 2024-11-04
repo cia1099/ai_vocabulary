@@ -9,7 +9,6 @@ import 'package:path/path.dart' as p;
 import 'package:ai_vocabulary/api/dict_api.dart';
 import 'package:ai_vocabulary/model/vocabulary.dart';
 import 'package:ai_vocabulary/utils/regex.dart';
-// import 'package:flutter/cupertino.dart';
 // import 'package:path_provider/path_provider.dart';
 
 class WordProvider {
@@ -36,8 +35,14 @@ class WordProvider {
   Vocabulary? get currentWord => _currentWord;
 
   Future<void> _init() async {
+    late final String appDirectory;
+    try {
+      appDirectory = MyDB().appDirectory;
+    } on Error {
+      appDirectory = await MyDB().futureAppDirectory;
+    }
     var wordIds = <int>[];
-    final file = File(p.join(MyDB().appDirectory, fileName));
+    final file = File(p.join(appDirectory, fileName));
     if (shouldResample(file)) {
       final setIds = await _sampleWordIds({}, studyCount);
       final words = await requestWords(setIds);
