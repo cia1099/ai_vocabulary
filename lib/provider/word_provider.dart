@@ -5,6 +5,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:ai_vocabulary/database/my_db.dart';
+import 'package:flutter/material.dart';
 import 'package:path/path.dart' as p;
 import 'package:ai_vocabulary/api/dict_api.dart';
 import 'package:ai_vocabulary/model/vocabulary.dart';
@@ -66,10 +67,10 @@ class WordProvider {
       final words = MyDB.instance.fetchWords(wordIds);
       _studyWords.addAll(words);
       // _mappingWordId(wordIds);
-      print(
-          'local wordId: ${wordIds.map((e) => '\x1b[32m$e\x1b[0m').join(', ')}');
-      print(
-          'retieval wordId: ${_studyWords.map((w) => '\x1b[31m${w.wordId}\x1b[0m').join(', ')}');
+      // print(
+      //     'local wordId: ${wordIds.map((e) => '\x1b[32m$e\x1b[0m').join(', ')}');
+      // print(
+      //     'retieval wordId: ${_studyWords.map((w) => '\x1b[31m${w.wordId}\x1b[0m').join(', ')}');
     }
     _subscript = _provider.listen(
       (_) => file.readAsString().then((jstr) {
@@ -80,7 +81,7 @@ class WordProvider {
       onDone: () => print("only read = $_learnedIndex"),
     );
     _mappingWordId(wordIds);
-    popWord(_learnedIndex);
+    _currentWord = nextWord(_learnedIndex);
   }
 
   void dispose() {
@@ -141,16 +142,18 @@ class WordProvider {
     return words;
   }
 
-  Vocabulary? popWord([int? index]) {
-    final word = _studyWords.elementAtOrNull(index ?? _learnedIndex);
+  Vocabulary? nextWord([int? index]) {
     if (index == null) {
       _learnedIndex = min(_learnedIndex + 1, _studyWords.length);
+    }
+    final word = _studyWords.elementAtOrNull(index ?? _learnedIndex);
+    if (index == null) {
       _currentWord = word;
     }
     _providerState.add(word);
     if (_studyWords.isNotEmpty) {
       if (_learnedIndex == _studyWords.length) {
-        _subscript.pause();
+        Future.delayed(Durations.extralong4, () => _subscript.pause());
       } else {
         _subscript.resume();
       }
@@ -172,7 +175,7 @@ void main() async {
       await Future.delayed(const Duration(milliseconds: 500));
     }
     if (idx <= 24) {
-      provider.popWord();
+      provider.nextWord();
     }
   }
 

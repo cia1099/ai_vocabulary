@@ -1,3 +1,5 @@
+import 'package:ai_vocabulary/main.dart';
+import 'package:ai_vocabulary/provider/word_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -21,13 +23,13 @@ class VocabularyTab extends StatelessWidget {
         Container(
           height: 150,
           width: double.maxFinite,
-          margin: EdgeInsets.symmetric(horizontal: 16),
+          margin: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(32),
               color: CupertinoColors.white),
-          child: Text('Learning progress'),
+          child: const Text('Learning progress'),
         ),
-        Container(
+        SizedBox(
           // color: CupertinoColors.systemGrey,
           height: maxHeight / 4,
           child: GridView.count(
@@ -36,29 +38,43 @@ class VocabularyTab extends StatelessWidget {
             crossAxisSpacing: 16,
             mainAxisSpacing: 16,
             children: [
-              Container(
+              SizedBox(
                 height: 80,
                 width: maxWidth / 4 - 8,
                 // color: CupertinoColors.systemRed,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [Icon(CupertinoIcons.app), Text("normal")],
-                ),
+                child: StreamBuilder(
+                    stream: WordProvider().provideWord,
+                    builder: (context, snapshot) {
+                      return AbsorbPointer(
+                        absorbing: snapshot.data == null,
+                        child: GestureDetector(
+                          onTap: () =>
+                              Navigator.of(context).pushNamed(AppRoute.entry),
+                          child: const Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(CupertinoIcons.app),
+                              Text("normal")
+                            ],
+                          ),
+                        ),
+                      );
+                    }),
               ),
-              Container(
+              SizedBox(
                 height: 80,
                 width: maxWidth / 4 - 8,
                 // color: CupertinoColors.systemRed,
-                child: Column(
+                child: const Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [Icon(CupertinoIcons.hand_draw), Text("game")],
                 ),
               ),
-              Container(
+              SizedBox(
                 height: 80,
                 width: maxWidth / 4 - 8,
                 // color: CupertinoColors.systemRed,
-                child: Column(
+                child: const Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(CupertinoIcons.photo),

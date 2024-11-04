@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:ai_vocabulary/main.dart';
 import 'package:ai_vocabulary/model/vocabulary.dart';
 import 'package:ai_vocabulary/utils/regex.dart';
 import 'package:flutter/cupertino.dart';
@@ -127,7 +128,13 @@ class _ClozePageState extends State<ClozePage> {
                 tip.value = defaultTip;
                 if (input.contains(RegExp(r'\s+'))) {
                   inputController.text = input.replaceAll(RegExp(r'\s+'), '');
-                  tip.value = verifyAnswer(s, matches);
+                  final answer = verifyAnswer(s, matches);
+                  if (answer == 'Correct') {
+                    Navigator.of(context)
+                        .popAndPushNamed(AppRoute.entryVocabulary);
+                  } else {
+                    tip.value = answer;
+                  }
                 }
                 check.value = s.contains(RegExp(inputController.text));
               },
@@ -135,7 +142,13 @@ class _ClozePageState extends State<ClozePage> {
                   color: check.value ? colorScheme.primary : colorScheme.error),
               onFieldSubmitted: (_) {
                 focusNode.requestFocus();
-                tip.value = verifyAnswer(s, matches);
+                final answer = verifyAnswer(s, matches);
+                if (answer == 'Correct') {
+                  Navigator.of(context)
+                      .popAndPushNamed(AppRoute.entryVocabulary);
+                } else {
+                  tip.value = answer;
+                }
               },
               controller: inputController,
               decoration: InputDecoration(

@@ -1,4 +1,3 @@
-import 'package:ai_vocabulary/database/my_db.dart';
 import 'package:ai_vocabulary/pages/cloze_page.dart';
 import 'package:ai_vocabulary/pages/entry_page.dart';
 import 'package:ai_vocabulary/pages/home_page.dart';
@@ -23,13 +22,6 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   @override
-  void initState() {
-    super.initState();
-    MyDB();
-    WordProvider();
-  }
-
-  @override
   void dispose() {
     WordProvider().dispose();
     // MyDB().dispose();
@@ -51,16 +43,6 @@ class _MyAppState extends State<MyApp> {
             DefaultCupertinoLocalizations.delegate,
           ],
           onGenerateRoute: generateRoute,
-          // home: FlutterWebFrame(
-          //   builder: (context) =>
-          //       //
-          //       // EntryPage(word: record),
-          //       // const ClozePage(),
-          //       const HomePage(),
-          //   maximumSize: const Size(300, 812.0), // Maximum size
-          //   enabled: kIsWeb,
-          //   backgroundColor: Colors.grey,
-          // ),
           initialRoute: AppRoute.home,
         ),
       ),
@@ -71,8 +53,8 @@ class _MyAppState extends State<MyApp> {
 extension AppRoute on _MyAppState {
   static const home = '/';
   static const entry = '/entry';
-  static const vocabulary = '/vocabulary';
-  static const cloze = '/cloze';
+  static const entryVocabulary = '/entry/vocabulary';
+  static const cloze = '/entry/cloze';
 
   Route generateRoute(RouteSettings settings) {
     final uri = Uri.tryParse(settings.name!);
@@ -82,14 +64,17 @@ extension AppRoute on _MyAppState {
         context: context,
         builder: (context) => FlutterWebFrame(
               builder: (context) {
-                if (currentWord == null) return const HomePage();
                 switch (path) {
                   case AppRoute.entry:
                     return const EntryPage();
                   case AppRoute.cloze:
+                    if (currentWord == null) return const HomePage();
                     return ClozePage(word: currentWord);
-                  case AppRoute.vocabulary:
-                    return VocabularyPage(word: currentWord);
+                  case AppRoute.entryVocabulary:
+                    if (currentWord == null) return const HomePage();
+                    return VocabularyPage(
+                        word: currentWord,
+                        nextTap: () => WordProvider.instance.nextWord());
                   default:
                     return const HomePage();
                 }

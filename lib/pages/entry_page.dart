@@ -1,3 +1,4 @@
+import 'package:ai_vocabulary/main.dart';
 import 'package:ai_vocabulary/provider/word_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -22,13 +23,17 @@ class EntryPage extends StatelessWidget {
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: hPadding),
           child: StreamBuilder(
+              initialData: WordProvider().currentWord,
               stream: WordProvider().provideWord,
               builder: (context, snapshot) {
                 final word = snapshot.data;
-                if (word == null)
+                if (word == null) {
+                  Future.delayed(
+                      Durations.short1, () => Navigator.of(context).pop());
                   return const Center(
                       child: Text(
                           'There is no vocabulary you need to learn today'));
+                }
                 return Column(
                   children: [
                     Container(
@@ -151,7 +156,8 @@ class EntryPage extends StatelessWidget {
                       spacing: screenWidth / 12,
                       children: [
                         TextButton(
-                          onPressed: () {},
+                          onPressed: () => Navigator.of(context)
+                              .pushNamed(AppRoute.entryVocabulary),
                           style: TextButton.styleFrom(
                               fixedSize: Size.square(screenWidth / 3),
                               backgroundColor:
@@ -165,7 +171,8 @@ class EntryPage extends StatelessWidget {
                           ),
                         ),
                         TextButton(
-                          onPressed: () {},
+                          onPressed: () =>
+                              Navigator.of(context).pushNamed(AppRoute.cloze),
                           style: TextButton.styleFrom(
                               fixedSize: Size.square(screenWidth / 3),
                               backgroundColor:

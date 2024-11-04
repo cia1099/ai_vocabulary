@@ -1,12 +1,15 @@
+import 'package:ai_vocabulary/main.dart';
 import 'package:ai_vocabulary/model/vocabulary.dart';
 import 'package:ai_vocabulary/widgets/definition_tile.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
 class VocabularyPage extends StatelessWidget {
-  const VocabularyPage({super.key, required this.word});
+  const VocabularyPage({super.key, required this.word, this.nextTap});
 
   final Vocabulary word;
+  final VoidCallback? nextTap;
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +38,7 @@ class VocabularyPage extends StatelessWidget {
                             final h = height / headerHeight;
                             return Column(
                               children: [
-                                Container(
+                                SizedBox(
                                     height: height + kToolbarHeight,
                                     child: ClipRRect(
                                       child: CustomPaint(
@@ -71,7 +74,7 @@ class VocabularyPage extends StatelessWidget {
                                             Align(
                                                 alignment: FractionalOffset(
                                                     .98, h / 2.5 + .5),
-                                                child: Wrap(
+                                                child: const Wrap(
                                                     spacing: 8,
                                                     children: [
                                                       Text("Unknow"),
@@ -81,10 +84,10 @@ class VocabularyPage extends StatelessWidget {
                                         ),
                                       ),
                                     )),
-                                Container(
+                                const SizedBox(
                                   // color: Colors.green,
                                   height: 48,
-                                  child: const TabBar.secondary(
+                                  child: TabBar.secondary(
                                       isScrollable: true,
                                       tabAlignment: TabAlignment.start,
                                       tabs: [
@@ -101,34 +104,51 @@ class VocabularyPage extends StatelessWidget {
                       ),
                     ),
                   ],
-              body: TabBarView(children: [
-                Builder(
-                  builder: (context) => CustomScrollView(
-                    slivers: <Widget>[
-                      SliverOverlapInjector(
-                          handle:
-                              NestedScrollView.sliverOverlapAbsorberHandleFor(
-                                  context)),
-                      SliverList.builder(
-                          itemCount: word.definitions.length,
-                          itemBuilder: (_, index) => Container(
-                                padding: EdgeInsets.only(
-                                  top: hPadding,
-                                  left: hPadding,
-                                  right: hPadding,
-                                ),
-                                margin: index == word.definitions.length - 1
-                                    ? const EdgeInsets.only(
-                                        bottom: kBottomNavigationBarHeight)
-                                    : null,
-                                child: DefinitionTile(
-                                    definition: word.definitions[index],
-                                    word: word.word),
-                              )),
-                    ],
-                  ),
-                ),
-              ])),
+              body: Stack(
+                children: [
+                  TabBarView(children: [
+                    Builder(
+                      builder: (context) => CustomScrollView(
+                        slivers: <Widget>[
+                          SliverOverlapInjector(
+                              handle: NestedScrollView
+                                  .sliverOverlapAbsorberHandleFor(context)),
+                          SliverList.builder(
+                              itemCount: word.definitions.length,
+                              itemBuilder: (_, index) => Container(
+                                    padding: EdgeInsets.only(
+                                      top: hPadding,
+                                      left: hPadding,
+                                      right: hPadding,
+                                    ),
+                                    margin: index == word.definitions.length - 1
+                                        ? const EdgeInsets.only(
+                                            bottom: kBottomNavigationBarHeight)
+                                        : null,
+                                    child: DefinitionTile(
+                                        definition: word.definitions[index],
+                                        word: word.word),
+                                  )),
+                        ],
+                      ),
+                    ),
+                  ]),
+                  Align(
+                    alignment: const FractionalOffset(.5, 1),
+                    child: Offstage(
+                      offstage: nextTap == null,
+                      child: PlatformElevatedButton(
+                        onPressed: () {
+                          nextTap!();
+                          Navigator.of(context)
+                              .popUntil(ModalRoute.withName(AppRoute.entry));
+                        },
+                        child: const Text('Next'),
+                      ),
+                    ),
+                  )
+                ],
+              )),
         ),
       ),
     );
@@ -146,7 +166,7 @@ class BackGroudLayoutDelegate extends SingleChildLayoutDelegate {
     final height = constraints.maxHeight - kToolbarHeight;
     final size = SizeTween(
         end: Size(constraints.maxWidth, headerHeight + kToolbarHeight),
-        begin: Size(0, kToolbarHeight));
+        begin: const Size(0, kToolbarHeight));
     return BoxConstraints.tight(
         size.transform(height / headerHeight) ?? constraints.biggest);
   }
@@ -213,10 +233,10 @@ class RadialGradientPainter extends CustomPainter {
         colorScheme.inversePrimary,
         // Colors.transparent,
       ],
-      stops: [0.0, 0.6, .8], // 每个颜色的分布位置
+      stops: const [0.0, 0.6, .8], // 每个颜色的分布位置
     );
     final RadialGradient gradient2 = RadialGradient(
-      center: Alignment(-1, 1),
+      center: const Alignment(-1, 1),
       radius: 1, // 渐变的半径
       colors: [
         colorScheme.inversePrimary,
@@ -224,7 +244,7 @@ class RadialGradientPainter extends CustomPainter {
         colorScheme.inversePrimary,
         // Colors.transparent,
       ],
-      stops: [0.0, 0.6, .8], // 每个颜色的分布位置
+      stops: const [0.0, 0.6, .8], // 每个颜色的分布位置
     );
 
     // 创建 Paint 对象，并设置 shader 为径向渐变
