@@ -1,5 +1,5 @@
-import 'package:ai_vocabulary/main.dart';
 import 'package:ai_vocabulary/provider/word_provider.dart';
+import 'package:ai_vocabulary/app_route.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 

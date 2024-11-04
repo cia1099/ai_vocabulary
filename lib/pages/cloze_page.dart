@@ -1,11 +1,12 @@
 import 'dart:math';
 
-import 'package:ai_vocabulary/main.dart';
 import 'package:ai_vocabulary/model/vocabulary.dart';
 import 'package:ai_vocabulary/utils/regex.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
+
+import '../app_route.dart';
 
 class ClozePage extends StatefulWidget {
   const ClozePage({super.key, required this.word});

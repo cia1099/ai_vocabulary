@@ -81,7 +81,7 @@ class WordProvider {
       onDone: () => print("only read = $_learnedIndex"),
     );
     _mappingWordId(wordIds);
-    _currentWord = nextWord(_learnedIndex);
+    nextStudyWord(_learnedIndex);
   }
 
   void dispose() {
@@ -142,14 +142,12 @@ class WordProvider {
     return words;
   }
 
-  Vocabulary? nextWord([int? index]) {
+  void nextStudyWord([int? index]) {
     if (index == null) {
       _learnedIndex = min(_learnedIndex + 1, _studyWords.length);
     }
     final word = _studyWords.elementAtOrNull(index ?? _learnedIndex);
-    if (index == null) {
-      _currentWord = word;
-    }
+    _currentWord = word;
     _providerState.add(word);
     if (_studyWords.isNotEmpty) {
       if (_learnedIndex == _studyWords.length) {
@@ -158,7 +156,6 @@ class WordProvider {
         _subscript.resume();
       }
     }
-    return word;
   }
 }
 
@@ -175,7 +172,7 @@ void main() async {
       await Future.delayed(const Duration(milliseconds: 500));
     }
     if (idx <= 24) {
-      provider.nextWord();
+      provider.nextStudyWord();
     }
   }
 
