@@ -22,26 +22,26 @@ class _HomePageState extends State<HomePage> {
   final bottomItems = [
     BottomNavigationBarItem(
         icon: PlatformWidget(
-          material: (_, __) => Icon(Icons.book_outlined),
-          cupertino: (_, __) => Icon(CupertinoIcons.book),
+          material: (_, __) => const Icon(Icons.book_outlined),
+          cupertino: (_, __) => const Icon(CupertinoIcons.book),
         ),
         label: "vocabulary"),
     BottomNavigationBarItem(
         icon: PlatformWidget(
-          material: (_, __) => Icon(Icons.chat_bubble_outline),
-          cupertino: (_, __) => Icon(CupertinoIcons.chat_bubble_2),
+          material: (_, __) => const Icon(Icons.chat_bubble_outline),
+          cupertino: (_, __) => const Icon(CupertinoIcons.chat_bubble_2),
         ),
         label: "chat"),
     BottomNavigationBarItem(
         icon: PlatformWidget(
-          material: (_, __) => Icon(Icons.bar_chart),
-          cupertino: (_, __) => Icon(CupertinoIcons.doc_chart),
+          material: (_, __) => const Icon(Icons.bar_chart),
+          cupertino: (_, __) => const Icon(CupertinoIcons.doc_chart),
         ),
         label: "charts"),
     BottomNavigationBarItem(
         icon: PlatformWidget(
-          material: (_, __) => Icon(Icons.settings),
-          cupertino: (_, __) => Icon(CupertinoIcons.gear),
+          material: (_, __) => const Icon(Icons.settings),
+          cupertino: (_, __) => const Icon(CupertinoIcons.gear),
         ),
         label: "setting"),
   ];
@@ -60,19 +60,19 @@ class _HomePageState extends State<HomePage> {
             ),
           )),
       body: IndexedStack(index: _index, children: [
-        VocabularyTab(),
+        const VocabularyTab(),
         AlphabetListTab(
             contacts: List.generate(
                 512, (i) => ClientModel(name: createName(), userId: i + 1))),
-        ChartTab(),
-        SettingTab(),
+        const ChartTab(),
+        const SettingTab(),
       ]),
       bottomNavigationBar: BottomAppBar(
-        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         height: kBottomNavigationBarHeight,
         // color: Colors.red,
         notchMargin: 8,
-        shape: CircularNotchedRectangle(),
+        shape: const CircularNotchedRectangle(),
         child: MediaQuery.removePadding(
           context: context,
           removeTop: true,
@@ -82,7 +82,7 @@ class _HomePageState extends State<HomePage> {
               children: List.generate(bottomItems.length + 1, (i) {
                 var index = i;
                 if (i == 2)
-                  return SizedBox(width: 32);
+                  return const SizedBox(width: 32);
                 else if (i > 2) {
                   index -= 1;
                 }
@@ -106,9 +106,9 @@ class _HomePageState extends State<HomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {},
-        child: Icon(CupertinoIcons.add),
-        shape: CircleBorder(),
+        shape: const CircleBorder(),
         elevation: 1,
+        child: const Icon(CupertinoIcons.add),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
@@ -132,17 +132,17 @@ class _HomePageState extends State<HomePage> {
             AlphabetListTab(
                 contacts: List.generate(512,
                     (i) => ClientModel(name: createName(), userId: i + 1))),
-            ChartTab(),
-            SettingTab(),
+            const ChartTab(),
+            const SettingTab(),
           ]),
           Align(
-            alignment: FractionalOffset(.5, .9),
+            alignment: const FractionalOffset(.5, .9),
             child: Offstage(
               offstage: platform(context) != PlatformTarget.iOS,
               child: FloatingActionButton(
                 onPressed: () {},
                 tooltip: 'My note',
-                shape: CircleBorder(),
+                shape: const CircleBorder(),
                 child: const Icon(CupertinoIcons.add),
               ),
             ),
@@ -181,7 +181,7 @@ class _HomePageState extends State<HomePage> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     for (final defApple in apple.definitions)
                       DefinitionTile(
                         definition: defApple,
@@ -197,7 +197,7 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           Align(
-            alignment: FractionalOffset(.9, .9),
+            alignment: const FractionalOffset(.9, .9),
             child: Offstage(
               offstage: platform(context) != PlatformTarget.iOS,
               child: FloatingActionButton(
@@ -225,7 +225,7 @@ class _HomePageState extends State<HomePage> {
         useSafeArea: true,
         isScrollControlled: true,
       ),
-      builder: (context) => RetrievalBottomSheet(queryWord: "shit"),
+      builder: (context) => const RetrievalBottomSheet(queryWord: "shit"),
     );
   }
 }

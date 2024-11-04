@@ -1,9 +1,10 @@
 import 'package:ai_vocabulary/model/vocabulary.dart';
 import 'package:ai_vocabulary/app_route.dart';
 import 'package:ai_vocabulary/widgets/definition_tile.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
+
+part 'views/definition_tab.dart';
 
 class VocabularyPage extends StatelessWidget {
   const VocabularyPage({super.key, required this.word, this.nextTap});
@@ -29,109 +30,17 @@ class VocabularyPage extends StatelessWidget {
                         expandedHeight: headerHeight + kToolbarHeight + 48,
                         toolbarHeight: kToolbarHeight + 48,
                         pinned: true,
-                        flexibleSpace: LayoutBuilder(
-                          builder: (context, constraints) {
-                            final height =
-                                constraints.maxHeight - kToolbarHeight - 48;
-                            final borderRadius =
-                                Tween(end: 0.0, begin: kToolbarHeight);
-                            final h = height / headerHeight;
-                            return Column(
-                              children: [
-                                SizedBox(
-                                    height: height + kToolbarHeight,
-                                    child: ClipRRect(
-                                      child: CustomPaint(
-                                        painter: h > 0
-                                            ? RadialGradientPainter(
-                                                colorScheme: Theme.of(context)
-                                                    .colorScheme)
-                                            : null,
-                                        child: Stack(
-                                          children: [
-                                            CustomSingleChildLayout(
-                                              delegate: BackGroudLayoutDelegate(
-                                                  headerHeight),
-                                              child: Container(
-                                                decoration: BoxDecoration(
-                                                  color: Colors.blue
-                                                      .withOpacity(0.5),
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                    borderRadius.transform(h),
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                            CustomPaint(
-                                              foregroundPainter: TitlePainter(
-                                                title: word.word,
-                                                headerHeight: headerHeight,
-                                                style: textTheme.headlineMedium,
-                                              ),
-                                              size: constraints.biggest,
-                                            ),
-                                            Align(
-                                                alignment: FractionalOffset(
-                                                    .98, h / 2.5 + .5),
-                                                child: const Wrap(
-                                                    spacing: 8,
-                                                    children: [
-                                                      Text("Unknow"),
-                                                      Text("Naive")
-                                                    ])),
-                                          ],
-                                        ),
-                                      ),
-                                    )),
-                                const SizedBox(
-                                  // color: Colors.green,
-                                  height: 48,
-                                  child: TabBar.secondary(
-                                      isScrollable: true,
-                                      tabAlignment: TabAlignment.start,
-                                      tabs: [
-                                        Tab(
-                                            text: "Definition",
-                                            iconMargin:
-                                                EdgeInsets.only(top: 8)),
-                                      ]),
-                                ),
-                              ],
-                            );
-                          },
-                        ),
+                        flexibleSpace: VocabularyHead(
+                            headerHeight: headerHeight,
+                            word: word,
+                            textTheme: textTheme),
                       ),
                     ),
                   ],
               body: Stack(
                 children: [
                   TabBarView(children: [
-                    Builder(
-                      builder: (context) => CustomScrollView(
-                        slivers: <Widget>[
-                          SliverOverlapInjector(
-                              handle: NestedScrollView
-                                  .sliverOverlapAbsorberHandleFor(context)),
-                          SliverList.builder(
-                              itemCount: word.definitions.length,
-                              itemBuilder: (_, index) => Container(
-                                    padding: EdgeInsets.only(
-                                      top: hPadding,
-                                      left: hPadding,
-                                      right: hPadding,
-                                    ),
-                                    margin: index == word.definitions.length - 1
-                                        ? const EdgeInsets.only(
-                                            bottom: kBottomNavigationBarHeight)
-                                        : null,
-                                    child: DefinitionTile(
-                                        definition: word.definitions[index],
-                                        word: word.word),
-                                  )),
-                        ],
-                      ),
-                    ),
+                    DefinitionTab(word: word, hPadding: hPadding),
                   ]),
                   Align(
                     alignment: const FractionalOffset(.5, 1),
@@ -151,6 +60,84 @@ class VocabularyPage extends StatelessWidget {
               )),
         ),
       ),
+    );
+  }
+}
+
+class VocabularyHead extends StatelessWidget {
+  const VocabularyHead({
+    super.key,
+    required this.headerHeight,
+    required this.word,
+    required this.textTheme,
+  });
+
+  final double headerHeight;
+  final Vocabulary word;
+  final TextTheme textTheme;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final height = constraints.maxHeight - kToolbarHeight - 48;
+        final borderRadius = Tween(end: 0.0, begin: kToolbarHeight);
+        final h = height / headerHeight;
+        return Column(
+          children: [
+            SizedBox(
+                height: height + kToolbarHeight,
+                child: ClipRRect(
+                  child: CustomPaint(
+                    painter: h > 0
+                        ? RadialGradientPainter(
+                            colorScheme: Theme.of(context).colorScheme)
+                        : null,
+                    child: Stack(
+                      children: [
+                        CustomSingleChildLayout(
+                          delegate: BackGroudLayoutDelegate(headerHeight),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.blue.withOpacity(0.5),
+                              borderRadius: BorderRadius.circular(
+                                borderRadius.transform(h),
+                              ),
+                            ),
+                          ),
+                        ),
+                        CustomPaint(
+                          foregroundPainter: TitlePainter(
+                            title: word.word,
+                            headerHeight: headerHeight,
+                            style: textTheme.headlineMedium,
+                          ),
+                          size: constraints.biggest,
+                        ),
+                        Align(
+                            alignment: FractionalOffset(.98, h / 2.5 + .5),
+                            child: const Wrap(
+                                spacing: 8,
+                                children: [Text("Unknow"), Text("Naive")])),
+                      ],
+                    ),
+                  ),
+                )),
+            const SizedBox(
+              // color: Colors.green,
+              height: 48,
+              child: TabBar.secondary(
+                  isScrollable: true,
+                  tabAlignment: TabAlignment.start,
+                  tabs: [
+                    Tab(
+                        text: "Definition",
+                        iconMargin: EdgeInsets.only(top: 8)),
+                  ]),
+            ),
+          ],
+        );
+      },
     );
   }
 }
@@ -214,52 +201,4 @@ class TitlePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-
-class RadialGradientPainter extends CustomPainter {
-  final ColorScheme colorScheme;
-
-  RadialGradientPainter({super.repaint, required this.colorScheme});
-  @override
-  void paint(Canvas canvas, Size size) {
-    // 定义径向渐变
-    final Rect rect = Offset.zero & size;
-    final RadialGradient gradient1 = RadialGradient(
-      center: const Alignment(.9, -.9), // 中心位置
-      radius: 1, // 渐变的半径
-      colors: [
-        colorScheme.inversePrimary,
-        colorScheme.onInverseSurface,
-        colorScheme.inversePrimary,
-        // Colors.transparent,
-      ],
-      stops: const [0.0, 0.6, .8], // 每个颜色的分布位置
-    );
-    final RadialGradient gradient2 = RadialGradient(
-      center: const Alignment(-1, 1),
-      radius: 1, // 渐变的半径
-      colors: [
-        colorScheme.inversePrimary,
-        colorScheme.onInverseSurface,
-        colorScheme.inversePrimary,
-        // Colors.transparent,
-      ],
-      stops: const [0.0, 0.6, .8], // 每个颜色的分布位置
-    );
-
-    // 创建 Paint 对象，并设置 shader 为径向渐变
-    // final Paint paint = Paint()..shader = gradient.createShader(rect);
-
-    // 在画布上绘制矩形并填充渐变
-    // canvas.drawRect(rect, paint);
-    canvas.drawCircle(Offset(size.width, 0), size.height / 2,
-        Paint()..shader = gradient1.createShader(rect));
-    canvas.drawCircle(Offset(0, size.height), size.height / 2,
-        Paint()..shader = gradient2.createShader(rect));
-  }
-
-  @override
-  bool shouldRepaint(CustomPainter oldDelegate) {
-    return false; // 因为我们不需要重绘，所以返回 false
-  }
 }

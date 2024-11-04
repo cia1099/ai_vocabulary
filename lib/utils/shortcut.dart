@@ -1,6 +1,6 @@
 const speechShortcut = {
-  "verb": "v.",
-  "noun": "n.",
+  "verb": "  v.",
+  "noun": "  n.",
   "adjective": "adj.",
   "adverb": "adv.",
   "pronoun": "pron.",
