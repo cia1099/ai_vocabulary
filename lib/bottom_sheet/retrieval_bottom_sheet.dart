@@ -79,7 +79,8 @@ class _RetrievalBottomSheetState extends State<RetrievalBottomSheet>
                             const Icon(CupertinoIcons.chevron_up_chevron_down),
                             GestureDetector(
                                 onTap: () => Navigator.of(context).pop(),
-                                child: Icon(CupertinoIcons.xmark_circle_fill)),
+                                child: const Icon(
+                                    CupertinoIcons.xmark_circle_fill)),
                           ],
                         ),
                         FutureBuilder(
@@ -118,7 +119,7 @@ class _RetrievalBottomSheetState extends State<RetrievalBottomSheet>
                                   onPressed: () => setState(() {
                                     futureWords = fetchWords();
                                   }),
-                                  child: Text("Reload"),
+                                  child: const Text("Reload"),
                                 )
                               ],
                             );
@@ -145,7 +146,7 @@ class _RetrievalBottomSheetState extends State<RetrievalBottomSheet>
                             return MatchingWordView(
                               word: word,
                               hPadding: hPadding,
-                              buildExamples: (_) => Container(
+                              buildExamples: (_) => SizedBox(
                                 height: scale < .05 ? 0 : null,
                                 child: Transform.scale(
                                   alignment: Alignment.topCenter,
@@ -159,7 +160,7 @@ class _RetrievalBottomSheetState extends State<RetrievalBottomSheet>
                                           child: Container(
                                             margin: EdgeInsets.only(
                                                 bottom: hPadding / 8),
-                                            child: Text(
+                                            child: const Text(
                                               "Examples:",
                                             ),
                                           ),
@@ -168,6 +169,7 @@ class _RetrievalBottomSheetState extends State<RetrievalBottomSheet>
                                             in word.definitions) ...[
                                           PartOfSpeechTitle(
                                             definition: definition,
+                                            word: word.word,
                                           ),
                                           const Divider(height: 4),
                                           for (int i = 0;

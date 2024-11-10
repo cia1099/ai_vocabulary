@@ -1,3 +1,4 @@
+import 'package:ai_vocabulary/api/dict_api.dart';
 import 'package:ai_vocabulary/model/vocabulary.dart';
 import 'package:ai_vocabulary/app_route.dart';
 import 'package:ai_vocabulary/widgets/definition_tile.dart';
@@ -17,6 +18,12 @@ class VocabularyPage extends StatelessWidget {
     double headerHeight = 150;
     final textTheme = Theme.of(context).textTheme;
     final hPadding = MediaQuery.of(context).size.width / 16;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final example = word.getExamples.firstOrNull;
+      if (example != null) {
+        Future.delayed(Durations.medium1, () => soundAzure(example));
+      }
+    });
     return Scaffold(
       body: SafeArea(
         child: DefaultTabController(
@@ -99,7 +106,12 @@ class VocabularyHead extends StatelessWidget {
                           delegate: BackGroudLayoutDelegate(headerHeight),
                           child: Container(
                             decoration: BoxDecoration(
-                              color: Colors.blue.withOpacity(0.5),
+                              image: word.asset != null
+                                  ? DecorationImage(
+                                      fit: BoxFit.cover,
+                                      image: NetworkImage(word.asset!))
+                                  : null,
+                              // color: Colors.blue.withOpacity(0.5),
                               borderRadius: BorderRadius.circular(
                                 borderRadius.transform(h),
                               ),

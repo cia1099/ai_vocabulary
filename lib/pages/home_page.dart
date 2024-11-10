@@ -1,4 +1,3 @@
-import 'package:ai_vocabulary/api/dict_api.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
@@ -49,7 +48,7 @@ class _HomePageState extends State<HomePage> {
   ];
   @override
   Widget build(BuildContext context) {
-    return simpleScaffold(context);
+    // return simpleScaffold(context);
     // return tabScaffold(bottomItems, context);
 
     return Scaffold(
@@ -221,12 +220,12 @@ class _HomePageState extends State<HomePage> {
   }
 
   void showWord(BuildContext context) {
-    // immediatelyPlay(
-    //   'http://www.cia1099.cloudns.ch/dictionary/audio/apple__us_1.mp3',
-    // );
+    immediatelyPlay(
+      'https://www.cia1099.cloudns.ch/dict/dictionary/audio/apple__us_1.mp3',
+    );
     // soundGTTs('shit man! (Hello, this is a test of the Azure speech service.)');
-    soundAzure(
-        'shit man! (Hello, this is a test of the Azure speech service.)');
+    // soundAzure(
+    //     'shit man! (Hello, this is a test of the Azure speech service.)');
     showPlatformModalSheet(
       context: context,
       material: MaterialModalSheetData(

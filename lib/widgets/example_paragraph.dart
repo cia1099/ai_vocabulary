@@ -1,3 +1,4 @@
+import 'package:ai_vocabulary/api/dict_api.dart';
 import 'package:ai_vocabulary/widgets/align_paragraph.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -60,10 +61,10 @@ class _ExampleParagraphState extends State<ExampleParagraph>
               const TextSpan(text: '\t\t'),
               WidgetSpan(
                 child: PlatformWidgetBuilder(
-                  material: (_, child, __) =>
-                      InkWell(onTap: () {}, child: child),
-                  cupertino: (_, child, __) =>
-                      GestureDetector(onTap: () {}, child: child),
+                  material: (_, child, __) => InkWell(
+                      onTap: () => soundAzure(widget.example), child: child),
+                  cupertino: (_, child, __) => GestureDetector(
+                      onTap: () => soundAzure(widget.example), child: child),
                   child: Icon(CupertinoIcons.volume_up,
                       size: textTheme.bodyLarge!.fontSize),
                 ),

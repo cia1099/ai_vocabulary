@@ -1,4 +1,7 @@
+import 'dart:math';
+
 import 'package:ai_vocabulary/provider/word_provider.dart';
+import 'package:ai_vocabulary/widgets/definition_tile.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
@@ -35,6 +38,15 @@ class EntryPage extends StatelessWidget {
                       child: Text(
                           'There is no vocabulary you need to learn today'));
                 }
+                //TODO: It'll call twice when first build
+                final idx = Random().nextInt(word.definitions.length);
+                final phonetic = word.definitions[idx].phoneticUs;
+                final audioUrl = word.definitions[idx].audioUs;
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  Future.delayed(Durations.medium1,
+                      playPhonetic(audioUrl, word: word.word));
+                  // print('soud $idx');
+                });
                 return Column(
                   children: [
                     Container(
@@ -93,17 +105,12 @@ class EntryPage extends StatelessWidget {
                                 RichText(
                                   text: TextSpan(children: [
                                     TextSpan(text: '\t' * 4),
-                                    TextSpan(
-                                        text: word.definitions
-                                            .map((d) => d.phoneticUs ?? '')
-                                            .reduce((p1, p2) =>
-                                                p1.length < p2.length
-                                                    ? p1
-                                                    : p2)),
+                                    TextSpan(text: phonetic),
                                     TextSpan(text: '\t' * 4),
                                     WidgetSpan(
                                         child: GestureDetector(
-                                            onTap: () {},
+                                            onTap: playPhonetic(audioUrl,
+                                                word: word.word),
                                             child: const Icon(
                                                 CupertinoIcons.volume_up)))
                                   ], style: textTheme.titleLarge),

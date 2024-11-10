@@ -20,7 +20,7 @@ mixin AppRoute<T extends StatefulWidget> on State<T> {
     final uri = Uri.tryParse(settings.name!);
     var path = uri?.path;
     final currentWord = WordProvider.instance.currentWord;
-    if (currentWord == null) path = AppRoute.entry;
+    if (currentWord == null) path = AppRoute.home;
     return platformPageRoute(
         context: context,
         builder: (context) => FlutterWebFrame(
@@ -29,12 +29,12 @@ mixin AppRoute<T extends StatefulWidget> on State<T> {
                   case AppRoute.entry:
                     return const EntryPage();
                   case AppRoute.cloze:
-                    if (currentWord == null) return const EntryPage();
-                    return ClozePage(word: currentWord);
+                    // if (currentWord == null) return const EntryPage();
+                    return ClozePage(word: currentWord!);
                   case AppRoute.entryVocabulary:
-                    if (currentWord == null) return const EntryPage();
+                    // if (currentWord == null) return const EntryPage();
                     return VocabularyPage(
-                        word: currentWord,
+                        word: currentWord!,
                         nextTap: () => WordProvider.instance.nextStudyWord());
                   default:
                     return const HomePage();

@@ -9,16 +9,16 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  im_charts:
+    path: im_charts
+  text2speech:
+    path: text2speech
   cupertino_icons: ^1.0.8
   flutter_platform_widgets: ^7.0.1
   http: ^1.2.2
   azlistview: ^2.0.0
   path_provider: ^2.1.5
   sqlite3: ^2.4.7
-  im_charts:
-    path: im_charts
-  text2speech:
-    path: text2speech
 
 dev_dependencies:
   flutter_test:

@@ -1,10 +1,12 @@
+import 'package:ai_vocabulary/api/dict_api.dart';
 import 'package:ai_vocabulary/model/vocabulary.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../utils/shortcut.dart';
 import '../widgets/align_paragraph.dart';
 
-class MatchingWordView extends StatelessWidget {
+class MatchingWordView extends StatefulWidget {
   const MatchingWordView({
     super.key,
     required this.word,
@@ -17,18 +19,44 @@ class MatchingWordView extends StatelessWidget {
   final Widget Function(BuildContext)? buildExamples;
 
   @override
+  State<MatchingWordView> createState() => _MatchingWordViewState();
+}
+
+class _MatchingWordViewState extends State<MatchingWordView> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Future.delayed(Durations.medium1, () => soundGTTs(widget.word.word));
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
     return SingleChildScrollView(
-        physics: BouncingScrollPhysics(),
+        physics: const BouncingScrollPhysics(),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(word.word,
-              style:
-                  textTheme.titleLarge!.copyWith(fontWeight: FontWeight.bold)),
+          RichText(
+            text: TextSpan(
+                text: widget.word.word,
+                children: [
+                  TextSpan(text: '\t' * 2),
+                  WidgetSpan(
+                      child: GestureDetector(
+                          onTap: () => soundGTTs(widget.word.word),
+                          child: Icon(
+                            CupertinoIcons.volume_up,
+                            size: textTheme.titleLarge!.fontSize! * 1.25,
+                          )))
+                ],
+                style: textTheme.titleLarge!
+                    .copyWith(fontWeight: FontWeight.bold)),
+          ),
           Wrap(
-            spacing: hPadding / 4,
-            children: word.getInflection
+            spacing: widget.hPadding / 4,
+            children: widget.word.getInflection
                 .map((e) => Container(
                       padding: const EdgeInsets.symmetric(
                           vertical: 2, horizontal: 4),
@@ -42,10 +70,10 @@ class MatchingWordView extends StatelessWidget {
                     ))
                 .toList(),
           ),
-          SizedBox(height: hPadding / 4),
-          ExplanationBoard(word: word, hPadding: hPadding),
-          SizedBox(height: hPadding),
-          if (buildExamples != null) buildExamples!(context)
+          SizedBox(height: widget.hPadding / 4),
+          ExplanationBoard(word: widget.word, hPadding: widget.hPadding),
+          SizedBox(height: widget.hPadding),
+          if (widget.buildExamples != null) widget.buildExamples!(context)
         ]));
   }
 }
@@ -151,7 +179,7 @@ class HighlineText extends StatelessWidget {
         ],
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
-        stops: [.6, .61, .85, .86],
+        stops: const [.6, .61, .85, .86],
       )),
       child: Text(text, style: style),
     );
