@@ -4,17 +4,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:transparent_image/transparent_image.dart';
 
-class ImagenDialog extends StatelessWidget {
+class ImagenDialog extends StatefulWidget {
   const ImagenDialog(this.prompt, {super.key});
   final String prompt;
 
+  @override
+  State<ImagenDialog> createState() => _ImagenDialogState();
+}
+
+class _ImagenDialogState extends State<ImagenDialog> {
+  late final url =
+      Uri.https(baseURL, '/dict/imagen/256', {'prompt': widget.prompt});
+  late final imageProvider = NetworkImage(url.toString());
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width * .95;
     final height = width * 1.2;
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
-    final url = Uri.https(baseURL, '/dict/imagen/256', {'prompt': prompt});
     return Center(
       child: SizedBox(
         height: height,
@@ -47,11 +54,12 @@ class ImagenDialog extends StatelessWidget {
                                 ],
                               )),
                           FadeInImage(
+                              key: ValueKey(DateTime.now()),
                               placeholder: MemoryImage(kTransparentImage),
                               width: width * .85,
                               height: height * .65,
                               fit: BoxFit.cover,
-                              image: NetworkImage(url.toString())),
+                              image: imageProvider),
                         ],
                       ),
                       Expanded(
@@ -60,7 +68,7 @@ class ImagenDialog extends StatelessWidget {
                         alignment: Alignment.centerLeft,
                         color: colorScheme.primaryContainer,
                         child: SelectableText(
-                          prompt,
+                          widget.prompt,
                           style: textTheme.titleLarge!
                             ..apply(color: colorScheme.onPrimaryContainer),
                         ),
@@ -70,20 +78,21 @@ class ImagenDialog extends StatelessWidget {
                 ),
               ),
             ),
-            // Align(
-            //   alignment: const Alignment(0, 1.1),
-            //   child: PlatformIconButton(
-            //       onPressed: () {},
-            //       material: (_, __) => MaterialIconButtonData(iconSize: 48),
-            //       cupertino: (_, __) => CupertinoIconButtonData(minSize: 48),
-            //       cupertinoIcon: const Icon(
-            //         CupertinoIcons.refresh_circled_solid,
-            //         size: 48,
-            //       ),
-            //       icon: const Icon(
-            //         CupertinoIcons.refresh,
-            //       )),
-            // ),
+            Align(
+              alignment: const Alignment(0, 1.1),
+              child: PlatformIconButton(
+                  onPressed: () =>
+                      imageProvider.evict().then((_) => setState(() {})),
+                  material: (_, __) => MaterialIconButtonData(iconSize: 48),
+                  cupertino: (_, __) => CupertinoIconButtonData(minSize: 48),
+                  cupertinoIcon: const Icon(
+                    CupertinoIcons.refresh_circled_solid,
+                    size: 48,
+                  ),
+                  icon: const Icon(
+                    CupertinoIcons.refresh_circled_solid,
+                  )),
+            ),
             Align(
               alignment: const FractionalOffset(1, 0),
               child: PlatformIconButton(
