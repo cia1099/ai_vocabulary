@@ -1,3 +1,4 @@
+import 'package:ai_vocabulary/widgets/imagen_dialog.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
@@ -48,7 +49,7 @@ class _HomePageState extends State<HomePage> {
   ];
   @override
   Widget build(BuildContext context) {
-    // return simpleScaffold(context);
+    return simpleScaffold(context);
     // return tabScaffold(bottomItems, context);
 
     return Scaffold(
@@ -191,7 +192,15 @@ class _HomePageState extends State<HomePage> {
                     PlatformElevatedButton(
                       onPressed: () => showWord(context),
                       child: const Text('showModalBottomSheet'),
-                    )
+                    ),
+                    PlatformElevatedButton(
+                      onPressed: () => showPlatformDialog(
+                        context: context,
+                        builder: (context) =>
+                            ImagenDialog(apple.getExamples.first),
+                      ),
+                      child: const Text('show dialog window'),
+                    ),
                   ],
                 ),
               ),

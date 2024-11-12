@@ -1,5 +1,6 @@
 import 'package:ai_vocabulary/api/dict_api.dart';
 import 'package:ai_vocabulary/widgets/align_paragraph.dart';
+import 'package:ai_vocabulary/widgets/imagen_dialog.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
@@ -45,14 +46,18 @@ class _ExampleParagraphState extends State<ExampleParagraph>
   Widget build(BuildContext context) {
     return AlignParagraph(
         markWidget: Padding(
-          padding: const EdgeInsets.only(left: 8, right: 4),
-          child: widget.mark ??
-              Icon(
-                CupertinoIcons.circle_fill,
-                size: textTheme.bodySmall!.fontSize,
-                color: colorScheme.primary,
-              ),
-        ),
+            padding: const EdgeInsets.only(left: 8, right: 4),
+            child: GestureDetector(
+              onTap: () => showPlatformDialog(
+                  context: context,
+                  builder: (context) => ImagenDialog(widget.example)),
+              child: widget.mark ??
+                  Icon(
+                    CupertinoIcons.circle_fill,
+                    size: textTheme.bodySmall!.fontSize,
+                    color: colorScheme.primary,
+                  ),
+            )),
         paragraph: Text.rich(
             TextSpan(children: [
               TextSpan(
