@@ -1,7 +1,10 @@
+import 'dart:math';
+
 import 'package:ai_vocabulary/api/dict_api.dart';
 import 'package:ai_vocabulary/model/vocabulary.dart';
 import 'package:ai_vocabulary/app_route.dart';
 import 'package:ai_vocabulary/widgets/definition_tile.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
@@ -16,7 +19,6 @@ class VocabularyPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     double headerHeight = 150;
-    final textTheme = Theme.of(context).textTheme;
     final hPadding = MediaQuery.of(context).size.width / 16;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final example = word.getExamples.firstOrNull;
@@ -38,9 +40,9 @@ class VocabularyPage extends StatelessWidget {
                         toolbarHeight: kToolbarHeight + 48,
                         pinned: true,
                         flexibleSpace: VocabularyHead(
-                            headerHeight: headerHeight,
-                            word: word,
-                            textTheme: textTheme),
+                          headerHeight: headerHeight,
+                          word: word,
+                        ),
                       ),
                     ),
                   ],
@@ -76,15 +78,15 @@ class VocabularyHead extends StatelessWidget {
     super.key,
     required this.headerHeight,
     required this.word,
-    required this.textTheme,
   });
 
   final double headerHeight;
   final Vocabulary word;
-  final TextTheme textTheme;
 
   @override
   Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final colorScheme = Theme.of(context).colorScheme;
     return LayoutBuilder(
       builder: (context, constraints) {
         final height = constraints.maxHeight - kToolbarHeight - 48;
@@ -123,6 +125,7 @@ class VocabularyHead extends StatelessWidget {
                             title: word.word,
                             headerHeight: headerHeight,
                             style: textTheme.headlineMedium,
+                            strokeColor: colorScheme.primary,
                           ),
                           size: constraints.biggest,
                         ),
@@ -186,22 +189,38 @@ class TitlePainter extends CustomPainter {
   final String title;
   final double headerHeight;
   final TextStyle? style;
+  final Color? strokeColor;
 
   TitlePainter(
       {super.repaint,
       required this.title,
       required this.headerHeight,
+      this.strokeColor,
       this.style});
   @override
   void paint(Canvas canvas, Size size) {
     final h = (size.height - kToolbarHeight) / headerHeight;
+    final opacity = h > .05 && h < .25 ? .0 : 1.0;
     final textPainter = TextPainter(
         maxLines: 1,
         ellipsis: '...',
         textScaler: TextScaler.linear(1 + h),
-        text: TextSpan(text: title, style: style),
+        text: TextSpan(
+          text: title,
+          style: style?.apply(
+            //TODO: apply below code will casue flutter bug
+            color: style?.color?.withOpacity(opacity),
+            shadows: List.generate(
+                4,
+                (i) => Shadow(
+                    offset: Offset.fromDirection(pi * (1 + 2 * i) / 4, 2),
+                    color: strokeColor?.withOpacity(h < .25 ? .0 : h) ??
+                        kDefaultIconLightColor)),
+          ),
+        ),
         textDirection: TextDirection.ltr)
       ..layout(maxWidth: size.width);
+
     final textRect = Offset.zero & textPainter.size;
     final dOffset = Tween<Offset>(
         end: Offset(16, headerHeight) - textRect.centerLeft / 2,
