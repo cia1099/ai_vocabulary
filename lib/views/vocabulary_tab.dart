@@ -22,15 +22,16 @@ class VocabularyTab extends StatelessWidget {
         Text('255', style: textTheme.headlineMedium),
         Container(
           height: 150,
+          alignment: Alignment.center,
           width: double.maxFinite,
           margin: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(32),
-              color: CupertinoColors.white),
+              border: Border.all(),
+              color: Theme.of(context).colorScheme.surfaceBright),
           child: const Text('Learning progress'),
         ),
         SizedBox(
-          // color: CupertinoColors.systemGrey,
           height: maxHeight / 4,
           child: GridView.count(
             primary: false,

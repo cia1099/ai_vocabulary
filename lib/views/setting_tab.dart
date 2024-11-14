@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'package:ai_vocabulary/bottom_sheet/color_selected_sheet.dart';
+import 'package:ai_vocabulary/main.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
@@ -16,12 +18,12 @@ class SettingTab extends StatelessWidget {
     final switches = List.generate(7, (_) => Random().nextBool());
     return StatefulBuilder(
       builder: (context, setState) {
-        return Container(
+        return SizedBox(
           // color: CupertinoColors.systemGrey2,
           height: maxHeight,
           child: SingleChildScrollView(
-            physics:
-                AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+            physics: const AlwaysScrollableScrollPhysics(
+                parent: BouncingScrollPhysics()),
             child: Column(
               children: [
                 const Padding(padding: EdgeInsets.only(top: 24)),
@@ -75,6 +77,26 @@ class SettingTab extends StatelessWidget {
                     onChanged: (value) => setState(() => switches[6] = value),
                   ),
                 ),
+                PlatformListTile(
+                  title: const Text('Light mode'),
+                  trailing: PlatformSwitch(
+                    value: MyApp.brightSwitcher.value,
+                    onChanged: (value) =>
+                        setState(() => MyApp.brightSwitcher.value = value),
+                  ),
+                ),
+                PlatformListTile(
+                  title: const Text('Application Color Theme'),
+                  trailing: const Icon(CupertinoIcons.right_chevron),
+                  onTap: () => showPlatformModalSheet(
+                    context: context,
+                    material: MaterialModalSheetData(
+                      useSafeArea: true,
+                      isDismissible: true,
+                    ),
+                    builder: (context) => const ColorSelectedSheet(),
+                  ),
+                )
               ],
             ),
           ),

@@ -52,7 +52,7 @@ class EntryPage extends StatelessWidget {
                     Container(
                       height: 100,
                       decoration: BoxDecoration(
-                        color: CupertinoColors.systemGrey6.withOpacity(.8),
+                        color: colorScheme.secondaryContainer.withOpacity(.8),
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: Row(
@@ -168,8 +168,8 @@ class EntryPage extends StatelessWidget {
                               .pushNamed(AppRoute.entryVocabulary),
                           style: TextButton.styleFrom(
                               fixedSize: Size.square(screenWidth / 3),
-                              backgroundColor:
-                                  CupertinoColors.systemGrey6.withOpacity(.8),
+                              backgroundColor: colorScheme.secondaryContainer
+                                  .withOpacity(.8),
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(16))),
                           child: Text(
@@ -183,8 +183,8 @@ class EntryPage extends StatelessWidget {
                               Navigator.of(context).pushNamed(AppRoute.cloze),
                           style: TextButton.styleFrom(
                               fixedSize: Size.square(screenWidth / 3),
-                              backgroundColor:
-                                  CupertinoColors.systemGrey6.withOpacity(.8),
+                              backgroundColor: colorScheme.secondaryContainer
+                                  .withOpacity(.8),
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(16))),
                           child: Text(
