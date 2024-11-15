@@ -1,3 +1,5 @@
+import 'dart:math' show sqrt2;
+
 import 'package:ai_vocabulary/api/dict_api.dart';
 import 'package:ai_vocabulary/widgets/align_paragraph.dart';
 import 'package:ai_vocabulary/widgets/imagen_dialog.dart';
@@ -75,9 +77,8 @@ class _ExampleParagraphState extends State<ExampleParagraph>
                 ),
               )
             ]),
-            style: TextStyle(
-              color: colorScheme.onPrimaryContainer,
-            )),
+            style: textTheme.bodyMedium!.apply(
+                color: colorScheme.onPrimaryContainer, fontSizeFactor: sqrt2)),
         xInterval: 0);
   }
 }

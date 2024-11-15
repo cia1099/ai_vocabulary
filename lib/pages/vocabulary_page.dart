@@ -43,6 +43,7 @@ class VocabularyPage extends StatelessWidget {
                           headerHeight: headerHeight,
                           word: word,
                         ),
+                        leading: const SizedBox(),
                       ),
                     ),
                   ],
@@ -87,6 +88,9 @@ class VocabularyHead extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
+    final navigatorTheme =
+        CupertinoTheme.of(context).textTheme.navActionTextStyle;
+    final routeName = ModalRoute.of(context)?.settings.name;
     return LayoutBuilder(
       builder: (context, constraints) {
         final height = constraints.maxHeight - kToolbarHeight - 48;
@@ -129,11 +133,38 @@ class VocabularyHead extends StatelessWidget {
                           ),
                           size: constraints.biggest,
                         ),
-                        Align(
-                            alignment: FractionalOffset(.98, h / 2.5 + .5),
-                            child: const Wrap(
-                                spacing: 8,
-                                children: [Text("Unknow"), Text("Naive")])),
+                        Positioned(
+                            top: 16,
+                            left: 0,
+                            child: Offstage(
+                              offstage: routeName == null ||
+                                  !routeName.contains('entry'),
+                              child: Icon(
+                                CupertinoIcons.chevron_back,
+                                color: navigatorTheme.color,
+                                size: 32,
+                              ),
+                            )),
+                        const Positioned(
+                            top: 16,
+                            right: 0,
+                            child: Wrap(
+                              spacing: 8,
+                              children: [
+                                Icon(CupertinoIcons.search),
+                                Icon(CupertinoIcons.star),
+                                Icon(CupertinoIcons.ellipsis_vertical),
+                              ],
+                            )),
+                        Positioned(
+                            bottom: 0,
+                            right: 0,
+                            child: Offstage(
+                              offstage: h < .1,
+                              child: const Wrap(
+                                  spacing: 8,
+                                  children: [Text("Unknow"), Text("Naive")]),
+                            )),
                       ],
                     ),
                   ),

@@ -1,10 +1,12 @@
 import 'package:ai_vocabulary/pages/home_page.dart';
+import 'package:ai_vocabulary/pages/vocabulary_page.dart';
 import 'package:ai_vocabulary/provider/word_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
 import 'app_route.dart';
+import 'mock_data.dart';
 import 'theme.dart';
 
 void main() {
@@ -47,6 +49,8 @@ class _MyAppState extends State<MyApp> with AppRoute {
       ),
       builder: (context) => PlatformTheme(
         materialLightTheme: appTheme,
+        //TODO: apply global fontsize scale
+        // .copyWith(textTheme: Theme.of(context).textTheme.apply(fontSizeFactor: 1.2)),
         builder: (context) => PlatformApp(
           cupertino: (context, platform) => CupertinoAppData(
             theme: MaterialBasedCupertinoThemeData(
@@ -68,6 +72,7 @@ class _MyAppState extends State<MyApp> with AppRoute {
           onGenerateRoute: generateRoute,
           initialRoute: AppRoute.home,
           // home: const HomePage(),
+          home: VocabularyPage(word: apple),
         ),
       ),
     );
