@@ -14,7 +14,7 @@ void main() {
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
   static final colorSelectedIndex = ValueNotifier(0);
-  static final brightSwitcher = ValueNotifier(true);
+  static final brightSwitcher = ValueNotifier(false);
 
   @override
   State<MyApp> createState() => _MyAppState();
@@ -87,16 +87,16 @@ class _MyAppState extends State<MyApp> with AppRoute {
     handleBrightnessChange(MyApp.brightSwitcher.value);
   }
 
-  void handleBrightnessChange(bool useLightMode) {
-    final brightness = useLightMode ? Brightness.light : Brightness.dark;
+  void handleBrightnessChange(bool useDarkMode) {
+    final brightness = useDarkMode ? Brightness.dark : Brightness.light;
     setState(() {
       appTheme = ThemeData(
-        typography: appTheme.typography,
         colorScheme: ColorScheme.fromSeed(
             seedColor: appTheme.colorScheme.primary, brightness: brightness),
       );
       // ThemeData(
-      //     colorScheme: appTheme.colorScheme.copyWith(brightness: brightness),
+      //     colorScheme:
+      //         appTheme.colorScheme.copyWith(brightness: brightness),
       //     brightness: brightness);
     });
   }
@@ -113,13 +113,11 @@ class _MyAppState extends State<MyApp> with AppRoute {
 
   void handleImageSelect(int index) {
     final String url = ColorImageProvider.values[index].url;
-    ColorScheme.fromImageProvider(provider: NetworkImage(url))
+    ColorScheme.fromImageProvider(
+            provider: NetworkImage(url), brightness: appTheme.brightness)
         .then((newScheme) {
       setState(() {
-        appTheme = ThemeData.from(
-          colorScheme: ColorScheme.fromSeed(
-              seedColor: newScheme.primary, brightness: appTheme.brightness),
-        );
+        appTheme = ThemeData.from(colorScheme: newScheme);
       });
     });
   }

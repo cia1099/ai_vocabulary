@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:ai_vocabulary/main.dart';
 import 'package:ai_vocabulary/theme.dart';
 import 'package:flutter/cupertino.dart';
@@ -99,16 +101,32 @@ class _ColorSelectedSheetState extends State<ColorSelectedSheet> {
                           width: 64,
                           height: 64,
                           margin: const EdgeInsets.symmetric(horizontal: 8),
-                          decoration: BoxDecoration(
-                            image: DecorationImage(
-                                image: NetworkImage(
-                                    ColorImageProvider.values[index].url)),
+                          foregroundDecoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(16),
                             border: Border.all(
                                 color: colorImage != index
                                     ? CupertinoColors.inactiveGray
                                     : colorScheme.primary,
                                 width: 2),
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(16),
+                            child: Image.network(
+                              ColorImageProvider.values[index].url,
+                              loadingBuilder:
+                                  (context, child, loadingProgress) {
+                                if (loadingProgress == null) return child;
+                                final progress =
+                                    loadingProgress.cumulativeBytesLoaded /
+                                        loadingProgress.expectedTotalBytes!;
+                                if (Platform.isIOS || Platform.isMacOS) {
+                                  return CupertinoActivityIndicator
+                                      .partiallyRevealed(progress: progress);
+                                }
+                                return CircularProgressIndicator(
+                                    value: progress);
+                              },
+                            ),
                           ),
                         ),
                         if (colorImage == index)

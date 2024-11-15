@@ -78,7 +78,7 @@ class SettingTab extends StatelessWidget {
                   ),
                 ),
                 PlatformListTile(
-                  title: const Text('Light mode'),
+                  title: const Text('Dark mode'),
                   trailing: PlatformSwitch(
                     value: MyApp.brightSwitcher.value,
                     onChanged: (value) =>
