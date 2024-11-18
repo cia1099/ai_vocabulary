@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:ai_vocabulary/database/my_db.dart';
 import 'package:ai_vocabulary/model/vocabulary.dart';
 import 'package:ai_vocabulary/utils/regex.dart';
 import 'package:flutter/cupertino.dart';
@@ -166,7 +167,12 @@ class _ClozePageState extends State<ClozePage> {
   }
 
   String verifyAnswer(String correctWord, Iterable<String> matches) {
-    if (inputController.text == correctWord) return "Correct";
+    if (inputController.text == correctWord) {
+      final learned = MyDB().getCollectWord(widget.word.wordId).learned;
+      MyDB()
+          .updateCollectWord(wordId: widget.word.wordId, learned: learned + 1);
+      return "Correct";
+    }
     if (matches.contains(inputController.text)) {
       final index = matches.toList().indexOf(correctWord);
       if (index < 2) {

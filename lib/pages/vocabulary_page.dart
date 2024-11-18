@@ -125,21 +125,11 @@ class VocabularyHead extends StatelessWidget {
                             ),
                           ),
                         ),
-                        CustomPaint(
-                          foregroundPainter: TitlePainter(
-                            title: word.word,
-                            headerHeight: headerHeight,
-                            style: textTheme.headlineMedium,
-                            strokeColor: colorScheme.primary,
-                          ),
-                          size: constraints.biggest,
-                        ),
                         Positioned(
                             top: 16,
                             left: 0,
                             child: Offstage(
-                              offstage: routeName == null ||
-                                  !routeName.contains('entry'),
+                              offstage: noEntry(routeName),
                               child: Icon(
                                 CupertinoIcons.chevron_back,
                                 color: navigatorTheme.color,
@@ -154,22 +144,18 @@ class VocabularyHead extends StatelessWidget {
                             bottom: 0,
                             right: 0,
                             child: Offstage(
-                              offstage: h < .1,
-                              child: Container(
-                                padding: const EdgeInsets.all(4),
-                                decoration: BoxDecoration(
-                                  color: colorScheme.secondaryContainer,
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                                child: Wrap(spacing: 8, children: [
-                                  GestureDetector(
-                                      onTap: () {},
-                                      child: const Text("Unknow")),
-                                  const VerticalDivider(),
-                                  const Text("Naive")
-                                ]),
-                              ),
+                              offstage: h < .1 || noEntry(routeName),
+                              child: NaiveSegment(wordID: word.wordId),
                             )),
+                        CustomPaint(
+                          foregroundPainter: TitlePainter(
+                            title: word.word,
+                            headerHeight: headerHeight,
+                            style: textTheme.headlineMedium,
+                            strokeColor: colorScheme.primary,
+                          ),
+                          size: constraints.biggest,
+                        ),
                       ],
                     ),
                   ),
@@ -190,6 +176,10 @@ class VocabularyHead extends StatelessWidget {
         );
       },
     );
+  }
+
+  bool noEntry(String? routeName) {
+    return routeName == null || !routeName.contains('entry');
   }
 }
 
@@ -259,7 +249,7 @@ class TitlePainter extends CustomPainter {
 
     final textRect = Offset.zero & textPainter.size;
     final dOffset = Tween<Offset>(
-        end: Offset(16, headerHeight) - textRect.centerLeft / 2,
+        end: Offset(16, headerHeight - 16) - textRect.centerLeft / 2,
         begin: Offset(size.width / 2, 0) +
             textRect.centerLeft / 2 -
             textRect.topRight / 2);

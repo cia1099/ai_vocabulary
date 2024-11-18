@@ -5,9 +5,9 @@ extension CollectDB on MyDB {
     required int wordId,
     int? learned,
     bool? collect,
-    String? mark,
+    String? bookmark,
   }) {
-    final inputs = <dynamic>[learned, collect, mark];
+    final inputs = <dynamic>[learned, collect, bookmark];
     final posInput = List.generate(inputs.length, (i) {
       final input = inputs.elementAt(i);
       if (input == null) return input;
@@ -17,7 +17,7 @@ extension CollectDB on MyDB {
         case 1:
           return 'collect=?';
         case 2:
-          return 'mark=?';
+          return 'bookmark=?';
         default:
           return input;
       }

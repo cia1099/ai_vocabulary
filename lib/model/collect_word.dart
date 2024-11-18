@@ -5,14 +5,14 @@ class CollectWord {
   final String? userId;
   int learned;
   bool collect;
-  String? mark;
+  String? bookmark;
 
   CollectWord({
     required this.wordId,
     required this.userId,
     required this.learned,
     required this.collect,
-    required this.mark,
+    required this.bookmark,
   });
 
   factory CollectWord.fromRawJson(String str) =>
@@ -25,7 +25,7 @@ class CollectWord {
         userId: json["user_id"],
         learned: json["learned"],
         collect: json["collect"] > 0,
-        mark: json["mark"],
+        bookmark: json["bookmark"],
       );
 
   Map<String, dynamic> toJson() => {
@@ -33,6 +33,6 @@ class CollectWord {
         "user_id": userId,
         "learned": learned,
         "collect": collect,
-        "mark": mark,
+        "bookmark": bookmark,
       };
 }

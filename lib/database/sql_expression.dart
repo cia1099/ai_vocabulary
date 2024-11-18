@@ -66,7 +66,7 @@ CREATE TABLE collect_words (
         user_id UUID, 
         learned INTEGER NOT NULL DEFAULT 0, 
         collect BOOLEAN NOT NULL DEFAULT false, 
-        mark VARCHAR, 
+        bookmark VARCHAR, 
         PRIMARY KEY (word_id), 
         FOREIGN KEY(word_id) REFERENCES words (id)
 );
