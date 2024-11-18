@@ -56,7 +56,7 @@ class _ExampleParagraphState extends State<ExampleParagraph>
               child: widget.mark ??
                   Icon(
                     CupertinoIcons.circle_fill,
-                    size: textTheme.bodySmall!.fontSize,
+                    size: textTheme.bodySmall?.fontSize,
                     color: colorScheme.primary,
                   ),
             )),
@@ -73,11 +73,11 @@ class _ExampleParagraphState extends State<ExampleParagraph>
                   cupertino: (_, child, __) => GestureDetector(
                       onTap: () => soundAzure(widget.example), child: child),
                   child: Icon(CupertinoIcons.volume_up,
-                      size: textTheme.bodyLarge!.fontSize),
+                      size: textTheme.bodyLarge?.fontSize),
                 ),
               )
             ]),
-            style: textTheme.bodyMedium!.apply(
+            style: textTheme.bodyMedium?.apply(
                 color: colorScheme.onPrimaryContainer, fontSizeFactor: sqrt2)),
         xInterval: 0);
   }

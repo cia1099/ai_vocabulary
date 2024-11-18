@@ -4,6 +4,7 @@ import 'package:ai_vocabulary/api/dict_api.dart';
 import 'package:ai_vocabulary/model/vocabulary.dart';
 import 'package:ai_vocabulary/app_route.dart';
 import 'package:ai_vocabulary/widgets/definition_tile.dart';
+import 'package:ai_vocabulary/widgets/entry_actions.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
@@ -145,25 +146,29 @@ class VocabularyHead extends StatelessWidget {
                                 size: 32,
                               ),
                             )),
-                        const Positioned(
+                        Positioned(
                             top: 16,
                             right: 0,
-                            child: Wrap(
-                              spacing: 8,
-                              children: [
-                                Icon(CupertinoIcons.search),
-                                Icon(CupertinoIcons.star),
-                                Icon(CupertinoIcons.ellipsis_vertical),
-                              ],
-                            )),
+                            child: EntryActions(wordID: word.wordId)),
                         Positioned(
                             bottom: 0,
                             right: 0,
                             child: Offstage(
                               offstage: h < .1,
-                              child: const Wrap(
-                                  spacing: 8,
-                                  children: [Text("Unknow"), Text("Naive")]),
+                              child: Container(
+                                padding: const EdgeInsets.all(4),
+                                decoration: BoxDecoration(
+                                  color: colorScheme.secondaryContainer,
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                child: Wrap(spacing: 8, children: [
+                                  GestureDetector(
+                                      onTap: () {},
+                                      child: const Text("Unknow")),
+                                  const VerticalDivider(),
+                                  const Text("Naive")
+                                ]),
+                              ),
                             )),
                       ],
                     ),

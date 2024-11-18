@@ -5,9 +5,12 @@ import 'package:ai_vocabulary/model/vocabulary.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../mock_data.dart';
+import '../model/collect_word.dart';
 import 'sql_expression.dart';
 import 'package:path/path.dart' as p;
 import 'package:sqlite3/sqlite3.dart';
+
+part 'collect_db.dart';
 
 class MyDB {
   late final String _appDirectory;
@@ -21,6 +24,8 @@ class MyDB {
   static MyDB get instance => _instance ??= MyDB._internal();
   factory MyDB() => instance;
 
+  Database open(OpenMode mode) =>
+      sqlite3.open(p.join(appDirectory, _dbName), mode: mode);
   String get appDirectory => _appDirectory;
   Future<String> get futureAppDirectory async =>
       getApplicationDocumentsDirectory().then((value) => value.path);
@@ -38,14 +43,14 @@ class MyDB {
   }
 
   void insertWords(Stream<Vocabulary> words) async {
-    final db =
-        sqlite3.open(p.join(appDirectory, _dbName), mode: OpenMode.readWrite);
+    final db = open(OpenMode.readWrite);
     final insert = [
       insertWord,
       insertDefinition,
       insertExplanation,
       insertExample,
-      insertAsset
+      insertAsset,
+      insertRecordWord
     ];
     final stmts = db.prepareMultiple(insert.join(';'));
     await for (final word in words) {
@@ -75,8 +80,9 @@ class MyDB {
           } //for explanation
         } //for definition
         if (word.asset != null) {
-          stmts.last.execute([word.wordId, word.asset]);
+          stmts[4].execute([word.wordId, word.asset]);
         }
+        stmts[5].execute([word.wordId, null]);
       } on SqliteException {
         continue;
       }
@@ -93,8 +99,7 @@ SELECT words.id, words.word, assets.filename, definitions.part_of_speech, defini
 FROM words LEFT OUTER JOIN assets ON assets.word_id = words.id JOIN definitions ON words.id = definitions.word_id JOIN explanations ON explanations.definition_id = definitions.id LEFT OUTER JOIN examples ON examples.explanation_id = explanations.id 
 WHERE words.id IN (${wordIds.map((_) => '?').join(',')})
 ''';
-    final db =
-        sqlite3.open(p.join(appDirectory, _dbName), mode: OpenMode.readOnly);
+    final db = open(OpenMode.readOnly);
     final resultSet = db.select(fetchWordId, wordIds.toList());
     final wordMaps = <Map<String, dynamic>>[];
     for (final row in resultSet) {
@@ -185,9 +190,13 @@ Map<String, dynamic> traceWord(
 
 void main() {
   final myDB = MyDB();
-  myDB.insertWords(Stream.fromIterable([apple, apple]));
+  // myDB.insertWords(Stream.fromIterable([apple, apple]));
   // final words = myDB.fetchWords([12316]);
   // for (final word in words) {
   //   print(word.toRawJson());
   // }
+  final db = myDB.open(OpenMode.readWrite);
+  final stmt = db.prepare(insertRecordWord);
+  stmt.execute([123, null]);
+  db.dispose();
 }

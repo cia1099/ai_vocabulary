@@ -72,7 +72,7 @@ class _MyAppState extends State<MyApp> with AppRoute {
           onGenerateRoute: generateRoute,
           initialRoute: AppRoute.home,
           // home: const HomePage(),
-          home: VocabularyPage(word: apple),
+          // home: VocabularyPage(word: apple),
         ),
       ),
     );

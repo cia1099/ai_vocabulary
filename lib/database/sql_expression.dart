@@ -8,6 +8,9 @@ const insertExample =
     r'INSERT INTO examples (word_id, explanation_id, example) VALUES (?, ?, ?)';
 const insertAsset = r'INSERT INTO assets (word_id, filename) VALUES (?, ?)';
 
+const insertRecordWord =
+    r'INSERT INTO collect_words (word_id, user_id) VALUES (?, ?)';
+
 const createDictionary = '''
 CREATE TABLE words (
         id INTEGER NOT NULL, 
@@ -56,6 +59,15 @@ CREATE TABLE assets (
         filename VARCHAR NOT NULL, 
         PRIMARY KEY (id), 
         CONSTRAINT word_unique UNIQUE (word_id, id), 
+        FOREIGN KEY(word_id) REFERENCES words (id)
+);
+CREATE TABLE collect_words (
+        word_id INTEGER NOT NULL, 
+        user_id UUID, 
+        learned INTEGER NOT NULL DEFAULT 0, 
+        collect BOOLEAN NOT NULL DEFAULT false, 
+        mark VARCHAR, 
+        PRIMARY KEY (word_id), 
         FOREIGN KEY(word_id) REFERENCES words (id)
 );
 ''';
