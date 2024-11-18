@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:ai_vocabulary/model/vocabulary.dart';
 import 'package:path_provider/path_provider.dart';
 
-import '../mock_data.dart';
 import '../model/collect_word.dart';
 import 'sql_expression.dart';
 import 'package:path/path.dart' as p;

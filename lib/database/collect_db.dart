@@ -47,4 +47,13 @@ extension CollectDB on MyDB {
     db.dispose();
     return collects.first;
   }
+
+  Iterable<int> fetchDoneWords() {
+    final db = open(OpenMode.readOnly);
+    final resultSet = db.select(
+        'SELECT word_id FROM collect_words WHERE collect_words.learned >= ?',
+        [kMaxLearning]);
+    db.dispose();
+    return resultSet.map((row) => row['word_id'] as int);
+  }
 }

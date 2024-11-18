@@ -110,7 +110,7 @@ class VocabularyHead extends StatelessWidget {
                     child: Stack(
                       children: [
                         CustomSingleChildLayout(
-                          delegate: BackGroudLayoutDelegate(headerHeight),
+                          delegate: BackgroundLayoutDelegate(headerHeight),
                           child: Container(
                             decoration: BoxDecoration(
                               image: word.asset != null
@@ -183,9 +183,9 @@ class VocabularyHead extends StatelessWidget {
   }
 }
 
-class BackGroudLayoutDelegate extends SingleChildLayoutDelegate {
+class BackgroundLayoutDelegate extends SingleChildLayoutDelegate {
   final double headerHeight;
-  BackGroudLayoutDelegate(
+  BackgroundLayoutDelegate(
     this.headerHeight,
   );
 
@@ -208,7 +208,7 @@ class BackGroudLayoutDelegate extends SingleChildLayoutDelegate {
   }
 
   @override
-  bool shouldRelayout(covariant BackGroudLayoutDelegate oldDelegate) => false;
+  bool shouldRelayout(covariant BackgroundLayoutDelegate oldDelegate) => false;
 }
 
 class TitlePainter extends CustomPainter {

@@ -1,4 +1,5 @@
 import 'package:ai_vocabulary/database/my_db.dart';
+import 'package:ai_vocabulary/model/collect_word.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -14,7 +15,7 @@ class EntryActions extends StatefulWidget {
 }
 
 class _EntryActionsState extends State<EntryActions> {
-  late final collectWord = MyDB.instance.getCollectWord(widget.wordID);
+  late var collect = MyDB.instance.getCollectWord(widget.wordID).collect;
   @override
   Widget build(BuildContext context) {
     return Wrap(
@@ -23,7 +24,7 @@ class _EntryActionsState extends State<EntryActions> {
         const Icon(CupertinoIcons.search),
         GestureDetector(
             onTap: toggleCollection,
-            child: collectWord.collect
+            child: collect
                 ? const Icon(CupertinoIcons.star_fill,
                     color: CupertinoColors.systemYellow)
                 : const Icon(CupertinoIcons.star)),
@@ -32,11 +33,16 @@ class _EntryActionsState extends State<EntryActions> {
     );
   }
 
+  @override
+  void dispose() {
+    MyDB.instance.updateCollectWord(wordId: widget.wordID, collect: collect);
+    super.dispose();
+  }
+
   void toggleCollection() {
-    collectWord.collect ^= true;
-    MyDB.instance
-        .updateCollectWord(wordId: widget.wordID, collect: collectWord.collect);
-    setState(() {});
+    setState(() {
+      collect ^= true;
+    });
   }
 }
 
@@ -68,10 +74,10 @@ class _NaiveSegmentState extends State<NaiveSegment> {
     final colorScheme = Theme.of(context).colorScheme;
     firstText = learned == 0
         ? 'Learn in future'
-        : learned < 5
+        : learned < kMaxLearning
             ? 'Unknown'
             : "Don't learn anymore";
-    secondText = learned > 0 && learned < 5 ? 'Naive' : 'withdraw';
+    secondText = learned > 0 && learned < kMaxLearning ? 'Naive' : 'withdraw';
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
       decoration: BoxDecoration(
@@ -131,18 +137,18 @@ class _NaiveSegmentState extends State<NaiveSegment> {
 
   void setNaive() {
     setState(() {
-      learned = 5;
+      learned = kMaxLearning;
     });
   }
 
   void withdraw() {
     setState(() {
-      if (collectWord.learned > 0 && collectWord.learned < 5) {
+      if (collectWord.learned > 0 && collectWord.learned < kMaxLearning) {
         learned = collectWord.learned;
       } else if (collectWord.learned == 0) {
-        learned = (++collectWord.learned).clamp(0, 4);
+        learned = (++collectWord.learned).clamp(0, kMaxLearning - 1);
       } else {
-        learned = (--collectWord.learned).clamp(0, 4);
+        learned = (--collectWord.learned).clamp(0, kMaxLearning - 1);
       }
     });
   }

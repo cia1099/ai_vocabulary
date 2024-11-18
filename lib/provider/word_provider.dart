@@ -92,9 +92,12 @@ class WordProvider {
 
   Future<Set<int>> _sampleWordIds(Set<int> wordIds, final int count) async {
     final maxId = await getMaxId();
+    final doneIDs = MyDB().fetchDoneWords();
     final rng = Random();
     while (wordIds.length < count) {
-      wordIds.add(rng.nextInt(maxId) + 1);
+      final id = rng.nextInt(maxId) + 1;
+      if (doneIDs.contains(id)) continue;
+      wordIds.add(id);
     }
     return wordIds;
   }

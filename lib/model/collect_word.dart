@@ -36,3 +36,5 @@ class CollectWord {
         "bookmark": bookmark,
       };
 }
+
+const kMaxLearning = 5;
