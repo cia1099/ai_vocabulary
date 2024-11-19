@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../pages/report_popup.dart';
+import '../pages/search_popup.dart';
 
 class EntryActions extends StatefulWidget {
   const EntryActions({
@@ -25,7 +26,25 @@ class _EntryActionsState extends State<EntryActions> {
       child: Wrap(
         spacing: 8,
         children: [
-          const Icon(CupertinoIcons.search),
+          GestureDetector(
+              onTap: () => Navigator.of(context).push(PageRouteBuilder(
+                    opaque: false,
+                    barrierDismissible: true,
+                    barrierColor:
+                        Theme.of(context).colorScheme.shadow.withOpacity(.4),
+                    pageBuilder: (context, _, __) => const SearchPopUpPage(),
+                    transitionsBuilder:
+                        (context, animation, secondaryAnimation, child) =>
+                            AnimatedBuilder(
+                                animation: animation,
+                                builder: (_, __) => Transform.scale(
+                                      alignment: Alignment.topCenter,
+                                      origin: const Offset(0, 32),
+                                      scaleY: animation.value,
+                                      child: child,
+                                    )),
+                  )),
+              child: const Icon(CupertinoIcons.search)),
           GestureDetector(
               onTap: toggleCollection,
               child: collect
@@ -47,7 +66,7 @@ class _EntryActionsState extends State<EntryActions> {
                         end: Matrix4.identity(),
                         begin: Matrix4.diagonal3Values(1, .1, 1)
                           ..translate(.0, 1e3),
-                      );
+                      ).chain(CurveTween(curve: Curves.easeOut));
                       return AnimatedBuilder(
                         animation: animation,
                         builder: (_, __) => Transform(
