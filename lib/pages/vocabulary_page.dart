@@ -12,10 +12,12 @@ import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 part 'views/definition_tab.dart';
 
 class VocabularyPage extends StatelessWidget {
-  const VocabularyPage({super.key, required this.word, this.nextTap});
+  const VocabularyPage(
+      {super.key, required this.word, this.nextTap, this.autoPlay = true});
 
   final Vocabulary word;
   final VoidCallback? nextTap;
+  final bool autoPlay;
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +25,7 @@ class VocabularyPage extends StatelessWidget {
     final hPadding = MediaQuery.of(context).size.width / 16;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final example = word.getExamples.firstOrNull;
-      if (example != null) {
+      if (example != null && autoPlay) {
         Future.delayed(Durations.medium1, () => soundAzure(example));
       }
     });
@@ -125,28 +127,28 @@ class VocabularyHead extends StatelessWidget {
                             ),
                           ),
                         ),
-                        Positioned(
-                            top: 16,
-                            left: 0,
-                            child: Offstage(
-                              offstage: noEntry(routeName),
-                              child: Icon(
-                                CupertinoIcons.chevron_back,
-                                color: navigatorTheme.color,
-                                size: 32,
-                              ),
-                            )),
-                        Positioned(
-                            top: 16,
-                            right: 0,
-                            child: EntryActions(wordID: word.wordId)),
-                        Positioned(
-                            bottom: 0,
-                            right: 0,
-                            child: Offstage(
-                              offstage: h < .1 || noEntry(routeName),
-                              child: NaiveSegment(wordID: word.wordId),
-                            )),
+                        if (!noEntry(routeName))
+                          ...List.from([
+                            Positioned(
+                                top: 16,
+                                left: 0,
+                                child: Icon(
+                                  CupertinoIcons.chevron_back,
+                                  color: navigatorTheme.color,
+                                  size: 32,
+                                )),
+                            Positioned(
+                                top: 16,
+                                right: 0,
+                                child: EntryActions(wordID: word.wordId)),
+                            Positioned(
+                                bottom: 0,
+                                right: 0,
+                                child: Offstage(
+                                  offstage: h < .1,
+                                  child: NaiveSegment(wordID: word.wordId),
+                                )),
+                          ]),
                         CustomPaint(
                           foregroundPainter: TitlePainter(
                             title: word.word,

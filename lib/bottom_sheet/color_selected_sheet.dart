@@ -28,10 +28,10 @@ class _ColorSelectedSheetState extends State<ColorSelectedSheet> {
     final colorScheme = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.only(top: 16),
-      decoration: const BoxDecoration(
-          borderRadius: BorderRadius.vertical(
+      decoration: BoxDecoration(
+          borderRadius: const BorderRadius.vertical(
               top: Radius.circular(kRadialReactionRadius)),
-          color: CupertinoColors.systemBackground),
+          color: colorScheme.surfaceBright),
       width: double.maxFinite,
       height: 220,
       child: Column(
