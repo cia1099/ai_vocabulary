@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'package:ai_vocabulary/database/my_db.dart';
+import 'package:ai_vocabulary/model/collect_word.dart';
 import 'package:ai_vocabulary/provider/word_provider.dart';
 import 'package:ai_vocabulary/widgets/definition_tile.dart';
 import 'package:flutter/cupertino.dart';
@@ -152,7 +154,12 @@ class EntryPage extends StatelessWidget {
                         // foregroundColor: colorScheme.onSurfaceVariant,
                         backgroundColor: colorScheme.surfaceContainer,
                       ),
-                      onPressed: () {},
+                      onPressed: () {
+                        MyDB.instance.updateCollectWord(
+                            wordId: word.wordId, acquaint: kMaxAcquaintance);
+                        Navigator.of(context)
+                            .pushNamed(AppRoute.entryVocabulary);
+                      },
                       icon: Icon(CupertinoIcons.trash,
                           color: colorScheme.onSurfaceVariant),
                       label: Text('Mark as too easy',
@@ -164,8 +171,12 @@ class EntryPage extends StatelessWidget {
                       spacing: screenWidth / 12,
                       children: [
                         TextButton(
-                          onPressed: () => Navigator.of(context)
-                              .pushNamed(AppRoute.entryVocabulary),
+                          onPressed: () {
+                            MyDB.instance.updateCollectWord(
+                                wordId: word.wordId, acquaint: 0);
+                            Navigator.of(context)
+                                .pushNamed(AppRoute.entryVocabulary);
+                          },
                           style: TextButton.styleFrom(
                               fixedSize: Size.square(screenWidth / 3),
                               backgroundColor: colorScheme.secondaryContainer

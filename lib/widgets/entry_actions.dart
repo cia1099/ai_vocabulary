@@ -3,6 +3,8 @@ import 'package:ai_vocabulary/model/collect_word.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import '../pages/report_popup.dart';
+
 class EntryActions extends StatefulWidget {
   const EntryActions({
     super.key,
@@ -18,18 +20,47 @@ class _EntryActionsState extends State<EntryActions> {
   late var collect = MyDB.instance.getCollectWord(widget.wordID).collect;
   @override
   Widget build(BuildContext context) {
-    return Wrap(
-      spacing: 8,
-      children: [
-        const Icon(CupertinoIcons.search),
-        GestureDetector(
-            onTap: toggleCollection,
-            child: collect
-                ? const Icon(CupertinoIcons.star_fill,
-                    color: CupertinoColors.systemYellow)
-                : const Icon(CupertinoIcons.star)),
-        const Icon(CupertinoIcons.ellipsis_vertical),
-      ],
+    return Padding(
+      padding: const EdgeInsets.only(right: 8),
+      child: Wrap(
+        spacing: 8,
+        children: [
+          const Icon(CupertinoIcons.search),
+          GestureDetector(
+              onTap: toggleCollection,
+              child: collect
+                  ? const Icon(CupertinoIcons.star_fill,
+                      color: CupertinoColors.systemYellow)
+                  : const Icon(CupertinoIcons.star)),
+          GestureDetector(
+              onTap: () => Navigator.of(context).push(PageRouteBuilder(
+                    opaque: false,
+                    barrierDismissible: true,
+                    barrierColor:
+                        Theme.of(context).colorScheme.shadow.withOpacity(.4),
+                    pageBuilder: (context, animation, secondaryAnimation) =>
+                        const ReportPopUpPage(),
+                    // transitionDuration: Durations.medium1,
+                    transitionsBuilder:
+                        (context, animation, secondaryAnimation, child) {
+                      final matrix = Matrix4Tween(
+                        end: Matrix4.identity(),
+                        begin: Matrix4.diagonal3Values(1, .1, 1)
+                          ..translate(.0, 1e3),
+                      );
+                      return AnimatedBuilder(
+                        animation: animation,
+                        builder: (_, __) => Transform(
+                          alignment: Alignment.topCenter,
+                          transform: matrix.evaluate(animation),
+                          child: child,
+                        ),
+                      );
+                    },
+                  )),
+              child: const Icon(CupertinoIcons.ellipsis_vertical)),
+        ],
+      ),
     );
   }
 
@@ -60,24 +91,25 @@ class NaiveSegment extends StatefulWidget {
 
 class _NaiveSegmentState extends State<NaiveSegment> {
   late final collectWord = MyDB.instance.getCollectWord(widget.wordID);
-  late int learned = collectWord.learned;
+  late int acquaint = collectWord.acquaint;
   String firstText = 'Unknown', secondText = 'Naive';
 
   @override
   void dispose() {
-    MyDB().updateCollectWord(wordId: widget.wordID, learned: learned);
+    MyDB().updateCollectWord(wordId: widget.wordID, acquaint: acquaint);
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    firstText = learned == 0
+    firstText = acquaint == 0
         ? 'Learn in future'
-        : learned < kMaxLearning
+        : acquaint < kMaxAcquaintance
             ? 'Unknown'
             : "Don't learn anymore";
-    secondText = learned > 0 && learned < kMaxLearning ? 'Naive' : 'withdraw';
+    secondText =
+        acquaint > 0 && acquaint < kMaxAcquaintance ? 'Naive' : 'withdraw';
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
       decoration: BoxDecoration(
@@ -89,7 +121,7 @@ class _NaiveSegmentState extends State<NaiveSegment> {
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
             GestureDetector(
-                onTap: learned > 0 && learned < 5 ? resetLearned : null,
+                onTap: acquaint > 0 && acquaint < 5 ? resetLearned : null,
                 child: Text.rich(
                     TextSpan(children: [
                       WidgetSpan(
@@ -109,7 +141,7 @@ class _NaiveSegmentState extends State<NaiveSegment> {
               ),
             ),
             GestureDetector(
-                onTap: learned > 0 && learned < 5 ? setNaive : withdraw,
+                onTap: acquaint > 0 && acquaint < 5 ? setNaive : withdraw,
                 child: Text.rich(
                   TextSpan(children: [
                     WidgetSpan(
@@ -131,24 +163,24 @@ class _NaiveSegmentState extends State<NaiveSegment> {
 
   void resetLearned() {
     setState(() {
-      learned = 0;
+      acquaint = 0;
     });
   }
 
   void setNaive() {
     setState(() {
-      learned = kMaxLearning;
+      acquaint = kMaxAcquaintance;
     });
   }
 
   void withdraw() {
     setState(() {
-      if (collectWord.learned > 0 && collectWord.learned < kMaxLearning) {
-        learned = collectWord.learned;
-      } else if (collectWord.learned == 0) {
-        learned = (++collectWord.learned).clamp(0, kMaxLearning - 1);
+      if (collectWord.acquaint > 0 && collectWord.acquaint < kMaxAcquaintance) {
+        acquaint = collectWord.acquaint;
+      } else if (collectWord.acquaint == 0) {
+        acquaint = (++collectWord.acquaint).clamp(0, kMaxAcquaintance - 1);
       } else {
-        learned = (--collectWord.learned).clamp(0, kMaxLearning - 1);
+        acquaint = (--collectWord.acquaint).clamp(0, kMaxAcquaintance - 1);
       }
     });
   }

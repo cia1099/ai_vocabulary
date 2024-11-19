@@ -64,7 +64,7 @@ CREATE TABLE assets (
 CREATE TABLE collect_words (
         word_id INTEGER NOT NULL, 
         user_id UUID, 
-        learned INTEGER NOT NULL DEFAULT 0, 
+        acquaint INTEGER NOT NULL DEFAULT 0, 
         collect BOOLEAN NOT NULL DEFAULT false, 
         bookmark VARCHAR, 
         PRIMARY KEY (word_id), 

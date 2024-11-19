@@ -3,14 +3,14 @@ import 'dart:convert';
 class CollectWord {
   final int wordId;
   final String? userId;
-  int learned;
+  int acquaint;
   bool collect;
   String? bookmark;
 
   CollectWord({
     required this.wordId,
     required this.userId,
-    required this.learned,
+    required this.acquaint,
     required this.collect,
     required this.bookmark,
   });
@@ -23,7 +23,7 @@ class CollectWord {
   factory CollectWord.fromJson(Map<String, dynamic> json) => CollectWord(
         wordId: json["word_id"],
         userId: json["user_id"],
-        learned: json["learned"],
+        acquaint: json["acquaint"],
         collect: json["collect"] > 0,
         bookmark: json["bookmark"],
       );
@@ -31,10 +31,10 @@ class CollectWord {
   Map<String, dynamic> toJson() => {
         "word_id": wordId,
         "user_id": userId,
-        "learned": learned,
+        "acquaint": acquaint,
         "collect": collect,
         "bookmark": bookmark,
       };
 }
 
-const kMaxLearning = 5;
+const kMaxAcquaintance = 5;

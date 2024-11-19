@@ -168,9 +168,9 @@ class _ClozePageState extends State<ClozePage> {
 
   String verifyAnswer(String correctWord, Iterable<String> matches) {
     if (inputController.text == correctWord) {
-      final learned = MyDB().getCollectWord(widget.word.wordId).learned;
-      MyDB()
-          .updateCollectWord(wordId: widget.word.wordId, learned: learned + 1);
+      final acquaint = MyDB().getCollectWord(widget.word.wordId).acquaint;
+      MyDB().updateCollectWord(
+          wordId: widget.word.wordId, acquaint: acquaint + 1);
       return "Correct";
     }
     if (matches.contains(inputController.text)) {

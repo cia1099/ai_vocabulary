@@ -3,17 +3,17 @@ part of 'my_db.dart';
 extension CollectDB on MyDB {
   void updateCollectWord({
     required int wordId,
-    int? learned,
+    int? acquaint,
     bool? collect,
     String? bookmark,
   }) {
-    final inputs = <dynamic>[learned, collect, bookmark];
+    final inputs = <dynamic>[acquaint, collect, bookmark];
     final posInput = List.generate(inputs.length, (i) {
       final input = inputs.elementAt(i);
       if (input == null) return input;
       switch (i) {
         case 0:
-          return 'learned=?';
+          return 'acquaint=?';
         case 1:
           return 'collect=?';
         case 2:
@@ -51,8 +51,8 @@ extension CollectDB on MyDB {
   Iterable<int> fetchDoneWords() {
     final db = open(OpenMode.readOnly);
     final resultSet = db.select(
-        'SELECT word_id FROM collect_words WHERE collect_words.learned >= ?',
-        [kMaxLearning]);
+        'SELECT word_id FROM collect_words WHERE collect_words.acquaint >= ?',
+        [kMaxAcquaintance]);
     db.dispose();
     return resultSet.map((row) => row['word_id'] as int);
   }
