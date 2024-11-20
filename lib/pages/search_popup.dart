@@ -76,7 +76,7 @@ class _SearchPopUpPageState extends State<SearchPopUpPage> {
                     ),
                   )),
                   PlatformTextButton(
-                      onPressed: () => Navigator.of(context).pop(),
+                      onPressed: Navigator.of(context).pop,
                       child: const Text('Cancel'))
                 ],
               ),

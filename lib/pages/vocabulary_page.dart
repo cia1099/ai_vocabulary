@@ -12,20 +12,20 @@ import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 part 'views/definition_tab.dart';
 
 class VocabularyPage extends StatelessWidget {
-  const VocabularyPage(
-      {super.key, required this.word, this.nextTap, this.autoPlay = true});
+  const VocabularyPage({super.key, required this.word, this.nextTap});
 
   final Vocabulary word;
   final VoidCallback? nextTap;
-  final bool autoPlay;
 
   @override
   Widget build(BuildContext context) {
     double headerHeight = 150;
     final hPadding = MediaQuery.of(context).size.width / 16;
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      //TODO: push page will incur this callback
       final example = word.getExamples.firstOrNull;
-      if (example != null && autoPlay) {
+      final routeName = ModalRoute.of(context)?.settings.name;
+      if (example != null && fromEntry(routeName)) {
         Future.delayed(Durations.medium1, () => soundAzure(example));
       }
     });
@@ -127,15 +127,18 @@ class VocabularyHead extends StatelessWidget {
                             ),
                           ),
                         ),
-                        if (!noEntry(routeName))
+                        if (routeName != null)
                           ...List.from([
                             Positioned(
                                 top: 16,
                                 left: 0,
-                                child: Icon(
-                                  CupertinoIcons.chevron_back,
-                                  color: navigatorTheme.color,
-                                  size: 32,
+                                child: GestureDetector(
+                                  onTap: Navigator.of(context).pop,
+                                  child: Icon(
+                                    CupertinoIcons.chevron_back,
+                                    color: navigatorTheme.color,
+                                    size: 32,
+                                  ),
                                 )),
                             Positioned(
                                 top: 16,
@@ -148,13 +151,13 @@ class VocabularyHead extends StatelessWidget {
                                   offstage: h < .1,
                                   child: NaiveSegment(wordID: word.wordId),
                                 )),
-                          ]),
+                          ]).take(fromEntry(routeName) ? 3 : 1),
                         CustomPaint(
                           foregroundPainter: TitlePainter(
                             title: word.word,
                             headerHeight: headerHeight,
                             style: textTheme.headlineMedium,
-                            strokeColor: colorScheme.primary,
+                            strokeColor: colorScheme.outlineVariant,
                           ),
                           size: constraints.biggest,
                         ),
@@ -178,10 +181,6 @@ class VocabularyHead extends StatelessWidget {
         );
       },
     );
-  }
-
-  bool noEntry(String? routeName) {
-    return routeName == null || !routeName.contains('entry');
   }
 }
 

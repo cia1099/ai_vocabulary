@@ -96,7 +96,7 @@ class _ImagenDialogState extends State<ImagenDialog> {
             Align(
               alignment: const FractionalOffset(1, 0),
               child: PlatformIconButton(
-                  onPressed: () => Navigator.of(context).pop(),
+                  onPressed: Navigator.of(context).pop,
                   material: (_, __) => MaterialIconButtonData(iconSize: 48),
                   cupertino: (_, __) => CupertinoIconButtonData(minSize: 48),
                   cupertinoIcon: const Icon(

@@ -28,7 +28,6 @@ class ExampleParagraph extends StatefulWidget {
 
 class _ExampleParagraphState extends State<ExampleParagraph>
     with ClickableTextStateMixin {
-  late final colorScheme = Theme.of(context).colorScheme;
   late final textTheme = Theme.of(context).textTheme;
 
   @override
@@ -46,6 +45,7 @@ class _ExampleParagraphState extends State<ExampleParagraph>
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return AlignParagraph(
         markWidget: Padding(
             padding: const EdgeInsets.only(left: 8, right: 4),

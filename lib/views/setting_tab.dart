@@ -89,24 +89,13 @@ class SettingTab extends StatelessWidget {
                 PlatformListTile(
                   title: const Text('Application Color Theme'),
                   trailing: const Icon(CupertinoIcons.right_chevron),
-                  onTap: () => Navigator.of(context).push(PageRouteBuilder(
-                    opaque: false,
-                    barrierDismissible: true,
+                  onTap: () => Navigator.of(context).push(CupertinoDialogRoute(
+                    builder: (context) => const ColorSelectPage(),
                     barrierColor: Theme.of(context)
                         .colorScheme
                         .inverseSurface
                         .withOpacity(.4),
-                    maintainState: false,
-                    pageBuilder: (context, animation, secondaryAnimation) =>
-                        const ColorSelectPage(),
-                    transitionDuration: const Duration(milliseconds: 600),
-                    transitionsBuilder:
-                        (context, animation, secondaryAnimation, child) =>
-                            FadeTransition(
-                      opacity: CurvedAnimation(
-                          parent: animation, curve: Curves.easeInQuart),
-                      child: child,
-                    ),
+                    context: context,
                   )),
                 )
               ],

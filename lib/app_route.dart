@@ -47,3 +47,7 @@ mixin AppRoute<T extends StatefulWidget> on State<T> {
         settings: RouteSettings(name: path));
   }
 }
+
+bool fromEntry(String? routeName) {
+  return routeName != null && routeName.contains('entry');
+}

@@ -30,6 +30,7 @@ class _EntryActionsState extends State<EntryActions> {
               onTap: () => Navigator.of(context).push(PageRouteBuilder(
                     opaque: false,
                     barrierDismissible: true,
+                    maintainState: true,
                     barrierColor:
                         Theme.of(context).colorScheme.shadow.withOpacity(.4),
                     pageBuilder: (context, _, __) => const SearchPopUpPage(),
@@ -132,7 +133,7 @@ class _NaiveSegmentState extends State<NaiveSegment> {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
       decoration: BoxDecoration(
-        color: colorScheme.secondaryContainer,
+        color: colorScheme.tertiaryContainer.withOpacity(.8),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Wrap(
@@ -151,11 +152,11 @@ class _NaiveSegmentState extends State<NaiveSegment> {
                       const TextSpan(text: ' '),
                       TextSpan(text: firstText),
                     ]),
-                    style: TextStyle(color: colorScheme.onPrimaryContainer))),
+                    style: TextStyle(color: colorScheme.onTertiaryContainer))),
             SizedBox(
               height: 12,
               child: VerticalDivider(
-                color: colorScheme.onSecondaryContainer,
+                color: colorScheme.onTertiaryContainer,
                 width: 8,
               ),
             ),
@@ -173,7 +174,7 @@ class _NaiveSegmentState extends State<NaiveSegment> {
                   ]),
                   style: TextStyle(
                       color: secondText != 'withdraw'
-                          ? colorScheme.onSecondaryContainer
+                          ? colorScheme.onTertiaryContainer
                           : colorScheme.primary),
                 ))
           ]),

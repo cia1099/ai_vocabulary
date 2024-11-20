@@ -78,7 +78,7 @@ class _RetrievalBottomSheetState extends State<RetrievalBottomSheet>
                             const SizedBox(),
                             const Icon(CupertinoIcons.chevron_up_chevron_down),
                             GestureDetector(
-                                onTap: () => Navigator.of(context).pop(),
+                                onTap: Navigator.of(context).pop,
                                 child: const Icon(
                                     CupertinoIcons.xmark_circle_fill)),
                           ],

@@ -9,35 +9,26 @@ class ReportPopUpPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Positioned(
-            top: kToolbarHeight * 2,
-            right: 16,
-            child: SizedBox(
-              height: 100,
-              width: 180,
-              child: Card(
-                child: Column(
-                  children: [
-                    PlatformListTile(
-                      title: const Text('Study Setting'),
-                      leading: const Icon(CupertinoIcons.gear),
-                      cupertino: (_, __) =>
-                          CupertinoListTileData(leadingToTitle: 4),
-                    ),
-                    PlatformListTile(
-                      title: const Text('Report Issue'),
-                      leading:
-                          const Icon(CupertinoIcons.exclamationmark_triangle),
-                      cupertino: (_, __) =>
-                          CupertinoListTileData(leadingToTitle: 4),
-                    ),
-                  ],
-                ),
-              ),
-            ))
-      ],
+    return FractionallySizedBox(
+      alignment: const Alignment(.8, -.7),
+      widthFactor: .5,
+      heightFactor: .12,
+      child: Card(
+        child: Column(
+          children: [
+            PlatformListTile(
+              title: const Text('Study Setting'),
+              leading: const Icon(CupertinoIcons.gear),
+              cupertino: (_, __) => CupertinoListTileData(leadingToTitle: 4),
+            ),
+            PlatformListTile(
+              title: const Text('Report Issue'),
+              leading: const Icon(CupertinoIcons.exclamationmark_triangle),
+              cupertino: (_, __) => CupertinoListTileData(leadingToTitle: 4),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

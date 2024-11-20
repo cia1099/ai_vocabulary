@@ -34,8 +34,7 @@ class EntryPage extends StatelessWidget {
               builder: (context, snapshot) {
                 final word = snapshot.data;
                 if (word == null) {
-                  Future.delayed(
-                      Durations.short1, () => Navigator.of(context).pop());
+                  Future.delayed(Durations.short1, Navigator.of(context).pop);
                   return const Center(
                       child: Text(
                           'There is no vocabulary you need to learn today'));

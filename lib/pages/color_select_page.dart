@@ -1,4 +1,4 @@
-import 'dart:math' show pi;
+import 'dart:math' show pi, sqrt2;
 
 import 'package:ai_vocabulary/model/vocabulary.dart';
 import 'package:flutter/cupertino.dart';
@@ -32,14 +32,18 @@ class ColorSelectPage extends StatelessWidget {
                       removeTop: true,
                       removeBottom: true,
                       child: VocabularyPage(
-                          word: Vocabulary.fromRawJson(appleJson),
-                          autoPlay: false),
+                        word: Vocabulary.fromRawJson(appleJson),
+                      ),
                     ),
                   )),
             )),
         const Align(
           alignment: Alignment.bottomCenter,
-          child: SlideAppear(isHorizontal: false, child: ColorSelectedSheet()),
+          child: FractionallySizedBox(
+            heightFactor: .25,
+            child:
+                SlideAppear(isHorizontal: false, child: ColorSelectedSheet()),
+          ),
         )
       ],
     );
@@ -57,8 +61,8 @@ class SlideAppear extends StatefulWidget {
 
 class _SlideAppearState extends State<SlideAppear> {
   late var offset = widget.isHorizontal
-      ? Offset.fromDirection(0, 1.5)
-      : Offset.fromDirection(pi / 2, 1.5);
+      ? Offset.fromDirection(0, sqrt2)
+      : Offset.fromDirection(pi / 2, sqrt2);
   @override
   void initState() {
     super.initState();
