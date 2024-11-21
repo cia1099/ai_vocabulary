@@ -10,8 +10,10 @@ class EntryActions extends StatefulWidget {
   const EntryActions({
     super.key,
     required this.wordID,
+    this.skipIndexes = const [],
   });
   final int wordID;
+  final List<int> skipIndexes;
 
   @override
   State<EntryActions> createState() => _EntryActionsState();
@@ -23,7 +25,29 @@ class _EntryActionsState extends State<EntryActions> {
   Widget build(BuildContext context) {
     return Wrap(
       spacing: 8,
-      children: [
+      children: actions(widget.skipIndexes),
+    );
+  }
+
+  @override
+  void dispose() {
+    MyDB.instance.updateCollectWord(wordId: widget.wordID, collect: collect);
+    super.dispose();
+  }
+
+  void toggleCollection() {
+    setState(() {
+      collect ^= true;
+    });
+  }
+
+  List<Widget> actions(List<int> skipIndexes) {
+    final appBarIconSize =
+        Theme.of(context).appBarTheme.actionsIconTheme?.size ?? 24.0;
+    // final navColor =
+    //     CupertinoTheme.of(context).textTheme.navActionTextStyle.color;
+    return [
+      if (!skipIndexes.contains(0))
         GestureDetector(
             onTap: () => Navigator.of(context).push(PageRouteBuilder(
                   opaque: false,
@@ -43,13 +67,25 @@ class _EntryActionsState extends State<EntryActions> {
                                     child: child,
                                   )),
                 )),
-            child: const Icon(CupertinoIcons.search)),
+            child: Icon(
+              CupertinoIcons.search,
+              size: appBarIconSize,
+              // color: navColor,
+            )),
+      if (!skipIndexes.contains(1))
         GestureDetector(
             onTap: toggleCollection,
             child: collect
-                ? const Icon(CupertinoIcons.star_fill,
-                    color: CupertinoColors.systemYellow)
-                : const Icon(CupertinoIcons.star)),
+                ? Icon(
+                    CupertinoIcons.star_fill,
+                    color: CupertinoColors.systemYellow,
+                    size: appBarIconSize,
+                  )
+                : Icon(
+                    CupertinoIcons.star,
+                    size: appBarIconSize,
+                  )),
+      if (!skipIndexes.contains(2))
         GestureDetector(
             onTap: () => Navigator.of(context).push(PageRouteBuilder(
                   opaque: false,
@@ -76,21 +112,11 @@ class _EntryActionsState extends State<EntryActions> {
                     );
                   },
                 )),
-            child: const Icon(CupertinoIcons.ellipsis_vertical)),
-      ],
-    );
-  }
-
-  @override
-  void dispose() {
-    MyDB.instance.updateCollectWord(wordId: widget.wordID, collect: collect);
-    super.dispose();
-  }
-
-  void toggleCollection() {
-    setState(() {
-      collect ^= true;
-    });
+            child: Icon(
+              CupertinoIcons.ellipsis_vertical,
+              size: appBarIconSize,
+            )),
+    ];
   }
 }
 

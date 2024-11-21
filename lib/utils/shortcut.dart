@@ -8,3 +8,5 @@ const speechShortcut = {
   "conjunction": "conj.",
   "interjection": "int."
 };
+
+const kAppBarPadding = 10.0;

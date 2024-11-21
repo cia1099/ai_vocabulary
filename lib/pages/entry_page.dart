@@ -2,6 +2,7 @@ import 'package:ai_vocabulary/database/my_db.dart';
 import 'package:ai_vocabulary/model/collect_word.dart';
 import 'package:ai_vocabulary/model/vocabulary.dart';
 import 'package:ai_vocabulary/provider/word_provider.dart';
+import 'package:ai_vocabulary/utils/shortcut.dart';
 import 'package:ai_vocabulary/widgets/definition_tile.dart';
 import 'package:ai_vocabulary/widgets/entry_actions.dart';
 import 'package:flutter/cupertino.dart';
@@ -19,24 +20,33 @@ class EntryPage extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final screenWidth = MediaQuery.of(context).size.width;
     final hPadding = screenWidth / 16;
-    return PlatformScaffold(
-      appBar: PlatformAppBar(
-        material: (_, __) => MaterialAppBarData(
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        ),
-        // title: const Text("Entry"),
-        // trailingActions: [
-        //   StreamBuilder(
-        //     // initialData: WordProvider().currentWord,
-        //     stream: WordProvider().provideWord,
-        //     builder: (context, snapshot) {
-        //       final word = snapshot.data;
-        //       if (word == null) return const SizedBox.shrink();
-        //       return EntryActions(wordID: word.wordId);
-        //     },
-        //   )
-        // ],
-      ),
+    return Scaffold(
+      appBar: PreferredSize(
+          preferredSize: const Size.fromHeight(kToolbarHeight),
+          child: Stack(
+            children: [
+              PlatformAppBar(
+                material: (_, __) => MaterialAppBarData(
+                  backgroundColor: colorScheme.inversePrimary,
+                ),
+              ),
+              Positioned(
+                bottom: kAppBarPadding,
+                right: 16,
+                child: StreamBuilder(
+                  stream: WordProvider().provideWord,
+                  builder: (context, snapshot) {
+                    final word = snapshot.data;
+                    if (word == null) return const SizedBox.shrink();
+                    return EntryActions(
+                      wordID: word.wordId,
+                      skipIndexes: const [1],
+                    );
+                  },
+                ),
+              )
+            ],
+          )),
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: hPadding),

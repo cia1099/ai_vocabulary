@@ -29,7 +29,7 @@ class VocabularyPage extends StatelessWidget {
         Future.delayed(Durations.medium1, () => soundAzure(example));
       }
     });
-    return Scaffold(
+    return PlatformScaffold(
       body: SafeArea(
         child: DefaultTabController(
           length: 1,

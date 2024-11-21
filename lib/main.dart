@@ -1,5 +1,3 @@
-import 'package:ai_vocabulary/pages/home_page.dart';
-import 'package:ai_vocabulary/pages/vocabulary_page.dart';
 import 'package:ai_vocabulary/provider/word_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';

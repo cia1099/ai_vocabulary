@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:ai_vocabulary/database/my_db.dart';
 import 'package:ai_vocabulary/model/vocabulary.dart';
 import 'package:ai_vocabulary/utils/regex.dart';
+import 'package:ai_vocabulary/utils/shortcut.dart';
 import 'package:ai_vocabulary/widgets/entry_actions.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -58,10 +59,22 @@ class _ClozePageState extends State<ClozePage> {
 
     final textTheme = Theme.of(context).textTheme;
     final hPadding = MediaQuery.of(context).size.width / 16;
-    return PlatformScaffold(
-      appBar: PlatformAppBar(
-        trailingActions: [EntryActions(wordID: word.wordId)],
-      ),
+    return Scaffold(
+      appBar: PreferredSize(
+          preferredSize: const Size.fromHeight(kToolbarHeight),
+          child: Stack(
+            children: [
+              PlatformAppBar(
+                material: (_, __) => MaterialAppBarData(
+                  backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+                ),
+              ),
+              Positioned(
+                  bottom: kAppBarPadding,
+                  right: 16,
+                  child: EntryActions(wordID: word.wordId)),
+            ],
+          )),
       body: SafeArea(
           child: Padding(
         padding: EdgeInsets.all(hPadding),
