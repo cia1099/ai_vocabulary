@@ -88,7 +88,7 @@ class SettingTab extends StatelessWidget {
                 ),
                 PlatformListTile(
                   title: const Text('Application Color Theme'),
-                  trailing: const Icon(CupertinoIcons.right_chevron),
+                  trailing: const CupertinoListTileChevron(),
                   onTap: () => Navigator.of(context).push(CupertinoDialogRoute(
                     builder: (context) => const ColorSelectPage(),
                     barrierColor: Theme.of(context)

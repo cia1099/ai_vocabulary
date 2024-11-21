@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
 import 'app_route.dart';
-import 'mock_data.dart';
 import 'theme.dart';
 
 void main() {
@@ -72,7 +71,6 @@ class _MyAppState extends State<MyApp> with AppRoute {
           onGenerateRoute: generateRoute,
           initialRoute: AppRoute.home,
           // home: const HomePage(),
-          // home: VocabularyPage(word: apple),
         ),
       ),
     );

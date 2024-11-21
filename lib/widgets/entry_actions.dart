@@ -21,66 +21,63 @@ class _EntryActionsState extends State<EntryActions> {
   late var collect = MyDB.instance.getCollectWord(widget.wordID).collect;
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 8),
-      child: Wrap(
-        spacing: 8,
-        children: [
-          GestureDetector(
-              onTap: () => Navigator.of(context).push(PageRouteBuilder(
-                    opaque: false,
-                    barrierDismissible: true,
-                    maintainState: true,
-                    barrierColor:
-                        Theme.of(context).colorScheme.shadow.withOpacity(.4),
-                    pageBuilder: (context, _, __) => const SearchPopUpPage(),
-                    transitionsBuilder:
-                        (context, animation, secondaryAnimation, child) =>
-                            AnimatedBuilder(
-                                animation: animation,
-                                builder: (_, __) => Transform.scale(
-                                      alignment: Alignment.topCenter,
-                                      origin: const Offset(0, 32),
-                                      scaleY: animation.value,
-                                      child: child,
-                                    )),
-                  )),
-              child: const Icon(CupertinoIcons.search)),
-          GestureDetector(
-              onTap: toggleCollection,
-              child: collect
-                  ? const Icon(CupertinoIcons.star_fill,
-                      color: CupertinoColors.systemYellow)
-                  : const Icon(CupertinoIcons.star)),
-          GestureDetector(
-              onTap: () => Navigator.of(context).push(PageRouteBuilder(
-                    opaque: false,
-                    barrierDismissible: true,
-                    barrierColor:
-                        Theme.of(context).colorScheme.shadow.withOpacity(.4),
-                    pageBuilder: (context, animation, secondaryAnimation) =>
-                        const ReportPopUpPage(),
-                    // transitionDuration: Durations.medium1,
-                    transitionsBuilder:
-                        (context, animation, secondaryAnimation, child) {
-                      final matrix = Matrix4Tween(
-                        end: Matrix4.identity(),
-                        begin: Matrix4.diagonal3Values(1, .1, 1)
-                          ..translate(.0, 1e3),
-                      ).chain(CurveTween(curve: Curves.easeOut));
-                      return AnimatedBuilder(
-                        animation: animation,
-                        builder: (_, __) => Transform(
-                          alignment: Alignment.topCenter,
-                          transform: matrix.evaluate(animation),
-                          child: child,
-                        ),
-                      );
-                    },
-                  )),
-              child: const Icon(CupertinoIcons.ellipsis_vertical)),
-        ],
-      ),
+    return Wrap(
+      spacing: 8,
+      children: [
+        GestureDetector(
+            onTap: () => Navigator.of(context).push(PageRouteBuilder(
+                  opaque: false,
+                  barrierDismissible: true,
+                  maintainState: true,
+                  barrierColor:
+                      Theme.of(context).colorScheme.shadow.withOpacity(.4),
+                  pageBuilder: (context, _, __) => const SearchPopUpPage(),
+                  transitionsBuilder:
+                      (context, animation, secondaryAnimation, child) =>
+                          AnimatedBuilder(
+                              animation: animation,
+                              builder: (_, __) => Transform.scale(
+                                    alignment: Alignment.topCenter,
+                                    origin: const Offset(0, 32),
+                                    scaleY: animation.value,
+                                    child: child,
+                                  )),
+                )),
+            child: const Icon(CupertinoIcons.search)),
+        GestureDetector(
+            onTap: toggleCollection,
+            child: collect
+                ? const Icon(CupertinoIcons.star_fill,
+                    color: CupertinoColors.systemYellow)
+                : const Icon(CupertinoIcons.star)),
+        GestureDetector(
+            onTap: () => Navigator.of(context).push(PageRouteBuilder(
+                  opaque: false,
+                  barrierDismissible: true,
+                  barrierColor:
+                      Theme.of(context).colorScheme.shadow.withOpacity(.4),
+                  pageBuilder: (context, animation, secondaryAnimation) =>
+                      ReportPopUpPage(wordID: widget.wordID),
+                  // transitionDuration: Durations.medium1,
+                  transitionsBuilder:
+                      (context, animation, secondaryAnimation, child) {
+                    final matrix = Matrix4Tween(
+                      end: Matrix4.identity(),
+                      begin: Matrix4.diagonal3Values(1, .1, 1)
+                        ..translate(.0, 1e3),
+                    ).chain(CurveTween(curve: Curves.easeOut));
+                    return AnimatedBuilder(
+                      animation: animation,
+                      builder: (_, __) => Transform(
+                        alignment: Alignment.topCenter,
+                        transform: matrix.evaluate(animation),
+                        child: child,
+                      ),
+                    );
+                  },
+                )),
+            child: const Icon(CupertinoIcons.ellipsis_vertical)),
+      ],
     );
   }
 

@@ -34,6 +34,7 @@ class WordProvider {
   }
 
   Vocabulary? get currentWord => _currentWord;
+  String get studyProgress => '$_learnedIndex/$studyCount';
 
   Future<void> _init() async {
     late final String appDirectory;

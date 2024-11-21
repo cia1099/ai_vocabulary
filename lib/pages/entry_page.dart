@@ -1,9 +1,9 @@
-import 'dart:math';
-
 import 'package:ai_vocabulary/database/my_db.dart';
 import 'package:ai_vocabulary/model/collect_word.dart';
+import 'package:ai_vocabulary/model/vocabulary.dart';
 import 'package:ai_vocabulary/provider/word_provider.dart';
 import 'package:ai_vocabulary/widgets/definition_tile.dart';
+import 'package:ai_vocabulary/widgets/entry_actions.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
@@ -24,6 +24,18 @@ class EntryPage extends StatelessWidget {
         material: (_, __) => MaterialAppBarData(
           backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         ),
+        // title: const Text("Entry"),
+        // trailingActions: [
+        //   StreamBuilder(
+        //     // initialData: WordProvider().currentWord,
+        //     stream: WordProvider().provideWord,
+        //     builder: (context, snapshot) {
+        //       final word = snapshot.data;
+        //       if (word == null) return const SizedBox.shrink();
+        //       return EntryActions(wordID: word.wordId);
+        //     },
+        //   )
+        // ],
       ),
       body: SafeArea(
         child: Padding(
@@ -40,18 +52,18 @@ class EntryPage extends StatelessWidget {
                           'There is no vocabulary you need to learn today'));
                 }
                 //TODO: It'll call twice when first build
-                final idx = Random().nextInt(word.definitions.length);
-                final phonetic = word.definitions[idx].phoneticUs;
-                final audioUrl = word.definitions[idx].audioUs;
+                final phonetics = getPhonetics(word);
                 WidgetsBinding.instance.addPostFrameCallback((_) {
-                  Future.delayed(Durations.medium1,
-                      playPhonetic(audioUrl, word: word.word));
-                  // print('soud $idx');
+                  for (var p in phonetics) {
+                    Future.delayed(Durations.medium1,
+                        playPhonetic(p.audioUrl, word: word.word));
+                  }
                 });
                 return Column(
                   children: [
                     Container(
                       height: 100,
+                      margin: EdgeInsets.only(top: hPadding),
                       decoration: BoxDecoration(
                         color: colorScheme.secondaryContainer.withOpacity(.8),
                         borderRadius: BorderRadius.circular(16),
@@ -70,7 +82,8 @@ class EntryPage extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               const Text("New today"),
-                              Text("0/40", style: textTheme.headlineSmall),
+                              Text(WordProvider().studyProgress,
+                                  style: textTheme.headlineSmall),
                             ],
                           ),
                           Column(
@@ -103,18 +116,27 @@ class EntryPage extends StatelessWidget {
                                   child: const Text("Learned 3 month ago"),
                                 ),
                                 Text(word.word, style: textTheme.displayMedium),
-                                RichText(
-                                  text: TextSpan(children: [
-                                    TextSpan(text: '\t' * 4),
-                                    TextSpan(text: phonetic),
-                                    TextSpan(text: '\t' * 4),
-                                    WidgetSpan(
-                                        child: GestureDetector(
-                                            onTap: playPhonetic(audioUrl,
-                                                word: word.word),
-                                            child: const Icon(
-                                                CupertinoIcons.volume_up)))
-                                  ], style: textTheme.titleLarge),
+                                Wrap(
+                                  // spacing: 16,
+                                  children: phonetics
+                                      .map(
+                                        (p) => RichText(
+                                          text: TextSpan(children: [
+                                            TextSpan(text: '\t' * 4),
+                                            TextSpan(text: p.phonetic),
+                                            TextSpan(text: '\t' * 2),
+                                            WidgetSpan(
+                                                child: GestureDetector(
+                                                    onTap: playPhonetic(
+                                                        p.audioUrl,
+                                                        word: word.word),
+                                                    child: const Icon(
+                                                        CupertinoIcons
+                                                            .volume_up)))
+                                          ], style: textTheme.titleLarge),
+                                        ),
+                                      )
+                                      .toList(),
                                 ),
                               ],
                             ),
@@ -212,4 +234,16 @@ class EntryPage extends StatelessWidget {
       ),
     );
   }
+
+  Iterable<Phonetic> getPhonetics(Vocabulary word) =>
+      word.definitions.expand((d) sync* {
+        if (d.phoneticUs != null) yield Phonetic(d.phoneticUs!, d.audioUs);
+      });
+}
+
+class Phonetic {
+  final String phonetic;
+  final String? audioUrl;
+
+  Phonetic(this.phonetic, this.audioUrl);
 }
