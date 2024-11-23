@@ -15,6 +15,7 @@ import 'package:ai_vocabulary/utils/regex.dart';
 class WordProvider {
   final _studyWords = <Vocabulary>[];
   // final _wordIds = <int>{}; //<int>{15508} //used for debug;
+  final _reviewIDs = <int>{};
   Vocabulary? _currentWord;
   final _providerState = StreamController<Vocabulary?>();
   late final _provider = _providerState.stream.asBroadcastStream();
@@ -91,6 +92,37 @@ class WordProvider {
     _providerState.close();
   }
 
+  void nextStudyWord([int? index]) {
+    if (index == null) {
+      _learnedIndex = min(_learnedIndex + 1, _studyWords.length);
+    }
+    final word = _studyWords.elementAtOrNull(index ?? _learnedIndex);
+    _currentWord = word;
+    _providerState.add(word);
+    if (word != null) {
+      _reviewIDs.add(word.wordId);
+    }
+    if (_studyWords.isNotEmpty) {
+      if (_learnedIndex == _studyWords.length) {
+        Future.delayed(Durations.extralong4, () => _subscript.pause());
+      } else {
+        _subscript.resume();
+      }
+    }
+  }
+
+  bool shouldReview() {
+    return _reviewIDs.isNotEmpty && _reviewIDs.length % 7 == 0 ||
+        _learnedIndex == _studyWords.length - 1;
+  }
+
+  List<Vocabulary> reviewWords() {
+    final reviews =
+        _studyWords.where((w) => _reviewIDs.contains(w.wordId)).toList();
+    _reviewIDs.clear();
+    return reviews;
+  }
+
   Future<Set<int>> _sampleWordIds(Set<int> wordIds, final int count) async {
     final maxId = await getMaxId();
     final doneIDs = MyDB().fetchDoneWords();
@@ -144,22 +176,6 @@ class WordProvider {
       }
     }
     return words;
-  }
-
-  void nextStudyWord([int? index]) {
-    if (index == null) {
-      _learnedIndex = min(_learnedIndex + 1, _studyWords.length);
-    }
-    final word = _studyWords.elementAtOrNull(index ?? _learnedIndex);
-    _currentWord = word;
-    _providerState.add(word);
-    if (_studyWords.isNotEmpty) {
-      if (_learnedIndex == _studyWords.length) {
-        Future.delayed(Durations.extralong4, () => _subscript.pause());
-      } else {
-        _subscript.resume();
-      }
-    }
   }
 
   List<Vocabulary> subList([int start = 0, int? end]) {

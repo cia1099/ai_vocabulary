@@ -60,11 +60,7 @@ class VocabularyPage extends StatelessWidget {
                     child: Offstage(
                       offstage: nextTap == null,
                       child: PlatformElevatedButton(
-                        onPressed: () {
-                          nextTap!();
-                          Navigator.of(context)
-                              .popUntil(ModalRoute.withName(AppRoute.entry));
-                        },
+                        onPressed: nextTap,
                         child: const Text('Next'),
                       ),
                     ),

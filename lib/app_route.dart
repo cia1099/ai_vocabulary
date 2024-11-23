@@ -16,13 +16,14 @@ mixin AppRoute<T extends StatefulWidget> on State<T> {
   static const entry = '/entry';
   static const entryVocabulary = '/entry/vocabulary';
   static const cloze = '/entry/cloze';
-  static const todayWords = '/entry/word_list';
+  static const reviewWords = '/entry/review';
+  static const todayWords = '/today/words';
 
   Route generateRoute(RouteSettings settings) {
     final uri = Uri.tryParse(settings.name!);
     var path = uri?.path;
     final currentWord = WordProvider.instance.currentWord;
-    if (currentWord == null) path = AppRoute.home;
+    // if (currentWord == null) path = AppRoute.home;
     return platformPageRoute(
         context: context,
         builder: (context) => FlutterWebFrame(
@@ -37,9 +38,27 @@ mixin AppRoute<T extends StatefulWidget> on State<T> {
                     // if (currentWord == null) return const EntryPage();
                     return VocabularyPage(
                         word: currentWord!,
-                        nextTap: () => WordProvider.instance.nextStudyWord());
+                        nextTap: () {
+                          if (WordProvider().shouldReview()) {
+                            Navigator.of(context)
+                                .popAndPushNamed(AppRoute.reviewWords);
+                          } else {
+                            WordProvider().nextStudyWord();
+                            Navigator.of(context)
+                                .popUntil(ModalRoute.withName(AppRoute.entry));
+                          }
+                        });
                   case AppRoute.todayWords:
                     return WordListPage(words: WordProvider().subList());
+                  case AppRoute.reviewWords:
+                    final reviews = WordProvider().reviewWords();
+                    return WordListPage(
+                        words: reviews,
+                        nextTap: () {
+                          WordProvider().nextStudyWord();
+                          Navigator.of(context)
+                              .popUntil(ModalRoute.withName(AppRoute.entry));
+                        });
                   default:
                     return const HomePage();
                 }
