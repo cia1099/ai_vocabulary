@@ -1,6 +1,6 @@
-const speechShortcut = {
-  "verb": "  v.",
-  "noun": "  n.",
+const _speechShortcut = {
+  "verb": "v.",
+  "noun": "n.",
   "adjective": "adj.",
   "adverb": "adv.",
   "pronoun": "pron.",
@@ -10,3 +10,11 @@ const speechShortcut = {
 };
 
 const kAppBarPadding = 10.0;
+
+String speechShortcut(String partOfSpeech, {int length = 0}) {
+  final shortcut =
+      _speechShortcut[partOfSpeech] ?? '${partOfSpeech.substring(0, 3)}.';
+  return shortcut.length < length
+      ? ' ' * (length - shortcut.length) + shortcut
+      : shortcut;
+}

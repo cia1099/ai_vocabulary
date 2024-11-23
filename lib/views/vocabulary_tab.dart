@@ -2,6 +2,7 @@ import 'package:ai_vocabulary/provider/word_provider.dart';
 import 'package:ai_vocabulary/app_route.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
 class VocabularyTab extends StatelessWidget {
   const VocabularyTab({
@@ -29,7 +30,10 @@ class VocabularyTab extends StatelessWidget {
               borderRadius: BorderRadius.circular(32),
               border: Border.all(),
               color: Theme.of(context).colorScheme.surfaceBright),
-          child: const Text('Learning progress'),
+          child: PlatformTextButton(
+              onPressed: () =>
+                  Navigator.pushNamed(context, AppRoute.todayWords),
+              child: const Text("Today's study")),
         ),
         SizedBox(
           height: maxHeight / 4,

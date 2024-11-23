@@ -25,7 +25,7 @@ class VocabularyPage extends StatelessWidget {
       //TODO: push page will incur this callback
       final example = word.getExamples.firstOrNull;
       final routeName = ModalRoute.of(context)?.settings.name;
-      if (example != null && fromEntry(routeName)) {
+      if (example != null && routeName != null) {
         Future.delayed(Durations.medium1, () => soundAzure(example));
       }
     });
@@ -151,7 +151,7 @@ class VocabularyHead extends StatelessWidget {
                                   offstage: h < .1,
                                   child: NaiveSegment(wordID: word.wordId),
                                 )),
-                          ]).take(fromEntry(routeName) ? 3 : 1),
+                          ]).take(fromEntry(routeName) ? 3 : 2),
                         CustomPaint(
                           foregroundPainter: TitlePainter(
                             title: word.word,

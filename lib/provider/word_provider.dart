@@ -161,6 +161,10 @@ class WordProvider {
       }
     }
   }
+
+  List<Vocabulary> subList([int start = 0, int? end]) {
+    return _studyWords.sublist(start, end);
+  }
 }
 
 void main() async {

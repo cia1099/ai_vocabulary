@@ -31,7 +31,9 @@ class _EntryActionsState extends State<EntryActions> {
 
   @override
   void dispose() {
-    MyDB.instance.updateCollectWord(wordId: widget.wordID, collect: collect);
+    if (!widget.skipIndexes.contains(1)) {
+      MyDB.instance.updateCollectWord(wordId: widget.wordID, collect: collect);
+    }
     super.dispose();
   }
 
@@ -42,8 +44,7 @@ class _EntryActionsState extends State<EntryActions> {
   }
 
   List<Widget> actions(List<int> skipIndexes) {
-    final appBarIconSize =
-        Theme.of(context).appBarTheme.actionsIconTheme?.size ?? 24.0;
+    final appBarIconSize = Theme.of(context).appBarTheme.actionsIconTheme?.size;
     // final navColor =
     //     CupertinoTheme.of(context).textTheme.navActionTextStyle.color;
     return [

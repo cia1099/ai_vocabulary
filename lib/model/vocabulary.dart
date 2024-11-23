@@ -1,4 +1,5 @@
 import 'dart:convert';
+part 'phonetic.dart';
 
 class Vocabulary {
   final int wordId;

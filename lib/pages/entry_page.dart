@@ -62,7 +62,7 @@ class EntryPage extends StatelessWidget {
                           'There is no vocabulary you need to learn today'));
                 }
                 //TODO: It'll call twice when first build
-                final phonetics = getPhonetics(word);
+                final phonetics = word.getPhonetics();
                 WidgetsBinding.instance.addPostFrameCallback((_) {
                   for (var p in phonetics) {
                     Future.delayed(Durations.medium1,
@@ -244,16 +244,4 @@ class EntryPage extends StatelessWidget {
       ),
     );
   }
-
-  Iterable<Phonetic> getPhonetics(Vocabulary word) =>
-      word.definitions.expand((d) sync* {
-        if (d.phoneticUs != null) yield Phonetic(d.phoneticUs!, d.audioUs);
-      });
-}
-
-class Phonetic {
-  final String phonetic;
-  final String? audioUrl;
-
-  Phonetic(this.phonetic, this.audioUrl);
 }

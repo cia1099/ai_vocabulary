@@ -1,3 +1,4 @@
+import 'package:ai_vocabulary/pages/word_list_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
@@ -15,6 +16,7 @@ mixin AppRoute<T extends StatefulWidget> on State<T> {
   static const entry = '/entry';
   static const entryVocabulary = '/entry/vocabulary';
   static const cloze = '/entry/cloze';
+  static const todayWords = '/entry/word_list';
 
   Route generateRoute(RouteSettings settings) {
     final uri = Uri.tryParse(settings.name!);
@@ -36,6 +38,8 @@ mixin AppRoute<T extends StatefulWidget> on State<T> {
                     return VocabularyPage(
                         word: currentWord!,
                         nextTap: () => WordProvider.instance.nextStudyWord());
+                  case AppRoute.todayWords:
+                    return WordListPage(words: WordProvider().subList());
                   default:
                     return const HomePage();
                 }

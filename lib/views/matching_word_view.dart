@@ -129,8 +129,7 @@ class _ExplanationBoardState extends State<ExplanationBoard> {
                     if (definition.translate != null)
                       AlignParagraph(
                         markWidget: Text(
-                          speechShortcut[definition.partOfSpeech] ??
-                              '${definition.partOfSpeech.substring(0, 3)}.',
+                          speechShortcut(definition.partOfSpeech, length: 4),
                           style: textTheme.titleMedium!
                               .copyWith(fontWeight: FontWeight.bold),
                         ),
@@ -141,8 +140,7 @@ class _ExplanationBoardState extends State<ExplanationBoard> {
                   for (final definition in widget.word.definitions)
                     AlignParagraph(
                       markWidget: Text(
-                        speechShortcut[definition.partOfSpeech] ??
-                            '${definition.partOfSpeech.substring(0, 3)}.',
+                        speechShortcut(definition.partOfSpeech, length: 4),
                         style: textTheme.titleMedium!
                             .copyWith(fontWeight: FontWeight.bold),
                       ),
