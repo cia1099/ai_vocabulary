@@ -15,12 +15,12 @@ import 'package:ai_vocabulary/utils/regex.dart';
 class WordProvider {
   final _studyWords = <Vocabulary>[];
   // final _wordIds = <int>{}; //<int>{15508} //used for debug;
-  final _reviewIDs = <int>{};
+  final _remindIDs = <int>{};
   Vocabulary? _currentWord;
   final _providerState = StreamController<Vocabulary?>();
   late final _provider = _providerState.stream.asBroadcastStream();
   late final StreamSubscription _subscript;
-  var studyCount = 25, _learnedIndex = 0;
+  var studyCount = 25, reviewCount = 40, _learnedIndex = 0;
   final fileName = 'today.json';
 
   static WordProvider? _instance;
@@ -35,7 +35,10 @@ class WordProvider {
   }
 
   Vocabulary? get currentWord => _currentWord;
-  String get studyProgress => '$_learnedIndex/$studyCount';
+  String get studyProgress =>
+      '${(_learnedIndex - reviewCount).clamp(0, studyCount)}/$studyCount';
+  String get reviewProgress =>
+      '${_learnedIndex.clamp(0, reviewCount)}/$reviewCount';
 
   Future<void> _init() async {
     late final String appDirectory;
@@ -47,10 +50,14 @@ class WordProvider {
     var wordIds = <int>[];
     final file = File(p.join(appDirectory, fileName));
     if (shouldResample(file)) {
-      final setIds = await _sampleWordIds({}, studyCount);
-      final words = await requestWords(setIds);
-      _studyWords.addAll(words);
-      wordIds = setIds.toList();
+      final reviewIDs = MyDB().fetchReviewWordIDs();
+      final setIds = await _sampleWordIds(reviewIDs, studyCount);
+      final newWords = await requestWords(setIds);
+      final reviews = reviewIDs.take(reviewCount).toList();
+      reviews.shuffle();
+      final reviewWords = MyDB().fetchWords(reviews);
+      _studyWords.addAll(reviewWords + newWords);
+      wordIds = reviews + setIds.toList();
       final now = DateTime.now();
       final dateTime =
           DateTime(now.year, now.month, now.day).millisecondsSinceEpoch ~/ 1000;
@@ -59,7 +66,7 @@ class WordProvider {
         'learnedIndex': _learnedIndex,
         'wordIds': wordIds.toList()
       }));
-      MyDB.instance.insertWords(Stream.fromIterable(words));
+      MyDB.instance.insertWords(Stream.fromIterable(newWords));
     } else {
       final today =
           json.decode(file.readAsStringSync()) as Map<String, dynamic>;
@@ -82,6 +89,7 @@ class WordProvider {
       }),
       onDone: () => print("only read = $_learnedIndex"),
     );
+    reviewCount = wordIds.length - studyCount;
     _mappingWordId(wordIds);
     nextStudyWord(_learnedIndex);
   }
@@ -100,7 +108,7 @@ class WordProvider {
     _currentWord = word;
     _providerState.add(word);
     if (word != null) {
-      _reviewIDs.add(word.wordId);
+      _remindIDs.add(word.wordId);
     }
     if (_studyWords.isNotEmpty) {
       if (_learnedIndex == _studyWords.length) {
@@ -111,25 +119,29 @@ class WordProvider {
     }
   }
 
-  bool shouldReview() {
-    return _reviewIDs.isNotEmpty && _reviewIDs.length % 7 == 0 ||
-        _learnedIndex == _studyWords.length - 1;
+  bool shouldRemind() {
+    return _remindIDs.isNotEmpty && _remindIDs.length % 7 == 0 ||
+        _learnedIndex == _studyWords.length - 1 ||
+        _learnedIndex == reviewCount - 1;
   }
 
-  List<Vocabulary> reviewWords() {
-    final reviews =
-        _studyWords.where((w) => _reviewIDs.contains(w.wordId)).toList();
-    _reviewIDs.clear();
-    return reviews;
+  List<Vocabulary> remindWords() {
+    final reminds =
+        _studyWords.where((w) => _remindIDs.contains(w.wordId)).toList();
+    _remindIDs.clear();
+    return reminds;
   }
 
-  Future<Set<int>> _sampleWordIds(Set<int> wordIds, final int count) async {
+  Future<Set<int>> _sampleWordIds(
+      Iterable<int> reviewIDs, final int count) async {
     final maxId = await getMaxId();
-    final doneIDs = MyDB().fetchDoneWords();
+    final doneIDs = MyDB().fetchDoneWordIDs();
     final rng = Random();
+    final wordIds =
+        Set.of(MyDB().fetchUnknownWordIDs().take(count).toList()..shuffle());
     while (wordIds.length < count) {
       final id = rng.nextInt(maxId) + 1;
-      if (doneIDs.contains(id)) continue;
+      if (doneIDs.contains(id) || reviewIDs.contains(id)) continue;
       wordIds.add(id);
     }
     return wordIds;

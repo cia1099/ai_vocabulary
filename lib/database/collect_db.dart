@@ -48,11 +48,29 @@ extension CollectDB on MyDB {
     return collects.first;
   }
 
-  Iterable<int> fetchDoneWords() {
+  Iterable<int> fetchDoneWordIDs() {
     final db = open(OpenMode.readOnly);
     final resultSet = db.select(
         'SELECT word_id FROM collect_words WHERE collect_words.acquaint >= ?',
         [kMaxAcquaintance]);
+    db.dispose();
+    return resultSet.map((row) => row['word_id'] as int);
+  }
+
+  Iterable<int> fetchReviewWordIDs() {
+    final db = open(OpenMode.readOnly);
+    final resultSet = db.select(
+        'SELECT word_id FROM collect_words WHERE acquaint < ? AND acquaint > ?',
+        [kMaxAcquaintance, 0]);
+    db.dispose();
+    return resultSet.map((row) => row['word_id'] as int);
+  }
+
+  Iterable<int> fetchUnknownWordIDs() {
+    final db = open(OpenMode.readOnly);
+    final resultSet = db.select(
+        'SELECT word_id FROM collect_words WHERE collect_words.acquaint = ?',
+        [0]);
     db.dispose();
     return resultSet.map((row) => row['word_id'] as int);
   }

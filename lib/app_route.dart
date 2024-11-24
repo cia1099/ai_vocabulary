@@ -39,7 +39,7 @@ mixin AppRoute<T extends StatefulWidget> on State<T> {
                     return VocabularyPage(
                         word: currentWord!,
                         nextTap: () {
-                          if (WordProvider().shouldReview()) {
+                          if (WordProvider().shouldRemind()) {
                             Navigator.of(context)
                                 .popAndPushNamed(AppRoute.reviewWords);
                           } else {
@@ -51,7 +51,7 @@ mixin AppRoute<T extends StatefulWidget> on State<T> {
                   case AppRoute.todayWords:
                     return WordListPage(words: WordProvider().subList());
                   case AppRoute.reviewWords:
-                    final reviews = WordProvider().reviewWords();
+                    final reviews = WordProvider().remindWords();
                     return WordListPage(
                         words: reviews,
                         nextTap: () {

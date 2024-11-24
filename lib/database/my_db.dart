@@ -49,7 +49,7 @@ class MyDB {
       insertExplanation,
       insertExample,
       insertAsset,
-      insertRecordWord
+      insertCollectWord
     ];
     final stmts = db.prepareMultiple(insert.join(';'));
     await for (final word in words) {
@@ -195,7 +195,7 @@ void main() {
   //   print(word.toRawJson());
   // }
   final db = myDB.open(OpenMode.readWrite);
-  final stmt = db.prepare(insertRecordWord);
+  final stmt = db.prepare(insertCollectWord);
   stmt.execute([123, null]);
   db.dispose();
 }

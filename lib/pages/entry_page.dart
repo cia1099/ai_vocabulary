@@ -20,6 +20,10 @@ class EntryPage extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final screenWidth = MediaQuery.of(context).size.width;
     final hPadding = screenWidth / 16;
+    final timer = () async* {
+      yield 0;
+      yield* Stream.periodic(const Duration(minutes: 1), (i) => i + 1);
+    }();
     return Scaffold(
       appBar: PreferredSize(
           preferredSize: const Size.fromHeight(kToolbarHeight),
@@ -85,7 +89,8 @@ class EntryPage extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               const Text("Review today"),
-                              Text("0/120", style: textTheme.headlineSmall),
+                              Text(WordProvider().reviewProgress,
+                                  style: textTheme.headlineSmall),
                             ],
                           ),
                           Column(
@@ -100,7 +105,12 @@ class EntryPage extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               const Text("Learning today"),
-                              Text("1min", style: textTheme.headlineSmall),
+                              StreamBuilder(
+                                  stream: timer,
+                                  builder: (context, snapshot) {
+                                    return Text('${snapshot.data}min',
+                                        style: textTheme.headlineSmall);
+                                  }),
                             ],
                           ),
                         ],

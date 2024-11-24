@@ -8,7 +8,7 @@ const insertExample =
     r'INSERT INTO examples (word_id, explanation_id, example) VALUES (?, ?, ?)';
 const insertAsset = r'INSERT INTO assets (word_id, filename) VALUES (?, ?)';
 
-const insertRecordWord =
+const insertCollectWord =
     r'INSERT INTO collect_words (word_id, user_id) VALUES (?, ?)';
 
 const createDictionary = '''
