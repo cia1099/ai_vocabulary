@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
 import 'app_route.dart';
+import 'painters/chat_bubble.dart';
 import 'theme.dart';
+import 'package:flutter_lorem/flutter_lorem.dart';
 
 void main() {
   runApp(const MyApp());
@@ -69,6 +71,26 @@ class _MyAppState extends State<MyApp> with AppRoute {
           onGenerateRoute: generateRoute,
           initialRoute: AppRoute.home,
           // home: const HomePage(),
+          home: PlatformScaffold(
+            body: Stack(
+              children: [
+                Center(
+                  child: CustomPaint(
+                    painter: ChatBubblePainter(
+                        isMe: false,
+                        colorScheme: Theme.of(context).colorScheme),
+                    child: Container(
+                      width: 300,
+                      padding: const EdgeInsets.all(8),
+                      child: Text(
+                        lorem(paragraphs: 1),
+                      ),
+                    ),
+                  ),
+                )
+              ],
+            ),
+          ),
         ),
       ),
     );

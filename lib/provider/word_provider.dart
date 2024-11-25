@@ -30,16 +30,16 @@ class WordProvider {
   }
   static WordProvider get instance => _instance ??= WordProvider._internal();
   factory WordProvider() => instance;
-  Stream<Vocabulary?> get provideWord async* {
-    yield _currentWord;
-    yield* _provider;
-  }
 
   Vocabulary? get currentWord => _currentWord;
   String get studyProgress =>
       '${(_learnedIndex - reviewCount).clamp(0, studyCount)}/$studyCount';
   String get reviewProgress =>
       '${_learnedIndex.clamp(0, reviewCount)}/$reviewCount';
+  Stream<Vocabulary?> get provideWord async* {
+    yield _currentWord;
+    yield* _provider;
+  }
 
   Future<void> _init() async {
     late final String appDirectory;
