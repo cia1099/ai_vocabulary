@@ -5,7 +5,7 @@ abstract class Message {
   final String? userID;
 
   Message(
-      {required this.wordID,
+      {this.wordID = -1,
       required this.content,
       required this.timeStamp,
       this.userID});
@@ -16,13 +16,13 @@ class TextMessage extends Message {
       {required super.content,
       required super.timeStamp,
       required super.wordID,
-      super.userID});
+      super.userID})
+      : assert(wordID > 0);
 }
 
 class InfoMessage extends Message {
   InfoMessage({
     required super.content,
     required super.timeStamp,
-    required super.wordID,
   });
 }

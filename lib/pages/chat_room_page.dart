@@ -7,7 +7,7 @@ import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
 import 'package:flutter_lorem/flutter_lorem.dart';
 
-import '../painters/chat_bubble.dart';
+import '../widgets/chat_bubble.dart';
 
 class ChatRoomPage extends StatefulWidget {
   const ChatRoomPage({
@@ -40,9 +40,11 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
               itemCount: messages.length,
               itemBuilder: (context, index) => ChatListTile(
                 message: messages[index],
-                leading: messages[index].userID == null && word.asset != null
+                leading: messages[index].userID == null
                     ? CircleAvatar(
-                        backgroundImage: NetworkImage(word.asset!),
+                        backgroundImage: word.asset != null
+                            ? NetworkImage(word.asset!)
+                            : null,
                       )
                     : null,
               ),
@@ -56,7 +58,16 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 PlatformIconButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    setState(() {
+                      messages.add(
+                        InfoMessage(
+                          content: 'Shit man',
+                          timeStamp: DateTime.now().millisecondsSinceEpoch,
+                        ),
+                      );
+                    });
+                  },
                   icon: const Icon(CupertinoIcons.keyboard),
                 ),
                 Expanded(
@@ -116,76 +127,54 @@ class ChatListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
     return Container(
       // width: double.infinity,
       margin: const EdgeInsets.all(8),
-      child: Wrap(
-        alignment:
-            message.userID == null ? WrapAlignment.start : WrapAlignment.end,
-        crossAxisAlignment: WrapCrossAlignment.end,
-        spacing: 8,
-        children: [
-          if (leading != null)
-            ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: screenWidth * .1),
-                child: leading),
-          createContent(message, maxWidth: screenWidth * .75)
-        ],
-      ),
+      child: createContent(message, context: context),
     );
   }
 
-  Widget createContent(Message message, {double maxWidth = double.infinity}) {
+  Widget createContent(Message message, {required BuildContext context}) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final colorScheme = Theme.of(context).colorScheme;
     switch (message.runtimeType) {
       case InfoMessage:
-        return Text(message.content);
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              decoration: BoxDecoration(
+                color: colorScheme.tertiary,
+                borderRadius: BorderRadius.circular(kRadialReactionRadius),
+              ),
+              child: Text(message.content,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(color: colorScheme.onTertiary)),
+            ),
+          ],
+        );
       case TextMessage:
-        return TextBubble(message: message as TextMessage, maxWidth: maxWidth);
+        return Wrap(
+          alignment:
+              message.userID == null ? WrapAlignment.start : WrapAlignment.end,
+          crossAxisAlignment: WrapCrossAlignment.end,
+          spacing: 8,
+          children: [
+            if (leading != null)
+              ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: screenWidth * .1),
+                child: leading,
+              ),
+            ChatBubble(
+                content: Text(message.content),
+                timeStamp: message.timeStamp,
+                maxWidth: screenWidth * (.75 + (leading == null ? .1 : 0)),
+                isMe: message.userID != null),
+          ],
+        );
       default:
         return Text(message.content);
     }
-  }
-}
-
-class TextBubble extends StatelessWidget {
-  const TextBubble({
-    super.key,
-    required this.message,
-    required this.maxWidth,
-  });
-  final TextMessage message;
-  final double maxWidth;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final dateTime = DateTime.fromMillisecondsSinceEpoch(message.timeStamp);
-    return CustomPaint(
-      painter: ChatBubblePainter(
-          isMe: message.userID != null,
-          color: message.userID != null
-              ? colorScheme.secondaryContainer
-              : colorScheme.surfaceContainerHigh),
-      child: Container(
-        constraints:
-            BoxConstraints(minHeight: 20, minWidth: 20, maxWidth: maxWidth),
-        padding: const EdgeInsets.all(8),
-        child: Stack(
-          children: [
-            Container(
-              margin: const EdgeInsets.only(bottom: 8),
-              child: Text(
-                message.content,
-              ),
-            ),
-            Positioned(
-                right: 4,
-                bottom: 0,
-                child: Text('${dateTime.hour}:${dateTime.minute}')),
-          ],
-        ),
-      ),
-    );
   }
 }
