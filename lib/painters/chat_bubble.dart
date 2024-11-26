@@ -4,17 +4,15 @@ import 'dart:ui' as ui show ImageFilter;
 import 'package:flutter/material.dart';
 
 class ChatBubblePainter extends CustomPainter {
-  final ColorScheme colorScheme;
+  final Color color;
   final bool isMe;
 
-  ChatBubblePainter(
-      {super.repaint, required this.colorScheme, this.isMe = true});
+  ChatBubblePainter({super.repaint, required this.color, this.isMe = true});
 
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color =
-          isMe ? colorScheme.primaryContainer : colorScheme.surfaceContainerHigh
+      ..color = color
       ..style = PaintingStyle.fill;
     final rect = Offset.zero & size;
 
@@ -79,5 +77,6 @@ class ChatBubblePainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant ChatBubblePainter oldDelegate) =>
+      color != oldDelegate.color;
 }
