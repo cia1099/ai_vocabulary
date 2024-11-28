@@ -9,7 +9,10 @@ class Phonetic {
 
 extension Phonetics on Vocabulary {
   Iterable<Phonetic> getPhonetics() => definitions.expand((d) sync* {
-        if (d.phoneticUs != null && d.translate != null)
+        final explain = d.explanations.map((e) => e.explain);
+        final isExtra =
+            explain.length == 1 && explain.first.split(' ').length == 1;
+        if (d.phoneticUs != null && !isExtra)
           yield Phonetic(d.phoneticUs!, d.audioUs);
       });
 }

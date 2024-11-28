@@ -103,7 +103,10 @@ class _ClozePageState extends State<ClozePage> {
               width: hPadding * 14,
               padding: EdgeInsets.symmetric(horizontal: hPadding / 2),
               decoration: BoxDecoration(
-                color: CupertinoColors.systemGrey6.withOpacity(.8),
+                color: Theme.of(context)
+                    .colorScheme
+                    .secondaryContainer
+                    .withOpacity(.8),
                 borderRadius: BorderRadius.circular(16),
               ),
               alignment: Alignment.centerLeft,

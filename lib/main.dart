@@ -55,7 +55,12 @@ class _MyAppState extends State<MyApp> with AppRoute {
               materialTheme: Theme.of(context).copyWith(
                   cupertinoOverrideTheme: CupertinoThemeData(
                 applyThemeToAll: true,
-                textTheme: const CupertinoTextThemeData(),
+                textTheme: CupertinoTextThemeData(
+                  navActionTextStyle: CupertinoTheme.of(context)
+                      .textTheme
+                      .actionTextStyle
+                      .apply(color: appTheme.colorScheme.primary),
+                ),
                 // primaryColor: appTheme.colorScheme.primary,
                 barBackgroundColor: appTheme.colorScheme.primaryContainer,
               )),
@@ -70,7 +75,7 @@ class _MyAppState extends State<MyApp> with AppRoute {
           onGenerateRoute: generateRoute,
           initialRoute: AppRoute.home,
           // home: const HomePage(),
-          home: const ChatRoomPage(),
+          // home: const ChatRoomPage(),
         ),
       ),
     );

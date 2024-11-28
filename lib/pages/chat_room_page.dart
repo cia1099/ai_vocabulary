@@ -1,4 +1,3 @@
-import 'package:ai_vocabulary/database/my_db.dart';
 import 'package:ai_vocabulary/mock_data.dart';
 import 'package:ai_vocabulary/model/message.dart';
 import 'package:flutter/cupertino.dart';
@@ -20,7 +19,6 @@ class ChatRoomPage extends StatefulWidget {
 
 class _ChatRoomPageState extends State<ChatRoomPage> {
   final messages = <Message>[];
-  // late final word = MyDB().fetchWords([message.wordID]).first;
   final word = apple;
   @override
   Widget build(BuildContext context) {
@@ -76,7 +74,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                       final now = DateTime.now().millisecondsSinceEpoch;
                       setState(() {
                         final myTalk = TextMessage(
-                            content: lorem(paragraphs: 1, words: 10),
+                            content: lorem(paragraphs: 1, words: 1),
                             timeStamp: now,
                             userID: '1',
                             wordID: word.wordId);
@@ -167,7 +165,10 @@ class ChatListTile extends StatelessWidget {
                 child: leading,
               ),
             ChatBubble(
-                content: Text(message.content),
+                content: MediaQuery(
+                    data: const MediaQueryData(
+                        textScaler: TextScaler.linear(1.414)),
+                    child: Text(message.content)),
                 timeStamp: message.timeStamp,
                 maxWidth: screenWidth * (.75 + (leading == null ? .1 : 0)),
                 isMe: message.userID != null),

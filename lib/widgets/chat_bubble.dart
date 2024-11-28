@@ -26,8 +26,7 @@ class ChatBubble extends StatelessWidget {
               ? colorScheme.secondaryContainer
               : colorScheme.surfaceContainerHigh),
       child: Container(
-        constraints:
-            BoxConstraints(minHeight: 20, minWidth: 20, maxWidth: maxWidth),
+        constraints: BoxConstraints(minWidth: 96, maxWidth: maxWidth),
         padding: const EdgeInsets.only(right: 8, left: 8, top: 8),
         child: Stack(
           children: [
