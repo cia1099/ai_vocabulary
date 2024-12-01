@@ -32,3 +32,29 @@ class ChatAnswer {
         "user_id": userId,
       };
 }
+
+class SpeechRecognition {
+  final String text;
+  final bool recognize;
+
+  SpeechRecognition({
+    required this.text,
+    required this.recognize,
+  });
+
+  factory SpeechRecognition.fromRawJson(String str) =>
+      SpeechRecognition.fromJson(json.decode(str));
+
+  String toRawJson() => json.encode(toJson());
+
+  factory SpeechRecognition.fromJson(Map<String, dynamic> json) =>
+      SpeechRecognition(
+        text: json["text"],
+        recognize: json["recognize"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "text": text,
+        "recognize": recognize,
+      };
+}

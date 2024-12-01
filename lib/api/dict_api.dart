@@ -6,12 +6,14 @@ import 'dart:io';
 import 'package:ai_vocabulary/model/chat_answer.dart';
 import 'package:ai_vocabulary/model/vocabulary.dart';
 import 'package:http/http.dart' as http;
-// import 'package:text2speech/text2speech.dart';
+import 'package:http_parser/http_parser.dart' show MediaType;
+import 'package:path/path.dart' as p;
+import 'package:text2speech/text2speech.dart';
 
-part 'chat_api.dart';
+part 'audio_api.dart';
 
-// const baseURL = 'www.cia1099.cloudns.ch';
-const baseURL = '127.0.0.1:8000';
+const baseURL = 'www.cia1099.cloudns.ch';
+// const baseURL = '127.0.0.1:8000';
 const timeOut = Duration(seconds: 5);
 
 Future<List<Vocabulary>> retrievalWord(String word) async {
@@ -59,35 +61,42 @@ Future<Vocabulary> getWordById(int id) async {
   }
 }
 
-// Future<void> soundGTTs(String text, [gTTS lang = gTTS.US]) async {
-//   final url = Uri.https(baseURL, '/dict/gtts/audio');
-//   final headers = {'Content-Type': 'application/json'};
-//   final body = jsonEncode({'text': text, 'lang': lang.lang});
-//   final res =
-//       await http.post(url, headers: headers, body: body).timeout(timeOut);
-//   if (res.statusCode == 200) {
-//     bytesPlay(res.bodyBytes);
-//   } else {
-//     throw HttpException(res.body, uri: url);
-//   }
-// }
+Future<ChatAnswer> chatVocabulary(String vocabulary, String text,
+    [bool isHelp = false]) async {
+  final url = Uri.https(baseURL, '/dict/chat/$vocabulary');
+  final headers = {'Content-Type': 'application/json'};
+  final body = jsonEncode({'text': text, 'is_help': isHelp});
+  final res =
+      await http.post(url, headers: headers, body: body).timeout(timeOut);
+  if (res.statusCode == 200) {
+    return ChatAnswer.fromRawJson(res.body);
+  } else {
+    throw HttpException(res.body, uri: url);
+  }
+}
 
-// Future<void> soundAzure(String text,
-//     {String lang = 'en-US',
-//     String gender = 'Female',
-//     String name = 'en-US-AvaMultilingualNeural'}) async {
-//   final url = Uri.https(baseURL, '/dict/azure/audio');
-//   final headers = {'Content-Type': 'application/json'};
-//   final body =
-//       jsonEncode({'text': text, 'lang': lang, 'gender': gender, 'name': name});
-//   final res =
-//       await http.post(url, headers: headers, body: body).timeout(timeOut);
-//   if (res.statusCode == 200) {
-//     bytesPlay(res.bodyBytes);
-//   } else {
-//     throw HttpException(res.body, uri: url);
-//   }
-// }
+Future<SpeechRecognition> recognizeSpeech(String filePath) async {
+  final url = Uri.https(baseURL, '/dict/chat/speech');
+  final headers = {
+    'Content-Type': 'multipart/form-data',
+  };
+  final request = http.MultipartRequest('POST', url)..headers.addAll(headers);
+  request.files.add(await http.MultipartFile.fromPath(
+    'speech',
+    filePath,
+    filename: p.basename(filePath),
+    contentType: MediaType('audio', p.extension(filePath).substring(1)),
+  ));
+  final res = await request.send();
+  final body = utf8.decode(await res.stream.last);
+  if (res.statusCode == 200) {
+    final apiResponse = ApiResponse.fromRawJson(body);
+    if (apiResponse.status != 200) throw ApiException(apiResponse.content);
+    return SpeechRecognition.fromRawJson(apiResponse.content);
+  } else {
+    throw HttpException(body, uri: url);
+  }
+}
 
 Future<ApiResponse> _httpGet(Uri url) async {
   try {
@@ -145,8 +154,17 @@ void main() async {
   // print(res.toRawJson());
   // final word = await getWords([16852 + 1]);
   // print(word);
-  final ans = await chatVocabulary('apple', 'apple juice');
-  final time = DateTime.fromMillisecondsSinceEpoch(ans.created);
-  print(ans.toRawJson());
-  print(time);
+  // final ans = await chatVocabulary('apple', 'apple juice');
+  // final time = DateTime.fromMillisecondsSinceEpoch(ans.created);
+  // print(ans.toRawJson());
+  // print(time);
+  const filePath =
+      '/Users/otto/project/dict_server/audio_test/whatstheweatherlike.wav';
+  final file = File(filePath);
+  if (file.existsSync()) {
+    final res = await recognizeSpeech(filePath);
+    print(res.toRawJson());
+  } else {
+    print("$filePath is not exit");
+  }
 }
