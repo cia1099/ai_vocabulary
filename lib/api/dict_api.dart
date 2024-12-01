@@ -3,11 +3,15 @@ import 'dart:convert';
 import 'dart:core';
 import 'dart:io';
 
+import 'package:ai_vocabulary/model/chat_answer.dart';
 import 'package:ai_vocabulary/model/vocabulary.dart';
 import 'package:http/http.dart' as http;
-import 'package:text2speech/text2speech.dart';
+// import 'package:text2speech/text2speech.dart';
 
-const baseURL = 'www.cia1099.cloudns.ch';
+part 'chat_api.dart';
+
+// const baseURL = 'www.cia1099.cloudns.ch';
+const baseURL = '127.0.0.1:8000';
 const timeOut = Duration(seconds: 5);
 
 Future<List<Vocabulary>> retrievalWord(String word) async {
@@ -55,35 +59,35 @@ Future<Vocabulary> getWordById(int id) async {
   }
 }
 
-Future<void> soundGTTs(String text, [gTTS lang = gTTS.US]) async {
-  final url = Uri.https(baseURL, '/dict/gtts/audio');
-  final headers = {'Content-Type': 'application/json'};
-  final body = jsonEncode({'text': text, 'lang': lang.lang});
-  final res =
-      await http.post(url, headers: headers, body: body).timeout(timeOut);
-  if (res.statusCode == 200) {
-    bytesPlay(res.bodyBytes);
-  } else {
-    throw HttpException(res.body, uri: url);
-  }
-}
+// Future<void> soundGTTs(String text, [gTTS lang = gTTS.US]) async {
+//   final url = Uri.https(baseURL, '/dict/gtts/audio');
+//   final headers = {'Content-Type': 'application/json'};
+//   final body = jsonEncode({'text': text, 'lang': lang.lang});
+//   final res =
+//       await http.post(url, headers: headers, body: body).timeout(timeOut);
+//   if (res.statusCode == 200) {
+//     bytesPlay(res.bodyBytes);
+//   } else {
+//     throw HttpException(res.body, uri: url);
+//   }
+// }
 
-Future<void> soundAzure(String text,
-    {String lang = 'en-US',
-    String gender = 'Female',
-    String name = 'en-US-AvaMultilingualNeural'}) async {
-  final url = Uri.https(baseURL, '/dict/azure/audio');
-  final headers = {'Content-Type': 'application/json'};
-  final body =
-      jsonEncode({'text': text, 'lang': lang, 'gender': gender, 'name': name});
-  final res =
-      await http.post(url, headers: headers, body: body).timeout(timeOut);
-  if (res.statusCode == 200) {
-    bytesPlay(res.bodyBytes);
-  } else {
-    throw HttpException(res.body, uri: url);
-  }
-}
+// Future<void> soundAzure(String text,
+//     {String lang = 'en-US',
+//     String gender = 'Female',
+//     String name = 'en-US-AvaMultilingualNeural'}) async {
+//   final url = Uri.https(baseURL, '/dict/azure/audio');
+//   final headers = {'Content-Type': 'application/json'};
+//   final body =
+//       jsonEncode({'text': text, 'lang': lang, 'gender': gender, 'name': name});
+//   final res =
+//       await http.post(url, headers: headers, body: body).timeout(timeOut);
+//   if (res.statusCode == 200) {
+//     bytesPlay(res.bodyBytes);
+//   } else {
+//     throw HttpException(res.body, uri: url);
+//   }
+// }
 
 Future<ApiResponse> _httpGet(Uri url) async {
   try {
@@ -139,6 +143,10 @@ class ApiException implements Exception {
 void main() async {
   // final res = await retrievalWord("shit");
   // print(res.toRawJson());
-  final word = await getWords([16852 + 1]);
-  print(word);
+  // final word = await getWords([16852 + 1]);
+  // print(word);
+  final ans = await chatVocabulary('apple', 'apple juice');
+  final time = DateTime.fromMillisecondsSinceEpoch(ans.created);
+  print(ans.toRawJson());
+  print(time);
 }
