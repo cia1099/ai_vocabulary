@@ -26,3 +26,15 @@ class InfoMessage extends Message {
     required super.timeStamp,
   });
 }
+
+class RequireMessage extends Message {
+  // final Function(Message)? updateMessage;
+  final String vocabulary;
+  RequireMessage({
+    required this.vocabulary,
+    required super.wordID,
+    required super.content,
+    required super.timeStamp,
+    // this.updateMessage,
+  });
+}
