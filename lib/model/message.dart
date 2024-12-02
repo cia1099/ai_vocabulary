@@ -12,10 +12,12 @@ abstract class Message {
 }
 
 class TextMessage extends Message {
+  final Iterable<String> patterns;
   TextMessage(
       {required super.content,
       required super.timeStamp,
       required super.wordID,
+      this.patterns = const Iterable.empty(),
       super.userID})
       : assert(wordID > 0);
 }

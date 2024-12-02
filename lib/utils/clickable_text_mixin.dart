@@ -1,3 +1,5 @@
+import 'dart:math' show pi;
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
@@ -11,10 +13,10 @@ mixin ClickableTextStateMixin<T extends StatefulWidget> on State<T> {
   @override
   void dispose() {
     onTap = null;
-    _tapRecognizers.forEach((element) {
+    for (var element in _tapRecognizers) {
       element.onTap = null;
       element.dispose();
-    });
+    }
     _tapRecognizers.clear();
     super.dispose();
   }
@@ -49,7 +51,16 @@ mixin ClickableTextStateMixin<T extends StatefulWidget> on State<T> {
         style: _selectedIndex != index
             ? !patterns.contains(word)
                 ? null
-                : TextStyle(color: Theme.of(context).colorScheme.inversePrimary)
+                : TextStyle(
+                    color: Theme.of(context).colorScheme.inversePrimary,
+                    shadows: List.generate(
+                      1,
+                      (i) => Shadow(
+                        offset: Offset.fromDirection(pi * (1 + 2 * i) / 4, 2),
+                        color: Theme.of(context).colorScheme.surfaceBright,
+                      ),
+                    ),
+                  )
             : TextStyle(
                 backgroundColor: Theme.of(context).colorScheme.primary,
                 color: Theme.of(context).colorScheme.onPrimary),

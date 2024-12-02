@@ -1,17 +1,19 @@
+import 'package:ai_vocabulary/utils/clickable_text_mixin.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
+import '../bottom_sheet/retrieval_bottom_sheet.dart';
 import '../painters/chat_bubble.dart';
 
 class ChatBubble extends StatelessWidget {
-  final Widget content;
+  final Widget child;
   final int timeStamp;
   final double maxWidth;
   final bool isMe;
   const ChatBubble(
       {super.key,
-      required this.content,
+      required this.child,
       required this.timeStamp,
       required this.maxWidth,
       required this.isMe});
@@ -35,7 +37,10 @@ class ChatBubble extends StatelessWidget {
           children: [
             Container(
               margin: EdgeInsets.only(bottom: iconSize * 1.414),
-              child: content,
+              child: MediaQuery(
+                  data: const MediaQueryData(
+                      textScaler: TextScaler.linear(1.414)),
+                  child: child),
             ),
             Positioned(
                 left: 4,
@@ -82,6 +87,43 @@ class ChatBubble extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class ClickableText extends StatefulWidget {
+  final String text;
+  final Iterable<String> patterns;
+  const ClickableText(this.text,
+      {super.key, this.patterns = const Iterable.empty()});
+
+  @override
+  State<ClickableText> createState() => _ClickableTextState();
+}
+
+class _ClickableTextState extends State<ClickableText>
+    with ClickableTextStateMixin {
+  @override
+  void initState() {
+    super.initState();
+    onTap = <T>(word) => showPlatformModalSheet<T>(
+          context: context,
+          material: MaterialModalSheetData(
+            useSafeArea: true,
+            isScrollControlled: true,
+          ),
+          builder: (context) => RetrievalBottomSheet(queryWord: word),
+        );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Text.rich(
+      TextSpan(children: [
+        TextSpan(
+          children: clickableWords(widget.text, patterns: widget.patterns),
+        ),
+      ]),
     );
   }
 }

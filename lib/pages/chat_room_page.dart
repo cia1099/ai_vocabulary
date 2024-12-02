@@ -1,8 +1,6 @@
-import 'package:ai_vocabulary/api/dict_api.dart';
 import 'package:ai_vocabulary/model/message.dart';
 import 'package:ai_vocabulary/model/vocabulary.dart';
-import 'package:ai_vocabulary/painters/chat_bubble.dart';
-import 'package:ai_vocabulary/widgets/dot3indicator.dart';
+import 'package:ai_vocabulary/widgets/require_chat_bubble.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
@@ -85,6 +83,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                             content: 'I eat apple juice this morning.',
                             timeStamp: now,
                             userID: myID,
+                            patterns: widget.word.getMatchingPatterns,
                             wordID: widget.word.wordId);
                         final gptTalk = RequireMessage(
                           content: 'I eat apple juice this morning.',
@@ -167,81 +166,30 @@ class ChatListTile extends StatelessWidget {
           ],
         );
       case TextMessage:
+        final msg = message as TextMessage;
         return Wrap(
           alignment:
-              message.userID != myID ? WrapAlignment.start : WrapAlignment.end,
+              msg.userID != myID ? WrapAlignment.start : WrapAlignment.end,
           crossAxisAlignment: WrapCrossAlignment.end,
           spacing: 8,
           children: [
-            if (leading != null && message.userID != myID)
+            if (leading != null && msg.userID != myID)
               ConstrainedBox(
                 constraints: BoxConstraints(maxWidth: screenWidth * .1),
                 child: leading,
               ),
             ChatBubble(
-                content: Text(message.content),
-                timeStamp: message.timeStamp,
+                timeStamp: msg.timeStamp,
                 maxWidth: screenWidth * (.75 + (leading == null ? .1 : 0)),
-                isMe: message.userID == myID),
+                isMe: msg.userID == myID,
+                child: ClickableText(msg.content, patterns: msg.patterns)),
           ],
         );
       case RequireMessage:
-        final req = message as RequireMessage;
-        final future = chatVocabulary(req.vocabulary, req.content);
-        return Wrap(
-          alignment: WrapAlignment.start,
-          crossAxisAlignment: WrapCrossAlignment.end,
-          spacing: 8,
-          children: [
-            if (leading != null)
-              ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: screenWidth * .1),
-                child: leading,
-              ),
-            FutureBuilder(
-              future: future,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return CustomPaint(
-                    painter: ChatBubblePainter(
-                        color: colorScheme.surfaceContainerHigh, isMe: false),
-                    child: Container(
-                      width: 100,
-                      height: 50,
-                      constraints: BoxConstraints(
-                          maxWidth:
-                              screenWidth * (.75 + (leading == null ? .1 : 0))),
-                      child: const DotDotDotIndicator(size: 20),
-                    ),
-                  );
-                }
-                if (snapshot.hasError) {
-                  return Text('${snapshot.error}');
-                }
-                final ans = snapshot.data!;
-                updateMessage(TextMessage(
-                    content: ans.answer,
-                    timeStamp: ans.created,
-                    wordID: req.wordID,
-                    userID: ans.userId));
-                return ChatBubble(
-                    content: StreamBuilder(
-                        stream: (String text) async* {
-                          for (int s = 1; s <= text.length; s++) {
-                            yield text.substring(0, s);
-                            await Future.delayed(Durations.short1);
-                          }
-                        }(ans.answer),
-                        builder: (context, snapshot) {
-                          return Text(snapshot.data ?? '');
-                        }),
-                    timeStamp: ans.created,
-                    maxWidth: screenWidth * (.75 + (leading == null ? .1 : 0)),
-                    isMe: false);
-              },
-            )
-          ],
-        );
+        return RequireChatBubble(
+            leading: leading,
+            message: message as RequireMessage,
+            updateMessage: updateMessage);
       default:
         return Text(message.content);
     }
