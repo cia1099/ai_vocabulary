@@ -21,6 +21,7 @@ dependencies:
   sqlite3: ^2.4.7
   transparent_image: ^2.0.1
   dotted_line: ^3.2.3
+  flutter_spinkit: ^5.2.1
 
 dev_dependencies:
   flutter_test:

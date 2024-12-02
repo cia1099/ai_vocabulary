@@ -1,5 +1,7 @@
-import 'package:ai_vocabulary/mock_data.dart';
 import 'package:ai_vocabulary/model/message.dart';
+import 'package:ai_vocabulary/model/vocabulary.dart';
+import 'package:ai_vocabulary/painters/chat_bubble.dart';
+import 'package:ai_vocabulary/widgets/dot3indicator.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
@@ -9,8 +11,10 @@ import 'package:flutter_lorem/flutter_lorem.dart';
 import '../widgets/chat_bubble.dart';
 
 class ChatRoomPage extends StatefulWidget {
+  final Vocabulary word;
   const ChatRoomPage({
     super.key,
+    required this.word,
   });
 
   @override
@@ -19,14 +23,15 @@ class ChatRoomPage extends StatefulWidget {
 
 class _ChatRoomPageState extends State<ChatRoomPage> {
   final messages = <Message>[];
-  final word = apple;
+  final myID = '1';
+  final gptID = '123';
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final screenHeight = MediaQuery.of(context).size.height;
     return PlatformScaffold(
       appBar: PlatformAppBar(
-        title: const Text('apple'),
+        title: Text(widget.word.word),
         material: (_, __) => MaterialAppBarData(
           backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         ),
@@ -38,10 +43,10 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
               itemCount: messages.length,
               itemBuilder: (context, index) => ChatListTile(
                 message: messages[index],
-                leading: messages[index].userID == null
+                leading: messages[index].userID != myID
                     ? CircleAvatar(
-                        backgroundImage: word.asset != null
-                            ? NetworkImage(word.asset!)
+                        backgroundImage: widget.word.asset != null
+                            ? NetworkImage(widget.word.asset!)
                             : null,
                       )
                     : null,
@@ -76,12 +81,13 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                         final myTalk = TextMessage(
                             content: lorem(paragraphs: 1, words: 1),
                             timeStamp: now,
-                            userID: '1',
-                            wordID: word.wordId);
+                            userID: myID,
+                            wordID: widget.word.wordId);
                         final gptTalk = TextMessage(
                             content: lorem(paragraphs: 1),
                             timeStamp: now + 1000,
-                            wordID: word.wordId);
+                            userID: gptID,
+                            wordID: widget.word.wordId);
                         messages.addAll([myTalk, gptTalk]);
                       });
                     },
@@ -135,6 +141,7 @@ class ChatListTile extends StatelessWidget {
   Widget createContent(Message message, {required BuildContext context}) {
     final screenWidth = MediaQuery.of(context).size.width;
     final colorScheme = Theme.of(context).colorScheme;
+    const myID = '1';
     switch (message.runtimeType) {
       case InfoMessage:
         return Row(
@@ -155,7 +162,7 @@ class ChatListTile extends StatelessWidget {
       case TextMessage:
         return Wrap(
           alignment:
-              message.userID == null ? WrapAlignment.start : WrapAlignment.end,
+              message.userID != myID ? WrapAlignment.start : WrapAlignment.end,
           crossAxisAlignment: WrapCrossAlignment.end,
           spacing: 8,
           children: [
@@ -164,14 +171,34 @@ class ChatListTile extends StatelessWidget {
                 constraints: BoxConstraints(maxWidth: screenWidth * .1),
                 child: leading,
               ),
-            ChatBubble(
-                content: MediaQuery(
-                    data: const MediaQueryData(
-                        textScaler: TextScaler.linear(1.414)),
-                    child: Text(message.content)),
-                timeStamp: message.timeStamp,
-                maxWidth: screenWidth * (.75 + (leading == null ? .1 : 0)),
-                isMe: message.userID != null),
+            message.userID != myID
+                ? CustomPaint(
+                    painter: ChatBubblePainter(
+                        color: colorScheme.surfaceContainerHigh, isMe: false),
+                    child: Container(
+                      width: 100,
+                      height: 50,
+                      constraints: BoxConstraints(
+                          maxWidth:
+                              screenWidth * (.75 + (leading == null ? .1 : 0))),
+                      child: const DotDotDotIndicator(size: 20),
+                    ),
+                  )
+                : ChatBubble(
+                    content: Text(message.content),
+                    // StreamBuilder(
+                    //     stream: (String text) async* {
+                    //       for (int s = 1; s < text.length; s++) {
+                    //         yield text.substring(0, s);
+                    //         await Future.delayed(Durations.short1);
+                    //       }
+                    //     }(message.content),
+                    //     builder: (context, snapshot) {
+                    //       return Text(snapshot.data ?? '');
+                    //     }),
+                    timeStamp: message.timeStamp,
+                    maxWidth: screenWidth * (.75 + (leading == null ? .1 : 0)),
+                    isMe: message.userID == myID),
           ],
         );
       default:
