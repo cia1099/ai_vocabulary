@@ -51,19 +51,20 @@ class RequireChatBubble extends StatelessWidget {
               );
             }
             if (snapshot.hasError) {
-              return Text('${snapshot.error}');
+              return Text('${snapshot.error}',
+                  style: TextStyle(color: colorScheme.error));
             }
             final ans = snapshot.data!;
-            updateMessage(TextMessage(
+            final tmessage = TextMessage(
                 content: ans.answer,
                 timeStamp: ans.created,
                 patterns: [message.vocabulary],
                 wordID: req.wordID,
-                userID: ans.userId));
+                userID: ans.userId);
+            updateMessage(tmessage);
             return ChatBubble(
-                timeStamp: ans.created,
+                message: tmessage,
                 maxWidth: screenWidth * (.75 + (leading == null ? .1 : 0)),
-                isMe: false,
                 child: StreamBuilder(
                     stream: (String text) async* {
                       for (int s = 1; s <= text.length; s++) {

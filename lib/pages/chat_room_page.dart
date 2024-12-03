@@ -5,9 +5,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
-// import 'package:flutter_lorem/flutter_lorem.dart';
-
 import '../widgets/chat_bubble.dart';
+import 'speech_confirm_dialog.dart';
 
 class ChatRoomPage extends StatefulWidget {
   final Vocabulary word;
@@ -111,7 +110,14 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                   ),
                 ),
                 PlatformIconButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    showPlatformModalSheet(
+                      context: context,
+                      material: MaterialModalSheetData(
+                          scrollControlDisabledMaxHeightRatio: 1),
+                      builder: (context) => const SpeechConfirmDialog(),
+                    );
+                  },
                   icon: const Icon(CupertinoIcons.paperplane),
                 ),
               ],
@@ -179,9 +185,8 @@ class ChatListTile extends StatelessWidget {
                 child: leading,
               ),
             ChatBubble(
-                timeStamp: msg.timeStamp,
+                message: msg,
                 maxWidth: screenWidth * (.75 + (leading == null ? .1 : 0)),
-                isMe: msg.userID == myID,
                 child: ClickableText(msg.content, patterns: msg.patterns)),
           ],
         );
@@ -191,7 +196,8 @@ class ChatListTile extends StatelessWidget {
             message: message as RequireMessage,
             updateMessage: updateMessage);
       default:
-        return Text(message.content);
+        return Text(message.content,
+            style: TextStyle(color: colorScheme.error));
     }
   }
 }

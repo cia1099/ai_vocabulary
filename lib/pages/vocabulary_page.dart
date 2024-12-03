@@ -87,8 +87,6 @@ class VocabularyHead extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
-    final navigatorTheme =
-        CupertinoTheme.of(context).textTheme.navActionTextStyle;
     final routeName = ModalRoute.of(context)?.settings.name;
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -126,16 +124,13 @@ class VocabularyHead extends StatelessWidget {
                         if (routeName != null)
                           ...List.from([
                             Positioned(
-                                top: 16,
-                                left: 0,
-                                child: GestureDetector(
-                                  onTap: Navigator.of(context).pop,
-                                  child: Icon(
-                                    CupertinoIcons.chevron_back,
-                                    color: navigatorTheme.color,
-                                    size: 32,
-                                  ),
-                                )),
+                              top: 0,
+                              left: 0,
+                              child: CupertinoNavigationBarBackButton(
+                                onPressed: Navigator.of(context).pop,
+                                previousPageTitle: 'Back',
+                              ),
+                            ),
                             Positioned(
                                 top: 16,
                                 right: 0,

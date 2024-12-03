@@ -1,3 +1,4 @@
+import 'package:ai_vocabulary/model/message.dart';
 import 'package:ai_vocabulary/utils/clickable_text_mixin.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -8,22 +9,22 @@ import '../painters/chat_bubble.dart';
 
 class ChatBubble extends StatelessWidget {
   final Widget child;
-  final int timeStamp;
+  final Message message;
   final double maxWidth;
-  final bool isMe;
-  const ChatBubble(
-      {super.key,
-      required this.child,
-      required this.timeStamp,
-      required this.maxWidth,
-      required this.isMe});
+  const ChatBubble({
+    super.key,
+    required this.child,
+    required this.message,
+    this.maxWidth = double.infinity,
+  });
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final dateTime = DateTime.fromMillisecondsSinceEpoch(timeStamp);
+    final dateTime = DateTime.fromMillisecondsSinceEpoch(message.timeStamp);
     final minute = dateTime.minute.toString().padLeft(2, '0');
     final iconSize = Theme.of(context).iconTheme.size ?? 24.0;
+    final isMe = message.userID == '1';
     return CustomPaint(
       painter: ChatBubblePainter(
           isMe: isMe,
