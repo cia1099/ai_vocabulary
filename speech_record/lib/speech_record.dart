@@ -32,7 +32,7 @@ class RecordSpeechButton extends StatefulWidget {
 class _RecordSpeechButtonState extends State<RecordSpeechButton> {
   StreamSubscription? tapProtection;
   final record = AudioRecorder();
-  late final futurePermission = Future.value(true); //record.hasPermission();
+  late var futurePermission = Future.value(true); //record.hasPermission();
 
   @override
   void initState() {
@@ -54,6 +54,11 @@ class _RecordSpeechButtonState extends State<RecordSpeechButton> {
       child: FutureBuilder(
         future: futurePermission,
         builder: (context, snapshot) => InkWell(
+          onDoubleTap: snapshot.data == true
+              ? null
+              : () => setState(() {
+                    futurePermission = record.hasPermission();
+                  }),
           onTapDown: snapshot.data == true
               ? (_) {
                   tapProtection = Stream.periodic(widget.protectLatency, null)

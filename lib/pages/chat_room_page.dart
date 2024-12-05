@@ -1,9 +1,11 @@
+import 'package:ai_vocabulary/database/my_db.dart';
 import 'package:ai_vocabulary/model/message.dart';
 import 'package:ai_vocabulary/model/vocabulary.dart';
 import 'package:ai_vocabulary/widgets/require_chat_bubble.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
+import 'package:speech_record/speech_record.dart';
 
 import '../widgets/chat_bubble.dart';
 import 'speech_confirm_dialog.dart';
@@ -76,51 +78,63 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                     },
                     icon: const Icon(CupertinoIcons.keyboard),
                   ),
-                  Expanded(
-                    child: PlatformTextButton(
-                      onPressed: () {
-                        final now = DateTime.now().millisecondsSinceEpoch;
-                        setState(() {
-                          final myTalk = TextMessage(
-                              content: 'I eat apple juice this morning.',
-                              timeStamp: now,
-                              userID: myID,
-                              patterns: widget.word.getMatchingPatterns,
-                              wordID: widget.word.wordId);
-                          final gptTalk = RequireMessage(
-                            content: 'I eat apple juice this morning.',
-                            timeStamp: now + 1000,
-                            vocabulary: widget.word.word,
-                            wordID: widget.word.wordId,
-                          );
-                          messages.addAll([myTalk, gptTalk]);
-                        });
-                      },
-                      padding: EdgeInsets.zero,
-                      child: Container(
-                        height: screenHeight / 16,
-                        // width: double.maxFinite,
-                        // padding: const EdgeInsets.all(12),
-                        margin: const EdgeInsets.only(top: 4),
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                            border: Border.all(
-                                color: colorScheme.primary, width: 2),
-                            borderRadius:
-                                BorderRadius.circular(kRadialReactionRadius)),
-                        child: const Text('Press to speak'),
-                      ),
-                    ),
+                  FutureBuilder(
+                    future: MyDB().futureAppDirectory,
+                    builder: (context, snapshot) => snapshot.data == null
+                        ? const Placeholder()
+                        : Expanded(
+                            child: RecordSpeechButton(
+                              appDirectory: snapshot.data!,
+                              createWavFileName: () {
+                                final now = DateTime.now();
+                                return '${now.millisecondsSinceEpoch}.wav';
+                              },
+                              doneRecord: (outputPath) {
+                                if (outputPath != null) {
+                                  showPlatformModalSheet(
+                                    context: context,
+                                    material: MaterialModalSheetData(
+                                        backgroundColor: Colors.transparent,
+                                        scrollControlDisabledMaxHeightRatio: 1),
+                                    builder: (context) => SpeechConfirmDialog(
+                                        filePath: outputPath),
+                                  );
+                                }
+                              },
+                              child: Container(
+                                height: screenHeight / 16,
+                                // width: double.maxFinite,
+                                // padding: const EdgeInsets.all(12),
+                                margin: const EdgeInsets.only(top: 4),
+                                alignment: Alignment.center,
+                                decoration: BoxDecoration(
+                                    border: Border.all(
+                                        color: colorScheme.primary, width: 2),
+                                    borderRadius: BorderRadius.circular(
+                                        kRadialReactionRadius)),
+                                child: const Text('Press to speak'),
+                              ),
+                            ),
+                          ),
                   ),
                   PlatformIconButton(
                     onPressed: () {
-                      showPlatformModalSheet(
-                        context: context,
-                        material: MaterialModalSheetData(
-                            backgroundColor: Colors.transparent,
-                            scrollControlDisabledMaxHeightRatio: 1),
-                        builder: (context) => const SpeechConfirmDialog(),
-                      );
+                      final now = DateTime.now().millisecondsSinceEpoch;
+                      setState(() {
+                        final myTalk = TextMessage(
+                            content: 'I eat apple juice this morning.',
+                            timeStamp: now,
+                            userID: myID,
+                            patterns: widget.word.getMatchingPatterns,
+                            wordID: widget.word.wordId);
+                        final gptTalk = RequireMessage(
+                          content: 'I eat apple juice this morning.',
+                          timeStamp: now + 1000,
+                          vocabulary: widget.word.word,
+                          wordID: widget.word.wordId,
+                        );
+                        messages.addAll([myTalk, gptTalk]);
+                      });
                     },
                     icon: const Icon(CupertinoIcons.paperplane),
                   ),

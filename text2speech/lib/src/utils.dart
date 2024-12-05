@@ -10,7 +10,13 @@ Future<void> immediatelyPlay(String url,
     null,
     onDone: player.dispose,
   );
-  await player.play(UrlSource(url, mimeType: mimeType));
+  if (url.contains('http')) {
+    await player.play(UrlSource(url, mimeType: mimeType));
+  } else if (url.contains('assets/')) {
+    await player.play(AssetSource(url, mimeType: mimeType));
+  } else {
+    await player.play(DeviceFileSource(url, mimeType: mimeType));
+  }
   subscript.cancel();
 }
 

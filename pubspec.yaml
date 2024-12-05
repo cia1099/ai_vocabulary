@@ -13,6 +13,8 @@ dependencies:
     path: im_charts
   text2speech:
     path: text2speech
+  speech_record:
+    path: speech_record
   cupertino_icons: ^1.0.8
   flutter_platform_widgets: ^7.0.1
   http: ^1.2.2
