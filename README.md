@@ -2,6 +2,14 @@
 
 A new Flutter project.
 
+# Good Codes
+* [lib/pages/speech_confirm_dialog.dart](lib/pages/speech_confirm_dialog.dart)\
+Resolve InkWell issue when the page without Scaffold, the alternative way is to wrap Material widget.\
+Good example on IntrinsicHeight when you want Stack size follow its children who has the maximum height.
+
+* [lib/main.dart](lib/main.dart)\
+override CupertinoTheme's colors with MaterialTheme
+
 ## Getting Started
 
 This project is a starting point for a Flutter application.

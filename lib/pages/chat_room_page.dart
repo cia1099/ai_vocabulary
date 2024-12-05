@@ -28,102 +28,107 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
     final colorScheme = Theme.of(context).colorScheme;
     final screenHeight = MediaQuery.of(context).size.height;
     // print(messages.map((e) => e.runtimeType.toString()).join(' '));
-    return PlatformScaffold(
-      appBar: PlatformAppBar(
-        title: Text(widget.word.word),
-        material: (_, __) => MaterialAppBarData(
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+    return MediaQuery.removeViewInsets(
+      context: context,
+      removeBottom: true,
+      child: PlatformScaffold(
+        appBar: PlatformAppBar(
+          title: Text(widget.word.word),
+          material: (_, __) => MaterialAppBarData(
+            backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+          ),
         ),
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              itemCount: messages.length,
-              itemBuilder: (context, index) => ChatListTile(
-                message: messages[index],
-                leading: messages[index].userID != myID
-                    ? CircleAvatar(
-                        backgroundImage: widget.word.asset != null
-                            ? NetworkImage(widget.word.asset!)
-                            : null,
-                      )
-                    : null,
-                updateMessage: (msg) => messages[index] = msg,
+        body: Column(
+          children: [
+            Expanded(
+              child: ListView.builder(
+                itemCount: messages.length,
+                itemBuilder: (context, index) => ChatListTile(
+                  message: messages[index],
+                  leading: messages[index].userID != myID
+                      ? CircleAvatar(
+                          backgroundImage: widget.word.asset != null
+                              ? NetworkImage(widget.word.asset!)
+                              : null,
+                        )
+                      : null,
+                  updateMessage: (msg) => messages[index] = msg,
+                ),
               ),
             ),
-          ),
-          Container(
-            constraints: BoxConstraints(
-                minHeight: screenHeight / 10, minWidth: double.infinity),
-            color: colorScheme.onInverseSurface,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                PlatformIconButton(
-                  onPressed: () {
-                    setState(() {
-                      messages.add(
-                        InfoMessage(
-                          content: 'Shit man',
-                          timeStamp: DateTime.now().millisecondsSinceEpoch,
-                        ),
-                      );
-                    });
-                  },
-                  icon: const Icon(CupertinoIcons.keyboard),
-                ),
-                Expanded(
-                  child: PlatformTextButton(
+            Container(
+              constraints: BoxConstraints(
+                  minHeight: screenHeight / 10, minWidth: double.infinity),
+              color: colorScheme.onInverseSurface,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  PlatformIconButton(
                     onPressed: () {
-                      final now = DateTime.now().millisecondsSinceEpoch;
                       setState(() {
-                        final myTalk = TextMessage(
-                            content: 'I eat apple juice this morning.',
-                            timeStamp: now,
-                            userID: myID,
-                            patterns: widget.word.getMatchingPatterns,
-                            wordID: widget.word.wordId);
-                        final gptTalk = RequireMessage(
-                          content: 'I eat apple juice this morning.',
-                          timeStamp: now + 1000,
-                          vocabulary: widget.word.word,
-                          wordID: widget.word.wordId,
+                        messages.add(
+                          InfoMessage(
+                            content: 'Shit man',
+                            timeStamp: DateTime.now().millisecondsSinceEpoch,
+                          ),
                         );
-                        messages.addAll([myTalk, gptTalk]);
                       });
                     },
-                    padding: EdgeInsets.zero,
-                    child: Container(
-                      height: screenHeight / 16,
-                      // width: double.maxFinite,
-                      // padding: const EdgeInsets.all(12),
-                      margin: const EdgeInsets.only(top: 4),
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                          border:
-                              Border.all(color: colorScheme.primary, width: 2),
-                          borderRadius:
-                              BorderRadius.circular(kRadialReactionRadius)),
-                      child: const Text('Press to speak'),
+                    icon: const Icon(CupertinoIcons.keyboard),
+                  ),
+                  Expanded(
+                    child: PlatformTextButton(
+                      onPressed: () {
+                        final now = DateTime.now().millisecondsSinceEpoch;
+                        setState(() {
+                          final myTalk = TextMessage(
+                              content: 'I eat apple juice this morning.',
+                              timeStamp: now,
+                              userID: myID,
+                              patterns: widget.word.getMatchingPatterns,
+                              wordID: widget.word.wordId);
+                          final gptTalk = RequireMessage(
+                            content: 'I eat apple juice this morning.',
+                            timeStamp: now + 1000,
+                            vocabulary: widget.word.word,
+                            wordID: widget.word.wordId,
+                          );
+                          messages.addAll([myTalk, gptTalk]);
+                        });
+                      },
+                      padding: EdgeInsets.zero,
+                      child: Container(
+                        height: screenHeight / 16,
+                        // width: double.maxFinite,
+                        // padding: const EdgeInsets.all(12),
+                        margin: const EdgeInsets.only(top: 4),
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                            border: Border.all(
+                                color: colorScheme.primary, width: 2),
+                            borderRadius:
+                                BorderRadius.circular(kRadialReactionRadius)),
+                        child: const Text('Press to speak'),
+                      ),
                     ),
                   ),
-                ),
-                PlatformIconButton(
-                  onPressed: () {
-                    showPlatformModalSheet(
-                      context: context,
-                      material: MaterialModalSheetData(
-                          scrollControlDisabledMaxHeightRatio: 1),
-                      builder: (context) => const SpeechConfirmDialog(),
-                    );
-                  },
-                  icon: const Icon(CupertinoIcons.paperplane),
-                ),
-              ],
+                  PlatformIconButton(
+                    onPressed: () {
+                      showPlatformModalSheet(
+                        context: context,
+                        material: MaterialModalSheetData(
+                            backgroundColor: Colors.transparent,
+                            scrollControlDisabledMaxHeightRatio: 1),
+                        builder: (context) => const SpeechConfirmDialog(),
+                      );
+                    },
+                    icon: const Icon(CupertinoIcons.paperplane),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
