@@ -103,7 +103,6 @@ class SpeechConfirmDialog extends StatelessWidget {
                             child: Stack(
                               alignment: AlignmentDirectional.center,
                               children: [
-                                const Center(child: Text('Destruct')),
                                 Align(
                                   alignment: const Alignment(1, 0),
                                   child: Builder(builder: (context) {
@@ -114,6 +113,7 @@ class SpeechConfirmDialog extends StatelessWidget {
                                         color: color);
                                   }),
                                 ),
+                                const Center(child: Text('Destruct')),
                               ],
                             ),
                           ),
