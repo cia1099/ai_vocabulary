@@ -14,6 +14,7 @@ class RecordSpeechButton extends StatefulWidget {
   final String Function() createWavFileName;
   final VoidCallback? startRecordHint;
   final void Function(String? outputPath) doneRecord;
+  final ShapeBorder? blinkShape;
 
   const RecordSpeechButton({
     super.key,
@@ -23,6 +24,7 @@ class RecordSpeechButton extends StatefulWidget {
     required this.doneRecord,
     required this.child,
     this.startRecordHint,
+    this.blinkShape,
   });
 
   @override
@@ -54,6 +56,7 @@ class _RecordSpeechButtonState extends State<RecordSpeechButton> {
       child: FutureBuilder(
         future: futurePermission,
         builder: (context, snapshot) => InkWell(
+          customBorder: widget.blinkShape,
           onDoubleTap: snapshot.data == true
               ? null
               : () => setState(() {

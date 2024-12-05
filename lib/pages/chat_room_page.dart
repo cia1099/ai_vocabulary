@@ -81,38 +81,48 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                   FutureBuilder(
                     future: MyDB().futureAppDirectory,
                     builder: (context, snapshot) => snapshot.data == null
-                        ? const Placeholder()
+                        ? Placeholder(
+                            fallbackHeight: screenHeight / 16,
+                            fallbackWidth: 200,
+                          )
                         : Expanded(
-                            child: RecordSpeechButton(
-                              appDirectory: snapshot.data!,
-                              createWavFileName: () {
-                                final now = DateTime.now();
-                                return '${now.millisecondsSinceEpoch}.wav';
-                              },
-                              doneRecord: (outputPath) {
-                                if (outputPath != null) {
-                                  showPlatformModalSheet(
-                                    context: context,
-                                    material: MaterialModalSheetData(
-                                        backgroundColor: Colors.transparent,
-                                        scrollControlDisabledMaxHeightRatio: 1),
-                                    builder: (context) => SpeechConfirmDialog(
-                                        filePath: outputPath),
-                                  );
-                                }
-                              },
-                              child: Container(
-                                height: screenHeight / 16,
-                                // width: double.maxFinite,
-                                // padding: const EdgeInsets.all(12),
-                                margin: const EdgeInsets.only(top: 4),
-                                alignment: Alignment.center,
-                                decoration: BoxDecoration(
-                                    border: Border.all(
-                                        color: colorScheme.primary, width: 2),
+                            child: Container(
+                              height: screenHeight / 16,
+                              // width: double.maxFinite,
+                              // padding: const EdgeInsets.all(12),
+                              margin: const EdgeInsets.only(top: 4),
+                              alignment: Alignment.center,
+                              child: RecordSpeechButton(
+                                appDirectory: snapshot.data!,
+                                createWavFileName: () {
+                                  final now = DateTime.now();
+                                  return '${now.millisecondsSinceEpoch}.wav';
+                                },
+                                doneRecord: (outputPath) {
+                                  if (outputPath != null) {
+                                    showPlatformModalSheet(
+                                      context: context,
+                                      material: MaterialModalSheetData(
+                                          backgroundColor: Colors.transparent,
+                                          scrollControlDisabledMaxHeightRatio:
+                                              1),
+                                      builder: (context) => SpeechConfirmDialog(
+                                          filePath: outputPath),
+                                    );
+                                  }
+                                },
+                                blinkShape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(
                                         kRadialReactionRadius)),
-                                child: const Text('Press to speak'),
+                                child: Container(
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                      border: Border.all(
+                                          color: colorScheme.primary, width: 2),
+                                      borderRadius: BorderRadius.circular(
+                                          kRadialReactionRadius)),
+                                  child: const Text('Press to speak'),
+                                ),
                               ),
                             ),
                           ),

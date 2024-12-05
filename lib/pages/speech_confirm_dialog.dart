@@ -53,7 +53,7 @@ class _SpeechConfirmDialogState extends State<SpeechConfirmDialog> {
                         children: [
                           Text(
                             textController.text.isEmpty
-                                ? 'Speech Recognize...'
+                                ? 'Speech Recognizing...'
                                 : 'Did you say this paragraph?',
                             style: textTheme.navTitleTextStyle,
                           ),
