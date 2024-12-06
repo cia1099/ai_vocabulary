@@ -36,7 +36,7 @@ class RequireMessage extends Message {
     required this.vocabulary,
     required super.wordID,
     required super.content,
-    required super.timeStamp,
     // this.updateMessage,
+    super.timeStamp = -1,
   });
 }

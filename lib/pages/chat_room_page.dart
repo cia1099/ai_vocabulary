@@ -100,15 +100,38 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                                 },
                                 doneRecord: (outputPath) {
                                   if (outputPath != null) {
-                                    showPlatformModalSheet(
+                                    showPlatformModalSheet<Message?>(
                                       context: context,
+                                      cupertino: CupertinoModalSheetData(
+                                          barrierDismissible: false),
                                       material: MaterialModalSheetData(
-                                          backgroundColor: Colors.transparent,
-                                          scrollControlDisabledMaxHeightRatio:
-                                              1),
+                                        backgroundColor: Colors.transparent,
+                                        scrollControlDisabledMaxHeightRatio: 1,
+                                        isDismissible: false,
+                                      ),
                                       builder: (context) => SpeechConfirmDialog(
                                           filePath: outputPath),
-                                    );
+                                    ).then((msg) {
+                                      if (msg == null) return;
+                                      Future.delayed(
+                                          Durations.long3,
+                                          () => setState(() {
+                                                messages.add(RequireMessage(
+                                                  vocabulary: widget.word.word,
+                                                  wordID: widget.word.wordId,
+                                                  content: msg.content,
+                                                ));
+                                              }));
+                                      setState(() {
+                                        messages.add(TextMessage(
+                                            content: msg.content,
+                                            timeStamp: msg.timeStamp,
+                                            wordID: widget.word.wordId,
+                                            patterns:
+                                                widget.word.getMatchingPatterns,
+                                            userID: myID));
+                                      });
+                                    });
                                   }
                                 },
                                 blinkShape: RoundedRectangleBorder(

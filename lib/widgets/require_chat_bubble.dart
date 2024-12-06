@@ -59,7 +59,7 @@ class RequireChatBubble extends StatelessWidget {
                 content: ans.answer,
                 timeStamp: ans.created,
                 patterns: [message.vocabulary],
-                wordID: req.wordID,
+                wordID: message.wordID,
                 userID: ans.userId);
             updateMessage(tmessage);
             return ChatBubble(
