@@ -29,20 +29,20 @@ mixin ClickableTextStateMixin<T extends StatefulWidget> on State<T> {
   }
 
   TextSpan _assignWord(String word, int index, Iterable<String> patterns) {
-    final tapRecognizer =
-        word.contains(RegExp(r'(?=\s+|[,.!?=\[\]\(\)\/])|(?<=[^\x00-\x7F])')) ||
-                word.contains(RegExp(r"('s|'re|'d|'ve|'m|'ll|^[-|+]?\d+)")) ||
-                patterns.contains(word)
-            ? null
-            : TapGestureRecognizer()
-          ?..onTap = () {
-            setState(() {
-              _selectedIndex = index;
-            });
-            onTap?.call(word).then((_) => setState(() {
-                  _selectedIndex = null;
-                }));
-          };
+    final tapRecognizer = word.contains(
+                RegExp(r'(?=\s+|[,.!?"=\[\]\(\)\/])|(?<=[^\x00-\x7F])')) ||
+            word.contains(RegExp(r"('s|'re|'d|'ve|'m|'ll|^[-|+]?\d+)")) ||
+            patterns.contains(word)
+        ? null
+        : TapGestureRecognizer()
+      ?..onTap = () {
+        setState(() {
+          _selectedIndex = index;
+        });
+        onTap?.call(word).then((_) => setState(() {
+              _selectedIndex = null;
+            }));
+      };
     if (tapRecognizer != null) {
       _tapRecognizers.add(tapRecognizer);
     }
