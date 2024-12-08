@@ -234,7 +234,7 @@ class _SpeechConfirmDialogState extends State<SpeechConfirmDialog> {
                                           alignment: const Alignment(-1, 0),
                                           child: Builder(
                                               builder: (context) => Icon(
-                                                  CupertinoIcons.restart,
+                                                  CupertinoIcons.mic,
                                                   color: DefaultTextStyle.of(
                                                           context)
                                                       .style

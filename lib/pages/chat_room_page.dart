@@ -24,11 +24,19 @@ class ChatRoomPage extends StatefulWidget {
 class _ChatRoomPageState extends State<ChatRoomPage> {
   final messages = <Message>[];
   final myID = '1';
-  final gptID = '123';
+  final showTips = ValueNotifier(false);
+  final tips = [
+    'Can you give me some tips to help me make a sentence using this word?',
+    'Can you explain to me the definition of this vocabulary?',
+    'Is there an extended phrase, slang, or idiom associated with this word?',
+    'Can you give me examples using this word?',
+  ];
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
     // print(messages.map((e) => e.runtimeType.toString()).join(' '));
     return MediaQuery.removeViewInsets(
       context: context,
@@ -57,6 +65,41 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                   updateMessage: (msg) => messages[index] = msg,
                 ),
               ),
+            ),
+            ValueListenableBuilder(
+              valueListenable: showTips,
+              builder: (context, value, child) => AnimatedContainer(
+                duration: Durations.medium1,
+                height: value ? null : 0.0,
+                color: colorScheme.onInverseSurface,
+                constraints: BoxConstraints(
+                    maxHeight: screenHeight / 10, minWidth: double.infinity),
+                child: child,
+              ),
+              child: CarouselView(
+                  itemExtent: screenWidth / 2,
+                  onTap: (index) => setState(() {
+                        showTips.value = false;
+                        messages.add(RequireMessage(
+                            vocabulary: widget.word.word,
+                            wordID: widget.word.wordId,
+                            timeStamp: 0,
+                            content: tips[index]));
+                      }),
+                  children: tips
+                      .map((e) => ColoredBox(
+                            color: colorScheme.tertiaryContainer,
+                            child: Container(
+                                alignment: Alignment.center,
+                                padding: const EdgeInsets.only(left: 16),
+                                child: Text(e,
+                                    maxLines: 4,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      color: colorScheme.onTertiaryContainer,
+                                    ))),
+                          ))
+                      .toList()),
             ),
             Container(
               constraints: BoxConstraints(
@@ -144,32 +187,28 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                                           color: colorScheme.primary, width: 2),
                                       borderRadius: BorderRadius.circular(
                                           kRadialReactionRadius)),
-                                  child: const Text('Press to speak'),
+                                  child: Stack(
+                                    children: [
+                                      Center(
+                                          child: Text('Press to speak',
+                                              style: TextStyle(
+                                                  color: colorScheme.primary),
+                                              textScaler:
+                                                  const TextScaler.linear(
+                                                      1.15))),
+                                      const Align(
+                                          alignment: Alignment(.95, 0),
+                                          child: Icon(CupertinoIcons.mic)),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
                           ),
                   ),
                   PlatformIconButton(
-                    onPressed: () {
-                      final now = DateTime.now().millisecondsSinceEpoch;
-                      setState(() {
-                        final myTalk = TextMessage(
-                            content: 'I eat apple juice this morning.',
-                            timeStamp: now,
-                            userID: myID,
-                            patterns: widget.word.getMatchingPatterns,
-                            wordID: widget.word.wordId);
-                        final gptTalk = RequireMessage(
-                          content: 'I eat apple juice this morning.',
-                          timeStamp: now + 1000,
-                          vocabulary: widget.word.word,
-                          wordID: widget.word.wordId,
-                        );
-                        messages.addAll([myTalk, gptTalk]);
-                      });
-                    },
-                    icon: const Icon(CupertinoIcons.paperplane),
+                    onPressed: () => showTips.value ^= true,
+                    icon: const Icon(CupertinoIcons.exclamationmark_bubble),
                   ),
                 ],
               ),

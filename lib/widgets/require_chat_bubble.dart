@@ -24,7 +24,8 @@ class RequireChatBubble extends StatelessWidget {
     final leadingWidth = screenWidth * .1;
     final contentWidth = screenWidth * (.75 + (leading == null ? .1 : 0));
     final req = message;
-    final future = chatVocabulary(req.vocabulary, req.content);
+    final future =
+        chatVocabulary(req.vocabulary, req.content, req.timeStamp >= 0);
     return Wrap(
       alignment: WrapAlignment.start,
       crossAxisAlignment: WrapCrossAlignment.end,

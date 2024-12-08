@@ -1,7 +1,7 @@
 part of 'dict_api.dart';
 
 Future<void> soundGTTs(String text, [gTTS lang = gTTS.US]) async {
-  final url = Uri.https(baseURL, '/dict/gtts/audio');
+  final url = Uri.http(baseURL, '/dict/gtts/audio');
   final headers = {'Content-Type': 'application/json'};
   final body = jsonEncode({'text': text, 'lang': lang.lang});
   final res =
@@ -17,7 +17,7 @@ Future<void> soundAzure(String text,
     {String lang = 'en-US',
     String gender = 'Female',
     String name = 'en-US-AvaMultilingualNeural'}) async {
-  final url = Uri.https(baseURL, '/dict/azure/audio');
+  final url = Uri.http(baseURL, '/dict/azure/audio');
   final headers = {'Content-Type': 'application/json'};
   final body =
       jsonEncode({'text': text, 'lang': lang, 'gender': gender, 'name': name});

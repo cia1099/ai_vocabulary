@@ -49,9 +49,8 @@ enum gTTS implements Comparable<gTTS> {
   int compareTo(gTTS other) => lang.compareTo(other.lang);
 }
 
-String redirectUrl(String oldUrl) {
-  final uri = Uri.parse(oldUrl);
+Uri redirectUrl(Uri oldUrl) {
   final newUri =
-      Uri.https(uri.authority, (['dict'] + uri.pathSegments).join('/'));
-  return newUri.toString();
+      Uri.https(oldUrl.authority, (['dict'] + oldUrl.pathSegments).join('/'));
+  return newUri;
 }

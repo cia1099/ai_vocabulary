@@ -17,7 +17,7 @@ const baseURL = 'www.cia1099.cloudns.ch';
 const timeOut = Duration(seconds: 5);
 
 Future<List<Vocabulary>> retrievalWord(String word) async {
-  final url = Uri.https(baseURL, '/dict/retrieval', {'word': word});
+  final url = Uri.http(baseURL, '/dict/retrieval', {'word': word});
   final res = await _httpGet(url);
   if (res.status == 200) {
     return List<Vocabulary>.from(
@@ -28,7 +28,7 @@ Future<List<Vocabulary>> retrievalWord(String word) async {
 }
 
 Future<int> getMaxId() async {
-  final url = Uri.https(baseURL, '/dict/words/max_id');
+  final url = Uri.http(baseURL, '/dict/words/max_id');
   final res = await _httpGet(url);
   if (res.status == 200) {
     return int.parse(res.content);
@@ -41,7 +41,7 @@ Future<List<Vocabulary>> getWords(Iterable<int> ids) async {
   final query = ids.map((id) => 'id=$id').join('&');
   const path = '/dict/words';
   final url = Uri.parse('https://$baseURL$path?$query');
-  // final url = Uri.https(baseURL, path, {"id": query});
+  // final url = Uri.http(baseURL, path, {"id": query});
   final res = await _httpGet(url);
   if (res.status == 200) {
     return List<Vocabulary>.from(
@@ -52,7 +52,7 @@ Future<List<Vocabulary>> getWords(Iterable<int> ids) async {
 }
 
 Future<Vocabulary> getWordById(int id) async {
-  final url = Uri.https(baseURL, '/dict/word_id/$id');
+  final url = Uri.http(baseURL, '/dict/word_id/$id');
   final res = await _httpGet(url);
   if (res.status == 200) {
     return Vocabulary.fromRawJson(res.content);
@@ -63,7 +63,7 @@ Future<Vocabulary> getWordById(int id) async {
 
 Future<ChatAnswer> chatVocabulary(String vocabulary, String text,
     [bool isHelp = false]) async {
-  final url = Uri.https(baseURL, '/dict/chat/$vocabulary');
+  final url = Uri.http(baseURL, '/dict/chat/$vocabulary');
   final headers = {'Content-Type': 'application/json'};
   final body = jsonEncode({'text': text, 'is_help': isHelp});
   final res =
@@ -76,7 +76,7 @@ Future<ChatAnswer> chatVocabulary(String vocabulary, String text,
 }
 
 Future<SpeechRecognition> recognizeSpeech(String filePath) async {
-  final url = Uri.https(baseURL, '/dict/chat/speech');
+  final url = Uri.http(baseURL, '/dict/chat/speech');
   final headers = {
     'Content-Type': 'multipart/form-data',
   };
