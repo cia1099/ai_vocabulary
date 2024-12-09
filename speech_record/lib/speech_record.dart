@@ -119,7 +119,6 @@ class _RecordSpeechButtonState extends State<RecordSpeechButton> {
                                       yield ap.current;
                                       await Future.delayed(delay);
                                     }
-                                    yield kMinAmplitude;
                                   }(Durations.short1),
                                   builder: (context, snapshot) {
                                     final ap = snapshot.data ?? kMinAmplitude;

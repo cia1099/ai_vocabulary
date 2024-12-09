@@ -25,11 +25,7 @@ class RequireChatBubble extends StatelessWidget {
     final contentWidth = screenWidth * (.75 + (leading == null ? .1 : 0));
     final req = message;
     final future =
-        chatVocabulary(req.vocabulary, req.content, req.timeStamp >= 0)
-            .then((ans) async {
-      await soundAzure(ans.answer);
-      return ans;
-    });
+        chatVocabulary(req.vocabulary, req.content, req.timeStamp >= 0);
     return Wrap(
       alignment: WrapAlignment.start,
       crossAxisAlignment: WrapCrossAlignment.end,
@@ -47,12 +43,7 @@ class RequireChatBubble extends StatelessWidget {
               return CustomPaint(
                 painter: ChatBubblePainter(
                     color: colorScheme.surfaceContainerHigh, isMe: false),
-                child: Container(
-                  width: 100,
-                  height: 50,
-                  constraints: BoxConstraints(maxWidth: contentWidth),
-                  child: const DotDotDotIndicator(size: 20),
-                ),
+                child: waitingContent(contentWidth),
               );
             }
             if (snapshot.hasError) {
@@ -70,22 +61,36 @@ class RequireChatBubble extends StatelessWidget {
             updateMessage(tmessage);
             return ChatBubble(
                 message: tmessage,
-                maxWidth: screenWidth * (.75 + (leading == null ? .1 : 0)),
+                maxWidth: contentWidth,
                 child: StreamBuilder(
                     stream: (String text) async* {
+                      yield waitingContent(contentWidth);
+                      await soundAzure(text);
                       for (int s = 1; s <= text.length; s++) {
                         yield Text(text.substring(0, s));
                         await Future.delayed(
                             s <= 4 ? Durations.short2 : Durations.short1);
                       }
-                      yield ClickableText(text, patterns: [message.vocabulary]);
-                    }(ans.answer),
+                    }(ans.answer)
+                        .asBroadcastStream(),
                     builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.done)
+                        return ClickableText(ans.answer,
+                            patterns: [message.vocabulary]);
                       return snapshot.data ?? const Text('');
                     }));
           },
         )
       ],
+    );
+  }
+
+  Widget waitingContent(double maxWidth, [double width = 100]) {
+    return Container(
+      width: width,
+      height: 50,
+      constraints: BoxConstraints(maxWidth: maxWidth),
+      child: const DotDotDotIndicator(size: 20),
     );
   }
 }
