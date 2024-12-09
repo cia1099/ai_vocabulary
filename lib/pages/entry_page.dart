@@ -55,17 +55,16 @@ class EntryPage extends StatelessWidget {
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: hPadding),
           child: StreamBuilder(
-              initialData: WordProvider().currentWord,
               stream: WordProvider().provideWord,
               builder: (context, snapshot) {
                 final word = snapshot.data;
                 if (word == null) {
-                  Future.delayed(Durations.short1, Navigator.of(context).pop);
+                  if (snapshot.connectionState != ConnectionState.waiting)
+                    Future.delayed(Durations.short1, Navigator.of(context).pop);
                   return const Center(
                       child: Text(
                           'There is no vocabulary you need to learn today'));
                 }
-                //TODO: It'll call twice when first build
                 final phonetics = word.getPhonetics();
                 WidgetsBinding.instance.addPostFrameCallback((_) {
                   for (var p in phonetics) {

@@ -9,7 +9,7 @@ import 'dot3indicator.dart';
 class RequireChatBubble extends StatelessWidget {
   final RequireMessage message;
   final Widget? leading;
-  final void Function(Message) updateMessage;
+  final void Function(Message?) updateMessage;
   const RequireChatBubble({
     super.key,
     required this.message,
@@ -25,7 +25,11 @@ class RequireChatBubble extends StatelessWidget {
     final contentWidth = screenWidth * (.75 + (leading == null ? .1 : 0));
     final req = message;
     final future =
-        chatVocabulary(req.vocabulary, req.content, req.timeStamp >= 0);
+        chatVocabulary(req.vocabulary, req.content, req.timeStamp >= 0)
+            .then((ans) async {
+      await soundAzure(ans.answer);
+      return ans;
+    });
     return Wrap(
       alignment: WrapAlignment.start,
       crossAxisAlignment: WrapCrossAlignment.end,
@@ -52,6 +56,7 @@ class RequireChatBubble extends StatelessWidget {
               );
             }
             if (snapshot.hasError) {
+              updateMessage(null);
               return Text('${snapshot.error}',
                   style: TextStyle(color: colorScheme.error));
             }
@@ -70,7 +75,8 @@ class RequireChatBubble extends StatelessWidget {
                     stream: (String text) async* {
                       for (int s = 1; s <= text.length; s++) {
                         yield Text(text.substring(0, s));
-                        await Future.delayed(Durations.short1);
+                        await Future.delayed(
+                            s <= 4 ? Durations.short2 : Durations.short1);
                       }
                       yield ClickableText(text, patterns: [message.vocabulary]);
                     }(ans.answer),

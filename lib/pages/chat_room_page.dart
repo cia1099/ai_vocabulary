@@ -23,14 +23,23 @@ class ChatRoomPage extends StatefulWidget {
 
 class _ChatRoomPageState extends State<ChatRoomPage> {
   final messages = <Message>[];
-  final myID = '1';
+  final scrollController = ScrollController();
   final showTips = ValueNotifier(false);
+  final myID = '1';
   final tips = [
     'Can you give me some tips to help me make a sentence using this word?',
     'Can you explain to me the definition of this vocabulary?',
-    'Is there an extended phrase, slang, or idiom associated with this word?',
+    'Is there an extended phrase, slang, or idiom associated with this word? What are they?',
     'Can you give me examples using this word?',
   ];
+
+  @override
+  void dispose() {
+    showTips.dispose();
+    scrollController.dispose();
+    messages.clear();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,6 +47,9 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
     // print(messages.map((e) => e.runtimeType.toString()).join(' '));
+    WidgetsBinding.instance.addPostFrameCallback((_) =>
+        scrollController.animateTo(scrollController.position.maxScrollExtent,
+            duration: Durations.short4, curve: Curves.ease));
     return MediaQuery.removeViewInsets(
       context: context,
       removeBottom: true,
@@ -52,6 +64,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
           children: [
             Expanded(
               child: ListView.builder(
+                controller: scrollController,
                 itemCount: messages.length,
                 itemBuilder: (context, index) => ChatListTile(
                   message: messages[index],
@@ -62,7 +75,9 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                               : null,
                         )
                       : null,
-                  updateMessage: (msg) => messages[index] = msg,
+                  updateMessage: (msg) => msg == null
+                      ? messages.removeAt(index)
+                      : messages[index] = msg,
                 ),
               ),
             ),
@@ -223,7 +238,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
 class ChatListTile extends StatelessWidget {
   final Message message;
   final Widget? leading;
-  final void Function(Message) updateMessage;
+  final void Function(Message?) updateMessage;
   const ChatListTile({
     super.key,
     required this.message,

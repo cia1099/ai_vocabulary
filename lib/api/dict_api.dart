@@ -40,7 +40,7 @@ Future<int> getMaxId() async {
 Future<List<Vocabulary>> getWords(Iterable<int> ids) async {
   final query = ids.map((id) => 'id=$id').join('&');
   const path = '/dict/words';
-  final url = Uri.parse('https://$baseURL$path?$query');
+  final url = Uri.parse('http://$baseURL$path?$query');
   // final url = Uri.http(baseURL, path, {"id": query});
   final res = await _httpGet(url);
   if (res.status == 200) {
@@ -150,21 +150,11 @@ class ApiException implements Exception {
 }
 
 void main() async {
-  // final res = await retrievalWord("shit");
-  // print(res.toRawJson());
-  // final word = await getWords([16852 + 1]);
-  // print(word);
-  // final ans = await chatVocabulary('apple', 'apple juice');
-  // final time = DateTime.fromMillisecondsSinceEpoch(ans.created);
-  // print(ans.toRawJson());
-  // print(time);
-  const filePath =
-      '/Users/otto/project/dict_server/audio_test/whatstheweatherlike.wav';
-  final file = File(filePath);
-  if (file.existsSync()) {
-    final res = await recognizeSpeech(filePath);
-    print(res.toRawJson());
-  } else {
-    print("$filePath is not exit");
-  }
+  final ids = [1, 2, 3, 4, 5];
+  final query = ids.map((id) => 'id=$id').join(r'&');
+  const path = '/dict/words';
+  final url = Uri.parse('https://$baseURL$path?$query');
+  final url2 = Uri.http(baseURL, path + r'_?' + query);
+  print(url.query);
+  print(url2.path);
 }

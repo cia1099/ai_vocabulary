@@ -12,7 +12,14 @@ import '../painters/title_painter.dart';
 part 'views/definition_tab.dart';
 
 class VocabularyPage extends StatelessWidget {
-  const VocabularyPage({super.key, required this.word, this.nextTap});
+  VocabularyPage({super.key, required this.word, this.nextTap}) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final example = word.getExamples.firstOrNull;
+      if (example != null) {
+        Future.delayed(Durations.medium1, () => soundAzure(example));
+      }
+    });
+  }
 
   final Vocabulary word;
   final VoidCallback? nextTap;
@@ -21,14 +28,6 @@ class VocabularyPage extends StatelessWidget {
   Widget build(BuildContext context) {
     double headerHeight = 150;
     final hPadding = MediaQuery.of(context).size.width / 16;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      //TODO: push page will incur this callback
-      final example = word.getExamples.firstOrNull;
-      final routeName = ModalRoute.of(context)?.settings.name;
-      if (example != null && routeName != null) {
-        Future.delayed(Durations.medium1, () => soundAzure(example));
-      }
-    });
     return PlatformScaffold(
       body: SafeArea(
         child: DefaultTabController(
