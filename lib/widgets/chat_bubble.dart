@@ -24,13 +24,15 @@ class ChatBubble extends StatefulWidget {
     this.maxWidth = double.infinity,
   });
 
+  static final showContents = ValueNotifier(true);
+
   @override
   State<ChatBubble> createState() => _ChatBubbleState();
 }
 
-class _ChatBubbleState extends State<ChatBubble> {
-  var showContent = true;
+class _ChatBubbleState extends State<ChatBubble> with ShowContentMixin {
   late final isMe = widget.message.userID == '1';
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -60,7 +62,7 @@ class _ChatBubbleState extends State<ChatBubble> {
                   : Theme(
                       data: ThemeData(
                           iconTheme: IconThemeData(
-                              color: colorScheme.onSurface,
+                              color: colorScheme.onSurface.withOpacity(.6),
                               size: iconSize * 1.6)),
                       child: Wrap(alignment: WrapAlignment.end, children: [
                         const Icon(CupertinoIcons.waveform_path_ecg),
@@ -176,5 +178,26 @@ class _ClickableTextState extends State<ClickableText>
         ),
       ]),
     );
+  }
+}
+
+mixin ShowContentMixin<T extends StatefulWidget> on State<T> {
+  var showContent = ChatBubble.showContents.value;
+  @override
+  void initState() {
+    super.initState();
+    ChatBubble.showContents.addListener(globalShow);
+  }
+
+  @override
+  void dispose() {
+    ChatBubble.showContents.removeListener(globalShow);
+    super.dispose();
+  }
+
+  void globalShow() {
+    setState(() {
+      showContent = ChatBubble.showContents.value;
+    });
   }
 }

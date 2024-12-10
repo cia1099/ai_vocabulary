@@ -25,7 +25,9 @@ class RequireChatBubble extends StatelessWidget {
     final contentWidth = screenWidth * (.75 + (leading == null ? .1 : 0));
     final req = message;
     final future =
-        chatVocabulary(req.vocabulary, req.content, req.timeStamp >= 0);
+        chatVocabulary(req.vocabulary, req.content, req.timeStamp >= 0)
+          ..then((ans) =>
+              ChatBubble.showContents.value ? null : soundAzure(ans.answer));
     return Wrap(
       alignment: WrapAlignment.start,
       crossAxisAlignment: WrapCrossAlignment.end,
@@ -64,20 +66,21 @@ class RequireChatBubble extends StatelessWidget {
                 maxWidth: contentWidth,
                 child: StreamBuilder(
                     stream: (String text) async* {
-                      yield waitingContent(contentWidth);
-                      await soundAzure(text);
-                      for (int s = 1; s <= text.length; s++) {
-                        yield Text(text.substring(0, s));
-                        await Future.delayed(
-                            s <= 4 ? Durations.short2 : Durations.short1);
+                      if (ChatBubble.showContents.value) {
+                        await soundAzure(text);
+                        for (int s = 1; s <= text.length; s++) {
+                          yield Text(text.substring(0, s));
+                          await Future.delayed(
+                              s <= 4 ? Durations.short2 : Durations.short1);
+                        }
                       }
                     }(ans.answer)
                         .asBroadcastStream(),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.done)
                         return ClickableText(ans.answer,
-                            patterns: [message.vocabulary]);
-                      return snapshot.data ?? const Text('');
+                            patterns: tmessage.patterns);
+                      return snapshot.data ?? waitingContent(contentWidth);
                     }));
           },
         )

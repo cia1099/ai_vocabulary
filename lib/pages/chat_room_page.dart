@@ -56,6 +56,19 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
       child: PlatformScaffold(
         appBar: PlatformAppBar(
           title: Text(widget.word.word),
+          trailingActions: [
+            ValueListenableBuilder(
+              valueListenable: ChatBubble.showContents,
+              builder: (context, value, child) => Switch.adaptive(
+                thumbIcon: WidgetStateProperty.resolveWith((states) => Icon(
+                    states.contains(WidgetState.selected)
+                        ? CupertinoIcons.eye
+                        : CupertinoIcons.eye_slash)),
+                value: value,
+                onChanged: (value) => ChatBubble.showContents.value = value,
+              ),
+            )
+          ],
           material: (_, __) => MaterialAppBarData(
             backgroundColor: Theme.of(context).colorScheme.inversePrimary,
           ),
