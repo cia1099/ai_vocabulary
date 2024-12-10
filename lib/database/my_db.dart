@@ -1,6 +1,7 @@
 import 'dart:collection';
 import 'dart:io';
 
+import 'package:ai_vocabulary/model/message.dart';
 import 'package:ai_vocabulary/model/vocabulary.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -10,6 +11,7 @@ import 'package:path/path.dart' as p;
 import 'package:sqlite3/sqlite3.dart';
 
 part 'collect_db.dart';
+part 'chat_msg_db.dart';
 
 class MyDB {
   late final String _appDirectory;

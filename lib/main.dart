@@ -76,7 +76,18 @@ class _MyAppState extends State<MyApp> with AppRoute {
           onGenerateRoute: generateRoute,
           initialRoute: AppRoute.home,
           // home: const HomePage(),
-          home: ChatRoomPage(word: apple),
+          home: Builder(builder: (context) {
+            return PlatformScaffold(
+              body: Center(
+                child: CupertinoButton.filled(
+                    onPressed: () => Navigator.of(context).push(
+                        platformPageRoute(
+                            context: context,
+                            builder: (context) => ChatRoomPage(word: apple))),
+                    child: const Text('Go Chat!')),
+              ),
+            );
+          }),
         ),
       ),
     );

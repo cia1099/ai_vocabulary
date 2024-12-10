@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 abstract class Message {
   final String content;
   final int timeStamp;
@@ -20,6 +22,27 @@ class TextMessage extends Message {
       this.patterns = const Iterable.empty(),
       super.userID})
       : assert(wordID > 0);
+
+  factory TextMessage.fromRawJson(String str) =>
+      TextMessage.fromJson(json.decode(str));
+
+  String toRawJson() => json.encode(toJson());
+
+  factory TextMessage.fromJson(Map<String, dynamic> json) => TextMessage(
+        userID: json["user_id"]?.toString(),
+        wordID: json["word_id"],
+        timeStamp: json["time_stamp"],
+        content: json["content"],
+        patterns: (json["patterns"] as String? ?? '').split(', '),
+      );
+
+  Map<String, dynamic> toJson() => {
+        "user_id": userID,
+        "word_id": wordID,
+        "time_stamp": timeStamp,
+        "content": content,
+        "patterns": patterns.join(', '),
+      };
 }
 
 class InfoMessage extends Message {
@@ -30,13 +53,11 @@ class InfoMessage extends Message {
 }
 
 class RequireMessage extends Message {
-  // final Function(Message)? updateMessage;
   final String vocabulary;
   RequireMessage({
     required this.vocabulary,
     required super.wordID,
     required super.content,
-    // this.updateMessage,
     super.timeStamp = -1,
   });
 }

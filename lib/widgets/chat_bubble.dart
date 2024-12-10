@@ -7,6 +7,7 @@ import 'package:ai_vocabulary/utils/clickable_text_mixin.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
+import 'package:intl/intl.dart';
 import 'package:path/path.dart' as p;
 import 'package:text2speech/text2speech.dart';
 
@@ -38,7 +39,6 @@ class _ChatBubbleState extends State<ChatBubble> with ShowContentMixin {
     final colorScheme = Theme.of(context).colorScheme;
     final dateTime =
         DateTime.fromMillisecondsSinceEpoch(widget.message.timeStamp);
-    final minute = dateTime.minute.toString().padLeft(2, '0');
     final iconSize = Theme.of(context).iconTheme.size ?? 24.0;
     return CustomPaint(
       painter: ChatBubblePainter(
@@ -125,7 +125,7 @@ class _ChatBubbleState extends State<ChatBubble> with ShowContentMixin {
                 right: 4,
                 bottom: 0,
                 child: Text(
-                  '${dateTime.hour}:$minute',
+                  DateFormat.Hm().format(dateTime),
                   style: TextStyle(color: colorScheme.onSecondaryContainer),
                 )),
           ],

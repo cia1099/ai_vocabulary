@@ -26,8 +26,10 @@ class RequireChatBubble extends StatelessWidget {
     final req = message;
     final future =
         chatVocabulary(req.vocabulary, req.content, req.timeStamp >= 0)
-          ..then((ans) =>
-              ChatBubble.showContents.value ? null : soundAzure(ans.answer));
+            .then((ans) async {
+      if (!ChatBubble.showContents.value) await soundAzure(ans.answer);
+      return ans;
+    });
     return Wrap(
       alignment: WrapAlignment.start,
       crossAxisAlignment: WrapCrossAlignment.end,
@@ -61,6 +63,14 @@ class RequireChatBubble extends StatelessWidget {
                 wordID: message.wordID,
                 userID: ans.userId);
             updateMessage(tmessage);
+            // if (ans.quiz) {
+            //   Future.delayed(const Duration(seconds: 3), () async {
+            //     //TODO: show toast taht you get point
+            //     final acquaint = MyDB().getCollectWord(message.wordID).acquaint;
+            //     MyDB().updateCollectWord(
+            //         wordId: message.wordID, acquaint: acquaint + 1);
+            //   });
+            // }
             return ChatBubble(
                 message: tmessage,
                 maxWidth: contentWidth,

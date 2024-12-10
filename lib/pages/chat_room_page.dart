@@ -5,6 +5,7 @@ import 'package:ai_vocabulary/widgets/require_chat_bubble.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
+import 'package:intl/intl.dart';
 import 'package:speech_record/speech_record.dart';
 
 import '../widgets/chat_bubble.dart';
@@ -17,12 +18,36 @@ class ChatRoomPage extends StatefulWidget {
     required this.word,
   });
 
+  List<Message> getMessages() {
+    final dbMessage = MyDB().fetchMessages(word.wordId);
+    final maxDateTimes = dbMessage.map((msg) {
+      final dateTime = DateTime.fromMillisecondsSinceEpoch(msg.timeStamp);
+      final maxDateTime =
+          DateTime(dateTime.year, dateTime.month, dateTime.day + 1);
+      return maxDateTime.millisecondsSinceEpoch - 1;
+    }).toSet();
+    final today =
+        DateTime.now().copyWith(hour: 0, minute: 0, second: 0, millisecond: 0);
+    return List<Message>.from(dbMessage)
+      ..addAll(maxDateTimes.map((value) {
+        final maxDateTime = DateTime.fromMillisecondsSinceEpoch(value);
+        return InfoMessage(
+            content: value - today.millisecondsSinceEpoch >= 0
+                ? 'Today'
+                : today.year - maxDateTime.year > 0
+                    ? DateFormat.yMMMEd().format(maxDateTime)
+                    : DateFormat.MMMEd().format(maxDateTime),
+            timeStamp: value);
+      }))
+      ..sort((a, b) => a.timeStamp.compareTo(b.timeStamp));
+  }
+
   @override
   State<ChatRoomPage> createState() => _ChatRoomPageState();
 }
 
 class _ChatRoomPageState extends State<ChatRoomPage> {
-  final messages = <Message>[];
+  late final messages = <Message>[]; //widget.getMessages();
   final scrollController = ScrollController();
   final showTips = ValueNotifier(false);
   final myID = '1';
@@ -34,10 +59,31 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    MyDB().futureAppDirectory.then((_) {
+      messages.addAll(widget.getMessages());
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        setState(() {
+          messages.add(TextMessage(
+              content:
+                  'Hello,\nLet\'s practice how to do a sentence with ${widget.word.word}',
+              timeStamp: DateTime.now().millisecondsSinceEpoch,
+              wordID: widget.word.wordId));
+        });
+      });
+    });
+  }
+
+  @override
   void dispose() {
     showTips.dispose();
     scrollController.dispose();
-    messages.clear();
+    MyDB()
+        .insertMessages(Stream.fromIterable(messages
+            .where((msg) => msg.userID != null)
+            .whereType<TextMessage>()))
+        .then((_) => messages.clear());
     super.dispose();
   }
 
@@ -150,6 +196,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                     icon: const Icon(CupertinoIcons.keyboard),
                   ),
                   FutureBuilder(
+                    //TODO: remove this futureBuilder
                     future: MyDB().futureAppDirectory,
                     builder: (context, snapshot) => snapshot.data == null
                         ? Placeholder(
@@ -169,42 +216,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                                   final now = DateTime.now();
                                   return '${now.millisecondsSinceEpoch}.wav';
                                 },
-                                doneRecord: (outputPath) {
-                                  if (outputPath != null) {
-                                    showPlatformModalSheet<Message?>(
-                                      context: context,
-                                      cupertino: CupertinoModalSheetData(
-                                          barrierDismissible: false),
-                                      material: MaterialModalSheetData(
-                                        backgroundColor: Colors.transparent,
-                                        scrollControlDisabledMaxHeightRatio: 1,
-                                        isDismissible: false,
-                                      ),
-                                      builder: (context) => SpeechConfirmDialog(
-                                          filePath: outputPath),
-                                    ).then((msg) {
-                                      if (msg == null) return;
-                                      Future.delayed(
-                                          Durations.long3,
-                                          () => setState(() {
-                                                messages.add(RequireMessage(
-                                                  vocabulary: widget.word.word,
-                                                  wordID: widget.word.wordId,
-                                                  content: msg.content,
-                                                ));
-                                              }));
-                                      setState(() {
-                                        messages.add(TextMessage(
-                                            content: msg.content,
-                                            timeStamp: msg.timeStamp,
-                                            wordID: widget.word.wordId,
-                                            patterns:
-                                                widget.word.getMatchingPatterns,
-                                            userID: myID));
-                                      });
-                                    });
-                                  }
-                                },
+                                doneRecord: popUpRecordingDone,
                                 blinkShape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(
                                         kRadialReactionRadius)),
@@ -245,6 +257,39 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
         ),
       ),
     );
+  }
+
+  void popUpRecordingDone(String? outputPath) {
+    if (outputPath == null) return;
+    showPlatformModalSheet<Message?>(
+      context: context,
+      cupertino: CupertinoModalSheetData(barrierDismissible: false),
+      material: MaterialModalSheetData(
+        backgroundColor: Colors.transparent,
+        scrollControlDisabledMaxHeightRatio: 1,
+        isDismissible: false,
+      ),
+      builder: (context) => SpeechConfirmDialog(filePath: outputPath),
+    ).then((msg) {
+      if (msg == null) return;
+      Future.delayed(
+          Durations.long3,
+          () => setState(() {
+                messages.add(RequireMessage(
+                  vocabulary: widget.word.word,
+                  wordID: widget.word.wordId,
+                  content: msg.content,
+                ));
+              }));
+      setState(() {
+        messages.add(TextMessage(
+            content: msg.content,
+            timeStamp: msg.timeStamp,
+            wordID: widget.word.wordId,
+            patterns: widget.word.getMatchingPatterns,
+            userID: myID));
+      });
+    });
   }
 }
 
@@ -306,7 +351,9 @@ class ChatListTile extends StatelessWidget {
             ChatBubble(
                 message: msg,
                 maxWidth: screenWidth * (.75 + (leading == null ? .1 : 0)),
-                child: ClickableText(msg.content, patterns: msg.patterns)),
+                child: msg.userID == null
+                    ? Text(msg.content)
+                    : ClickableText(msg.content, patterns: msg.patterns)),
           ],
         );
       case RequireMessage:

@@ -14,7 +14,7 @@ part 'audio_api.dart';
 
 const baseURL = 'www.cia1099.cloudns.ch';
 // const baseURL = '127.0.0.1:8000';
-const timeOut = Duration(seconds: 5);
+const kHttpTimeOut = Duration(seconds: 5);
 
 Future<List<Vocabulary>> retrievalWord(String word) async {
   final url = Uri.http(baseURL, '/dict/retrieval', {'word': word});
@@ -67,7 +67,7 @@ Future<ChatAnswer> chatVocabulary(String vocabulary, String text,
   final headers = {'Content-Type': 'application/json'};
   final body = jsonEncode({'text': text, 'is_help': isHelp});
   final res =
-      await http.post(url, headers: headers, body: body).timeout(timeOut);
+      await http.post(url, headers: headers, body: body).timeout(kHttpTimeOut);
   if (res.statusCode == 200) {
     return ChatAnswer.fromRawJson(res.body);
   } else {
@@ -100,7 +100,7 @@ Future<SpeechRecognition> recognizeSpeech(String filePath) async {
 
 Future<ApiResponse> _httpGet(Uri url) async {
   try {
-    final res = await http.get(url).timeout(timeOut);
+    final res = await http.get(url).timeout(kHttpTimeOut);
     if (res.statusCode != 200) {
       throw HttpException(res.body, uri: url);
     }

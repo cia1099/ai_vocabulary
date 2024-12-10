@@ -11,6 +11,9 @@ const insertAsset = r'INSERT INTO assets (word_id, filename) VALUES (?, ?)';
 const insertCollectWord =
     r'INSERT INTO collect_words (word_id, user_id) VALUES (?, ?)';
 
+const insertTextMessage =
+    r'INSERT INTO text_messages (time_stamp, content, word_id, patterns, user_id) VALUES (?, ?, ?, ?, ?)';
+
 const createDictionary = '''
 CREATE TABLE words (
         id INTEGER NOT NULL, 
@@ -61,6 +64,11 @@ CREATE TABLE assets (
         CONSTRAINT word_unique UNIQUE (word_id, id), 
         FOREIGN KEY(word_id) REFERENCES words (id)
 );
+CREATE TABLE users (
+        id UUID NOT NULL, 
+        email VARCHAR NOT NULL, 
+        PRIMARY KEY (id)
+);
 CREATE TABLE collect_words (
         word_id INTEGER NOT NULL, 
         user_id UUID, 
@@ -68,6 +76,17 @@ CREATE TABLE collect_words (
         collect BOOLEAN NOT NULL DEFAULT false, 
         bookmark VARCHAR, 
         PRIMARY KEY (word_id), 
-        FOREIGN KEY(word_id) REFERENCES words (id)
+        FOREIGN KEY(word_id) REFERENCES words (id),
+        FOREIGN KEY(user_id) REFERENCES users (id)
+);
+CREATE TABLE text_messages (
+        time_stamp INTEGER NOT NULL, 
+        word_id INTEGER NOT NULL, 
+        user_id UUID, 
+        content VARCHAR NOT NULL,  
+        patterns VARCHAR NOT NULL DEFAULT '',  
+        PRIMARY KEY (time_stamp), 
+        FOREIGN KEY(word_id) REFERENCES words (id), 
+        FOREIGN KEY(user_id) REFERENCES users (id)
 );
 ''';

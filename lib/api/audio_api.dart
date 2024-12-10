@@ -5,7 +5,7 @@ Future<void> soundGTTs(String text, [gTTS lang = gTTS.US]) async {
   final headers = {'Content-Type': 'application/json'};
   final body = jsonEncode({'text': text, 'lang': lang.lang});
   final res =
-      await http.post(url, headers: headers, body: body).timeout(timeOut);
+      await http.post(url, headers: headers, body: body).timeout(kHttpTimeOut);
   if (res.statusCode == 200) {
     bytesPlay(res.bodyBytes);
   } else {
@@ -22,7 +22,7 @@ Future<void> soundAzure(String text,
   final body =
       jsonEncode({'text': text, 'lang': lang, 'gender': gender, 'name': name});
   final res =
-      await http.post(url, headers: headers, body: body).timeout(timeOut);
+      await http.post(url, headers: headers, body: body).timeout(kHttpTimeOut);
   if (res.statusCode == 200) {
     bytesPlay(res.bodyBytes);
   } else {
