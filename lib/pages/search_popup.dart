@@ -17,7 +17,7 @@ class _SearchPopUpPageState extends State<SearchPopUpPage> {
     padding: const EdgeInsets.only(right: 8),
     child: GestureDetector(
       onTap: textController.clear,
-      child: const Icon(CupertinoIcons.xmark_circle_fill),
+      child: const Icon(CupertinoIcons.delete_left_fill),
     ),
   );
   @override

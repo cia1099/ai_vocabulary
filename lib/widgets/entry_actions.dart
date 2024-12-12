@@ -1,3 +1,4 @@
+import 'package:ai_vocabulary/app_route.dart';
 import 'package:ai_vocabulary/database/my_db.dart';
 import 'package:ai_vocabulary/model/collect_word.dart';
 import 'package:flutter/cupertino.dart';
@@ -57,6 +58,7 @@ class _EntryActionsState extends State<EntryActions> {
                   barrierColor:
                       Theme.of(context).colorScheme.shadow.withOpacity(.4),
                   pageBuilder: (context, _, __) => const SearchPopUpPage(),
+                  settings: const RouteSettings(name: AppRoute.searchWords),
                   transitionsBuilder:
                       (context, animation, secondaryAnimation, child) =>
                           AnimatedBuilder(
@@ -96,6 +98,7 @@ class _EntryActionsState extends State<EntryActions> {
                   pageBuilder: (context, animation, secondaryAnimation) =>
                       ReportPopUpPage(wordID: widget.wordID),
                   // transitionDuration: Durations.medium1,
+                  settings: const RouteSettings(name: AppRoute.menuPopup),
                   transitionsBuilder:
                       (context, animation, secondaryAnimation, child) {
                     final matrix = Matrix4Tween(

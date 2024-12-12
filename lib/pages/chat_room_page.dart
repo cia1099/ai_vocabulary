@@ -1,12 +1,12 @@
 import 'package:ai_vocabulary/database/my_db.dart';
 import 'package:ai_vocabulary/model/message.dart';
 import 'package:ai_vocabulary/model/vocabulary.dart';
+import 'package:ai_vocabulary/widgets/chat_input_panel.dart';
 import 'package:ai_vocabulary/widgets/require_chat_bubble.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:intl/intl.dart';
-import 'package:speech_record/speech_record.dart';
 
 import '../widgets/chat_bubble.dart';
 import 'speech_confirm_dialog.dart';
@@ -35,8 +35,8 @@ class ChatRoomPage extends StatefulWidget {
             content: value - today.millisecondsSinceEpoch >= 0
                 ? 'Today'
                 : today.year - maxDateTime.year > 0
-                    ? DateFormat.yMMMEd().format(maxDateTime)
-                    : DateFormat.MMMEd().format(maxDateTime),
+                    ? DateFormat.yMMMMd().format(maxDateTime)
+                    : DateFormat('EEEE, MMMM d').format(maxDateTime),
             timeStamp: value);
       }))
       ..sort((a, b) => a.timeStamp.compareTo(b.timeStamp));
@@ -46,7 +46,7 @@ class ChatRoomPage extends StatefulWidget {
   State<ChatRoomPage> createState() => _ChatRoomPageState();
 }
 
-class _ChatRoomPageState extends State<ChatRoomPage> {
+class _ChatRoomPageState extends State<ChatRoomPage> implements ChatInput {
   late final messages = <Message>[]; //widget.getMessages();
   final scrollController = ScrollController();
   final showTips = ValueNotifier(false);
@@ -92,13 +92,14 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
     final colorScheme = Theme.of(context).colorScheme;
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
+    final routeName = ModalRoute.of(context)?.settings.name;
     // print(messages.map((e) => e.runtimeType.toString()).join(' '));
     WidgetsBinding.instance.addPostFrameCallback((_) =>
         scrollController.animateTo(scrollController.position.maxScrollExtent,
             duration: Durations.short4, curve: Curves.ease));
     return MediaQuery.removeViewInsets(
       context: context,
-      removeBottom: true,
+      removeBottom: routeName == null,
       child: PlatformScaffold(
         appBar: PlatformAppBar(
           title: Text(widget.word.word),
@@ -175,91 +176,15 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                           ))
                       .toList()),
             ),
-            Container(
-              constraints: BoxConstraints(
-                  minHeight: screenHeight / 10, minWidth: double.infinity),
-              color: colorScheme.onInverseSurface,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  PlatformIconButton(
-                    onPressed: () {
-                      setState(() {
-                        messages.add(
-                          InfoMessage(
-                            content: 'Shit man',
-                            timeStamp: DateTime.now().millisecondsSinceEpoch,
-                          ),
-                        );
-                      });
-                    },
-                    icon: const Icon(CupertinoIcons.keyboard),
-                  ),
-                  FutureBuilder(
-                    //TODO: remove this futureBuilder
-                    future: MyDB().futureAppDirectory,
-                    builder: (context, snapshot) => snapshot.data == null
-                        ? Placeholder(
-                            fallbackHeight: screenHeight / 16,
-                            fallbackWidth: 200,
-                          )
-                        : Expanded(
-                            child: Container(
-                              height: screenHeight / 16,
-                              // width: double.maxFinite,
-                              // padding: const EdgeInsets.all(12),
-                              margin: const EdgeInsets.only(top: 4),
-                              alignment: Alignment.center,
-                              child: RecordSpeechButton(
-                                appDirectory: snapshot.data!,
-                                createWavFileName: () {
-                                  final now = DateTime.now();
-                                  return '${now.millisecondsSinceEpoch}.wav';
-                                },
-                                doneRecord: popUpRecordingDone,
-                                blinkShape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(
-                                        kRadialReactionRadius)),
-                                child: Container(
-                                  alignment: Alignment.center,
-                                  decoration: BoxDecoration(
-                                      border: Border.all(
-                                          color: colorScheme.primary, width: 2),
-                                      borderRadius: BorderRadius.circular(
-                                          kRadialReactionRadius)),
-                                  child: Stack(
-                                    children: [
-                                      Center(
-                                          child: Text('Press to speak',
-                                              style: TextStyle(
-                                                  color: colorScheme.primary),
-                                              textScaler:
-                                                  const TextScaler.linear(
-                                                      1.15))),
-                                      const Align(
-                                          alignment: Alignment(.95, 0),
-                                          child: Icon(CupertinoIcons.mic)),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                  ),
-                  PlatformIconButton(
-                    onPressed: () => showTips.value ^= true,
-                    icon: const Icon(CupertinoIcons.exclamationmark_bubble),
-                  ),
-                ],
-              ),
-            ),
+            ChatInputPanel(delegate: this, minHeight: screenHeight / 10),
           ],
         ),
       ),
     );
   }
 
-  void popUpRecordingDone(String? outputPath) {
+  @override
+  void doneRecord(String? outputPath) {
     if (outputPath == null) return;
     showPlatformModalSheet<Message?>(
       context: context,
@@ -270,25 +195,33 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
         isDismissible: false,
       ),
       builder: (context) => SpeechConfirmDialog(filePath: outputPath),
-    ).then((msg) {
-      if (msg == null) return;
-      Future.delayed(
-          Durations.long3,
-          () => setState(() {
-                messages.add(RequireMessage(
-                  vocabulary: widget.word.word,
-                  wordID: widget.word.wordId,
-                  content: msg.content,
-                ));
-              }));
-      setState(() {
-        messages.add(TextMessage(
-            content: msg.content,
-            timeStamp: msg.timeStamp,
-            wordID: widget.word.wordId,
-            patterns: widget.word.getMatchingPatterns,
-            userID: myID));
-      });
+    ).then(onSubmit);
+  }
+
+  @override
+  void tipsButtonCallBack() {
+    showTips.value ^= true;
+  }
+
+  @override
+  void onSubmit(Message? msg) {
+    if (msg == null) return;
+    Future.delayed(
+        Durations.long3,
+        () => setState(() {
+              messages.add(RequireMessage(
+                vocabulary: widget.word.word,
+                wordID: widget.word.wordId,
+                content: msg.content,
+              ));
+            }));
+    setState(() {
+      messages.add(TextMessage(
+          content: msg.content,
+          timeStamp: msg.timeStamp,
+          wordID: widget.word.wordId,
+          patterns: widget.word.getMatchingPatterns,
+          userID: myID));
     });
   }
 }

@@ -3,6 +3,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
+import '../app_route.dart';
+
 class ReportPopUpPage extends StatelessWidget {
   const ReportPopUpPage({
     super.key,
@@ -27,7 +29,7 @@ class ReportPopUpPage extends StatelessWidget {
             PlatformListTile(
               onTap: () => Navigator.of(context).push(platformPageRoute(
                 context: context,
-                settings: const RouteSettings(name: '/report'),
+                settings: const RouteSettings(name: AppRoute.report),
                 builder: (context) => ReportPage(wordId: wordID),
               )),
               title: const Text('Report Issue'),

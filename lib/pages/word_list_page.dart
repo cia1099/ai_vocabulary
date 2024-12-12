@@ -1,3 +1,4 @@
+import 'package:ai_vocabulary/app_route.dart';
 import 'package:ai_vocabulary/model/vocabulary.dart';
 import 'package:ai_vocabulary/pages/vocabulary_page.dart';
 import 'package:ai_vocabulary/utils/shortcut.dart';
@@ -126,7 +127,8 @@ class WordListPage extends StatelessWidget {
                       onTap: () => Navigator.of(context).push(platformPageRoute(
                         context: context,
                         builder: (context) => VocabularyPage(word: word),
-                        settings: const RouteSettings(name: '/vocabulary'),
+                        settings:
+                            const RouteSettings(name: AppRoute.vocabulary),
                       )),
                     ),
                   ],

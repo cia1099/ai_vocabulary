@@ -18,6 +18,11 @@ mixin AppRoute<T extends StatefulWidget> on State<T> {
   static const cloze = '/entry/cloze';
   static const reviewWords = '/entry/review';
   static const todayWords = '/today/words';
+  static const chatRoom = '/chat/room';
+  static const vocabulary = '/vocabulary';
+  static const report = '/report';
+  static const menuPopup = '/menu/popup';
+  static const searchWords = '/search/words';
 
   Route generateRoute(RouteSettings settings) {
     final uri = Uri.tryParse(settings.name!);
