@@ -21,8 +21,7 @@ class EntryPage extends StatelessWidget {
     pageName.value = name;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Navigator.of(context).pushNamed(name).then((routeName) {
-        Future.delayed(Durations.extralong1,
-            () => pageName.value = routeName?.toString() ?? AppRoute.entry);
+        pageName.value = routeName?.toString() ?? AppRoute.entry;
       });
     });
   }

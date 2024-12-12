@@ -21,7 +21,19 @@ class EntryActions extends StatefulWidget {
 }
 
 class _EntryActionsState extends State<EntryActions> {
-  late var collect = MyDB.instance.getCollectWord(widget.wordID).collect;
+  var collect = false;
+  @override
+  void initState() {
+    super.initState();
+    if (!widget.skipIndexes.contains(1))
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Future.delayed(Durations.long2, () {
+          collect = MyDB.instance.getCollectWord(widget.wordID).collect;
+          setState(() {});
+        });
+      });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Wrap(

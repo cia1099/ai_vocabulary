@@ -151,7 +151,7 @@ class _ClozePageState extends State<ClozePage> {
                   inputController.text = input.replaceAll(RegExp(r'\s+'), '');
                   final answer = verifyAnswer(s, matches);
                   if (answer == 'Correct') {
-                    Navigator.of(context).pushReplacementNamed(
+                    Navigator.of(context).popAndPushNamed(
                         AppRoute.entryVocabulary,
                         result: AppRoute.cloze);
                   } else {
