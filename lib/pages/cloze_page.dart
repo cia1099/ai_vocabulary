@@ -151,8 +151,9 @@ class _ClozePageState extends State<ClozePage> {
                   inputController.text = input.replaceAll(RegExp(r'\s+'), '');
                   final answer = verifyAnswer(s, matches);
                   if (answer == 'Correct') {
-                    Navigator.of(context)
-                        .popAndPushNamed(AppRoute.entryVocabulary);
+                    Navigator.of(context).pushReplacementNamed(
+                        AppRoute.entryVocabulary,
+                        result: AppRoute.cloze);
                   } else {
                     tip.value = answer;
                   }
@@ -165,8 +166,9 @@ class _ClozePageState extends State<ClozePage> {
                 focusNode.requestFocus();
                 final answer = verifyAnswer(s, matches);
                 if (answer == 'Correct') {
-                  Navigator.of(context)
-                      .popAndPushNamed(AppRoute.entryVocabulary);
+                  Navigator.of(context).popAndPushNamed(
+                      AppRoute.entryVocabulary,
+                      result: AppRoute.cloze);
                 } else {
                   tip.value = answer;
                 }

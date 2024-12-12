@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:ai_vocabulary/database/my_db.dart';
 import 'package:ai_vocabulary/model/collect_word.dart';
 import 'package:ai_vocabulary/model/vocabulary.dart';
@@ -8,46 +6,25 @@ import 'package:ai_vocabulary/utils/shortcut.dart';
 import 'package:ai_vocabulary/widgets/definition_tile.dart';
 import 'package:ai_vocabulary/widgets/entry_actions.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
 import '../app_route.dart';
 
-class EntryPage extends StatefulWidget {
-  const EntryPage({super.key});
+class EntryPage extends StatelessWidget {
+  EntryPage({super.key});
 
-  @override
-  State<EntryPage> createState() => _EntryPageState();
-}
+  final pageName = ValueNotifier(AppRoute.entry);
 
-class _EntryPageState extends State<EntryPage> {
-  late final pageName = ValueNotifier<String>(AppRoute.entry)
-    ..addListener(routePush);
-  final timer = () async* {
-    yield 0;
-    yield* Stream.periodic(const Duration(minutes: 1), (i) => i + 1);
-  }();
-
-  @override
-  void dispose() {
-    pageName.removeListener(routePush);
-    pageName.dispose();
-    super.dispose();
-  }
-
-  void routePush() {
-    // final routeName = ModalRoute.of(context)?.settings.name;
-    final name = pageName.value;
-    // print('Route = $routeName, pushTo = $name');
-    if (name != AppRoute.entry) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        Navigator.of(context)
-            .pushNamed(name)
-            .then((_) => Future.delayed(Durations.extralong1, () {
-                  pageName.value = AppRoute.entry;
-                }));
+  void pushNamed(BuildContext context, String name) {
+    pageName.value = name;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Navigator.of(context).pushNamed(name).then((routeName) {
+        Future.delayed(Durations.extralong1,
+            () => pageName.value = routeName?.toString() ?? AppRoute.entry);
       });
-    }
+    });
   }
 
   @override
@@ -56,7 +33,10 @@ class _EntryPageState extends State<EntryPage> {
     final colorScheme = Theme.of(context).colorScheme;
     final screenWidth = MediaQuery.of(context).size.width;
     final hPadding = screenWidth / 16;
-
+    final timer = () async* {
+      yield 0;
+      yield* Stream.periodic(const Duration(minutes: 1), (i) => i + 1);
+    }();
     return Scaffold(
       appBar: PreferredSize(
           preferredSize: const Size.fromHeight(kToolbarHeight),
@@ -75,12 +55,17 @@ class _EntryPageState extends State<EntryPage> {
                   builder: (context, snapshot) {
                     final word = snapshot.data;
                     if (word == null) return const SizedBox.shrink();
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      pageName.value = AppRoute.entry;
+                    });
                     return ValueListenableBuilder(
                       valueListenable: pageName,
                       builder: (context, value, child) {
+                        // print('Route = $value');
                         return EntryActions(
                           key: Key(value),
                           wordID: word.wordId,
+                          skipIndexes: value == AppRoute.entry ? [] : [1],
                         );
                       },
                     );
@@ -104,12 +89,12 @@ class _EntryPageState extends State<EntryPage> {
                           'There is no vocabulary you need to learn today'));
                 }
                 final phonetics = word.getPhonetics();
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  for (var p in phonetics) {
-                    Future.delayed(Durations.medium1,
-                        playPhonetic(p.audioUrl, word: word.word));
-                  }
-                });
+                // WidgetsBinding.instance.addPostFrameCallback((_) {
+                //   for (var p in phonetics) {
+                //     Future.delayed(Durations.medium1,
+                //         playPhonetic(p.audioUrl, word: word.word));
+                //   }
+                // });
                 return Column(
                   children: [
                     Container(
@@ -143,6 +128,7 @@ class _EntryPageState extends State<EntryPage> {
                             children: [
                               const Text("Learning today"),
                               StreamBuilder(
+                                  initialData: 0,
                                   stream: timer,
                                   builder: (context, snapshot) {
                                     return Text('${snapshot.data}min',
@@ -237,7 +223,7 @@ class _EntryPageState extends State<EntryPage> {
                             wordId: word.wordId, acquaint: kMaxAcquaintance);
                         // Navigator.of(context)
                         //     .pushNamed(AppRoute.entryVocabulary);
-                        pageName.value = AppRoute.entryVocabulary;
+                        pushNamed(context, AppRoute.entryVocabulary);
                       },
                       icon: Icon(CupertinoIcons.trash,
                           color: colorScheme.onSurfaceVariant),
@@ -255,7 +241,7 @@ class _EntryPageState extends State<EntryPage> {
                                 wordId: word.wordId, acquaint: 0);
                             // Navigator.of(context)
                             //     .pushNamed(AppRoute.entryVocabulary);
-                            pageName.value = AppRoute.entryVocabulary;
+                            pushNamed(context, AppRoute.entryVocabulary);
                           },
                           style: TextButton.styleFrom(
                               fixedSize: Size.square(screenWidth / 3),
@@ -270,10 +256,10 @@ class _EntryPageState extends State<EntryPage> {
                           ),
                         ),
                         TextButton(
-                          onPressed: () {
-                            // Navigator.of(context).pushNamed(AppRoute.cloze);
-                            pageName.value = AppRoute.cloze;
-                          },
+                          onPressed: () => pushNamed(
+                              context,
+                              AppRoute
+                                  .cloze), //Navigator.of(context).pushNamed(AppRoute.cloze),
                           style: TextButton.styleFrom(
                               fixedSize: Size.square(screenWidth / 3),
                               backgroundColor: colorScheme.secondaryContainer
