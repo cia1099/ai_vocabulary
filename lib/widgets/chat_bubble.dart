@@ -71,7 +71,7 @@ class _ChatBubbleState extends State<ChatBubble> with ShowContentMixin {
                             child: const Icon(CupertinoIcons.waveform_path)),
                         Transform.flip(
                             flipX: true,
-                            flipY: true,
+                            // flipY: true,
                             child:
                                 const Icon(CupertinoIcons.waveform_path_ecg)),
                       ]),

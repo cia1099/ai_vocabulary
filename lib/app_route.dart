@@ -35,7 +35,7 @@ mixin AppRoute<T extends StatefulWidget> on State<T> {
               builder: (context) {
                 switch (path) {
                   case AppRoute.entry:
-                    return const EntryPage();
+                    return EntryPage();
                   case AppRoute.cloze:
                     // if (currentWord == null) return const EntryPage();
                     return ClozePage(word: currentWord!);

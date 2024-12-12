@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:ai_vocabulary/database/my_db.dart';
 import 'package:ai_vocabulary/model/collect_word.dart';
 import 'package:ai_vocabulary/model/vocabulary.dart';
@@ -11,8 +13,42 @@ import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
 import '../app_route.dart';
 
-class EntryPage extends StatelessWidget {
+class EntryPage extends StatefulWidget {
   const EntryPage({super.key});
+
+  @override
+  State<EntryPage> createState() => _EntryPageState();
+}
+
+class _EntryPageState extends State<EntryPage> {
+  late final pageName = ValueNotifier<String>(AppRoute.entry)
+    ..addListener(routePush);
+  final timer = () async* {
+    yield 0;
+    yield* Stream.periodic(const Duration(minutes: 1), (i) => i + 1);
+  }();
+
+  @override
+  void dispose() {
+    pageName.removeListener(routePush);
+    pageName.dispose();
+    super.dispose();
+  }
+
+  void routePush() {
+    // final routeName = ModalRoute.of(context)?.settings.name;
+    final name = pageName.value;
+    // print('Route = $routeName, pushTo = $name');
+    if (name != AppRoute.entry) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.of(context)
+            .pushNamed(name)
+            .then((_) => Future.delayed(Durations.extralong1, () {
+                  pageName.value = AppRoute.entry;
+                }));
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,10 +56,7 @@ class EntryPage extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final screenWidth = MediaQuery.of(context).size.width;
     final hPadding = screenWidth / 16;
-    final timer = () async* {
-      yield 0;
-      yield* Stream.periodic(const Duration(minutes: 1), (i) => i + 1);
-    }();
+
     return Scaffold(
       appBar: PreferredSize(
           preferredSize: const Size.fromHeight(kToolbarHeight),
@@ -42,9 +75,14 @@ class EntryPage extends StatelessWidget {
                   builder: (context, snapshot) {
                     final word = snapshot.data;
                     if (word == null) return const SizedBox.shrink();
-                    return EntryActions(
-                      wordID: word.wordId,
-                      skipIndexes: const [1],
+                    return ValueListenableBuilder(
+                      valueListenable: pageName,
+                      builder: (context, value, child) {
+                        return EntryActions(
+                          key: Key(value),
+                          wordID: word.wordId,
+                        );
+                      },
                     );
                   },
                 ),
@@ -197,8 +235,9 @@ class EntryPage extends StatelessWidget {
                       onPressed: () {
                         MyDB.instance.updateCollectWord(
                             wordId: word.wordId, acquaint: kMaxAcquaintance);
-                        Navigator.of(context)
-                            .pushNamed(AppRoute.entryVocabulary);
+                        // Navigator.of(context)
+                        //     .pushNamed(AppRoute.entryVocabulary);
+                        pageName.value = AppRoute.entryVocabulary;
                       },
                       icon: Icon(CupertinoIcons.trash,
                           color: colorScheme.onSurfaceVariant),
@@ -214,8 +253,9 @@ class EntryPage extends StatelessWidget {
                           onPressed: () {
                             MyDB.instance.updateCollectWord(
                                 wordId: word.wordId, acquaint: 0);
-                            Navigator.of(context)
-                                .pushNamed(AppRoute.entryVocabulary);
+                            // Navigator.of(context)
+                            //     .pushNamed(AppRoute.entryVocabulary);
+                            pageName.value = AppRoute.entryVocabulary;
                           },
                           style: TextButton.styleFrom(
                               fixedSize: Size.square(screenWidth / 3),
@@ -230,8 +270,10 @@ class EntryPage extends StatelessWidget {
                           ),
                         ),
                         TextButton(
-                          onPressed: () =>
-                              Navigator.of(context).pushNamed(AppRoute.cloze),
+                          onPressed: () {
+                            // Navigator.of(context).pushNamed(AppRoute.cloze);
+                            pageName.value = AppRoute.cloze;
+                          },
                           style: TextButton.styleFrom(
                               fixedSize: Size.square(screenWidth / 3),
                               backgroundColor: colorScheme.secondaryContainer

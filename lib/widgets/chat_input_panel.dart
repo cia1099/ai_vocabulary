@@ -24,7 +24,15 @@ class ChatInputPanel extends StatefulWidget {
 
 class _ChatInputPanelState extends State<ChatInputPanel> {
   final textController = TextEditingController();
+  final focusNode = FocusNode();
   var isKeyboard = false;
+
+  @override
+  void dispose() {
+    textController.dispose();
+    focusNode.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -132,6 +140,7 @@ class _ChatInputPanelState extends State<ChatInputPanel> {
         PlatformIconButton(
           onPressed: () => setState(() {
             textController.clear();
+            focusNode.unfocus();
             isKeyboard ^= true;
           }),
           icon: const Icon(Icons.record_voice_over_outlined),
@@ -141,7 +150,8 @@ class _ChatInputPanelState extends State<ChatInputPanel> {
           constraints: BoxConstraints(minHeight: widget.minHeight * 5 / 8),
           margin: const EdgeInsets.only(top: 4),
           child: PlatformTextField(
-            autofocus: true,
+            // autofocus: true,
+            focusNode: focusNode,
             maxLines: null,
             controller: textController,
             cupertino: (_, __) => CupertinoTextFieldData(
@@ -152,7 +162,7 @@ class _ChatInputPanelState extends State<ChatInputPanel> {
             ),
             material: (_, __) => MaterialTextFieldData(
               decoration: InputDecoration(
-                enabledBorder: OutlineInputBorder(
+                border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(kRadialReactionRadius),
                     borderSide:
                         BorderSide(color: colorScheme.primary, width: 2)),
@@ -167,6 +177,7 @@ class _ChatInputPanelState extends State<ChatInputPanel> {
             onPressed: textController.text.isEmpty
                 ? null
                 : () {
+                    focusNode.unfocus();
                     widget.delegate.onSubmit(InfoMessage(
                         content: textController.text,
                         timeStamp: DateTime.now().millisecondsSinceEpoch));

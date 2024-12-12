@@ -66,7 +66,7 @@ class _SearchPopUpPageState extends State<SearchPopUpPage> {
                     ),
                     material: (_, __) => MaterialTextFieldData(
                       decoration: InputDecoration(
-                        enabledBorder: OutlineInputBorder(
+                        border: OutlineInputBorder(
                             borderRadius:
                                 BorderRadius.circular(kRadialReactionRadius),
                             borderSide: BorderSide(
