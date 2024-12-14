@@ -32,7 +32,7 @@ mixin ClickableTextStateMixin<T extends StatefulWidget> on State<T> {
     final tapRecognizer = word.contains(
                 RegExp(r'(?=\s+|[,.!?"=\[\]\(\)\/])|(?<=[^\x00-\x7F])')) ||
             word.contains(RegExp(r"('s|'re|'d|'ve|'m|'ll|^[-|+]?\d+)")) ||
-            patterns.contains(word)
+            patterns.contains(word.toLowerCase())
         ? null
         : TapGestureRecognizer()
       ?..onTap = () {
@@ -49,7 +49,7 @@ mixin ClickableTextStateMixin<T extends StatefulWidget> on State<T> {
     return TextSpan(
         text: word,
         style: _selectedIndex != index
-            ? !patterns.contains(word)
+            ? !patterns.contains(word.toLowerCase())
                 ? null
                 : TextStyle(
                     color: Theme.of(context).colorScheme.inversePrimary,

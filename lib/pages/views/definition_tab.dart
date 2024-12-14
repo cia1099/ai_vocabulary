@@ -30,7 +30,7 @@ class DefinitionTab extends StatelessWidget {
                       : null,
                   child: DefinitionTile(
                       definition: word.definitions[index], word: word.word),
-                )),
+                ))
       ],
     );
   }

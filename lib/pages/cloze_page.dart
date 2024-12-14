@@ -129,7 +129,7 @@ class _ClozePageState extends State<ClozePage> {
   List<InlineSpan> generateCloze(
       String text, Iterable<String> matches, ColorScheme colorScheme) {
     return splitWords(text).map((s) {
-      if (matches.contains(s)) {
+      if (matches.contains(s.toLowerCase())) {
         final wordPainter = TextPainter(
             text: TextSpan(text: s),
             maxLines: 1,
@@ -188,7 +188,7 @@ class _ClozePageState extends State<ClozePage> {
   }
 
   String verifyAnswer(String correctWord, Iterable<String> matches) {
-    if (inputController.text == correctWord) {
+    if (inputController.text.toLowerCase() == correctWord.toLowerCase()) {
       final acquaint = MyDB().getCollectWord(widget.word.wordId).acquaint;
       MyDB().updateCollectWord(
           wordId: widget.word.wordId, acquaint: acquaint + 1);
