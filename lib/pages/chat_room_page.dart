@@ -50,6 +50,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> implements ChatInput {
   late final messages = <Message>[]; //widget.getMessages();
   final scrollController = ScrollController();
   final showTips = ValueNotifier(false);
+  var showBottomSheet = false;
   final myID = '1';
   final tips = [
     'Can you give me some tips to help me make a sentence using this word?',
@@ -92,14 +93,13 @@ class _ChatRoomPageState extends State<ChatRoomPage> implements ChatInput {
     final colorScheme = Theme.of(context).colorScheme;
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
-    final routeName = ModalRoute.of(context)?.settings.name;
     // print(messages.map((e) => e.runtimeType.toString()).join(' '));
     WidgetsBinding.instance.addPostFrameCallback((_) =>
         scrollController.animateTo(scrollController.position.maxScrollExtent,
             duration: Durations.short4, curve: Curves.ease));
     return MediaQuery.removeViewInsets(
       context: context,
-      removeBottom: routeName == null,
+      removeBottom: showBottomSheet,
       child: PlatformScaffold(
         appBar: PlatformAppBar(
           title: Text(widget.word.word),
@@ -187,6 +187,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> implements ChatInput {
   @override
   void doneRecord(String? outputPath) {
     if (outputPath == null) return;
+    showBottomSheet = true;
     showPlatformModalSheet<Message?>(
       context: context,
       cupertino: CupertinoModalSheetData(barrierDismissible: false),
@@ -196,7 +197,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> implements ChatInput {
         isDismissible: false,
       ),
       builder: (context) => SpeechConfirmDialog(filePath: outputPath),
-    ).then(onSubmit);
+    ).then(onSubmit).then((_) => showBottomSheet = false);
   }
 
   @override

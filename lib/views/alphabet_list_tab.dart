@@ -1,19 +1,20 @@
-import 'dart:math' as math;
+import 'package:ai_vocabulary/database/my_db.dart';
+import 'package:ai_vocabulary/pages/chat_room_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 
 import 'package:azlistview/azlistview.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
-/**
- * ref. https://www.youtube.com/watch?v=mGgizUoyeYY
- * by Johannes Milke alphabet list
- */
+import '../app_route.dart';
+import '../model/alphabet.dart';
+
+/// ref. https://www.youtube.com/watch?v=mGgizUoyeYY
+/// by Johannes Milke alphabet list
 
 class AlphabetListTab extends StatefulWidget {
-  final List<ClientModel> contacts;
   final void Function(List<int> selectedId)? onConfirm;
-  const AlphabetListTab({super.key, required this.contacts, this.onConfirm});
+  const AlphabetListTab({super.key, this.onConfirm});
 
   @override
   State<AlphabetListTab> createState() => _AlphabetListTabState();
@@ -22,16 +23,23 @@ class AlphabetListTab extends StatefulWidget {
 class _AlphabetListTabState extends State<AlphabetListTab> {
   final _selectedId = <int>{};
 
-  late List<ClientModel> azContacts = widget.contacts;
+  List<AlphabetModel> azContacts = [];
+  late final futureContacts = MyDB().fetchAlphabetModels().then((iter) {
+    setState(() {
+      azContacts = iter.toList();
+    });
+    return iter;
+  });
 
   @override
   Widget build(BuildContext context) {
     SuspensionUtil.sortListBySuspensionTag(azContacts);
     SuspensionUtil.setShowSuspensionStatus(azContacts);
-    final maxHeight = MediaQuery.of(context).size.height -
-        kToolbarHeight -
-        kBottomNavigationBarHeight -
-        32;
+    // final maxHeight = MediaQuery.of(context).size.height -
+    //     kToolbarHeight -
+    //     kBottomNavigationBarHeight -
+    //     32;
+    final colorScheme = Theme.of(context).colorScheme;
     return Column(
       children: [
         // Container(
@@ -65,17 +73,24 @@ class _AlphabetListTabState extends State<AlphabetListTab> {
         // ),
         Container(
           height: 50,
-          color: Color(0x14121212),
-          padding: EdgeInsets.symmetric(horizontal: 16),
-          child: TextField(
-            decoration: InputDecoration(
-                border: InputBorder.none, hintText: 'Which word'),
-            onChanged: (name) => filterName(name),
+          color:
+              // const Color(0x14121212),
+              colorScheme.inverseSurface.withOpacity(20 / 255),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: FutureBuilder(
+            future: futureContacts,
+            builder: (context, snapshot) => PlatformTextFormField(
+              enabled: snapshot.data != null,
+              hintText: 'Which word',
+              material: (_, __) => MaterialTextFormFieldData(
+                decoration: const InputDecoration(border: InputBorder.none),
+              ),
+              onChanged: (name) => filterName(name),
+            ),
           ),
         ),
-        Container(
-          // color: CupertinoColors.systemGreen,
-          height: maxHeight - 100,
+        Expanded(
+          // height: maxHeight - 100,
           child: LayoutBuilder(
             builder: (context, constraints) => AzListView(
               data: azContacts,
@@ -84,12 +99,11 @@ class _AlphabetListTabState extends State<AlphabetListTab> {
                   _buildAzListItem(azContacts[index]),
               indexBarItemHeight: (constraints.maxHeight - 32) / 26,
               indexBarData:
-                  List.generate(26, (index) => String.fromCharCode(index + 65)),
+                  azContacts.map((e) => e.getSuspensionTag()).toList(),
+              // List.generate(26, (index) => String.fromCharCode(index + 65)),
               indexBarOptions: IndexBarOptions(
                   textStyle: TextStyle(
-                color:
-                    Theme.of(context).colorScheme.primary, //Color(0xFF243BB2),
-                // backgroundColor: CupertinoColors.inactiveGray,
+                color: colorScheme.primary,
               )),
             ),
           ),
@@ -98,7 +112,7 @@ class _AlphabetListTabState extends State<AlphabetListTab> {
     );
   }
 
-  Widget _buildAzListItem(ClientModel item) {
+  Widget _buildAzListItem(AlphabetModel item) {
     final textTheme = Theme.of(context).textTheme;
     final tag = item.getSuspensionTag();
     return Column(
@@ -108,7 +122,7 @@ class _AlphabetListTabState extends State<AlphabetListTab> {
           child: Container(
               alignment: Alignment.centerLeft,
               height: 35,
-              color: Color(0x0A121212),
+              color: const Color(0x0A121212),
               child: Padding(
                 padding: const EdgeInsets.only(left: 16),
                 child: Text(tag, style: textTheme.titleLarge!
@@ -119,10 +133,11 @@ class _AlphabetListTabState extends State<AlphabetListTab> {
         PlatformListTile(
           title: Text(
             item.name,
-            style: textTheme.titleMedium,
+            // style: textTheme.titleMedium,
+            textScaler: const TextScaler.linear(1.2),
           ),
-          subtitle: Text(item.subtitle ?? '近期上过线'),
-          leading: Container(
+          subtitle: Text(item.subtitle),
+          leading: SizedBox(
             // color: Colors.red,
             width: 68,
             child: Row(
@@ -141,19 +156,24 @@ class _AlphabetListTabState extends State<AlphabetListTab> {
                   backgroundImage: item.avatarUrl == null
                       ? null
                       : NetworkImage(item.avatarUrl!),
-                  child: Icon(CupertinoIcons.textformat, size: 36),
+                  child: const Icon(CupertinoIcons.profile_circled, size: 36),
                 )
               ],
             ),
           ),
+          onTap: () => Navigator.of(context).push(platformPageRoute(
+              context: context,
+              settings: const RouteSettings(name: AppRoute.chatRoom),
+              builder: (context) => ChatRoomPage(word: item.word))),
+          trailing: const CupertinoListTileChevron(),
           cupertino: (_, __) => CupertinoListTileData(leadingSize: 68),
         ),
       ],
     );
   }
 
-  void filterName(String query) {
-    final queryContacts = widget.contacts.where(
+  void filterName(String query) async {
+    final queryContacts = (await futureContacts).where(
         (contact) => contact.name.toLowerCase().contains(query.toLowerCase()));
     setState(() {
       azContacts = queryContacts.toList();
@@ -195,28 +215,4 @@ class _CheckButtonState extends State<_CheckButton> {
           : const Icon(CupertinoIcons.circle),
     );
   }
-}
-
-class ClientModel extends ISuspensionBean {
-  final String name;
-  final int userId;
-  final String? avatarUrl;
-  final String? subtitle;
-  late final String capital = name[0].toUpperCase();
-
-  ClientModel(
-      {this.subtitle,
-      this.avatarUrl,
-      required this.name,
-      required this.userId});
-  @override
-  String getSuspensionTag() => capital;
-}
-
-// for test
-String createName() {
-  final rng = math.Random();
-  final lowerChars = String.fromCharCodes(
-      Iterable.generate(5 + rng.nextInt(6), (_) => rng.nextInt(26) + 97));
-  return lowerChars[0].toUpperCase() + lowerChars.substring(1);
 }

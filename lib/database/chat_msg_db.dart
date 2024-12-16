@@ -43,4 +43,24 @@ extension ChatMsgDB on MyDB {
     db.execute(expression, [wordID]);
     db.dispose();
   }
+
+  Future<Iterable<AlphabetModel>> fetchAlphabetModels() async {
+    try {
+      appDirectory;
+    } on Error {
+      // print('error');
+      await futureAppDirectory;
+    }
+    const query =
+        'SELECT word_id, max(time_stamp) AS time_stamp FROM text_messages';
+    final db = open(OpenMode.readOnly);
+    final resultSet = db.select(query);
+    db.dispose();
+    final words = fetchWords(resultSet.map((row) => row['word_id'] as int));
+    return Iterable.generate(
+        words.length,
+        (index) => AlphabetModel(
+            word: words[index],
+            lastTimeStamp: resultSet[index]['time_stamp'] as int));
+  }
 }

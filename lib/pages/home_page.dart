@@ -33,7 +33,7 @@ class _HomePageState extends State<HomePage> {
           material: (_, __) => const Icon(Icons.chat_bubble_outline),
           cupertino: (_, __) => const Icon(CupertinoIcons.chat_bubble_2),
         ),
-        label: "chat"),
+        label: "chats"),
     BottomNavigationBarItem(
         icon: PlatformWidget(
           material: (_, __) => const Icon(Icons.bar_chart),
@@ -61,13 +61,11 @@ class _HomePageState extends State<HomePage> {
               backgroundColor: Theme.of(context).colorScheme.inversePrimary,
             ),
           )),
-      body: IndexedStack(index: _index, children: [
-        const VocabularyTab(),
-        AlphabetListTab(
-            contacts: List.generate(
-                512, (i) => ClientModel(name: createName(), userId: i + 1))),
-        const ChartTab(),
-        const SettingTab(),
+      body: IndexedStack(index: _index, children: const [
+        VocabularyTab(),
+        AlphabetListTab(),
+        ChartTab(),
+        SettingTab(),
       ]),
       bottomNavigationBar: BottomAppBar(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
@@ -131,9 +129,7 @@ class _HomePageState extends State<HomePage> {
         children: [
           IndexedStack(index: index, children: [
             Center(child: Text("Page ${index + 1}")),
-            AlphabetListTab(
-                contacts: List.generate(512,
-                    (i) => ClientModel(name: createName(), userId: i + 1))),
+            const AlphabetListTab(),
             const ChartTab(),
             const SettingTab(),
           ]),

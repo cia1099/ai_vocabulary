@@ -5,6 +5,7 @@ import 'package:ai_vocabulary/model/message.dart';
 import 'package:ai_vocabulary/model/vocabulary.dart';
 import 'package:path_provider/path_provider.dart';
 
+import '../model/alphabet.dart';
 import '../model/collect_word.dart';
 import 'sql_expression.dart';
 import 'package:path/path.dart' as p;
