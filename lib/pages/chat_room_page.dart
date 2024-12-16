@@ -113,6 +113,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> implements ChatInput {
                         : CupertinoIcons.eye_slash)),
                 value: value,
                 onChanged: (value) => ChatBubble.showContents.value = value,
+                applyCupertinoTheme: true,
               ),
             )
           ],
@@ -210,7 +211,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> implements ChatInput {
         Durations.long3,
         () => setState(() {
               messages.add(RequireMessage(
-                vocabulary: widget.word.word,
+                vocabulary: widget.word.getMatchingPatterns.join(', '),
                 wordID: widget.word.wordId,
                 content: msg.content,
               ));

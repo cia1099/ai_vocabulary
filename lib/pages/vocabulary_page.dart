@@ -1,10 +1,13 @@
 import 'package:ai_vocabulary/api/dict_api.dart';
 import 'package:ai_vocabulary/model/vocabulary.dart';
 import 'package:ai_vocabulary/app_route.dart';
+import 'package:ai_vocabulary/pages/chat_room_page.dart';
+import 'package:ai_vocabulary/painters/bubble_arrow.dart';
 import 'package:ai_vocabulary/widgets/definition_tile.dart';
 import 'package:ai_vocabulary/widgets/entry_actions.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:path/path.dart' as p;
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
 import '../painters/title_painter.dart';
@@ -28,6 +31,7 @@ class VocabularyPage extends StatelessWidget {
   Widget build(BuildContext context) {
     double headerHeight = 150;
     final hPadding = MediaQuery.of(context).size.width / 16;
+    final routeName = ModalRoute.of(context)?.settings.name;
     return PlatformScaffold(
       body: SafeArea(
         child: DefaultTabController(
@@ -63,7 +67,35 @@ class VocabularyPage extends StatelessWidget {
                         child: const Text('Next'),
                       ),
                     ),
-                  )
+                  ),
+                  Align(
+                    alignment: const FractionalOffset(.95, .95),
+                    child: Offstage(
+                      offstage: routeName == null,
+                      child: CustomPaint(
+                        foregroundPainter: BubbleArrowPainter(
+                            color: Theme.of(context).colorScheme.primary),
+                        child: FloatingActionButton(
+                          onPressed: () {
+                            final path = p.join(
+                                p.dirname(routeName ?? ''), AppRoute.chatRoom);
+                            Navigator.of(context).push(platformPageRoute(
+                                context: context,
+                                settings: RouteSettings(name: path),
+                                builder: (context) =>
+                                    ChatRoomPage(word: word)));
+                          },
+                          backgroundColor:
+                              Theme.of(context).colorScheme.primary,
+                          shape: RoundedRectangleBorder(
+                              borderRadius:
+                                  BorderRadius.circular(kRadialReactionRadius)),
+                          child: Icon(CupertinoIcons.chat_bubble_text,
+                              color: Theme.of(context).colorScheme.onPrimary),
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               )),
         ),

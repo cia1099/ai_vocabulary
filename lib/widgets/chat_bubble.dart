@@ -84,27 +84,27 @@ class _ChatBubbleState extends State<ChatBubble> with ShowContentMixin {
                   crossAxisAlignment: WrapCrossAlignment.end,
                   spacing: 8,
                   children: [
-                    PlatformTextButton(
-                      padding: EdgeInsets.zero,
+                    PlatformIconButton(
                       onPressed: () => soundContent(widget.message),
-                      material: (_, __) => MaterialTextButtonData(
-                          style: TextButton.styleFrom(
+                      padding: EdgeInsets.zero,
+                      material: (_, __) => MaterialIconButtonData(
+                          style: IconButton.styleFrom(
                         padding: EdgeInsets.zero,
                         minimumSize: Size.square(iconSize),
                         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       )),
                       cupertino: (_, __) =>
-                          CupertinoTextButtonData(minSize: iconSize),
-                      child: Builder(
+                          CupertinoIconButtonData(minSize: iconSize),
+                      icon: Builder(
                           builder: (context) => Icon(CupertinoIcons.play_circle,
                               size: iconSize,
                               color: DefaultTextStyle.of(context).style.color)),
                     ),
                     PlatformTextButton(
-                      padding: EdgeInsets.zero,
                       onPressed: () => setState(() {
                         showContent ^= true;
                       }),
+                      padding: EdgeInsets.zero,
                       material: (_, __) => MaterialTextButtonData(
                           style: TextButton.styleFrom(
                         padding: EdgeInsets.zero,
