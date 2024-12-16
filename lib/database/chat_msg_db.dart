@@ -52,7 +52,7 @@ extension ChatMsgDB on MyDB {
       await futureAppDirectory;
     }
     const query =
-        'SELECT word_id, max(time_stamp) AS time_stamp FROM text_messages';
+        'SELECT word_id, max(time_stamp) AS time_stamp FROM text_messages GROUP BY word_id';
     final db = open(OpenMode.readOnly);
     final resultSet = db.select(query);
     db.dispose();
@@ -61,6 +61,7 @@ extension ChatMsgDB on MyDB {
         words.length,
         (index) => AlphabetModel(
             word: words[index],
-            lastTimeStamp: resultSet[index]['time_stamp'] as int));
+            lastTimeStamp: resultSet.firstWhere((row) =>
+                row['word_id'] == words[index].wordId)['time_stamp'] as int));
   }
 }

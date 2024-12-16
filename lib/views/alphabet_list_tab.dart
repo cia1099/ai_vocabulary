@@ -101,8 +101,12 @@ class _AlphabetListTabState extends State<AlphabetListTab> {
               enabled: snapshot.data != null,
               hintText: 'Which word',
               material: (_, __) => MaterialTextFormFieldData(
-                decoration: const InputDecoration(border: InputBorder.none),
+                decoration: const InputDecoration(
+                    border: InputBorder.none,
+                    prefixIcon: Icon(Icons.filter_alt_outlined)),
               ),
+              cupertino: (_, __) => CupertinoTextFormFieldData(
+                  prefix: const Icon(Icons.filter_alt_outlined)),
               onChanged: (name) => filterName(name),
             ),
           ),
@@ -110,10 +114,26 @@ class _AlphabetListTabState extends State<AlphabetListTab> {
         Expanded(
           child: LayoutBuilder(
             builder: (context, constraints) => AzListView(
+              physics: const BouncingScrollPhysics(),
               data: azContacts,
               itemCount: azContacts.length,
               itemBuilder: (context, index) =>
                   _buildAzListItem(azContacts[index]),
+              susItemHeight: 35,
+              susItemBuilder: (context, index) {
+                final textTheme = Theme.of(context).textTheme;
+                final tag = azContacts[index].getSuspensionTag();
+                return Container(
+                    alignment: Alignment.centerLeft,
+                    height: 35,
+                    color: const Color(0x0A121212),
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 16),
+                      child: Text(tag, style: textTheme.titleLarge!
+                          // ..copyWith(fontWeight: FontWeight.bold),
+                          ),
+                    ));
+              },
               indexBarItemHeight: (constraints.maxHeight - 32) / 26,
               indexBarData:
                   azContacts.map((e) => e.getSuspensionTag()).toSet().toList(),
@@ -130,67 +150,46 @@ class _AlphabetListTabState extends State<AlphabetListTab> {
   }
 
   Widget _buildAzListItem(AlphabetModel item) {
-    final textTheme = Theme.of(context).textTheme;
-    final tag = item.getSuspensionTag();
-    return Column(
-      children: [
-        Offstage(
-          offstage: !item.isShowSuspension,
-          child: Container(
-              alignment: Alignment.centerLeft,
-              height: 35,
-              color: const Color(0x0A121212),
-              child: Padding(
-                padding: const EdgeInsets.only(left: 16),
-                child: Text(tag, style: textTheme.titleLarge!
-                    // ..copyWith(fontWeight: FontWeight.bold),
-                    ),
-              )),
+    return PlatformListTile(
+      title: Text(
+        item.name,
+        // style: textTheme.titleMedium,
+        textScaler: const TextScaler.linear(1.2),
+      ),
+      subtitle: Text(item.subtitle),
+      leading: Container(
+        // color: Colors.red,
+        constraints: const BoxConstraints(maxWidth: 68),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          // alignment: WrapAlignment.spaceBetween,
+          // crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            if (widget.editable || _selectedId.isNotEmpty)
+              _CheckButton(
+                  key: ValueKey(item.userId),
+                  isCheck: _selectedId.contains(item.userId),
+                  onClick: () {
+                    if (!_selectedId.add(item.userId)) {
+                      _selectedId.remove(item.userId);
+                    }
+                  }),
+            CircleAvatar(
+              backgroundColor: Colors.transparent,
+              foregroundImage:
+                  item.avatarUrl == null ? null : NetworkImage(item.avatarUrl!),
+              child: const Icon(CupertinoIcons.profile_circled, size: 36),
+            )
+          ],
         ),
-        PlatformListTile(
-          title: Text(
-            item.name,
-            // style: textTheme.titleMedium,
-            textScaler: const TextScaler.linear(1.2),
-          ),
-          subtitle: Text(item.subtitle),
-          leading: Container(
-            // color: Colors.red,
-            constraints: const BoxConstraints(maxWidth: 68),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              // alignment: WrapAlignment.spaceBetween,
-              // crossAxisAlignment: WrapCrossAlignment.center,
-              children: [
-                if (widget.editable || _selectedId.isNotEmpty)
-                  _CheckButton(
-                      key: ValueKey(item.userId),
-                      isCheck: _selectedId.contains(item.userId),
-                      onClick: () {
-                        if (!_selectedId.add(item.userId)) {
-                          _selectedId.remove(item.userId);
-                        }
-                      }),
-                CircleAvatar(
-                  backgroundColor: Colors.transparent,
-                  backgroundImage: item.avatarUrl == null
-                      ? null
-                      : NetworkImage(item.avatarUrl!),
-                  child: const Icon(CupertinoIcons.profile_circled, size: 36),
-                )
-              ],
-            ),
-          ),
-          onTap: () => Navigator.of(context).push(platformPageRoute(
-              context: context,
-              // settings: const RouteSettings(name: AppRoute.chatRoom),
-              builder: (context) => ChatRoomPage(word: item.word))),
-          trailing: const CupertinoListTileChevron(),
-          cupertino: (_, __) => CupertinoListTileData(
-              leadingSize: 68,
-              padding: const EdgeInsets.only(left: 8, right: 25)),
-        ),
-      ],
+      ),
+      onTap: () => Navigator.of(context).push(platformPageRoute(
+          context: context,
+          // settings: const RouteSettings(name: AppRoute.chatRoom),
+          builder: (context) => ChatRoomPage(word: item.word))),
+      trailing: const CupertinoListTileChevron(),
+      cupertino: (_, __) => CupertinoListTileData(
+          leadingSize: 68, padding: const EdgeInsets.only(left: 8, right: 25)),
     );
   }
 

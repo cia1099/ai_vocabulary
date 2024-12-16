@@ -131,10 +131,11 @@ class _ChatRoomPageState extends State<ChatRoomPage> implements ChatInput {
                   message: messages[index],
                   leading: messages[index].userID != myID
                       ? CircleAvatar(
-                          backgroundImage: widget.word.asset != null
+                          foregroundImage: widget.word.asset != null
                               ? NetworkImage(widget.word.asset!)
                               : null,
-                        )
+                          child: const Icon(CupertinoIcons.profile_circled,
+                              size: 36))
                       : null,
                   updateMessage: (msg) => msg == null
                       ? messages.removeAt(index)
