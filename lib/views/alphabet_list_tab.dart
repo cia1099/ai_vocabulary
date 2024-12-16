@@ -6,15 +6,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:azlistview/azlistview.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
-import '../app_route.dart';
 import '../model/alphabet.dart';
 
 /// ref. https://www.youtube.com/watch?v=mGgizUoyeYY
 /// by Johannes Milke alphabet list
 
 class AlphabetListTab extends StatefulWidget {
-  final void Function(List<int> selectedId)? onConfirm;
-  const AlphabetListTab({super.key, this.onConfirm});
+  final bool editable;
+  const AlphabetListTab({super.key, this.editable = false});
 
   @override
   State<AlphabetListTab> createState() => _AlphabetListTabState();
@@ -24,53 +23,72 @@ class _AlphabetListTabState extends State<AlphabetListTab> {
   final _selectedId = <int>{};
 
   List<AlphabetModel> azContacts = [];
-  late final futureContacts = MyDB().fetchAlphabetModels().then((iter) {
-    setState(() {
-      azContacts = iter.toList();
+  late var futureContacts = fetchContacts();
+
+  Future<Iterable<AlphabetModel>> fetchContacts() {
+    return MyDB().fetchAlphabetModels().then((iter) {
+      setState(() {
+        azContacts = iter.toList();
+      });
+      return iter;
     });
-    return iter;
-  });
+  }
 
   @override
   Widget build(BuildContext context) {
     SuspensionUtil.sortListBySuspensionTag(azContacts);
     SuspensionUtil.setShowSuspensionStatus(azContacts);
-    // final maxHeight = MediaQuery.of(context).size.height -
-    //     kToolbarHeight -
-    //     kBottomNavigationBarHeight -
-    //     32;
+    if (!widget.editable && _selectedId.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        showPlatformDialog(
+            context: context,
+            builder: (context) => PlatformAlertDialog(
+                  title: const Text(
+                      'Are you sure to delete these chats permanently?'),
+                  actions: [
+                    PlatformDialogAction(
+                      onPressed: () {
+                        for (final wordID in _selectedId) {
+                          MyDB.instance.removeMessagesByWordID(wordID);
+                        }
+                        futureContacts = fetchContacts();
+                        Navigator.of(context).pop();
+                      },
+                      child: Wrap(
+                        spacing: 8,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: [
+                          const Text('Delete'),
+                          Builder(builder: (context) {
+                            return Icon(CupertinoIcons.minus_circle,
+                                color:
+                                    DefaultTextStyle.of(context).style.color);
+                          }),
+                        ],
+                      ),
+                      cupertino: (_, __) =>
+                          CupertinoDialogActionData(isDestructiveAction: true),
+                    ),
+                    PlatformDialogAction(
+                      onPressed: Navigator.of(context).pop,
+                      child: const Wrap(
+                        spacing: 8,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: [
+                          Text('Retain'),
+                          Icon(CupertinoIcons.chevron_left_circle)
+                        ],
+                      ),
+                    ),
+                  ],
+                )).then((_) => setState(() {
+              _selectedId.clear();
+            }));
+      });
+    }
     final colorScheme = Theme.of(context).colorScheme;
     return Column(
       children: [
-        // Container(
-        //   height: 50,
-        //   child: Row(
-        //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        //     children: [
-        //       TextButton(
-        //           onPressed: () => Navigator.of(context).pop(),
-        //           child: const Text(
-        //             '取消',
-        //             style: TextStyle(color: Colors.black),
-        //           )),
-        //       ImText(
-        //         '邀请新股东',
-        //         fontSize: ImFontSize.title,
-        //         color: ImColor.black,
-        //         fontWeight: FontWeight.bold,
-        //       ),
-        //       TextButton(
-        //           onPressed: () {
-        //             widget.onConfirm?.call(_selectedId.toList());
-        //             Navigator.of(context).pop(_selectedId.toList());
-        //           },
-        //           child: const Text(
-        //             '完成',
-        //             style: TextStyle(color: Colors.black),
-        //           )),
-        //     ],
-        //   ),
-        // ),
         Container(
           height: 50,
           color:
@@ -90,7 +108,6 @@ class _AlphabetListTabState extends State<AlphabetListTab> {
           ),
         ),
         Expanded(
-          // height: maxHeight - 100,
           child: LayoutBuilder(
             builder: (context, constraints) => AzListView(
               data: azContacts,
@@ -99,7 +116,7 @@ class _AlphabetListTabState extends State<AlphabetListTab> {
                   _buildAzListItem(azContacts[index]),
               indexBarItemHeight: (constraints.maxHeight - 32) / 26,
               indexBarData:
-                  azContacts.map((e) => e.getSuspensionTag()).toList(),
+                  azContacts.map((e) => e.getSuspensionTag()).toSet().toList(),
               // List.generate(26, (index) => String.fromCharCode(index + 65)),
               indexBarOptions: IndexBarOptions(
                   textStyle: TextStyle(
@@ -137,20 +154,23 @@ class _AlphabetListTabState extends State<AlphabetListTab> {
             textScaler: const TextScaler.linear(1.2),
           ),
           subtitle: Text(item.subtitle),
-          leading: SizedBox(
+          leading: Container(
             // color: Colors.red,
-            width: 68,
+            constraints: const BoxConstraints(maxWidth: 68),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.end,
+              // alignment: WrapAlignment.spaceBetween,
+              // crossAxisAlignment: WrapCrossAlignment.center,
               children: [
-                _CheckButton(
-                    key: ValueKey(item.userId),
-                    isCheck: _selectedId.contains(item.userId),
-                    onClick: () {
-                      if (!_selectedId.add(item.userId)) {
-                        _selectedId.remove(item.userId);
-                      }
-                    }),
+                if (widget.editable || _selectedId.isNotEmpty)
+                  _CheckButton(
+                      key: ValueKey(item.userId),
+                      isCheck: _selectedId.contains(item.userId),
+                      onClick: () {
+                        if (!_selectedId.add(item.userId)) {
+                          _selectedId.remove(item.userId);
+                        }
+                      }),
                 CircleAvatar(
                   backgroundColor: Colors.transparent,
                   backgroundImage: item.avatarUrl == null
@@ -163,10 +183,12 @@ class _AlphabetListTabState extends State<AlphabetListTab> {
           ),
           onTap: () => Navigator.of(context).push(platformPageRoute(
               context: context,
-              settings: const RouteSettings(name: AppRoute.chatRoom),
+              // settings: const RouteSettings(name: AppRoute.chatRoom),
               builder: (context) => ChatRoomPage(word: item.word))),
           trailing: const CupertinoListTileChevron(),
-          cupertino: (_, __) => CupertinoListTileData(leadingSize: 68),
+          cupertino: (_, __) => CupertinoListTileData(
+              leadingSize: 68,
+              padding: const EdgeInsets.only(left: 8, right: 25)),
         ),
       ],
     );
@@ -209,8 +231,8 @@ class _CheckButtonState extends State<_CheckButton> {
       },
       child: _isCheck
           ? const Icon(
-              CupertinoIcons.checkmark_alt_circle_fill,
-              color: Color(0xFF243BB2),
+              CupertinoIcons.minus_circle_fill,
+              color: CupertinoColors.destructiveRed,
             )
           : const Icon(CupertinoIcons.circle),
     );

@@ -90,7 +90,7 @@ class VocabularyPage extends StatelessWidget {
                           shape: RoundedRectangleBorder(
                               borderRadius:
                                   BorderRadius.circular(kRadialReactionRadius)),
-                          child: Icon(CupertinoIcons.chat_bubble_text,
+                          child: Icon(CupertinoIcons.captions_bubble,
                               color: Theme.of(context).colorScheme.onPrimary),
                         ),
                       ),

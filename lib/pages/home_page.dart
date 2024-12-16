@@ -21,6 +21,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   var _index = 0;
+  var editableAlphabet = false;
   final bottomItems = [
     BottomNavigationBarItem(
         icon: PlatformWidget(
@@ -51,7 +52,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     // return simpleScaffold(context);
     // return tabScaffold(bottomItems, context);
-
+    final colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: PreferredSize(
           preferredSize: const Size.fromHeight(kToolbarHeight),
@@ -60,12 +61,27 @@ class _HomePageState extends State<HomePage> {
             material: (_, __) => MaterialAppBarData(
               backgroundColor: Theme.of(context).colorScheme.inversePrimary,
             ),
+            trailingActions: _index == 1
+                ? [
+                    PlatformTextButton(
+                      onPressed: () => setState(() {
+                        editableAlphabet ^= true;
+                      }),
+                      padding: EdgeInsets.zero,
+                      material: (_, __) => MaterialTextButtonData(
+                          style: TextButton.styleFrom(
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      )),
+                      child: Text(editableAlphabet ? 'Done' : 'Edit'),
+                    )
+                  ]
+                : null,
           )),
-      body: IndexedStack(index: _index, children: const [
-        VocabularyTab(),
-        AlphabetListTab(),
-        ChartTab(),
-        SettingTab(),
+      body: IndexedStack(index: _index, children: [
+        const VocabularyTab(),
+        AlphabetListTab(editable: editableAlphabet),
+        const ChartTab(),
+        const SettingTab(),
       ]),
       bottomNavigationBar: BottomAppBar(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
@@ -87,20 +103,40 @@ class _HomePageState extends State<HomePage> {
                   index -= 1;
                 }
 
-                return IconButton(
-                    padding: EdgeInsets.zero,
-                    onPressed: () => _index == index
-                        ? null
-                        : setState(() {
-                            _index = index;
-                          }),
-                    tooltip: bottomItems[index].tooltip,
-                    icon: Column(
-                      children: [
-                        bottomItems[index].icon,
-                        Text('${bottomItems[index].label}')
-                      ],
-                    ));
+                return PlatformIconButton(
+                  padding: EdgeInsets.zero,
+                  onPressed: () => _index == index
+                      ? null
+                      : setState(() {
+                          _index = index;
+                        }),
+                  icon: Column(
+                    children: [
+                      Theme(
+                          data: ThemeData(
+                              iconTheme: IconThemeData(
+                                  color: colorScheme.primary
+                                      .withOpacity(_index == index ? 1 : .4))),
+                          child: bottomItems[index].icon),
+                      Text(
+                        '${bottomItems[index].label}',
+                        style: TextStyle(
+                          color: colorScheme.primary
+                              .withOpacity(_index == index ? 1 : .4),
+                          fontWeight: _index == index ? FontWeight.w600 : null,
+                        ),
+                      )
+                    ],
+                  ),
+                  material: (_, __) => MaterialIconButtonData(
+                      tooltip: bottomItems[index].tooltip,
+                      style: IconButton.styleFrom(
+                        padding: EdgeInsets.zero,
+                        // minimumSize: const Size.square(50),
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      )),
+                  // cupertino: (_, __) => CupertinoIconButtonData(minSize: 50),
+                );
               })),
         ),
       ),
