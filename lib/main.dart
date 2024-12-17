@@ -1,12 +1,9 @@
-import 'package:ai_vocabulary/mock_data.dart';
-import 'package:ai_vocabulary/pages/vocabulary_page.dart';
 import 'package:ai_vocabulary/provider/word_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
 import 'app_route.dart';
-import 'pages/chat_room_page.dart';
 import 'theme.dart';
 
 void main() {
@@ -75,8 +72,7 @@ class _MyAppState extends State<MyApp> with AppRoute {
             DefaultCupertinoLocalizations.delegate,
           ],
           onGenerateRoute: generateRoute,
-          initialRoute: AppRoute.home,
-          // home: VocabularyPage(word: record),
+          // initialRoute: AppRoute.home,
           // home: Builder(builder: (context) {
           //   return PlatformScaffold(
           //     body: Center(

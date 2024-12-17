@@ -1,5 +1,6 @@
 import 'package:ai_vocabulary/database/my_db.dart';
 import 'package:ai_vocabulary/pages/chat_room_page.dart';
+import 'package:ai_vocabulary/widgets/capital_avatar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -83,9 +84,7 @@ class _AlphabetListTabState extends State<AlphabetListTab> {
       children: [
         Container(
           height: 50,
-          color:
-              // const Color(0x14121212),
-              colorScheme.inverseSurface.withOpacity(20 / 255),
+          color: colorScheme.onInverseSurface,
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: FutureBuilder(
             future: futureContacts,
@@ -120,7 +119,7 @@ class _AlphabetListTabState extends State<AlphabetListTab> {
                 return Container(
                     alignment: Alignment.centerLeft,
                     height: 35,
-                    color: const Color(0x0A121212),
+                    color: colorScheme.surfaceContainerHigh,
                     child: Padding(
                       padding: const EdgeInsets.only(left: 16),
                       child: Text(tag, style: textTheme.titleLarge!
@@ -168,12 +167,11 @@ class _AlphabetListTabState extends State<AlphabetListTab> {
                       _selectedId.remove(item.userId);
                     }
                   }),
-            CircleAvatar(
-              backgroundColor: Colors.transparent,
-              foregroundImage:
-                  item.avatarUrl == null ? null : NetworkImage(item.avatarUrl!),
-              child: const Icon(CupertinoIcons.profile_circled, size: 36),
-            )
+            CapitalAvatar(
+              id: item.userId,
+              name: item.name,
+              url: item.avatarUrl,
+            ),
           ],
         ),
       ),

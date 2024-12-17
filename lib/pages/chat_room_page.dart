@@ -1,6 +1,7 @@
 import 'package:ai_vocabulary/database/my_db.dart';
 import 'package:ai_vocabulary/model/message.dart';
 import 'package:ai_vocabulary/model/vocabulary.dart';
+import 'package:ai_vocabulary/widgets/capital_avatar.dart';
 import 'package:ai_vocabulary/widgets/chat_input_panel.dart';
 import 'package:ai_vocabulary/widgets/require_chat_bubble.dart';
 import 'package:flutter/cupertino.dart';
@@ -130,12 +131,11 @@ class _ChatRoomPageState extends State<ChatRoomPage> implements ChatInput {
                 itemBuilder: (context, index) => ChatListTile(
                   message: messages[index],
                   leading: messages[index].userID != myID
-                      ? CircleAvatar(
-                          foregroundImage: widget.word.asset != null
-                              ? NetworkImage(widget.word.asset!)
-                              : null,
-                          child: const Icon(CupertinoIcons.profile_circled,
-                              size: 36))
+                      ? CapitalAvatar(
+                          id: widget.word.wordId,
+                          name: widget.word.word,
+                          url: widget.word.asset,
+                        )
                       : null,
                   updateMessage: (msg) => msg == null
                       ? messages.removeAt(index)
