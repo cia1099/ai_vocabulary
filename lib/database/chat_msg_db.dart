@@ -10,6 +10,7 @@ extension ChatMsgDB on MyDB {
   }
 
   Future<void> insertMessages(Stream<TextMessage> messages) async {
+    var success = 0;
     final db = open(OpenMode.readWrite);
     final stmt = db.prepare(insertTextMessage);
     await for (final msg in messages) {
@@ -21,12 +22,16 @@ extension ChatMsgDB on MyDB {
           msg.patterns.join(', '),
           msg.userID
         ]);
+        success += 1;
       } on SqliteException {
         continue;
       }
     }
     stmt.dispose();
     db.dispose();
+    if (success > 0) {
+      notifyListeners();
+    }
   }
 
   void removeMessagesByWordID(int wordID) {

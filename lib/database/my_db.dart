@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:ai_vocabulary/model/message.dart';
 import 'package:ai_vocabulary/model/vocabulary.dart';
+import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../model/alphabet.dart';
@@ -14,7 +15,7 @@ import 'package:sqlite3/sqlite3.dart';
 part 'collect_db.dart';
 part 'chat_msg_db.dart';
 
-class MyDB {
+class MyDB with ChangeNotifier {
   late final String _appDirectory;
 
   /// Singleton pattern
@@ -145,6 +146,10 @@ WHERE words.id IN (${wordIds.map((_) => '?').join(',')})
   // void dispose() {
   //   _database?.dispose();
   // }
+  @override
+  void notifyListeners() {
+    super.notifyListeners();
+  }
 }
 
 Map<String, dynamic> traceWord(

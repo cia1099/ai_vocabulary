@@ -25,15 +25,6 @@ class _AlphabetListTabState extends State<AlphabetListTab> {
   List<AlphabetModel> azContacts = [];
   late var futureContacts = fetchContacts();
 
-  Future<Iterable<AlphabetModel>> fetchContacts() {
-    return MyDB().fetchAlphabetModels().then((iter) {
-      setState(() {
-        azContacts = iter.toList();
-      });
-      return iter;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     SuspensionUtil.sortListBySuspensionTag(azContacts);
@@ -51,6 +42,7 @@ class _AlphabetListTabState extends State<AlphabetListTab> {
                         for (final wordID in _selectedId) {
                           MyDB.instance.removeMessagesByWordID(wordID);
                         }
+                        azContacts.clear();
                         futureContacts = fetchContacts();
                         Navigator.of(context).pop();
                       },
@@ -98,15 +90,17 @@ class _AlphabetListTabState extends State<AlphabetListTab> {
           child: FutureBuilder(
             future: futureContacts,
             builder: (context, snapshot) => PlatformTextFormField(
-              enabled: snapshot.data != null,
+              enabled: snapshot.connectionState != ConnectionState.waiting,
               hintText: 'Which word',
               material: (_, __) => MaterialTextFormFieldData(
                 decoration: const InputDecoration(
                     border: InputBorder.none,
-                    prefixIcon: Icon(Icons.filter_alt_outlined)),
+                    prefixIcon: Icon(Icons.filter_alt_outlined,
+                        color: CupertinoColors.systemGrey4)),
               ),
               cupertino: (_, __) => CupertinoTextFormFieldData(
-                  prefix: const Icon(Icons.filter_alt_outlined)),
+                  prefix: const Icon(Icons.filter_alt_outlined,
+                      color: CupertinoColors.systemGrey4)),
               onChanged: (name) => filterName(name),
             ),
           ),
@@ -114,7 +108,7 @@ class _AlphabetListTabState extends State<AlphabetListTab> {
         Expanded(
           child: LayoutBuilder(
             builder: (context, constraints) => AzListView(
-              physics: const BouncingScrollPhysics(),
+              // physics: const BouncingScrollPhysics(),
               data: azContacts,
               itemCount: azContacts.length,
               itemBuilder: (context, index) =>
@@ -199,6 +193,34 @@ class _AlphabetListTabState extends State<AlphabetListTab> {
     setState(() {
       azContacts = queryContacts.toList();
     });
+  }
+
+  Future<Iterable<AlphabetModel>> fetchContacts() {
+    return MyDB().fetchAlphabetModels().then((iter) {
+      setState(() {
+        azContacts = iter.toList();
+      });
+      return iter;
+    });
+  }
+
+  void updateFutureContacts() {
+    setState(() {
+      azContacts.clear();
+      futureContacts = fetchContacts();
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    MyDB.instance.addListener(updateFutureContacts);
+  }
+
+  @override
+  void dispose() {
+    MyDB.instance.removeListener(updateFutureContacts);
+    super.dispose();
   }
 }
 
