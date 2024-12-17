@@ -162,20 +162,25 @@ class _AlphabetListTabState extends State<AlphabetListTab> {
           children: [
             if (widget.editable || _selectedId.isNotEmpty)
               _CheckButton(
-                  key: ValueKey(item.userId),
-                  isCheck: _selectedId.contains(item.userId),
+                  key: ValueKey(item.id),
+                  isCheck: _selectedId.contains(item.id),
                   onClick: () {
-                    if (!_selectedId.add(item.userId)) {
-                      _selectedId.remove(item.userId);
+                    if (!_selectedId.add(item.id)) {
+                      _selectedId.remove(item.id);
                     }
                   }),
             GestureDetector(
-              onTap: () => Navigator.of(context).push(platformPageRoute(
-                  context: context,
-                  settings: const RouteSettings(name: AppRoute.vocabulary),
-                  builder: (context) => VocabularyPage(word: item.word))),
+              onTap: () {
+                final word = MyDB().fetchWords([item.id]).firstOrNull;
+                if (word != null) {
+                  Navigator.of(context).push(platformPageRoute(
+                      context: context,
+                      settings: const RouteSettings(name: AppRoute.vocabulary),
+                      builder: (context) => VocabularyPage(word: word)));
+                }
+              },
               child: CapitalAvatar(
-                id: item.userId,
+                id: item.id,
                 name: item.name,
                 url: item.avatarUrl,
               ),
@@ -183,10 +188,15 @@ class _AlphabetListTabState extends State<AlphabetListTab> {
           ],
         ),
       ),
-      onTap: () => Navigator.of(context).push(platformPageRoute(
-          context: context,
-          // settings: const RouteSettings(name: AppRoute.chatRoom),
-          builder: (context) => ChatRoomPage(word: item.word))),
+      onTap: () {
+        final word = MyDB().fetchWords([item.id]).firstOrNull;
+        if (word != null) {
+          Navigator.of(context).push(platformPageRoute(
+              context: context,
+              // settings: const RouteSettings(name: AppRoute.chatRoom),
+              builder: (context) => ChatRoomPage(word: word)));
+        }
+      },
       trailing: const CupertinoListTileChevron(),
       cupertino: (_, __) => CupertinoListTileData(
           leadingSize: 68, padding: const EdgeInsets.only(left: 8, right: 25)),

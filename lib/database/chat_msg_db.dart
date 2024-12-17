@@ -56,17 +56,25 @@ extension ChatMsgDB on MyDB {
       // print('error');
       await futureAppDirectory;
     }
-    const query =
-        'SELECT word_id, max(time_stamp) AS time_stamp FROM text_messages GROUP BY word_id';
+    const query = '''
+      SELECT words.id AS word_id, words.word, assets.filename, 
+      max(text_messages.time_stamp) AS time_stamp 
+      FROM words LEFT OUTER JOIN assets ON assets.word_id = words.id 
+      JOIN text_messages ON text_messages.word_id = words.id
+      WHERE words.id IN (SELECT word_id FROM text_messages GROUP BY word_id) 
+      GROUP BY words.id
+      ''';
     final db = open(OpenMode.readOnly);
     final resultSet = db.select(query);
     db.dispose();
-    final words = fetchWords(resultSet.map((row) => row['word_id'] as int));
+
     return Iterable.generate(
-        words.length,
-        (index) => AlphabetModel(
-            word: words[index],
-            lastTimeStamp: resultSet.firstWhere((row) =>
-                row['word_id'] == words[index].wordId)['time_stamp'] as int));
+      resultSet.length,
+      (index) => AlphabetModel(
+          id: resultSet[index]['word_id'] as int,
+          name: resultSet[index]['word'] as String,
+          avatarUrl: resultSet[index]['filename'] as String?,
+          lastTimeStamp: resultSet[index]['time_stamp'] as int),
+    );
   }
 }

@@ -1,19 +1,21 @@
 import 'package:azlistview/azlistview.dart';
 import 'package:intl/intl.dart';
 
-import 'vocabulary.dart';
-
 class AlphabetModel extends ISuspensionBean {
-  final Vocabulary word;
+  final int id;
+  final String name;
   final int lastTimeStamp;
+  final String? avatarUrl;
 
-  AlphabetModel({required this.word, required this.lastTimeStamp});
+  AlphabetModel({
+    required this.id,
+    required this.name,
+    required this.lastTimeStamp,
+    this.avatarUrl,
+  });
   @override
-  String getSuspensionTag() => word.word[0].toUpperCase();
+  String getSuspensionTag() => name.substring(0, 1).toUpperCase();
 
-  int get userId => word.wordId;
-  String get name => word.word;
-  String? get avatarUrl => word.asset;
   String get subtitle {
     final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
     final dt = now - lastTimeStamp ~/ 1000;
