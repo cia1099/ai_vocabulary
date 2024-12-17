@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:ai_vocabulary/api/dict_api.dart';
 import 'package:ai_vocabulary/database/my_db.dart';
 import 'package:ai_vocabulary/model/message.dart';
+import 'package:ai_vocabulary/painters/bubble_shape.dart';
 import 'package:ai_vocabulary/utils/clickable_text_mixin.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -12,7 +13,6 @@ import 'package:path/path.dart' as p;
 import 'package:text2speech/text2speech.dart';
 
 import '../bottom_sheet/retrieval_bottom_sheet.dart';
-import '../painters/chat_bubble.dart';
 
 class ChatBubble extends StatefulWidget {
   final Widget child;
@@ -40,96 +40,94 @@ class _ChatBubbleState extends State<ChatBubble> with ShowContentMixin {
     final dateTime =
         DateTime.fromMillisecondsSinceEpoch(widget.message.timeStamp);
     final iconSize = Theme.of(context).iconTheme.size ?? 24.0;
-    return CustomPaint(
-      painter: ChatBubblePainter(
-          isMe: isMe,
+
+    return Container(
+      constraints:
+          BoxConstraints(minWidth: iconSize * 7, maxWidth: widget.maxWidth),
+      padding: const EdgeInsets.only(right: 8, left: 8, top: 8),
+      decoration: ShapeDecoration(
           color: isMe
               ? colorScheme.secondaryContainer
-              : colorScheme.surfaceContainerHigh),
-      child: Container(
-        constraints:
-            BoxConstraints(minWidth: iconSize * 7, maxWidth: widget.maxWidth),
-        padding: const EdgeInsets.only(right: 8, left: 8, top: 8),
-        child: Stack(
-          children: [
-            Container(
-              margin: EdgeInsets.only(bottom: iconSize * 1.414),
-              child: showContent
-                  ? MediaQuery(
-                      data: const MediaQueryData(
-                          textScaler: TextScaler.linear(1.414)),
-                      child: widget.child)
-                  : Theme(
-                      data: ThemeData(
-                          iconTheme: IconThemeData(
-                              color: colorScheme.onSurface.withOpacity(.6),
-                              size: iconSize * 1.6)),
-                      child: Wrap(alignment: WrapAlignment.end, children: [
-                        const Icon(CupertinoIcons.waveform_path_ecg),
-                        Transform.scale(
-                            scaleX: 1.3,
-                            child: const Icon(CupertinoIcons.waveform_path)),
-                        Transform.flip(
-                            flipX: true,
-                            // flipY: true,
-                            child:
-                                const Icon(CupertinoIcons.waveform_path_ecg)),
-                      ]),
-                    ),
-            ),
-            Positioned(
-                left: 4,
-                bottom: 0,
-                child: Wrap(
-                  crossAxisAlignment: WrapCrossAlignment.end,
-                  spacing: 8,
-                  children: [
-                    PlatformIconButton(
-                      onPressed: () => soundContent(widget.message),
+              : colorScheme.surfaceContainerHigh,
+          shape: ChatBubbleShape(isMe: isMe)),
+      child: Stack(
+        children: [
+          Container(
+            margin: EdgeInsets.only(bottom: iconSize * 1.414),
+            child: showContent
+                ? MediaQuery(
+                    data: const MediaQueryData(
+                        textScaler: TextScaler.linear(1.414)),
+                    child: widget.child)
+                : Theme(
+                    data: ThemeData(
+                        iconTheme: IconThemeData(
+                            color: colorScheme.onSurface.withOpacity(.6),
+                            size: iconSize * 1.6)),
+                    child: Wrap(alignment: WrapAlignment.end, children: [
+                      const Icon(CupertinoIcons.waveform_path_ecg),
+                      Transform.scale(
+                          scaleX: 1.3,
+                          child: const Icon(CupertinoIcons.waveform_path)),
+                      Transform.flip(
+                          flipX: true,
+                          // flipY: true,
+                          child: const Icon(CupertinoIcons.waveform_path_ecg)),
+                    ]),
+                  ),
+          ),
+          Positioned(
+              left: 4,
+              bottom: 0,
+              child: Wrap(
+                crossAxisAlignment: WrapCrossAlignment.end,
+                spacing: 8,
+                children: [
+                  PlatformIconButton(
+                    onPressed: () => soundContent(widget.message),
+                    padding: EdgeInsets.zero,
+                    material: (_, __) => MaterialIconButtonData(
+                        style: IconButton.styleFrom(
                       padding: EdgeInsets.zero,
-                      material: (_, __) => MaterialIconButtonData(
-                          style: IconButton.styleFrom(
-                        padding: EdgeInsets.zero,
-                        minimumSize: Size.square(iconSize),
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      )),
-                      cupertino: (_, __) =>
-                          CupertinoIconButtonData(minSize: iconSize),
-                      icon: Builder(
-                          builder: (context) => Icon(CupertinoIcons.play_circle,
-                              size: iconSize,
-                              color: DefaultTextStyle.of(context).style.color)),
-                    ),
-                    PlatformTextButton(
-                      onPressed: () => setState(() {
-                        showContent ^= true;
-                      }),
+                      minimumSize: Size.square(iconSize),
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    )),
+                    cupertino: (_, __) =>
+                        CupertinoIconButtonData(minSize: iconSize),
+                    icon: Builder(
+                        builder: (context) => Icon(CupertinoIcons.play_circle,
+                            size: iconSize,
+                            color: DefaultTextStyle.of(context).style.color)),
+                  ),
+                  PlatformTextButton(
+                    onPressed: () => setState(() {
+                      showContent ^= true;
+                    }),
+                    padding: EdgeInsets.zero,
+                    material: (_, __) => MaterialTextButtonData(
+                        style: TextButton.styleFrom(
                       padding: EdgeInsets.zero,
-                      material: (_, __) => MaterialTextButtonData(
-                          style: TextButton.styleFrom(
-                        padding: EdgeInsets.zero,
-                        minimumSize: Size.square(iconSize),
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      )),
-                      cupertino: (_, __) =>
-                          CupertinoTextButtonData(minSize: iconSize),
-                      child: Icon(
-                          showContent
-                              ? CupertinoIcons.eye_slash
-                              : CupertinoIcons.eye,
-                          size: iconSize),
-                    ),
-                  ],
-                )),
-            Positioned(
-                right: 4,
-                bottom: 0,
-                child: Text(
-                  DateFormat.Hm().format(dateTime),
-                  style: TextStyle(color: colorScheme.onSecondaryContainer),
-                )),
-          ],
-        ),
+                      minimumSize: Size.square(iconSize),
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    )),
+                    cupertino: (_, __) =>
+                        CupertinoTextButtonData(minSize: iconSize),
+                    child: Icon(
+                        showContent
+                            ? CupertinoIcons.eye_slash
+                            : CupertinoIcons.eye,
+                        size: iconSize),
+                  ),
+                ],
+              )),
+          Positioned(
+              right: 4,
+              bottom: 0,
+              child: Text(
+                DateFormat.Hm().format(dateTime),
+                style: TextStyle(color: colorScheme.onSecondaryContainer),
+              )),
+        ],
       ),
     );
   }

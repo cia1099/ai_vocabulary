@@ -2,7 +2,7 @@ import 'package:ai_vocabulary/api/dict_api.dart';
 import 'package:ai_vocabulary/model/vocabulary.dart';
 import 'package:ai_vocabulary/app_route.dart';
 import 'package:ai_vocabulary/pages/chat_room_page.dart';
-import 'package:ai_vocabulary/painters/bubble_arrow.dart';
+import 'package:ai_vocabulary/painters/bubble_shape.dart';
 import 'package:ai_vocabulary/widgets/definition_tile.dart';
 import 'package:ai_vocabulary/widgets/entry_actions.dart';
 import 'package:flutter/cupertino.dart';
@@ -72,27 +72,21 @@ class VocabularyPage extends StatelessWidget {
                     alignment: const FractionalOffset(.95, .95),
                     child: Offstage(
                       offstage: routeName == null,
-                      child: CustomPaint(
-                        foregroundPainter: BubbleArrowPainter(
+                      child: FloatingActionButton(
+                        onPressed: () {
+                          final path = p.join(
+                              p.dirname(routeName ?? ''), AppRoute.chatRoom);
+                          Navigator.of(context).push(platformPageRoute(
+                              context: context,
+                              settings: RouteSettings(name: path),
+                              builder: (context) => ChatRoomPage(word: word)));
+                        },
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        shape: ChatBubbleShape(
+                            isMe: true,
                             color: Theme.of(context).colorScheme.primary),
-                        child: FloatingActionButton(
-                          onPressed: () {
-                            final path = p.join(
-                                p.dirname(routeName ?? ''), AppRoute.chatRoom);
-                            Navigator.of(context).push(platformPageRoute(
-                                context: context,
-                                settings: RouteSettings(name: path),
-                                builder: (context) =>
-                                    ChatRoomPage(word: word)));
-                          },
-                          backgroundColor:
-                              Theme.of(context).colorScheme.primary,
-                          shape: RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius.circular(kRadialReactionRadius)),
-                          child: Icon(CupertinoIcons.captions_bubble,
-                              color: Theme.of(context).colorScheme.onPrimary),
-                        ),
+                        child: Icon(CupertinoIcons.captions_bubble,
+                            color: Theme.of(context).colorScheme.onPrimary),
                       ),
                     ),
                   ),

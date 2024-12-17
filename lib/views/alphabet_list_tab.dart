@@ -1,5 +1,6 @@
 import 'package:ai_vocabulary/database/my_db.dart';
 import 'package:ai_vocabulary/pages/chat_room_page.dart';
+import 'package:ai_vocabulary/pages/vocabulary_page.dart';
 import 'package:ai_vocabulary/widgets/capital_avatar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -7,6 +8,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:azlistview/azlistview.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
+import '../app_route.dart';
 import '../model/alphabet.dart';
 
 /// ref. https://www.youtube.com/watch?v=mGgizUoyeYY
@@ -167,10 +169,16 @@ class _AlphabetListTabState extends State<AlphabetListTab> {
                       _selectedId.remove(item.userId);
                     }
                   }),
-            CapitalAvatar(
-              id: item.userId,
-              name: item.name,
-              url: item.avatarUrl,
+            GestureDetector(
+              onTap: () => Navigator.of(context).push(platformPageRoute(
+                  context: context,
+                  settings: const RouteSettings(name: AppRoute.vocabulary),
+                  builder: (context) => VocabularyPage(word: item.word))),
+              child: CapitalAvatar(
+                id: item.userId,
+                name: item.name,
+                url: item.avatarUrl,
+              ),
             ),
           ],
         ),
