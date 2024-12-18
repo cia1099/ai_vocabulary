@@ -10,9 +10,7 @@ import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
 import '../app_route.dart';
 import '../model/alphabet.dart';
-
-/// ref. https://www.youtube.com/watch?v=mGgizUoyeYY
-/// by Johannes Milke alphabet list
+import '../utils/regex.dart';
 
 class AlphabetListTab extends StatefulWidget {
   final bool editable;
@@ -24,6 +22,7 @@ class AlphabetListTab extends StatefulWidget {
 
 class _AlphabetListTabState extends State<AlphabetListTab> {
   final _selectedId = <int>{};
+  final textController = TextEditingController();
 
   List<AlphabetModel> azContacts = [];
   late var futureContacts = fetchContacts();
@@ -93,6 +92,7 @@ class _AlphabetListTabState extends State<AlphabetListTab> {
             builder: (context, snapshot) => PlatformTextFormField(
               enabled: snapshot.connectionState != ConnectionState.waiting,
               hintText: 'Which word',
+              controller: textController,
               material: (_, __) => MaterialTextFormFieldData(
                 decoration: const InputDecoration(
                     border: InputBorder.none,
@@ -146,10 +146,9 @@ class _AlphabetListTabState extends State<AlphabetListTab> {
 
   Widget _buildAzListItem(AlphabetModel item) {
     return PlatformListTile(
-      title: Text(
-        item.name,
-        // style: textTheme.titleMedium,
-        textScaler: const TextScaler.linear(1.2),
+      title: MediaQuery(
+        data: const MediaQueryData(textScaler: TextScaler.linear(1.2)),
+        child: matchFilterText(item.name),
       ),
       subtitle: Text(item.subtitle),
       leading: Container(
@@ -237,6 +236,25 @@ class _AlphabetListTabState extends State<AlphabetListTab> {
   void dispose() {
     MyDB.instance.removeListener(updateFutureContacts);
     super.dispose();
+  }
+
+  Text matchFilterText(String text) {
+    final pattern = textController.text;
+    final index = text.matchFirstIndex(pattern);
+    if (index < 0) return Text(text);
+    return Text.rich(TextSpan(
+        children: List.generate(
+      text.length,
+      (i) => TextSpan(
+        text: text[i],
+        style: i < index || i >= index + pattern.length
+            ? null
+            : TextStyle(
+                backgroundColor:
+                    Theme.of(context).colorScheme.tertiaryContainer,
+                color: Theme.of(context).colorScheme.onTertiaryContainer),
+      ),
+    )));
   }
 }
 
