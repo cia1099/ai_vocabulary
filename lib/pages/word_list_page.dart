@@ -53,7 +53,7 @@ class WordListPage extends StatelessWidget {
             ListView.builder(
               itemExtentBuilder: (index, dimensions) {
                 if (words.length < 10 && words.isNotEmpty)
-                  return dimensions.viewportMainAxisExtent / words.length;
+                  return dimensions.viewportMainAxisExtent / kRemindLength;
                 return dimensions.viewportMainAxisExtent / 10;
               },
               itemCount: words.length, //+ (words.length < 10 ? 1 : 0),

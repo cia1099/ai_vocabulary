@@ -100,7 +100,7 @@ class _AlphabetListTabState extends State<AlphabetListTab> {
                         color: CupertinoColors.systemGrey4)),
               ),
               cupertino: (_, __) => CupertinoTextFormFieldData(
-                  prefix: const Icon(Icons.filter_alt_outlined,
+                  prefix: const Icon(CupertinoIcons.equal_square,
                       color: CupertinoColors.systemGrey4)),
               onChanged: (name) => filterName(name),
             ),

@@ -36,5 +36,3 @@ class CollectWord {
         "bookmark": bookmark,
       };
 }
-
-const kMaxAcquaintance = 5;

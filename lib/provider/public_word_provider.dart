@@ -21,7 +21,7 @@ extension PublicWordProvider on WordProvider {
   }
 
   bool shouldRemind() {
-    return _remindIDs.isNotEmpty && _remindIDs.length % 7 == 0 ||
+    return _remindIDs.isNotEmpty && _remindIDs.length % kRemindLength == 0 ||
         _learnedIndex == _studyWords.length - 1 ||
         _learnedIndex == reviewCount - 1;
   }

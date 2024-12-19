@@ -5,6 +5,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:ai_vocabulary/database/my_db.dart';
+import 'package:ai_vocabulary/utils/shortcut.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart' as p;
 import 'package:ai_vocabulary/api/dict_api.dart';

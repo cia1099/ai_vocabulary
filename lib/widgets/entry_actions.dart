@@ -1,11 +1,11 @@
 import 'package:ai_vocabulary/app_route.dart';
 import 'package:ai_vocabulary/database/my_db.dart';
-import 'package:ai_vocabulary/model/collect_word.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../pages/report_popup.dart';
 import '../pages/search_popup.dart';
+import '../utils/shortcut.dart';
 
 class EntryActions extends StatefulWidget {
   const EntryActions({

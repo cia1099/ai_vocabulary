@@ -58,7 +58,7 @@ class VocabularyTab extends StatelessWidget {
                           child: const Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(CupertinoIcons.app),
+                              Icon(CupertinoIcons.square_stack),
                               Text("normal")
                             ],
                           ),
