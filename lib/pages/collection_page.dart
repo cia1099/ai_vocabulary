@@ -15,10 +15,10 @@ class CollectionPage extends StatefulWidget {
 }
 
 class _CollectionPageState extends State<CollectionPage> {
-  final marks = List.generate(3, (i) => CollectionMark(name: '$i', index: i));
+  final marks = List.generate(5, (i) => CollectionMark(name: '$i', index: i));
   final textController = TextEditingController();
   final focusNode = FocusNode();
-  final gridKey = GlobalKey<AnimatedGridState>();
+  final gridKey = GlobalKey<SliverAnimatedGridState>();
   var destroy = false;
 
   @override
@@ -39,9 +39,8 @@ class _CollectionPageState extends State<CollectionPage> {
     return Scaffold(
       body: SafeArea(
         top: false,
-        child: NestedScrollView(
-          clipBehavior: Clip.antiAlias,
-          headerSliverBuilder: (context, innerBoxIsScrolled) => [
+        child: CustomScrollView(
+          slivers: [
             PlatformSliverAppBar(
               stretch: true,
               title: const Text("My Collections"),
@@ -56,11 +55,11 @@ class _CollectionPageState extends State<CollectionPage> {
                     ],
                     background: FlutterLogo(),
                   )),
-              cupertino: (_, __) => CupertinoSliverAppBarData(),
+              // cupertino: (_, __) => CupertinoSliverAppBarData(),
             ),
             SliverPersistentHeader(
               pinned: true,
-              delegate: ShrinkRowDelegate(
+              delegate: InputRowDelegate(
                 maxHeight: kTextTabBarHeight + 10,
                 context: context,
                 focusNode: focusNode,
@@ -74,48 +73,42 @@ class _CollectionPageState extends State<CollectionPage> {
                 ),
               ),
             ),
+            SliverPadding(
+              padding: EdgeInsets.symmetric(horizontal: hPadding),
+              sliver: ReorderableWrapperWidget(
+                  onReorder: onReorder,
+                  isSliver: true,
+                  dragWidgetBuilder: DragWidgetBuilderV2(
+                      builder: (index, child, screenshot) => Material(
+                          color: colorScheme.primary,
+                          elevation: 4,
+                          borderRadius:
+                              BorderRadius.circular(kRadialReactionRadius),
+                          child: child)),
+                  child: SliverAnimatedGrid(
+                    key: gridKey,
+                    gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                      maxCrossAxisExtent: 200,
+                      mainAxisSpacing: hPadding,
+                      crossAxisSpacing: hPadding,
+                    ),
+                    itemBuilder: (context, index, animation) => ScaleTransition(
+                      scale: CurvedAnimation(
+                          parent: animation, curve: Curves.bounceOut),
+                      child: index < marks.length
+                          ? ReorderableItemView(
+                              key: Key(marks[index].name),
+                              index: index,
+                              child:
+                                  collectBuilder(int.parse(marks[index].name)))
+                          : const Card.filled(
+                              child: Icon(CupertinoIcons.add),
+                            ),
+                    ),
+                    // initialItemCount: marks.length + 1,
+                  )),
+            ),
           ],
-          body: ReorderableWrapperWidget(
-              onReorder: (oldIndex, newIndex) {
-                setState(() {
-                  if (oldIndex < newIndex) {
-                    for (int i = oldIndex; i < newIndex; i++) {
-                      marks[i + 1].index--;
-                    }
-                  } else {
-                    for (int i = newIndex; i < oldIndex; i++) {
-                      marks[i].index++;
-                    }
-                  }
-                  marks[oldIndex].index = newIndex;
-                });
-              },
-              child: MediaQuery.removePadding(
-                context: context,
-                removeTop: true,
-                child: AnimatedGrid(
-                  padding: EdgeInsets.symmetric(horizontal: hPadding),
-                  key: gridKey,
-                  gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                    maxCrossAxisExtent: 200,
-                    mainAxisSpacing: hPadding,
-                    crossAxisSpacing: hPadding,
-                  ),
-                  itemBuilder: (context, index, animation) => ScaleTransition(
-                    scale: CurvedAnimation(
-                        parent: animation, curve: Curves.bounceOut),
-                    child: index < marks.length
-                        ? ReorderableItemView(
-                            key: Key(marks[index].name),
-                            index: index,
-                            child: collectBuilder(int.parse(marks[index].name)))
-                        : const Card.filled(
-                            child: Icon(CupertinoIcons.add),
-                          ),
-                  ),
-                  // initialItemCount: marks.length + 1,
-                ),
-              )),
         ),
       ),
       floatingActionButton: FloatingActionButton(
@@ -147,19 +140,39 @@ class _CollectionPageState extends State<CollectionPage> {
               gridState.insertAllItems(0, marks.length,
                   duration: Durations.extralong1);
             });
-            // } else {
-            // }
           },
           child: const Icon(CupertinoIcons.minus_circled)),
     );
   }
 
+  void onReorder(oldIndex, newIndex) {
+    setState(() {
+      if (oldIndex < newIndex) {
+        for (int i = oldIndex; i < newIndex; i++) {
+          marks[i + 1].index--;
+        }
+      } else {
+        for (int i = newIndex; i < oldIndex; i++) {
+          marks[i].index++;
+        }
+      }
+      marks[oldIndex].index = newIndex;
+    });
+  }
+
   Widget collectBuilder(int index) {
-    return Card(
-      // key: ValueKey(index),
-      color: index.isOdd ? Colors.white : Colors.black12,
-      child: Center(
-          child: Text('$index', textScaler: const TextScaler.linear(5.0))),
+    return InkWell(
+      onTap: () {},
+      onDoubleTap: () => print('show menu'),
+      customBorder: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(kRadialReactionRadius),
+      ),
+      child: Card(
+        // key: ValueKey(index),
+        color: index.isOdd ? Colors.white : Colors.black12,
+        child: Center(
+            child: Text('$index', textScaler: const TextScaler.linear(5.0))),
+      ),
     );
   }
 }
@@ -171,13 +184,13 @@ class CollectionMark {
   CollectionMark({required this.name, required this.index});
 }
 
-class ShrinkRowDelegate extends SliverPersistentHeaderDelegate {
+class InputRowDelegate extends SliverPersistentHeaderDelegate {
   final Widget child;
   final double maxHeight;
   final FocusNode focusNode;
   final BuildContext context;
 
-  ShrinkRowDelegate({
+  InputRowDelegate({
     required this.child,
     required this.context,
     required this.maxHeight,
@@ -219,5 +232,5 @@ class ShrinkRowDelegate extends SliverPersistentHeaderDelegate {
   double get minExtent => focusNode.hasFocus ? maxExtent : 0;
 
   @override
-  bool shouldRebuild(covariant ShrinkRowDelegate oldDelegate) => false;
+  bool shouldRebuild(covariant InputRowDelegate oldDelegate) => false;
 }
