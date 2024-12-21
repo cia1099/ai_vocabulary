@@ -2,6 +2,7 @@ import 'package:ai_vocabulary/database/my_db.dart';
 import 'package:ai_vocabulary/pages/chat_room_page.dart';
 import 'package:ai_vocabulary/pages/vocabulary_page.dart';
 import 'package:ai_vocabulary/widgets/capital_avatar.dart';
+import 'package:ai_vocabulary/widgets/filter_input_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -83,27 +84,15 @@ class _AlphabetListTabState extends State<AlphabetListTab> {
     final colorScheme = Theme.of(context).colorScheme;
     return Column(
       children: [
-        Container(
-          height: 50,
-          color: colorScheme.onInverseSurface,
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: FutureBuilder(
-            future: futureContacts,
-            builder: (context, snapshot) => PlatformTextFormField(
-              enabled: snapshot.connectionState != ConnectionState.waiting,
-              hintText: 'Which word',
-              controller: textController,
-              material: (_, __) => MaterialTextFormFieldData(
-                decoration: const InputDecoration(
-                    border: InputBorder.none,
-                    prefixIcon: Icon(Icons.filter_alt_outlined,
-                        color: CupertinoColors.systemGrey4)),
-              ),
-              cupertino: (_, __) => CupertinoTextFormFieldData(
-                  prefix: const Icon(CupertinoIcons.equal_square,
-                      color: CupertinoColors.systemGrey4)),
-              onChanged: (name) => filterName(name),
-            ),
+        FutureBuilder(
+          future: futureContacts,
+          builder: (context, snapshot) => FilterInputBar(
+            enabled: snapshot.connectionState != ConnectionState.waiting,
+            padding: const EdgeInsets.only(bottom: 4, left: 8, right: 8),
+            backgroundColor: colorScheme.primaryContainer,
+            hintText: 'Which word',
+            controller: textController,
+            onChanged: (name) => filterName(name),
           ),
         ),
         Expanded(

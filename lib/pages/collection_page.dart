@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:reorderable_grid_view/reorderable_grid_view.dart';
 
+import '../widgets/filter_input_bar.dart';
+
 class CollectionPage extends StatefulWidget {
   const CollectionPage({super.key});
 
@@ -41,76 +43,19 @@ class _CollectionPageState extends State<CollectionPage> {
                   )),
               cupertino: (_, __) => CupertinoSliverAppBarData(),
             ),
-            ListenableBuilder(
-              listenable: focusNode,
-              builder: (context, child) => SliverPersistentHeader(
-                pinned: focusNode.hasFocus,
-                delegate: ShrinkRowDelegate(
-                  maxHeight: kTextTabBarHeight + 10,
-                  pinned: focusNode.hasFocus,
-                  child: child!,
-                ),
-              ),
-              child: Container(
-                color: colorScheme.surface.withOpacity(.8),
-                padding: EdgeInsets.only(
-                    left: hPadding, right: hPadding, bottom: 10),
-                child: ListenableBuilder(
-                  listenable: focusNode,
-                  builder: (context, child) => Wrap(
-                    children: [
-                      AnimatedContainer(
-                        duration: Durations.short4,
-                        width: hPadding * 32 -
-                            hPadding * 2 -
-                            (focusNode.hasFocus ? 64 : 0),
-                        height: kTextTabBarHeight,
-                        decoration: BoxDecoration(
-                            color: colorScheme.onInverseSurface,
-                            borderRadius: BorderRadius.circular(
-                                kRadialReactionRadius / 2)),
-                        child: PlatformTextField(
-                          hintText: 'find it',
-                          controller: textController,
-                          focusNode: focusNode,
-                          cupertino: (_, __) => CupertinoTextFieldData(
-                            decoration:
-                                const BoxDecoration(color: Colors.transparent),
-                            prefix: const Icon(CupertinoIcons.equal_square,
-                                color: CupertinoColors.systemGrey4),
-                          ),
-                          material: (_, __) => MaterialTextFieldData(
-                            decoration: const InputDecoration(
-                              fillColor: Colors.transparent,
-                              prefix: Icon(CupertinoIcons.equal_square,
-                                  color: CupertinoColors.systemGrey4),
-                              border: OutlineInputBorder(
-                                  borderSide: BorderSide.none),
-                            ),
-                          ),
-                        ),
-                      ),
-                      AnimatedSize(
-                        duration: Durations.short4,
-                        child: SizedBox(
-                          width: focusNode.hasFocus ? 64 : 0,
-                          height: 48,
-                          child: PlatformTextButton(
-                              padding: EdgeInsets.zero,
-                              onPressed: () {
-                                textController.clear();
-                                focusNode.unfocus();
-                              },
-                              material: (_, __) => MaterialTextButtonData(
-                                      style: IconButton.styleFrom(
-                                    tapTargetSize:
-                                        MaterialTapTargetSize.shrinkWrap,
-                                  )),
-                              child: const Text('Cancel')),
-                        ),
-                      )
-                    ],
-                  ),
+            SliverPersistentHeader(
+              pinned: true,
+              delegate: ShrinkRowDelegate(
+                maxHeight: kTextTabBarHeight + 10,
+                context: context,
+                focusNode: focusNode,
+                child: FilterInputBar(
+                  focusNode: focusNode,
+                  controller: textController,
+                  backgroundColor: colorScheme.surface.withOpacity(.8),
+                  hintText: 'find it',
+                  padding: EdgeInsets.only(
+                      left: hPadding, right: hPadding, bottom: 10),
                 ),
               ),
             ),
@@ -166,14 +111,19 @@ class _CollectionPageState extends State<CollectionPage> {
 class ShrinkRowDelegate extends SliverPersistentHeaderDelegate {
   final Widget child;
   final double maxHeight;
-  final bool pinned;
-  final Key? key;
+  final FocusNode focusNode;
+  final BuildContext context;
 
-  ShrinkRowDelegate(
-      {this.key,
-      required this.child,
-      required this.maxHeight,
-      this.pinned = false});
+  ShrinkRowDelegate({
+    required this.child,
+    required this.context,
+    required this.maxHeight,
+    required this.focusNode,
+  }) {
+    focusNode.addListener(() {
+      build(context, maxExtent, true);
+    });
+  }
 
   @override
   Widget build(
@@ -193,20 +143,18 @@ class ShrinkRowDelegate extends SliverPersistentHeaderDelegate {
     //       child: child,
     //     ));
     // return child;
-    return ConstrainedBox(
-      key: key,
-      constraints: BoxConstraints(maxHeight: maxExtent),
-      child: child,
-    );
+    // print('shirnk = $shrinkOffset, overlap = $overlapsContent');
+    if (overlapsContent && !focusNode.hasFocus)
+      return SizedBox.fromSize(size: Size.fromHeight(maxExtent - shrinkOffset));
+    return child;
   }
 
   @override
   double get maxExtent => maxHeight;
 
   @override
-  double get minExtent => pinned ? maxExtent : 0;
+  double get minExtent => focusNode.hasFocus ? maxExtent : 0;
 
   @override
-  bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) =>
-      false;
+  bool shouldRebuild(covariant ShrinkRowDelegate oldDelegate) => false;
 }
