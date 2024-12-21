@@ -56,6 +56,7 @@ class _SearchPopUpPageState extends State<SearchPopUpPage> {
                     autofocus: true,
                     hintText: 'find it',
                     controller: textController,
+                    textInputAction: TextInputAction.search,
                     cupertino: (_, __) => CupertinoTextFieldData(
                       decoration: BoxDecoration(
                           border:

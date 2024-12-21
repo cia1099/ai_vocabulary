@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
@@ -13,20 +15,33 @@ class CollectionPage extends StatefulWidget {
 }
 
 class _CollectionPageState extends State<CollectionPage> {
-  final data = List.generate(20, (i) => i);
+  final marks = List.generate(3, (i) => CollectionMark(name: '$i', index: i));
   final textController = TextEditingController();
   final focusNode = FocusNode();
   final gridKey = GlobalKey<AnimatedGridState>();
+  var destroy = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      gridKey.currentState
+          ?.insertAllItems(0, marks.length + 1, duration: Durations.extralong4);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    // print(marks.map((e) => '${e.index}').join(', '));
     final hPadding = MediaQuery.of(context).size.width / 32;
     final colorScheme = Theme.of(context).colorScheme;
-    return PlatformScaffold(
+    marks.sort((a, b) => a.index.compareTo(b.index));
+    return Scaffold(
       body: SafeArea(
         top: false,
-        child: CustomScrollView(
-          slivers: [
+        child: NestedScrollView(
+          clipBehavior: Clip.antiAlias,
+          headerSliverBuilder: (context, innerBoxIsScrolled) => [
             PlatformSliverAppBar(
               stretch: true,
               title: const Text("My Collections"),
@@ -59,53 +74,101 @@ class _CollectionPageState extends State<CollectionPage> {
                 ),
               ),
             ),
-            ReorderableWrapperWidget(
-                onReorder: (oldIndex, newIndex) {
-                  if (oldIndex < newIndex) {
-                    newIndex -= 1;
-                  }
-                  final element = data.removeAt(oldIndex);
-                  data.insert(newIndex, element);
-                },
-                child: SliverPadding(
-                  padding: EdgeInsets.symmetric(horizontal: hPadding),
-                  sliver: SliverAnimatedGrid(
-                    key: gridKey,
-                    gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                      maxCrossAxisExtent: 200,
-                      mainAxisSpacing: hPadding,
-                      crossAxisSpacing: hPadding,
-                    ),
-                    itemBuilder: (context, index, animation) => FadeTransition(
-                      opacity: CurvedAnimation(
-                          parent: animation, curve: Curves.easeOut),
-                      child: index < data.length
-                          ? ReorderableItemView(
-                              key: ValueKey(index),
-                              index: index,
-                              child: collectBuilder(index))
-                          : const Card.filled(
-                              child: Icon(CupertinoIcons.add),
-                            ),
-                    ),
-                    initialItemCount: data.length + 1,
-                  ),
-                )),
           ],
+          body: ReorderableWrapperWidget(
+              onReorder: (oldIndex, newIndex) {
+                setState(() {
+                  if (oldIndex < newIndex) {
+                    for (int i = oldIndex; i < newIndex; i++) {
+                      marks[i + 1].index--;
+                    }
+                  } else {
+                    for (int i = newIndex; i < oldIndex; i++) {
+                      marks[i].index++;
+                    }
+                  }
+                  marks[oldIndex].index = newIndex;
+                });
+              },
+              child: MediaQuery.removePadding(
+                context: context,
+                removeTop: true,
+                child: AnimatedGrid(
+                  padding: EdgeInsets.symmetric(horizontal: hPadding),
+                  key: gridKey,
+                  gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                    maxCrossAxisExtent: 200,
+                    mainAxisSpacing: hPadding,
+                    crossAxisSpacing: hPadding,
+                  ),
+                  itemBuilder: (context, index, animation) => ScaleTransition(
+                    scale: CurvedAnimation(
+                        parent: animation, curve: Curves.bounceOut),
+                    child: index < marks.length
+                        ? ReorderableItemView(
+                            key: Key(marks[index].name),
+                            index: index,
+                            child: collectBuilder(int.parse(marks[index].name)))
+                        : const Card.filled(
+                            child: Icon(CupertinoIcons.add),
+                          ),
+                  ),
+                  // initialItemCount: marks.length + 1,
+                ),
+              )),
         ),
       ),
+      floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            destroy ^= true;
+            final gridState = gridKey.currentState!;
+            // if (destroy) {
+            // gridState.removeAllItems(
+            //   (context, animation) => FadeTransition(
+            //     opacity:
+            //         CurvedAnimation(parent: animation, curve: Curves.easeOut),
+            //     child: const Card(child: Placeholder()),
+            //   ),
+            // );
+            for (var removedMark in marks) {
+              gridState.removeItem(
+                  0,
+                  (context, animation) => FadeTransition(
+                        opacity: CurvedAnimation(
+                            parent: animation, curve: Curves.easeOut),
+                        child: collectBuilder(int.parse(removedMark.name)),
+                      ),
+                  duration: Durations.short3);
+            }
+            marks.clear();
+            Future.delayed(Durations.short3, () {
+              marks.addAll(List.generate(Random().nextInt(4),
+                  (i) => CollectionMark(name: '$i', index: i)));
+              gridState.insertAllItems(0, marks.length,
+                  duration: Durations.extralong1);
+            });
+            // } else {
+            // }
+          },
+          child: const Icon(CupertinoIcons.minus_circled)),
     );
   }
 
   Widget collectBuilder(int index) {
     return Card(
+      // key: ValueKey(index),
       color: index.isOdd ? Colors.white : Colors.black12,
-      // height: 100.0,
-      // alignment: const Alignment(0, 0),
       child: Center(
           child: Text('$index', textScaler: const TextScaler.linear(5.0))),
     );
   }
+}
+
+class CollectionMark {
+  final String name;
+  int index;
+
+  CollectionMark({required this.name, required this.index});
 }
 
 class ShrinkRowDelegate extends SliverPersistentHeaderDelegate {

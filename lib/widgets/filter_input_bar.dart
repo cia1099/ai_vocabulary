@@ -61,6 +61,7 @@ class _FilterInputBarState extends State<FilterInputBar> {
                     controller: textController,
                     focusNode: focus,
                     onChanged: widget.onChanged,
+                    textInputAction: TextInputAction.search,
                     cupertino: (_, __) => CupertinoTextFieldData(
                       decoration:
                           const BoxDecoration(color: Colors.transparent),
