@@ -240,14 +240,14 @@ class _AlphabetListTabState extends State<AlphabetListTab> {
 
   Text matchFilterText(String text) {
     final pattern = textController.text;
-    final index = text.matchFirstIndex(pattern);
-    if (index < 0) return Text(text);
+    final matches = text.matchIndexes(pattern);
+    if (matches.isEmpty) return Text(text);
     return Text.rich(TextSpan(
         children: List.generate(
       text.length,
       (i) => TextSpan(
         text: text[i],
-        style: i < index || i >= index + pattern.length
+        style: !matches.contains(i)
             ? null
             : TextStyle(
                 backgroundColor:

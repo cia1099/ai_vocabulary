@@ -12,7 +12,22 @@ Iterable<String> splitWords(String text) {
 }
 
 extension SlidingWindow on String {
-  int matchFirstIndex(String pattern) {
+  Iterable<int> matchIndexes(String pattern) {
+    final indexes = <int>[];
+    var idx = 0;
+    while (idx < length - pattern.length + 1 && idx > -1) {
+      final i = substring(idx)._matchFirstIndex(pattern);
+      if (i > -1) {
+        indexes.addAll(Iterable.generate(pattern.length, (j) => idx + j + i));
+        idx += pattern.length + i;
+      } else {
+        idx = i;
+      }
+    }
+    return indexes;
+  }
+
+  int _matchFirstIndex(String pattern) {
     if (pattern.isEmpty || length < pattern.length) return -1;
     var i = 0;
     for (; i < length - pattern.length + 1; i++) {
