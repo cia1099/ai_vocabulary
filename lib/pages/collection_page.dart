@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:ai_vocabulary/model/collection_mark.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
@@ -15,7 +16,9 @@ class CollectionPage extends StatefulWidget {
 }
 
 class _CollectionPageState extends State<CollectionPage> {
-  final marks = List.generate(5, (i) => CollectionMark(name: '$i', index: i));
+  final marks =
+      List<BookMark>.generate(5, (i) => CollectionMark(name: '$i', index: i))
+        ..add(SystemMark(name: 'add', index: 99));
   final textController = TextEditingController();
   final focusNode = FocusNode();
   final gridKey = GlobalKey<SliverAnimatedGridState>();
@@ -26,13 +29,12 @@ class _CollectionPageState extends State<CollectionPage> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       gridKey.currentState
-          ?.insertAllItems(0, marks.length + 1, duration: Durations.extralong4);
+          ?.insertAllItems(0, marks.length, duration: Durations.extralong4);
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    // print(marks.map((e) => '${e.index}').join(', '));
     final hPadding = MediaQuery.of(context).size.width / 32;
     final colorScheme = Theme.of(context).colorScheme;
     marks.sort((a, b) => a.index.compareTo(b.index));
@@ -44,7 +46,7 @@ class _CollectionPageState extends State<CollectionPage> {
             PlatformSliverAppBar(
               stretch: true,
               title: const Text("My Collections"),
-              backgroundColor: colorScheme.surface.withOpacity(.8),
+              backgroundColor: colorScheme.surfaceDim.withOpacity(.8),
               material: (_, __) => MaterialSliverAppBarData(
                   pinned: true,
                   flexibleSpace: const FlexibleSpaceBar(
@@ -66,7 +68,7 @@ class _CollectionPageState extends State<CollectionPage> {
                 child: FilterInputBar(
                   focusNode: focusNode,
                   controller: textController,
-                  backgroundColor: colorScheme.surface.withOpacity(.8),
+                  backgroundColor: colorScheme.surfaceDim.withOpacity(.8),
                   hintText: 'find it',
                   padding: EdgeInsets.only(
                       left: hPadding, right: hPadding, bottom: 10),
@@ -76,7 +78,10 @@ class _CollectionPageState extends State<CollectionPage> {
             SliverPadding(
               padding: EdgeInsets.symmetric(horizontal: hPadding),
               sliver: ReorderableWrapperWidget(
-                  onReorder: onReorder,
+                  // dragEnabled: false,
+                  onReorder: (oldIndex, newIndex) => setState(() {
+                        onReorder(oldIndex, newIndex);
+                      }),
                   isSliver: true,
                   dragWidgetBuilder: DragWidgetBuilderV2(
                       builder: (index, child, screenshot) => Material(
@@ -93,18 +98,9 @@ class _CollectionPageState extends State<CollectionPage> {
                       crossAxisSpacing: hPadding,
                     ),
                     itemBuilder: (context, index, animation) => ScaleTransition(
-                      scale: CurvedAnimation(
-                          parent: animation, curve: Curves.bounceOut),
-                      child: index < marks.length
-                          ? ReorderableItemView(
-                              key: Key(marks[index].name),
-                              index: index,
-                              child:
-                                  collectBuilder(int.parse(marks[index].name)))
-                          : const Card.filled(
-                              child: Icon(CupertinoIcons.add),
-                            ),
-                    ),
+                        scale: CurvedAnimation(
+                            parent: animation, curve: Curves.bounceOut),
+                        child: buildBookmark(marks[index])),
                     // initialItemCount: marks.length + 1,
                   )),
             ),
@@ -123,7 +119,8 @@ class _CollectionPageState extends State<CollectionPage> {
             //     child: const Card(child: Placeholder()),
             //   ),
             // );
-            for (var removedMark in marks) {
+            for (final removedMark in marks) {
+              if (removedMark is! CollectionMark) continue;
               gridState.removeItem(
                   0,
                   (context, animation) => FadeTransition(
@@ -131,13 +128,16 @@ class _CollectionPageState extends State<CollectionPage> {
                             parent: animation, curve: Curves.easeOut),
                         child: collectBuilder(int.parse(removedMark.name)),
                       ),
-                  duration: Durations.short3);
+                  duration: Durations.medium1);
             }
-            marks.clear();
-            Future.delayed(Durations.short3, () {
-              marks.addAll(List.generate(Random().nextInt(4),
-                  (i) => CollectionMark(name: '$i', index: i)));
-              gridState.insertAllItems(0, marks.length,
+            marks.removeWhere((m) => m is CollectionMark);
+            Future.delayed(Durations.medium1, () {
+              marks.insertAll(
+                  0,
+                  List.generate(Random().nextInt(4),
+                      (i) => CollectionMark(name: '$i', index: i)));
+              gridState.insertAllItems(
+                  0, marks.whereType<CollectionMark>().length,
                   duration: Durations.extralong1);
             });
           },
@@ -145,19 +145,28 @@ class _CollectionPageState extends State<CollectionPage> {
     );
   }
 
+  Widget buildBookmark(BookMark bookmark) {
+    return switch (bookmark) {
+      CollectionMark mark => ReorderableItemView(
+          key: Key(mark.name),
+          index: marks.indexOf(bookmark),
+          child: collectBuilder(int.parse(mark.name))),
+      SystemMark mark => const Card.filled(child: Icon(CupertinoIcons.add)),
+      _ => const Placeholder()
+    };
+  }
+
   void onReorder(oldIndex, newIndex) {
-    setState(() {
-      if (oldIndex < newIndex) {
-        for (int i = oldIndex; i < newIndex; i++) {
-          marks[i + 1].index--;
-        }
-      } else {
-        for (int i = newIndex; i < oldIndex; i++) {
-          marks[i].index++;
-        }
+    marks[oldIndex].index = marks[newIndex].index;
+    if (oldIndex < newIndex) {
+      for (int i = oldIndex; i < newIndex; i++) {
+        if (marks[i + 1] is CollectionMark) marks[i + 1].index--;
       }
-      marks[oldIndex].index = newIndex;
-    });
+    } else {
+      for (int i = newIndex; i < oldIndex; i++) {
+        if (marks[i] is CollectionMark) marks[i].index++;
+      }
+    }
   }
 
   Widget collectBuilder(int index) {
@@ -175,13 +184,6 @@ class _CollectionPageState extends State<CollectionPage> {
       ),
     );
   }
-}
-
-class CollectionMark {
-  final String name;
-  int index;
-
-  CollectionMark({required this.name, required this.index});
 }
 
 class InputRowDelegate extends SliverPersistentHeaderDelegate {
