@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:ai_vocabulary/model/collection_mark.dart';
+import 'package:ai_vocabulary/widgets/flashcard.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
@@ -126,7 +127,7 @@ class _CollectionPageState extends State<CollectionPage> {
                   (context, animation) => FadeTransition(
                         opacity: CurvedAnimation(
                             parent: animation, curve: Curves.easeOut),
-                        child: collectBuilder(int.parse(removedMark.name)),
+                        child: Flashcard(mark: removedMark),
                       ),
                   duration: Durations.medium1);
             }
@@ -150,8 +151,8 @@ class _CollectionPageState extends State<CollectionPage> {
       CollectionMark mark => ReorderableItemView(
           key: Key(mark.name),
           index: marks.indexOf(bookmark),
-          child: collectBuilder(int.parse(mark.name))),
-      SystemMark mark => const Card.filled(child: Icon(CupertinoIcons.add)),
+          child: Flashcard(mark: mark)),
+      SystemMark _ => const Card.filled(child: Icon(CupertinoIcons.add)),
       _ => const Placeholder()
     };
   }
@@ -167,22 +168,6 @@ class _CollectionPageState extends State<CollectionPage> {
         if (marks[i] is CollectionMark) marks[i].index++;
       }
     }
-  }
-
-  Widget collectBuilder(int index) {
-    return InkWell(
-      onTap: () {},
-      onDoubleTap: () => print('show menu'),
-      customBorder: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(kRadialReactionRadius),
-      ),
-      child: Card(
-        // key: ValueKey(index),
-        color: index.isOdd ? Colors.white : Colors.black12,
-        child: Center(
-            child: Text('$index', textScaler: const TextScaler.linear(5.0))),
-      ),
-    );
   }
 }
 
