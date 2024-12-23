@@ -19,7 +19,7 @@ class CollectionPage extends StatefulWidget {
 
 class _CollectionPageState extends State<CollectionPage> {
   final marks =
-      List<BookMark>.generate(5, (i) => CollectionMark(name: '$i', index: i))
+      List<BookMark>.generate(4, (i) => CollectionMark(name: '$i', index: i))
         ..add(SystemMark(name: 'add', index: 99));
   final textController = TextEditingController();
   final focusNode = FocusNode();
@@ -153,17 +153,23 @@ class _CollectionPageState extends State<CollectionPage> {
       CollectionMark _ => ReorderableItemView(
           key: Key(bookmark.name),
           index: marks.indexOf(bookmark),
-          child: Flashcard(mark: bookmark)),
+          child: Flashcard(
+            mark: bookmark,
+            onRemove: onRemove,
+          )),
       SystemMark _ => bookmark.index > 0
           ? Card.filled(
               child: Center(
                   child: FloatingActionButton.large(
                 onPressed: () {
                   final lastIndex = marks.whereType<CollectionMark>().length;
-                  final count = marks
-                      .whereType<CollectionMark>()
-                      .map((m) => m.name.contains('Repository') ? 1 : 0)
-                      .reduce((v1, v2) => v1 + v2);
+                  var count = 0;
+                  if (lastIndex > 0) {
+                    count = marks
+                        .whereType<CollectionMark>()
+                        .map((m) => m.name.contains('Repository') ? 1 : 0)
+                        .reduce((v1, v2) => v1 + v2);
+                  }
                   final newMark = CollectionMark(
                       name:
                           'Repository${count > 0 ? '$count'.padLeft(2, '0') : ''}',
@@ -203,11 +209,29 @@ class _CollectionPageState extends State<CollectionPage> {
     };
   }
 
+  void onRemove(CollectionMark mark) {
+    final rmIndex = marks.indexOf(mark);
+    final maxIndex = marks
+        .whereType<CollectionMark>()
+        .map((m) => m.index)
+        .reduce((i1, i2) => max(i1, i2));
+    onReorder(rmIndex, marks.indexWhere((m) => m.index == maxIndex));
+    final removedMark = marks.removeAt(rmIndex) as CollectionMark;
+    gridState?.removeItem(
+        rmIndex,
+        (context, animation) => FadeTransition(
+              opacity:
+                  CurvedAnimation(parent: animation, curve: Curves.easeOut),
+              child: Flashcard(mark: removedMark),
+            ),
+        duration: Durations.extralong4);
+  }
+
   void onReorder(oldIndex, newIndex) {
     marks[oldIndex].index = marks[newIndex].index;
     if (oldIndex < newIndex) {
-      for (int i = oldIndex; i < newIndex; i++) {
-        if (marks[i + 1] is CollectionMark) marks[i + 1].index--;
+      for (int i = oldIndex + 1; i <= newIndex; i++) {
+        if (marks[i] is CollectionMark) marks[i].index--;
       }
     } else {
       for (int i = newIndex; i < oldIndex; i++) {

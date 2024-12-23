@@ -7,7 +7,9 @@ import '../utils/shortcut.dart';
 class Flashcard extends StatefulWidget {
   final CollectionMark mark;
   final bool dragEnabled;
-  const Flashcard({super.key, required this.mark, this.dragEnabled = false});
+  final void Function(CollectionMark)? onRemove;
+  const Flashcard(
+      {super.key, required this.mark, this.dragEnabled = false, this.onRemove});
 
   @override
   State<Flashcard> createState() => _FlashcardState();
@@ -15,26 +17,9 @@ class Flashcard extends StatefulWidget {
 
 class _FlashcardState extends State<Flashcard>
     with SingleTickerProviderStateMixin {
-  final focusNode = FocusNode();
-  late final textController = TextEditingController(text: widget.mark.name);
-  var editable = false;
-
-  @override
-  void initState() {
-    super.initState();
-    focusNode.addListener(() {
-      if (!focusNode.hasFocus) {
-        editable = false;
-        widget.mark.name = textController.text;
-        setState(() {});
-      }
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     // final index = int.parse(widget.mark.name);
-    final colorScheme = Theme.of(context).colorScheme;
     return InkWell(
       onTap: () {},
       customBorder: RoundedRectangleBorder(
@@ -43,27 +28,22 @@ class _FlashcardState extends State<Flashcard>
       child: //
           CupertinoContextMenu(
         actions: [
-          CupertinoContextMenuAction(
-              onPressed: !editable
-                  ? () => setState(() {
-                        editable = true;
-                        WidgetsBinding.instance.addPostFrameCallback((_) {
-                          focusNode.requestFocus();
-                        });
-                      })
-                  : null,
-              trailingIcon: CupertinoIcons.pen,
-              child: const Text('Rename')),
+          const CupertinoContextMenuAction(
+              trailingIcon: CupertinoIcons.pen, child: Text('Rename')),
           const CupertinoContextMenuAction(
               trailingIcon: CupertinoIcons.ellipsis_circle,
               child: Text('Edit')),
           ColoredBox(
               color: Theme.of(context).colorScheme.surfaceDim,
               child: const PopupMenuDivider(height: kMenuDividerHeight)),
-          const CupertinoContextMenuAction(
+          CupertinoContextMenuAction(
+              onPressed: () {
+                widget.onRemove?.call(widget.mark);
+                Navigator.of(context).pop();
+              },
               isDestructiveAction: true,
               trailingIcon: CupertinoIcons.xmark_octagon,
-              child: Text('Delete')),
+              child: const Text('Delete')),
         ],
         child: ConstrainedBox(
           constraints: const BoxConstraints(minWidth: 200, minHeight: 200),
@@ -73,63 +53,25 @@ class _FlashcardState extends State<Flashcard>
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: Stack(
                 fit: StackFit.passthrough,
-                // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Align(
                     alignment: Alignment.topLeft,
-                    child: Container(
-                      // color: Colors.green,
-                      child: Icon(
-                        Icons.abc,
-                        size: 24 * 3,
-                        color: DefaultTextStyle.of(context).style.color,
-                      ),
+                    child: Icon(
+                      Icons.abc,
+                      size: 24 * 3,
+                      color: DefaultTextStyle.of(context).style.color,
                     ),
                   ),
                   Align(
                     alignment: Alignment.bottomLeft,
-                    child: //
-                        MediaQuery(
-                      data: const MediaQueryData(
-                          textScaler: TextScaler.linear(2)),
-                      child: Container(
-                        constraints: const BoxConstraints(maxWidth: 200),
-                        child: //
-                            CupertinoTextField.borderless(
-                          // Form(
-                          // onChanged: () =>
-                          //     Form.maybeOf(focusNode.context ?? context)
-                          //         ?.validate(),
-                          // child: CupertinoTextFormFieldRow(
-                          readOnly: !editable,
-                          focusNode: focusNode,
-                          controller: textController,
-                          // validator: (value) {
-                          //   if (value!.isEmpty) return 'Cannot empty name';
-                          //   return null;
-                          // },
-                          // showCursor: editable,
-                          // textInputAction: TextInputAction.done,
-                          padding: EdgeInsets.zero,
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(
-                                  kRadialReactionRadius / 2),
-                              color: editable
-                                  ? colorScheme.surfaceContainerHigh
-                                  : Colors.transparent),
-                          minLines: 1,
-                          maxLines: 2,
-                          style: const TextStyle(fontWeight: FontWeight.w600),
-                        ),
-                      ),
+                    child: Text(
+                      widget.mark.name,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 3,
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                      textScaler: const TextScaler.linear(2),
                     ),
                   )
-                  // Text(widget.mark.name,
-                  //     overflow: TextOverflow.ellipsis,
-                  //     maxLines: 3,
-                  //     style: const TextStyle(fontWeight: FontWeight.w600),
-                  //     textScaler: const TextScaler.linear(2)),
-                  // )//Form
                 ],
               ),
             ),
