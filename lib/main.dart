@@ -73,7 +73,7 @@ class _MyAppState extends State<MyApp> with AppRoute {
             DefaultCupertinoLocalizations.delegate,
           ],
           onGenerateRoute: generateRoute,
-          initialRoute: AppRoute.home,
+          // initialRoute: AppRoute.home,
           home: const CollectionPage(),
           // home: Builder(builder: (context) {
           //   return PlatformScaffold(

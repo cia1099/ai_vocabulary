@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 
 import 'package:azlistview/azlistview.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
 import '../app_route.dart';
@@ -82,54 +83,56 @@ class _AlphabetListTabState extends State<AlphabetListTab> {
       });
     }
     final colorScheme = Theme.of(context).colorScheme;
-    return Column(
-      children: [
+    return NestedScrollView(
+      headerSliverBuilder: (context, innerBoxIsScrolled) => [
         FutureBuilder(
           future: futureContacts,
-          builder: (context, snapshot) => FilterInputBar(
-            enabled: snapshot.connectionState != ConnectionState.waiting,
-            padding: const EdgeInsets.only(bottom: 4, left: 8, right: 8),
-            backgroundColor: colorScheme.primaryContainer,
-            hintText: 'Which word',
-            controller: textController,
-            onChanged: (name) => filterName(name),
-          ),
-        ),
-        Expanded(
-          child: LayoutBuilder(
-            builder: (context, constraints) => AzListView(
-              // physics: const BouncingScrollPhysics(),
-              data: azContacts,
-              itemCount: azContacts.length,
-              itemBuilder: (context, index) =>
-                  _buildAzListItem(azContacts[index]),
-              susItemHeight: 35,
-              susItemBuilder: (context, index) {
-                final textTheme = Theme.of(context).textTheme;
-                final tag = azContacts[index].getSuspensionTag();
-                return Container(
-                    alignment: Alignment.centerLeft,
-                    height: 35,
-                    color: colorScheme.surfaceContainerHigh,
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 16),
-                      child: Text(tag, style: textTheme.titleLarge!
-                          // ..copyWith(fontWeight: FontWeight.bold),
-                          ),
-                    ));
-              },
-              indexBarItemHeight: (constraints.maxHeight - 32) / 26,
-              indexBarData:
-                  azContacts.map((e) => e.getSuspensionTag()).toSet().toList(),
-              // List.generate(26, (index) => String.fromCharCode(index + 65)),
-              indexBarOptions: IndexBarOptions(
-                  textStyle: TextStyle(
-                color: colorScheme.primary,
-              )),
+          builder: (context, snapshot) => SliverResizingHeader(
+            minExtentPrototype: const SizedBox.shrink(),
+            maxExtentPrototype: SizedBox.fromSize(
+                size: const Size.fromHeight(kTextTabBarHeight)),
+            child: FilterInputBar(
+              enabled: snapshot.connectionState != ConnectionState.waiting,
+              padding: const EdgeInsets.only(bottom: 4, left: 8, right: 8),
+              backgroundColor: colorScheme.primaryContainer,
+              hintText: 'Which word',
+              controller: textController,
+              onChanged: (name) => filterName(name),
             ),
           ),
         ),
       ],
+      body: LayoutBuilder(
+        builder: (context, constraints) => AzListView(
+          // physics: const BouncingScrollPhysics(),
+          data: azContacts,
+          itemCount: azContacts.length,
+          itemBuilder: (context, index) => _buildAzListItem(azContacts[index]),
+          susItemHeight: 35,
+          susItemBuilder: (context, index) {
+            final textTheme = Theme.of(context).textTheme;
+            final tag = azContacts[index].getSuspensionTag();
+            return Container(
+                alignment: Alignment.centerLeft,
+                height: 35,
+                color: colorScheme.surfaceContainerHigh,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 16),
+                  child: Text(tag, style: textTheme.titleLarge!
+                      // ..copyWith(fontWeight: FontWeight.bold),
+                      ),
+                ));
+          },
+          indexBarItemHeight: (constraints.maxHeight - 32) / 26,
+          indexBarData:
+              azContacts.map((e) => e.getSuspensionTag()).toSet().toList(),
+          // List.generate(26, (index) => String.fromCharCode(index + 65)),
+          indexBarOptions: IndexBarOptions(
+              textStyle: TextStyle(
+            color: colorScheme.primary,
+          )),
+        ),
+      ),
     );
   }
 

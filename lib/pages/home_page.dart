@@ -2,6 +2,7 @@ import 'package:ai_vocabulary/widgets/imagen_dialog.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
+import 'package:lottie/lottie.dart';
 import 'package:text2speech/text2speech.dart';
 
 import '../bottom_sheet/retrieval_bottom_sheet.dart';
@@ -118,6 +119,10 @@ class _HomePageState extends State<HomePage> {
                                   color: colorScheme.primary
                                       .withOpacity(_index == index ? 1 : .4))),
                           child: bottomItems[index].icon),
+                      // _index == index
+                      //     ? Expanded(
+                      //         child: Lottie.asset('assets/lottie/chart.json'))
+                      //     : bottomItems[index].icon,
                       Text(
                         '${bottomItems[index].label}',
                         style: TextStyle(

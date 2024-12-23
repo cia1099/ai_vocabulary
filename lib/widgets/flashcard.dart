@@ -15,9 +15,26 @@ class Flashcard extends StatefulWidget {
 
 class _FlashcardState extends State<Flashcard>
     with SingleTickerProviderStateMixin {
+  final focusNode = FocusNode();
+  late final textController = TextEditingController(text: widget.mark.name);
+  var editable = false;
+
+  @override
+  void initState() {
+    super.initState();
+    focusNode.addListener(() {
+      if (!focusNode.hasFocus) {
+        editable = false;
+        widget.mark.name = textController.text;
+        setState(() {});
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     // final index = int.parse(widget.mark.name);
+    final colorScheme = Theme.of(context).colorScheme;
     return InkWell(
       onTap: () {},
       customBorder: RoundedRectangleBorder(
@@ -26,8 +43,17 @@ class _FlashcardState extends State<Flashcard>
       child: //
           CupertinoContextMenu(
         actions: [
-          const CupertinoContextMenuAction(
-              trailingIcon: CupertinoIcons.pen, child: Text('Rename')),
+          CupertinoContextMenuAction(
+              onPressed: !editable
+                  ? () => setState(() {
+                        editable = true;
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          focusNode.requestFocus();
+                        });
+                      })
+                  : null,
+              trailingIcon: CupertinoIcons.pen,
+              child: const Text('Rename')),
           const CupertinoContextMenuAction(
               trailingIcon: CupertinoIcons.ellipsis_circle,
               child: Text('Edit')),
@@ -47,21 +73,63 @@ class _FlashcardState extends State<Flashcard>
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: Stack(
                 fit: StackFit.passthrough,
+                // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Align(
+                  Align(
                     alignment: Alignment.topLeft,
-                    child: Icon(Icons.abc, size: 24 * 3),
+                    child: Container(
+                      // color: Colors.green,
+                      child: Icon(
+                        Icons.abc,
+                        size: 24 * 3,
+                        color: DefaultTextStyle.of(context).style.color,
+                      ),
+                    ),
                   ),
                   Align(
                     alignment: Alignment.bottomLeft,
-                    child: Text(
-                      widget.mark.name,
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 3,
-                      style: const TextStyle(fontWeight: FontWeight.w600),
-                      textScaler: const TextScaler.linear(2),
+                    child: //
+                        MediaQuery(
+                      data: const MediaQueryData(
+                          textScaler: TextScaler.linear(2)),
+                      child: Container(
+                        constraints: const BoxConstraints(maxWidth: 200),
+                        child: //
+                            CupertinoTextField.borderless(
+                          // Form(
+                          // onChanged: () =>
+                          //     Form.maybeOf(focusNode.context ?? context)
+                          //         ?.validate(),
+                          // child: CupertinoTextFormFieldRow(
+                          readOnly: !editable,
+                          focusNode: focusNode,
+                          controller: textController,
+                          // validator: (value) {
+                          //   if (value!.isEmpty) return 'Cannot empty name';
+                          //   return null;
+                          // },
+                          // showCursor: editable,
+                          // textInputAction: TextInputAction.done,
+                          padding: EdgeInsets.zero,
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(
+                                  kRadialReactionRadius / 2),
+                              color: editable
+                                  ? colorScheme.surfaceContainerHigh
+                                  : Colors.transparent),
+                          minLines: 1,
+                          maxLines: 2,
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                      ),
                     ),
                   )
+                  // Text(widget.mark.name,
+                  //     overflow: TextOverflow.ellipsis,
+                  //     maxLines: 3,
+                  //     style: const TextStyle(fontWeight: FontWeight.w600),
+                  //     textScaler: const TextScaler.linear(2)),
+                  // )//Form
                 ],
               ),
             ),

@@ -37,6 +37,9 @@ class _FilterInputBarState extends State<FilterInputBar> {
         final hPadding = widget.padding == null
             ? .0
             : (widget.padding!.left + widget.padding!.right);
+        final vPadding = widget.padding == null
+            ? .0
+            : (widget.padding!.top + widget.padding!.bottom);
         return Container(
           color: widget.backgroundColor,
           padding: widget.padding,
@@ -50,7 +53,8 @@ class _FilterInputBarState extends State<FilterInputBar> {
                   width: constraints.maxWidth -
                       hPadding -
                       (focus.hasFocus ? 64 : 0),
-                  height: kTextTabBarHeight,
+                  height: (constraints.maxHeight - vPadding)
+                      .clamp(.0, double.infinity),
                   decoration: BoxDecoration(
                       color: colorScheme.onInverseSurface,
                       borderRadius:
@@ -82,7 +86,8 @@ class _FilterInputBarState extends State<FilterInputBar> {
                   duration: Durations.short4,
                   child: SizedBox(
                     width: focus.hasFocus ? 64 : 0,
-                    height: kTextTabBarHeight,
+                    height: (constraints.maxHeight - vPadding)
+                        .clamp(.0, double.maxFinite),
                     child: PlatformTextButton(
                         padding: EdgeInsets.zero,
                         onPressed: () {

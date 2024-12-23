@@ -81,7 +81,7 @@ class _CollectionPageState extends State<CollectionPage> {
             SliverPadding(
               padding: EdgeInsets.symmetric(horizontal: hPadding),
               sliver: ReorderableWrapperWidget(
-                  // dragEnabled: false,
+                  dragEnabled: false,
                   onReorder: (oldIndex, newIndex) => setState(() {
                         onReorder(oldIndex, newIndex);
                       }),
