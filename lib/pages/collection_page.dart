@@ -5,6 +5,7 @@ import 'package:ai_vocabulary/widgets/flashcard.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
+import 'package:lottie/lottie.dart';
 import 'package:reorderable_grid_view/reorderable_grid_view.dart';
 
 import '../widgets/filter_input_bar.dart';
@@ -24,13 +25,14 @@ class _CollectionPageState extends State<CollectionPage> {
   final focusNode = FocusNode();
   final gridKey = GlobalKey<SliverAnimatedGridState>();
   var destroy = false;
+  SliverAnimatedGridState? get gridState => gridKey.currentState;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      gridKey.currentState
-          ?.insertAllItems(0, marks.length, duration: Durations.extralong4);
+      gridState?.insertAllItems(0, marks.length,
+          duration: Durations.extralong4);
     });
   }
 
@@ -148,11 +150,55 @@ class _CollectionPageState extends State<CollectionPage> {
 
   Widget buildBookmark(BookMark bookmark) {
     return switch (bookmark) {
-      CollectionMark mark => ReorderableItemView(
-          key: Key(mark.name),
+      CollectionMark _ => ReorderableItemView(
+          key: Key(bookmark.name),
           index: marks.indexOf(bookmark),
-          child: Flashcard(mark: mark)),
-      SystemMark _ => const Card.filled(child: Icon(CupertinoIcons.add)),
+          child: Flashcard(mark: bookmark)),
+      SystemMark _ => bookmark.index > 0
+          ? Card.filled(
+              child: Center(
+                  child: FloatingActionButton.large(
+                onPressed: () {
+                  final lastIndex = marks.whereType<CollectionMark>().length;
+                  final count = marks
+                      .whereType<CollectionMark>()
+                      .map((m) => m.name.contains('Repository') ? 1 : 0)
+                      .reduce((v1, v2) => v1 + v2);
+                  final newMark = CollectionMark(
+                      name:
+                          'Repository${count > 0 ? '$count'.padLeft(2, '0') : ''}',
+                      index: lastIndex);
+                  marks.insert(lastIndex, newMark);
+                  gridState?.insertItem(lastIndex,
+                      duration: Durations.extralong1);
+                },
+                elevation: 2,
+                shape: const CircleBorder(),
+                child: const Icon(CupertinoIcons.add),
+              )),
+            )
+          : InkWell(
+              onTap: () {},
+              child: Card.filled(
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: Lottie.asset(
+                        'assets/lottie/favorite.json',
+                        repeat: false,
+                      ),
+                    ),
+                    const Text(
+                      'Uncategorized',
+                      style: TextStyle(
+                          // backgroundColor: Colors.green,
+                          fontWeight: FontWeight.w600),
+                      textScaler: TextScaler.linear(1.6),
+                    )
+                  ],
+                ),
+              ),
+            ),
       _ => const Placeholder()
     };
   }

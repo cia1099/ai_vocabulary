@@ -1,5 +1,5 @@
 abstract class BookMark {
-  final String name;
+  String name;
   int index;
 
   BookMark({required this.name, this.index = -1});
