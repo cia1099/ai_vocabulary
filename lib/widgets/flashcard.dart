@@ -69,38 +69,37 @@ class _FlashcardState extends State<Flashcard>
   }
 
   List<Widget> contextActions() {
+    final colorScheme = Theme.of(context).colorScheme;
     return [
       CupertinoContextMenuAction(
           onPressed: () {
             Navigator.of(context).pop();
-            final editName = ValueNotifier(widget.mark.name);
+            final editName = TextEditingController(text: widget.mark.name);
             showCupertinoModalPopup(
               context: context,
               builder: (context) => PlatformAlertDialog(
                 title: const Text('Rename the mark'),
                 content: Form(
+                    onChanged: () {
+                      Form.maybeOf(primaryFocus!.context!)?.validate();
+                    },
                     child: CupertinoTextFormFieldRow(
-                  validator: (value) {
-                    if (value == null || value.isEmpty)
-                      return 'The mark cannot be empty';
-                    return null;
-                  },
-                  onChanged: (value) {
-                    editName.value = value;
-                    Form.maybeOf(primaryFocus!.context!)?.validate();
-                  },
-                  autofocus: true,
-                  initialValue: editName.value,
-                  minLines: 1,
-                  maxLines: 3,
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surfaceDim,
-                    borderRadius:
-                        BorderRadius.circular(kRadialReactionRadius / 2),
-                    border: Border.all(
-                        color: Theme.of(context).colorScheme.outline),
-                  ),
-                )),
+                      validator: (value) {
+                        if (value == null || value.isEmpty)
+                          return 'Mark cannot be anonymous';
+                        return null;
+                      },
+                      controller: editName,
+                      autofocus: true,
+                      minLines: 1,
+                      maxLines: 3,
+                      decoration: BoxDecoration(
+                        color: colorScheme.surfaceDim,
+                        borderRadius:
+                            BorderRadius.circular(kRadialReactionRadius / 2),
+                        border: Border.all(color: colorScheme.outline),
+                      ),
+                    )),
                 actions: [
                   PlatformDialogAction(
                     onPressed: Navigator.of(context).pop,
@@ -109,12 +108,12 @@ class _FlashcardState extends State<Flashcard>
                   ListenableBuilder(
                     listenable: editName,
                     builder: (context, child) => PlatformDialogAction(
-                      onPressed: editName.value.isEmpty
+                      onPressed: editName.text.isEmpty
                           ? null
                           : () {
                               Navigator.of(context).pop();
                               setState(() {
-                                widget.mark.name = editName.value;
+                                widget.mark.name = editName.text;
                               });
                             },
                       child: child,
@@ -130,7 +129,7 @@ class _FlashcardState extends State<Flashcard>
       const CupertinoContextMenuAction(
           trailingIcon: CupertinoIcons.ellipsis_circle, child: Text('Edit')),
       ColoredBox(
-          color: Theme.of(context).colorScheme.surfaceDim,
+          color: colorScheme.surfaceDim,
           child: const PopupMenuDivider(height: kMenuDividerHeight)),
       CupertinoContextMenuAction(
           onPressed: () {

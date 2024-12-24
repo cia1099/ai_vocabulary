@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:ai_vocabulary/model/collection_mark.dart';
@@ -19,18 +20,25 @@ class CollectionPage extends StatefulWidget {
 }
 
 class _CollectionPageState extends State<CollectionPage> {
-  final marks =
-      List<BookMark>.generate(4, (i) => CollectionMark(name: '$i', index: i))
-        ..add(SystemMark(name: 'add', index: kMaxInt64));
+  late List<BookMark> marks = fetchDB;
+
   final textController = TextEditingController();
   final focusNode = FocusNode();
   final gridKey = GlobalKey<SliverAnimatedGridState>();
+  var preventQuicklyChanged = Timer(Duration.zero, () {});
   var destroy = false;
   SliverAnimatedGridState? get gridState => gridKey.currentState;
+  List<BookMark> get fetchDB => List<BookMark>.generate(
+      4, (i) => CollectionMark(name: '${i & 1}$i', index: i));
+  List<BookMark> get systemMark => [
+        SystemMark(name: 'add', index: kMaxInt64),
+        SystemMark(name: 'uncategory', index: -1)
+      ];
 
   @override
   void initState() {
     super.initState();
+    marks.addAll(systemMark);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       gridState?.insertAllItems(0, marks.length,
           duration: Durations.extralong4);
@@ -42,7 +50,7 @@ class _CollectionPageState extends State<CollectionPage> {
     final hPadding = MediaQuery.of(context).size.width / 32;
     final colorScheme = Theme.of(context).colorScheme;
     marks.sort((a, b) => a.index.compareTo(b.index));
-    return Scaffold(
+    return PlatformScaffold(
       body: SafeArea(
         top: false,
         child: CustomScrollView(
@@ -70,19 +78,24 @@ class _CollectionPageState extends State<CollectionPage> {
                 context: context,
                 focusNode: focusNode,
                 child: FilterInputBar(
+                  padding: EdgeInsets.only(
+                      left: hPadding, right: hPadding, bottom: 10),
                   focusNode: focusNode,
                   controller: textController,
                   backgroundColor: colorScheme.surfaceDim.withOpacity(.8),
                   hintText: 'find it',
-                  padding: EdgeInsets.only(
-                      left: hPadding, right: hPadding, bottom: 10),
+                  onChanged: (p0) {
+                    preventQuicklyChanged.cancel();
+                    preventQuicklyChanged =
+                        Timer(Durations.medium4, () => filterMark(p0));
+                  },
                 ),
               ),
             ),
             SliverPadding(
               padding: EdgeInsets.symmetric(horizontal: hPadding),
               sliver: ReorderableWrapperWidget(
-                  dragEnabled: false,
+                  // dragEnabled: false,
                   onReorder: (oldIndex, newIndex) => setState(() {
                         onReorder(oldIndex, newIndex);
                       }),
@@ -104,59 +117,56 @@ class _CollectionPageState extends State<CollectionPage> {
                     itemBuilder: (context, index, animation) => ScaleTransition(
                         scale: CurvedAnimation(
                             parent: animation, curve: Curves.bounceOut),
-                        child: buildBookmark(marks[index])),
-                    // initialItemCount: marks.length + 1,
+                        child:
+                            buildBookmark(marks[index], textController.text)),
                   )),
             ),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            destroy ^= true;
-            final gridState = gridKey.currentState!;
-            // if (destroy) {
-            // gridState.removeAllItems(
-            //   (context, animation) => FadeTransition(
-            //     opacity:
-            //         CurvedAnimation(parent: animation, curve: Curves.easeOut),
-            //     child: const Card(child: Placeholder()),
-            //   ),
-            // );
-            for (final removedMark in marks) {
-              if (removedMark is! CollectionMark) continue;
-              gridState.removeItem(
-                  0,
-                  (context, animation) => FadeTransition(
-                        opacity: CurvedAnimation(
-                            parent: animation, curve: Curves.easeOut),
-                        child: Flashcard(mark: removedMark),
-                      ),
-                  duration: Durations.medium1);
-            }
-            marks.removeWhere((m) => m is CollectionMark);
-            Future.delayed(Durations.medium1, () {
-              marks.insertAll(
-                  0,
-                  List.generate(Random().nextInt(4),
-                      (i) => CollectionMark(name: '$i', index: i)));
-              gridState.insertAllItems(
-                  0, marks.whereType<CollectionMark>().length,
-                  duration: Durations.extralong1);
-            });
-          },
-          child: const Icon(CupertinoIcons.minus_circled)),
     );
   }
 
-  Widget buildBookmark(BookMark bookmark) {
+  void filterMark(String query) {
+    if (query.isEmpty && marks.whereType<SystemMark>().isNotEmpty) return;
+    final queryMarks = fetchDB.where((m) => m.name.contains(query));
+    for (final removedMark in marks) {
+      gridState?.removeItem(
+          0,
+          (context, animation) => FadeTransition(
+                opacity:
+                    CurvedAnimation(parent: animation, curve: Curves.easeOut),
+                child: buildBookmark(removedMark),
+              ),
+          duration: Durations.short4);
+    }
+    Future.delayed(Durations.short4, () {
+      marks = queryMarks.toList();
+      if (query.isEmpty && marks.whereType<SystemMark>().isEmpty) {
+        marks.addAll(systemMark);
+      }
+      marks.sort((a, b) => a.index.compareTo(b.index));
+      gridState?.insertAllItems(0, marks.length, duration: Durations.long1);
+      // setState(() {
+      //   // If we don't use setState to sort marks,
+      //   // we need to explicit sort mark and then
+      //   // the call of gridState?.insertAllItems() can
+      //   // be directly called, no WidgetsBinding wrap.
+      //     gridState?.insertAllItems(0, marks.length, duration: Durations.long1);
+      //   WidgetsBinding.instance.addPostFrameCallback((_) {
+      //   });
+      // });
+    });
+  }
+
+  Widget buildBookmark(BookMark bookmark, [String filter = '']) {
     return switch (bookmark) {
       CollectionMark _ => ReorderableItemView(
           key: Key(bookmark.name),
           index: marks.indexOf(bookmark),
           child: Flashcard(
             mark: bookmark,
-            filter: textController.text,
+            filter: filter,
             onRemove: onRemove,
           )),
       SystemMark _ => bookmark.index > 0
@@ -263,21 +273,6 @@ class InputRowDelegate extends SliverPersistentHeaderDelegate {
   @override
   Widget build(
       BuildContext context, double shrinkOffset, bool overlapsContent) {
-    // final padding = MediaQuery.paddingOf(context);
-    // return Transform.translate(
-    //     offset: Offset(
-    //         0,
-    //         overlapsContent
-    //             ? (Platform.isIOS
-    //                     ? kMinInteractiveDimensionCupertino
-    //                     : kMinInteractiveDimension) +
-    //                 padding.top
-    //             : 0),
-    //     child: ConstrainedBox(
-    //       constraints: BoxConstraints(maxHeight: maxExtent),
-    //       child: child,
-    //     ));
-    // return child;
     // print('shirnk = $shrinkOffset, overlap = $overlapsContent');
     if (overlapsContent && !focusNode.hasFocus)
       return SizedBox.fromSize(size: Size.fromHeight(maxExtent - shrinkOffset));
