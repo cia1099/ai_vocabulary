@@ -2,7 +2,6 @@ import 'package:ai_vocabulary/widgets/imagen_dialog.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
-import 'package:lottie/lottie.dart';
 import 'package:text2speech/text2speech.dart';
 
 import '../bottom_sheet/retrieval_bottom_sheet.dart';
@@ -145,6 +144,7 @@ class _HomePageState extends State<HomePage> {
               })),
         ),
       ),
+      resizeToAvoidBottomInset: false,
       floatingActionButton: FloatingActionButton(
         onPressed: () {},
         shape: const CircleBorder(),

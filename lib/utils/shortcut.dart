@@ -13,6 +13,7 @@ const kAppBarPadding = 10.0;
 const kMaxAcquaintance = 5;
 const kRemindLength = 7;
 const kMenuDividerHeight = 8.0;
+const kMaxInt64 = 9223372036854775807;
 
 String speechShortcut(String partOfSpeech, {int length = 0}) {
   final shortcut =

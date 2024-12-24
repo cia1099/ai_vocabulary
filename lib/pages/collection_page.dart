@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:ai_vocabulary/model/collection_mark.dart';
+import 'package:ai_vocabulary/utils/shortcut.dart';
 import 'package:ai_vocabulary/widgets/flashcard.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -20,7 +21,7 @@ class CollectionPage extends StatefulWidget {
 class _CollectionPageState extends State<CollectionPage> {
   final marks =
       List<BookMark>.generate(4, (i) => CollectionMark(name: '$i', index: i))
-        ..add(SystemMark(name: 'add', index: 99));
+        ..add(SystemMark(name: 'add', index: kMaxInt64));
   final textController = TextEditingController();
   final focusNode = FocusNode();
   final gridKey = GlobalKey<SliverAnimatedGridState>();
@@ -155,6 +156,7 @@ class _CollectionPageState extends State<CollectionPage> {
           index: marks.indexOf(bookmark),
           child: Flashcard(
             mark: bookmark,
+            filter: textController.text,
             onRemove: onRemove,
           )),
       SystemMark _ => bookmark.index > 0
@@ -162,9 +164,9 @@ class _CollectionPageState extends State<CollectionPage> {
               child: Center(
                   child: FloatingActionButton.large(
                 onPressed: () {
-                  final lastIndex = marks.whereType<CollectionMark>().length;
+                  final insertIndex = marks.length - 1;
                   var count = 0;
-                  if (lastIndex > 0) {
+                  if (marks.whereType<CollectionMark>().isNotEmpty) {
                     count = marks
                         .whereType<CollectionMark>()
                         .map((m) => m.name.contains('Repository') ? 1 : 0)
@@ -173,9 +175,9 @@ class _CollectionPageState extends State<CollectionPage> {
                   final newMark = CollectionMark(
                       name:
                           'Repository${count > 0 ? '$count'.padLeft(2, '0') : ''}',
-                      index: lastIndex);
-                  marks.insert(lastIndex, newMark);
-                  gridState?.insertItem(lastIndex,
+                      index: insertIndex);
+                  marks.insert(insertIndex, newMark);
+                  gridState?.insertItem(insertIndex,
                       duration: Durations.extralong1);
                 },
                 elevation: 2,

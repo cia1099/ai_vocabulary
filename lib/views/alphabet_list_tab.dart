@@ -90,7 +90,7 @@ class _AlphabetListTabState extends State<AlphabetListTab> {
           builder: (context, snapshot) => SliverResizingHeader(
             minExtentPrototype: const SizedBox.shrink(),
             maxExtentPrototype: SizedBox.fromSize(
-                size: const Size.fromHeight(kTextTabBarHeight)),
+                size: const Size.fromHeight(kTextTabBarHeight + 4)),
             child: FilterInputBar(
               enabled: snapshot.connectionState != ConnectionState.waiting,
               padding: const EdgeInsets.only(bottom: 4, left: 8, right: 8),
@@ -123,7 +123,8 @@ class _AlphabetListTabState extends State<AlphabetListTab> {
                       ),
                 ));
           },
-          indexBarItemHeight: (constraints.maxHeight - 32) / 26,
+          indexBarItemHeight:
+              (constraints.maxHeight - kBottomNavigationBarHeight) / 26,
           indexBarData:
               azContacts.map((e) => e.getSuspensionTag()).toSet().toList(),
           // List.generate(26, (index) => String.fromCharCode(index + 65)),
