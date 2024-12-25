@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:ai_vocabulary/model/collection_mark.dart';
 import 'package:ai_vocabulary/utils/regex.dart';
 import 'package:flutter/cupertino.dart';
@@ -11,6 +13,7 @@ class Flashcard extends StatefulWidget {
   final String filter;
   final bool dragEnabled;
   final void Function(CollectionMark)? onRemove;
+
   const Flashcard(
       {super.key,
       required this.mark,
@@ -24,37 +27,54 @@ class Flashcard extends StatefulWidget {
 
 class _FlashcardState extends State<Flashcard>
     with SingleTickerProviderStateMixin {
+  late final controller =
+      AnimationController(vsync: this, duration: Durations.short3, value: .5);
+  @override
+  void dispose() {
+    controller.isAnimating ? controller.stop() : null;
+    controller.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    // final index = int.parse(widget.mark.name);
+    if (widget.dragEnabled) {
+      startShaking();
+    } else {
+      stopShaking();
+    }
     return AbsorbPointer(
       absorbing: widget.onRemove == null, // || widget.dragEnabled,
       child: CupertinoContextMenu(
         actions: contextActions(),
         child: ConstrainedBox(
           constraints: const BoxConstraints(minWidth: 200, minHeight: 200),
-          child: Card(
-            // color: index.isOdd ? Colors.white : Colors.black12,
-            child: InkWell(
-              onTap: () => print('tap inner'),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: Stack(
-                  fit: StackFit.passthrough,
-                  children: [
-                    Align(
-                      alignment: Alignment.topLeft,
-                      child: Icon(
-                        Icons.abc,
-                        size: 24 * 3,
-                        color: DefaultTextStyle.of(context).style.color,
+          child: RotationTransition(
+            turns: Tween<double>(begin: -pi / 512, end: pi / 512)
+                .animate(controller),
+            child: Card(
+              // color: index.isOdd ? Colors.white : Colors.black12,
+              child: InkWell(
+                onTap: widget.dragEnabled ? null : () => print('tap inner'),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Stack(
+                    fit: StackFit.passthrough,
+                    children: [
+                      Align(
+                        alignment: Alignment.topLeft,
+                        child: Icon(
+                          Icons.abc,
+                          size: 24 * 3,
+                          color: DefaultTextStyle.of(context).style.color,
+                        ),
                       ),
-                    ),
-                    Align(
-                      alignment: Alignment.bottomLeft,
-                      child: matchFilterText(widget.mark.name),
-                    )
-                  ],
+                      Align(
+                        alignment: Alignment.bottomLeft,
+                        child: matchFilterText(widget.mark.name),
+                      )
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -171,5 +191,16 @@ class _FlashcardState extends State<Flashcard>
       textScaler: const TextScaler.linear(2),
       style: const TextStyle(fontWeight: FontWeight.w600),
     );
+  }
+
+  void stopShaking() {
+    controller.stop();
+    controller.value = .5;
+  }
+
+  void startShaking() {
+    Future.delayed(Duration(milliseconds: Random().nextInt(150)), () {
+      controller.repeat(reverse: true);
+    });
   }
 }

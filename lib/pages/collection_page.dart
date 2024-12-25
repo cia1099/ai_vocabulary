@@ -35,7 +35,7 @@ class _CollectionPageState extends State<CollectionPage> {
       4, (i) => CollectionMark(name: '${i & 1}$i', index: i));
   List<BookMark> get systemMark => [
         SystemMark(name: 'add', index: kMaxInt64),
-        SystemMark(name: 'uncategory', index: -1)
+        SystemMark(name: 'Uncategorized', index: -1)
       ];
 
   @override
@@ -278,7 +278,7 @@ class _CollectionPageState extends State<CollectionPage> {
   List<Widget> actions() {
     return [
       PlatformIconButton(
-        onPressed: flipReverseOrder,
+        onPressed: dragEnabled ? null : flipReverseOrder,
         icon: const Icon(CupertinoIcons.arrow_2_squarepath),
         padding: EdgeInsets.zero,
         material: (_, __) => MaterialIconButtonData(
@@ -324,11 +324,11 @@ class _CollectionPageState extends State<CollectionPage> {
     marks[oldIndex].index = marks[newIndex].index;
     if (oldIndex < newIndex) {
       for (int i = oldIndex + 1; i <= newIndex; i++) {
-        if (marks[i] is CollectionMark) marks[i].index--;
+        if (marks[i] is CollectionMark) marks[i].index -= reverse;
       }
     } else {
       for (int i = newIndex; i < oldIndex; i++) {
-        if (marks[i] is CollectionMark) marks[i].index++;
+        if (marks[i] is CollectionMark) marks[i].index += reverse;
       }
     }
   }
