@@ -28,7 +28,7 @@ class _CollectionPageState extends State<CollectionPage> {
   final gridKey = GlobalKey<SliverAnimatedGridState>();
   Timer? preventQuicklyChanged;
   var reverse = 1;
-  var onFlip = false;
+  var onFlip = false, dragEnabled = false;
 
   SliverAnimatedGridState? get gridState => gridKey.currentState;
   List<BookMark> get fetchDB => List<BookMark>.generate(
@@ -53,7 +53,7 @@ class _CollectionPageState extends State<CollectionPage> {
     final hPadding = MediaQuery.of(context).size.width / 32;
     final colorScheme = Theme.of(context).colorScheme;
     marks.sort((a, b) => a.index.compareTo(b.index) * reverse);
-    return Scaffold(
+    return PlatformScaffold(
       body: SafeArea(
         top: false,
         child: CustomScrollView(
@@ -64,6 +64,7 @@ class _CollectionPageState extends State<CollectionPage> {
               backgroundColor: colorScheme.surfaceDim.withOpacity(.8),
               material: (_, __) => MaterialSliverAppBarData(
                   pinned: true,
+                  actions: actions(),
                   flexibleSpace: const FlexibleSpaceBar(
                     stretchModes: [
                       StretchMode.zoomBackground,
@@ -72,7 +73,11 @@ class _CollectionPageState extends State<CollectionPage> {
                     ],
                     background: FlutterLogo(),
                   )),
-              // cupertino: (_, __) => CupertinoSliverAppBarData(),
+              cupertino: (_, __) => CupertinoSliverAppBarData(
+                  trailing: Wrap(
+                spacing: 4,
+                children: actions(),
+              )),
             ),
             SliverPersistentHeader(
               pinned: true,
@@ -98,15 +103,15 @@ class _CollectionPageState extends State<CollectionPage> {
             SliverPadding(
               padding: EdgeInsets.symmetric(horizontal: hPadding),
               sliver: ReorderableWrapperWidget(
-                  dragEnabled: false,
+                  dragEnabled: dragEnabled,
                   onReorder: (oldIndex, newIndex) => setState(() {
                         onReorder(oldIndex, newIndex);
                       }),
                   isSliver: true,
                   dragWidgetBuilder: DragWidgetBuilderV2(
-                      builder: (index, child, screenshot) => Material(
+                      builder: (index, child, screenshot) => PhysicalModel(
                           color: colorScheme.primary,
-                          elevation: 4,
+                          elevation: 8,
                           borderRadius:
                               BorderRadius.circular(kRadialReactionRadius),
                           child: child)),
@@ -119,7 +124,7 @@ class _CollectionPageState extends State<CollectionPage> {
                     ),
                     itemBuilder: (context, index, animation) => onFlip
                         ? MatrixTransition(
-                            animation: FlipXAngleTween().animate(animation),
+                            animation: SineTween().animate(animation),
                             onTransform: (angle) => Matrix4.rotationY(angle),
                             child: buildBookmark(
                                 marks[index], textController.text))
@@ -133,9 +138,6 @@ class _CollectionPageState extends State<CollectionPage> {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-          onPressed: flipReverseOrder,
-          child: const Icon(CupertinoIcons.repeat)),
     );
   }
 
@@ -180,6 +182,7 @@ class _CollectionPageState extends State<CollectionPage> {
   }
 
   void flipReverseOrder() {
+    preventQuicklyChanged?.cancel();
     setState(() {
       onFlip = true;
     });
@@ -188,7 +191,7 @@ class _CollectionPageState extends State<CollectionPage> {
       gridState?.removeItem(
           0,
           (context, animation) => ValueListenableBuilder(
-                valueListenable: FlipXAngleTween().animate(animation),
+                valueListenable: SineTween().animate(animation),
                 builder: (context, value, child) => Transform(
                   transform: Matrix4.rotationY(value),
                   alignment: const Alignment(0, 0),
@@ -201,7 +204,7 @@ class _CollectionPageState extends State<CollectionPage> {
     Timer(Durations.short4, () {
       marks.sort((a, b) => a.index.compareTo(b.index) * reverse);
       gridState?.insertAllItems(0, marks.length, duration: Durations.long1);
-      Future.delayed(Durations.long2, () {
+      preventQuicklyChanged = Timer(Durations.long2, () {
         setState(() {
           onFlip = false;
         });
@@ -218,14 +221,14 @@ class _CollectionPageState extends State<CollectionPage> {
             mark: bookmark,
             filter: filter,
             onRemove: onRemove,
+            dragEnabled: dragEnabled,
           )),
       SystemMark _ => bookmark.index > 0
           ? Card.filled(
               child: Center(
                   child: FloatingActionButton.large(
                 onPressed: () {
-                  final insertIndex =
-                      marks.indexOf(bookmark) + (reverse < 0 ? 1 : 0);
+                  final insertIndex = reverse < 0 ? 1 : marks.length - 1;
                   var count = 0;
                   if (marks.whereType<CollectionMark>().isNotEmpty) {
                     count = marks
@@ -270,6 +273,33 @@ class _CollectionPageState extends State<CollectionPage> {
             ),
       _ => const Placeholder()
     };
+  }
+
+  List<Widget> actions() {
+    return [
+      PlatformIconButton(
+        onPressed: flipReverseOrder,
+        icon: const Icon(CupertinoIcons.arrow_2_squarepath),
+        padding: EdgeInsets.zero,
+        material: (_, __) => MaterialIconButtonData(
+          style: IconButton.styleFrom(
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          ),
+        ),
+      ),
+      PlatformTextButton(
+        onPressed: () => setState(() {
+          dragEnabled ^= true;
+        }),
+        padding: EdgeInsets.zero,
+        material: (_, __) => MaterialTextButtonData(
+          style: TextButton.styleFrom(
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          ),
+        ),
+        child: Text(dragEnabled ? 'Done' : 'Revise'),
+      )
+    ];
   }
 
   void onRemove(CollectionMark mark) {

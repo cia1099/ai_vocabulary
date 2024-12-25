@@ -28,7 +28,7 @@ class _FlashcardState extends State<Flashcard>
   Widget build(BuildContext context) {
     // final index = int.parse(widget.mark.name);
     return AbsorbPointer(
-      absorbing: widget.onRemove == null || widget.dragEnabled,
+      absorbing: widget.onRemove == null, // || widget.dragEnabled,
       child: CupertinoContextMenu(
         actions: contextActions(),
         child: ConstrainedBox(

@@ -1,11 +1,8 @@
 import 'dart:math';
 import 'package:flutter/animation.dart';
 
-class FlipXAngleTween extends Tween<double> {
-  FlipXAngleTween() {
-    super.begin = .0;
-    super.end = 2 * pi;
-  }
+class SineTween extends Tween<double> {
+  SineTween({super.begin = pi / 2, super.end = .0});
   @override
-  double lerp(double t) => pi / 2 * sin(pi / 2 * (t - 1));
+  double lerp(double t) => begin! + (end! - begin!) * sin(pi / 2 * t);
 }
