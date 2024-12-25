@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:ai_vocabulary/model/collection_mark.dart';
+import 'package:ai_vocabulary/utils/function.dart';
 import 'package:ai_vocabulary/utils/shortcut.dart';
 import 'package:ai_vocabulary/widgets/flashcard.dart';
 import 'package:flutter/cupertino.dart';
@@ -25,7 +26,10 @@ class _CollectionPageState extends State<CollectionPage> {
   final textController = TextEditingController();
   final focusNode = FocusNode();
   final gridKey = GlobalKey<SliverAnimatedGridState>();
-  var preventQuicklyChanged = Timer(Duration.zero, () {});
+  Timer? preventQuicklyChanged;
+  var reverse = 1;
+  var onFlip = false;
+
   SliverAnimatedGridState? get gridState => gridKey.currentState;
   List<BookMark> get fetchDB => List<BookMark>.generate(
       4, (i) => CollectionMark(name: '${i & 1}$i', index: i));
@@ -48,8 +52,8 @@ class _CollectionPageState extends State<CollectionPage> {
   Widget build(BuildContext context) {
     final hPadding = MediaQuery.of(context).size.width / 32;
     final colorScheme = Theme.of(context).colorScheme;
-    marks.sort((a, b) => a.index.compareTo(b.index));
-    return PlatformScaffold(
+    marks.sort((a, b) => a.index.compareTo(b.index) * reverse);
+    return Scaffold(
       body: SafeArea(
         top: false,
         child: CustomScrollView(
@@ -84,7 +88,7 @@ class _CollectionPageState extends State<CollectionPage> {
                   backgroundColor: colorScheme.surfaceDim.withOpacity(.8),
                   hintText: 'find it',
                   onChanged: (p0) {
-                    preventQuicklyChanged.cancel();
+                    preventQuicklyChanged?.cancel();
                     preventQuicklyChanged =
                         Timer(Durations.medium4, () => filterMark(p0));
                   },
@@ -113,25 +117,39 @@ class _CollectionPageState extends State<CollectionPage> {
                       mainAxisSpacing: hPadding,
                       crossAxisSpacing: hPadding,
                     ),
-                    itemBuilder: (context, index, animation) => ScaleTransition(
-                        scale: CurvedAnimation(
-                            parent: animation, curve: Curves.bounceOut),
-                        child:
-                            buildBookmark(marks[index], textController.text)),
+                    itemBuilder: (context, index, animation) => onFlip
+                        ? MatrixTransition(
+                            animation: FlipXAngleTween().animate(animation),
+                            onTransform: (angle) => Matrix4.rotationY(angle),
+                            child: buildBookmark(
+                                marks[index], textController.text))
+                        : ScaleTransition(
+                            scale: CurvedAnimation(
+                                parent: animation, curve: Curves.bounceOut),
+                            child: buildBookmark(
+                                marks[index], textController.text)),
                   )),
             ),
           ],
         ),
       ),
+      floatingActionButton: FloatingActionButton(
+          onPressed: flipReverseOrder,
+          child: const Icon(CupertinoIcons.repeat)),
     );
   }
 
   void filterMark(String query) {
     if (query.isEmpty && marks.whereType<SystemMark>().isNotEmpty) return;
     final queryMarks = fetchDB.where((m) => m.name.contains(query));
+    var i = 0;
     for (final removedMark in marks) {
+      if (queryMarks.contains(removedMark)) {
+        i++;
+        continue;
+      }
       gridState?.removeItem(
-          0,
+          i,
           (context, animation) => ScaleTransition(
                 scale: CurvedAnimation(
                     parent: animation, curve: Curves.easeInOutBack),
@@ -139,22 +157,55 @@ class _CollectionPageState extends State<CollectionPage> {
               ),
           duration: Durations.short4);
     }
+    marks.retainWhere((m) => queryMarks.contains(m));
+    final retainMark = List.from(marks);
     Future.delayed(Durations.short4, () {
-      marks = queryMarks.toList();
+      for (final newMark in queryMarks) {
+        if (!marks.contains(newMark)) {
+          marks.add(newMark);
+        }
+      }
       if (query.isEmpty && marks.whereType<SystemMark>().isEmpty) {
         marks.addAll(systemMark);
       }
-      marks.sort((a, b) => a.index.compareTo(b.index));
+      marks.sort((a, b) => a.index.compareTo(b.index) * reverse);
+      final insertIndexes = marks
+          .asMap()
+          .entries
+          .where((e) => !retainMark.contains(e.value))
+          .map((e) => e.key);
+      for (final index in insertIndexes)
+        gridState?.insertItem(index, duration: Durations.long1);
+    });
+  }
+
+  void flipReverseOrder() {
+    setState(() {
+      onFlip = true;
+    });
+    reverse *= -1;
+    for (final removedMark in marks) {
+      gridState?.removeItem(
+          0,
+          (context, animation) => ValueListenableBuilder(
+                valueListenable: FlipXAngleTween().animate(animation),
+                builder: (context, value, child) => Transform(
+                  transform: Matrix4.rotationY(value),
+                  alignment: const Alignment(0, 0),
+                  child: child,
+                ),
+                child: buildBookmark(removedMark),
+              ),
+          duration: Durations.short4);
+    }
+    Timer(Durations.short4, () {
+      marks.sort((a, b) => a.index.compareTo(b.index) * reverse);
       gridState?.insertAllItems(0, marks.length, duration: Durations.long1);
-      // setState(() {
-      //   // If we don't use setState to sort marks,
-      //   // we need to explicit sort mark and then
-      //   // the call of gridState?.insertAllItems() can
-      //   // be directly called, no WidgetsBinding wrap.
-      //     gridState?.insertAllItems(0, marks.length, duration: Durations.long1);
-      //   WidgetsBinding.instance.addPostFrameCallback((_) {
-      //   });
-      // });
+      Future.delayed(Durations.long2, () {
+        setState(() {
+          onFlip = false;
+        });
+      });
     });
   }
 
@@ -173,7 +224,8 @@ class _CollectionPageState extends State<CollectionPage> {
               child: Center(
                   child: FloatingActionButton.large(
                 onPressed: () {
-                  final insertIndex = marks.length - 1;
+                  final insertIndex =
+                      marks.indexOf(bookmark) + (reverse < 0 ? 1 : 0);
                   var count = 0;
                   if (marks.whereType<CollectionMark>().isNotEmpty) {
                     count = marks
@@ -184,7 +236,7 @@ class _CollectionPageState extends State<CollectionPage> {
                   final newMark = CollectionMark(
                       name:
                           'Repository${count > 0 ? '$count'.padLeft(2, '0') : ''}',
-                      index: insertIndex);
+                      index: marks.whereType<CollectionMark>().length);
                   marks.insert(insertIndex, newMark);
                   gridState?.insertItem(insertIndex,
                       duration: Durations.extralong1);
@@ -194,9 +246,9 @@ class _CollectionPageState extends State<CollectionPage> {
                 child: const Icon(CupertinoIcons.add),
               )),
             )
-          : InkWell(
-              onTap: () {},
-              child: Card.filled(
+          : Card.filled(
+              child: InkWell(
+                onTap: () {},
                 child: Column(
                   children: [
                     Expanded(

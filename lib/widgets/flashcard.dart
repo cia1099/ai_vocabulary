@@ -29,18 +29,14 @@ class _FlashcardState extends State<Flashcard>
     // final index = int.parse(widget.mark.name);
     return AbsorbPointer(
       absorbing: widget.onRemove == null || widget.dragEnabled,
-      child: InkWell(
-        onTap: () {},
-        customBorder: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(kRadialReactionRadius),
-        ),
-        child: //
-            CupertinoContextMenu(
-          actions: contextActions(),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(minWidth: 200, minHeight: 200),
-            child: Card(
-              // color: index.isOdd ? Colors.white : Colors.black12,
+      child: CupertinoContextMenu(
+        actions: contextActions(),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minWidth: 200, minHeight: 200),
+          child: Card(
+            // color: index.isOdd ? Colors.white : Colors.black12,
+            child: InkWell(
+              onTap: () => print('tap inner'),
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
                 child: Stack(
