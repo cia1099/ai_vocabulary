@@ -73,16 +73,17 @@ class _FlashcardState extends State<Flashcard>
     return [
       CupertinoContextMenuAction(
           onPressed: () {
-            Navigator.of(context).pop();
             final editName = TextEditingController(text: widget.mark.name);
             showCupertinoModalPopup(
               context: context,
               builder: (context) => PlatformAlertDialog(
                 title: const Text('Rename the mark'),
                 content: Form(
-                    onChanged: () {
-                      Form.maybeOf(primaryFocus!.context!)?.validate();
-                    },
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    // onChanged: () {
+                    //   if (!Form.of(primaryFocus!.context!).validate())
+                    //     editName.clear();
+                    // },
                     child: CupertinoTextFormFieldRow(
                       validator: (value) {
                         if (value == null || value.isEmpty)
@@ -122,7 +123,11 @@ class _FlashcardState extends State<Flashcard>
                   ),
                 ],
               ),
-            );
+            ).then((_) {
+              if (mounted) {
+                Navigator.of(context).pop();
+              }
+            });
           },
           trailingIcon: CupertinoIcons.pen,
           child: const Text('Rename')),

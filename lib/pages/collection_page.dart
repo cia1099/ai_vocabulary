@@ -26,7 +26,6 @@ class _CollectionPageState extends State<CollectionPage> {
   final focusNode = FocusNode();
   final gridKey = GlobalKey<SliverAnimatedGridState>();
   var preventQuicklyChanged = Timer(Duration.zero, () {});
-  var destroy = false;
   SliverAnimatedGridState? get gridState => gridKey.currentState;
   List<BookMark> get fetchDB => List<BookMark>.generate(
       4, (i) => CollectionMark(name: '${i & 1}$i', index: i));
@@ -95,7 +94,7 @@ class _CollectionPageState extends State<CollectionPage> {
             SliverPadding(
               padding: EdgeInsets.symmetric(horizontal: hPadding),
               sliver: ReorderableWrapperWidget(
-                  // dragEnabled: false,
+                  dragEnabled: false,
                   onReorder: (oldIndex, newIndex) => setState(() {
                         onReorder(oldIndex, newIndex);
                       }),
@@ -133,9 +132,9 @@ class _CollectionPageState extends State<CollectionPage> {
     for (final removedMark in marks) {
       gridState?.removeItem(
           0,
-          (context, animation) => FadeTransition(
-                opacity:
-                    CurvedAnimation(parent: animation, curve: Curves.easeOut),
+          (context, animation) => ScaleTransition(
+                scale: CurvedAnimation(
+                    parent: animation, curve: Curves.easeInOutBack),
                 child: buildBookmark(removedMark),
               ),
           duration: Durations.short4);
