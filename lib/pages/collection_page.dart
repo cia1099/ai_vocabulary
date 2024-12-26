@@ -104,9 +104,12 @@ class _CollectionPageState extends State<CollectionPage> {
               padding: EdgeInsets.symmetric(horizontal: hPadding),
               sliver: ReorderableWrapperWidget(
                   dragEnabled: dragEnabled,
-                  onReorder: (oldIndex, newIndex) => setState(() {
+                  onReorder: (oldIndex, newIndex) {
+                    if (marks.whereType<SystemMark>().isNotEmpty)
+                      setState(() {
                         onReorder(oldIndex, newIndex);
-                      }),
+                      });
+                  },
                   isSliver: true,
                   dragWidgetBuilder: DragWidgetBuilderV2(
                       builder: (index, child, screenshot) => PhysicalModel(

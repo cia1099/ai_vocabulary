@@ -31,7 +31,7 @@ class _FlashcardState extends State<Flashcard>
       AnimationController(vsync: this, duration: Durations.short3, value: .5);
   @override
   void dispose() {
-    controller.isAnimating ? controller.stop() : null;
+    controller.stop();
     controller.dispose();
     super.dispose();
   }
@@ -53,7 +53,8 @@ class _FlashcardState extends State<Flashcard>
             turns: Tween<double>(begin: -pi / 512, end: pi / 512)
                 .animate(controller),
             child: Card(
-              // color: index.isOdd ? Colors.white : Colors.black12,
+              color:
+                  widget.mark.color != null ? Color(widget.mark.color!) : null,
               child: InkWell(
                 onTap: widget.dragEnabled ? null : () => print('tap inner'),
                 child: Padding(
@@ -63,10 +64,16 @@ class _FlashcardState extends State<Flashcard>
                     children: [
                       Align(
                         alignment: Alignment.topLeft,
-                        child: Icon(
-                          Icons.abc,
-                          size: 24 * 3,
-                          color: DefaultTextStyle.of(context).style.color,
+                        child: FittedBox(
+                          child: Icon(
+                            widget.mark.icon != null
+                                ? IconData(widget.mark.icon!,
+                                    fontFamily: 'CupertinoIcons',
+                                    fontPackage: 'cupertino_icons')
+                                : Icons.abc,
+                            size: 24 * 3,
+                            color: DefaultTextStyle.of(context).style.color,
+                          ),
                         ),
                       ),
                       Align(

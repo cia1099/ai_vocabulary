@@ -16,7 +16,10 @@ abstract class BookMark {
 }
 
 class CollectionMark extends BookMark {
-  CollectionMark({required super.name, required super.index});
+  int? color;
+  int? icon;
+  CollectionMark(
+      {this.color, this.icon, required super.name, required super.index});
 }
 
 class SystemMark extends BookMark {
