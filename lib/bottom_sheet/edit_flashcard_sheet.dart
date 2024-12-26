@@ -7,8 +7,10 @@ import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import '../theme.dart';
 
 class EditFlashcardSheet extends StatefulWidget {
+  final CollectionMark mark;
   const EditFlashcardSheet({
     super.key,
+    required this.mark,
   });
 
   @override
@@ -16,15 +18,15 @@ class EditFlashcardSheet extends StatefulWidget {
 }
 
 class _EditFlashcardSheetState extends State<EditFlashcardSheet> {
-  int? color, icon;
+  late int? color = widget.mark.color, icon = widget.mark.icon;
   final cardState = GlobalKey<State>();
   @override
   Widget build(BuildContext context) {
     final hPadding = MediaQuery.of(context).size.width / 32;
     final colorScheme = Theme.of(context).colorScheme;
-    color = colorScheme.surface.value;
-    return CupertinoPopupSurface(
-      child: SafeArea(
+    return SafeArea(
+      bottom: false,
+      child: CupertinoPopupSurface(
         child: CustomScrollView(
           slivers: [
             SliverAppBar(
@@ -38,12 +40,9 @@ class _EditFlashcardSheetState extends State<EditFlashcardSheet> {
                   children: [
                     Container(
                         height: kToolbarHeight,
-                        width: double.maxFinite,
                         decoration: BoxDecoration(
                             color:
-                                colorScheme.surfaceContainer.withOpacity(.95),
-                            // border: Border(
-                            //     top: BorderSide(color: colorScheme.shadow)),
+                                colorScheme.onInverseSurface.withOpacity(.95),
                             borderRadius: const BorderRadius.vertical(
                               top: Radius.circular(kRadialReactionRadius),
                             )),
@@ -70,11 +69,11 @@ class _EditFlashcardSheetState extends State<EditFlashcardSheet> {
                           ],
                         )),
                     Expanded(
-                      child: SizedBox(
+                      child: Container(
                         width: double.maxFinite,
-                        child: Card(
-                          margin: EdgeInsets.symmetric(
-                              horizontal: hPadding, vertical: hPadding / 2),
+                        margin: EdgeInsets.symmetric(
+                            horizontal: hPadding, vertical: hPadding / 2),
+                        child: CupertinoPopupSurface(
                           child: FractionallySizedBox(
                             heightFactor: 1,
                             widthFactor: 200 / hPadding / 32,
@@ -84,8 +83,8 @@ class _EditFlashcardSheetState extends State<EditFlashcardSheet> {
                                 final mark = CollectionMark(
                                     icon: icon,
                                     color: color,
-                                    name: 'test\ntest\ntest',
-                                    index: 0);
+                                    name: widget.mark.name,
+                                    index: widget.mark.index);
                                 return Flashcard(mark: mark);
                               },
                             ),
@@ -96,56 +95,70 @@ class _EditFlashcardSheetState extends State<EditFlashcardSheet> {
                   ],
                 )),
             SliverToBoxAdapter(
-              child: Card(
+              child: Container(
                   margin: EdgeInsets.symmetric(
                       horizontal: hPadding, vertical: hPadding / 2),
-                  child: Padding(
+                  child: CupertinoPopupSurface(
+                    child: Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Wrap(
                         spacing: 16,
                         runSpacing: 8,
                         children: List.generate(
-                          ColorSeed.values.length,
+                          ColorSeed.values.length + 1,
                           (index) => GestureDetector(
                             onTap: () {
                               cardState.currentState?.setState(() {
-                                color = ColorSeed.values[index].color.value;
+                                color = index == 0
+                                    ? null
+                                    : ColorSeed.values[index - 1].color.value;
                               });
                             },
                             child: CircleAvatar(
-                              backgroundColor: ColorSeed.values[index].color,
-                              radius: 36 / 2,
-                            ),
+                                backgroundColor: index == 0
+                                    ? null
+                                    : ColorSeed.values[index - 1].color,
+                                radius: 36 / 2,
+                                backgroundImage: index == 0
+                                    ? const AssetImage(
+                                        'assets/do-disturb-alt.png')
+                                    : null),
                           ),
                         ),
-                      ))),
+                      ),
+                    ),
+                  )),
             ),
             SliverToBoxAdapter(
-              child: Card(
+              child: Container(
                   margin: EdgeInsets.symmetric(
                       horizontal: hPadding, vertical: hPadding / 2),
-                  child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Wrap(
-                        spacing: 16,
-                        runSpacing: 16,
-                        children: List.generate(
-                          0xf8ae - 0xf4d4 + 1,
-                          (index) => GestureDetector(
-                            onTap: () {
-                              cardState.currentState?.setState(() {
-                                icon = index + 0xf4d4;
-                              });
-                            },
-                            child: Icon(
-                              IconData(index + 0xf4d4,
-                                  fontFamily: 'CupertinoIcons',
-                                  fontPackage: 'cupertino_icons'),
-                              size: 36,
+                  child: CupertinoPopupSurface(
+                    child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Wrap(
+                          spacing: 16,
+                          runSpacing: 16,
+                          children: List.generate(
+                            0xf8ae - 0xf4d4 + 1 + 1,
+                            (index) => GestureDetector(
+                              onTap: () {
+                                cardState.currentState?.setState(() {
+                                  icon = index == 0 ? null : index - 1 + 0xf4d4;
+                                });
+                              },
+                              child: Icon(
+                                index == 0
+                                    ? Icons.abc
+                                    : IconData(index - 1 + 0xf4d4,
+                                        fontFamily: 'CupertinoIcons',
+                                        fontPackage: 'cupertino_icons'),
+                                size: 36,
+                              ),
                             ),
                           ),
-                        ),
-                      ))),
+                        )),
+                  )),
             ),
           ],
         ),

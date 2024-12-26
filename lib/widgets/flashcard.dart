@@ -159,7 +159,7 @@ class _FlashcardState extends State<Flashcard>
           onPressed: () => showCupertinoModalPopup(
               context: context,
               builder: (context) {
-                return const EditFlashcardSheet();
+                return EditFlashcardSheet(mark: widget.mark);
               }),
           trailingIcon: CupertinoIcons.ellipsis_circle,
           child: const Text('Edit')),
