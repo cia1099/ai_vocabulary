@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:ai_vocabulary/bottom_sheet/edit_flashcard_sheet.dart';
 import 'package:ai_vocabulary/model/collection_mark.dart';
 import 'package:ai_vocabulary/utils/regex.dart';
 import 'package:flutter/cupertino.dart';
@@ -154,8 +155,14 @@ class _FlashcardState extends State<Flashcard>
           },
           trailingIcon: CupertinoIcons.pen,
           child: const Text('Rename')),
-      const CupertinoContextMenuAction(
-          trailingIcon: CupertinoIcons.ellipsis_circle, child: Text('Edit')),
+      CupertinoContextMenuAction(
+          onPressed: () => showCupertinoModalPopup(
+              context: context,
+              builder: (context) {
+                return const EditFlashcardSheet();
+              }),
+          trailingIcon: CupertinoIcons.ellipsis_circle,
+          child: const Text('Edit')),
       ColoredBox(
           color: colorScheme.surfaceDim,
           child: const PopupMenuDivider(height: kMenuDividerHeight)),

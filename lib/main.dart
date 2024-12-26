@@ -1,4 +1,3 @@
-import 'package:ai_vocabulary/bottom_sheet/edit_flashcard_sheet.dart';
 import 'package:ai_vocabulary/pages/collection_page.dart';
 import 'package:ai_vocabulary/provider/word_provider.dart';
 import 'package:flutter/cupertino.dart';
@@ -75,8 +74,7 @@ class _MyAppState extends State<MyApp> with AppRoute {
           ],
           onGenerateRoute: generateRoute,
           initialRoute: AppRoute.home,
-          // home: const CollectionPage(),
-          home: const EditFlashcardSheet(),
+          home: const CollectionPage(),
           // home: Builder(builder: (context) {
           //   return PlatformScaffold(
           //     body: Center(
