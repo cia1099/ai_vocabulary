@@ -27,7 +27,11 @@ class _RetrievalBottomSheetState extends State<RetrievalBottomSheet>
   TabController? tabController;
 
   Future<List<Vocabulary>> fetchWords() async {
-    return await retrievalWord(widget.queryWord);
+    return await retrievalWord(widget.queryWord).then((words) {
+      return words
+        ..sort((a, b) =>
+            a.differ(widget.queryWord).compareTo(b.differ(widget.queryWord)));
+    });
   }
 
   @override

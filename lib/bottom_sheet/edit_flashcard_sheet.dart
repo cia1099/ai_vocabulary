@@ -56,6 +56,13 @@ class _EditFlashcardSheetState extends State<EditFlashcardSheet> {
                             Align(
                               alignment: const Alignment(.9, 0),
                               child: PlatformTextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop(CollectionMark(
+                                      name: widget.mark.name,
+                                      color: color,
+                                      icon: icon,
+                                      index: widget.mark.index));
+                                },
                                 padding: EdgeInsets.zero,
                                 material: (_, __) => MaterialTextButtonData(
                                   style: TextButton.styleFrom(

@@ -111,13 +111,15 @@ class _CollectionPageState extends State<CollectionPage> {
                       });
                   },
                   isSliver: true,
-                  dragWidgetBuilder: DragWidgetBuilderV2(
-                      builder: (index, child, screenshot) => PhysicalModel(
-                          color: colorScheme.primary,
-                          elevation: 8,
-                          borderRadius:
-                              BorderRadius.circular(kRadialReactionRadius),
-                          child: child)),
+                  dragWidgetBuilder:
+                      DragWidgetBuilderV2(builder: (index, child, screenshot) {
+                    return PhysicalModel(
+                        color: colorScheme.primary,
+                        elevation: 8,
+                        borderRadius:
+                            BorderRadius.circular(kRadialReactionRadius),
+                        child: child);
+                  }),
                   child: SliverAnimatedGrid(
                     key: gridKey,
                     gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(

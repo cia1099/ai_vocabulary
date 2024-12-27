@@ -148,18 +148,24 @@ class _FlashcardState extends State<Flashcard>
                 ],
               ),
             ).then((_) {
-              if (mounted) {
-                Navigator.of(context).pop();
-              }
+              if (mounted) Navigator.of(context).pop();
             });
           },
           trailingIcon: CupertinoIcons.pen,
           child: const Text('Rename')),
       CupertinoContextMenuAction(
-          onPressed: () => showCupertinoModalPopup(
-              context: context,
-              builder: (context) {
-                return EditFlashcardSheet(mark: widget.mark);
+          onPressed: () => showCupertinoModalPopup<CollectionMark?>(
+                  context: context,
+                  builder: (context) {
+                    return EditFlashcardSheet(mark: widget.mark);
+                  }).then((mark) {
+                if (mark != null) {
+                  setState(() {
+                    widget.mark.color = mark.color;
+                    widget.mark.icon = mark.icon;
+                  });
+                }
+                if (mounted) Navigator.of(context).pop();
               }),
           trailingIcon: CupertinoIcons.ellipsis_circle,
           child: const Text('Edit')),
@@ -208,8 +214,7 @@ class _FlashcardState extends State<Flashcard>
   }
 
   void stopShaking() {
-    controller.stop();
-    controller.value = .5;
+    if (controller.isAnimating) controller.animateBack(.5);
   }
 
   void startShaking() {

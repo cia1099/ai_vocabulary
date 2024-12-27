@@ -18,8 +18,13 @@ abstract class BookMark {
 class CollectionMark extends BookMark {
   int? color;
   int? icon;
+  // GlobalKey<State>? key;
   CollectionMark(
-      {this.color, this.icon, required super.name, required super.index});
+      {this.color,
+      this.icon,
+      // this.key,
+      required super.name,
+      required super.index});
 }
 
 class SystemMark extends BookMark {

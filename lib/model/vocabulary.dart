@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 part 'phonetic.dart';
 
 class Vocabulary {
@@ -40,6 +41,8 @@ class Vocabulary {
       .reduce((e1, e2) => e1 + e2)
       .map((e) => e.examples)
       .reduce((e1, e2) => e1 + e2);
+
+  int differ(String queryWord) => word.diff(queryWord);
 
   factory Vocabulary.fromRawJson(String str) =>
       Vocabulary.fromJson(json.decode(str));
@@ -147,4 +150,12 @@ class Explanation {
         "subscript": subscript,
         "examples": List<dynamic>.from(examples.map((x) => x)),
       };
+}
+
+extension _Differential on String {
+  int diff(String other) {
+    if (isEmpty || other.isEmpty) return max(length, other.length);
+    final dS = substring(1).diff(other.substring(1));
+    return dS + (this[0] == other[0] ? 0 : 1);
+  }
 }
