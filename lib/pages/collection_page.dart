@@ -61,7 +61,7 @@ class _CollectionPageState extends State<CollectionPage> {
             PlatformSliverAppBar(
               stretch: true,
               title: const Text("My Collections"),
-              backgroundColor: colorScheme.surfaceDim.withOpacity(.8),
+              backgroundColor: colorScheme.surfaceDim.withValues(alpha: .8),
               material: (_, __) => MaterialSliverAppBarData(
                   pinned: true,
                   actions: actions(),
@@ -74,10 +74,11 @@ class _CollectionPageState extends State<CollectionPage> {
                     background: FlutterLogo(),
                   )),
               cupertino: (_, __) => CupertinoSliverAppBarData(
+                  backgroundColor: colorScheme.surfaceDim.withValues(alpha: .8),
                   trailing: Wrap(
-                spacing: 4,
-                children: actions(),
-              )),
+                    spacing: 4,
+                    children: actions(),
+                  )),
             ),
             SliverPersistentHeader(
               pinned: true,
@@ -90,7 +91,7 @@ class _CollectionPageState extends State<CollectionPage> {
                       left: hPadding, right: hPadding, bottom: 10),
                   focusNode: focusNode,
                   controller: textController,
-                  backgroundColor: colorScheme.surfaceDim.withOpacity(.8),
+                  // backgroundColor: colorScheme.surfaceDim.withValues(alpha: .8),
                   hintText: 'find it',
                   onChanged: (p0) {
                     preventQuicklyChanged?.cancel();
@@ -254,25 +255,27 @@ class _CollectionPageState extends State<CollectionPage> {
                 child: const Icon(CupertinoIcons.add),
               )),
             )
-          : Card.filled(
-              child: InkWell(
-                onTap: () {},
-                child: Column(
-                  children: [
-                    Expanded(
-                      child: Lottie.asset(
-                        'assets/lottie/favorite.json',
-                        repeat: false,
+          : OnPointerDownPhysic(
+              child: Card.filled(
+                child: InkWell(
+                  onTap: () {},
+                  child: Column(
+                    children: [
+                      Expanded(
+                        child: Lottie.asset(
+                          'assets/lottie/favorite.json',
+                          repeat: false,
+                        ),
                       ),
-                    ),
-                    const Text(
-                      'Uncategorized',
-                      style: TextStyle(
-                          // backgroundColor: Colors.green,
-                          fontWeight: FontWeight.w600),
-                      textScaler: TextScaler.linear(1.6),
-                    )
-                  ],
+                      const Text(
+                        'Uncategorized',
+                        style: TextStyle(
+                            // backgroundColor: Colors.green,
+                            fontWeight: FontWeight.w600),
+                        textScaler: TextScaler.linear(1.6),
+                      )
+                    ],
+                  ),
                 ),
               ),
             ),

@@ -53,35 +53,38 @@ class _FlashcardState extends State<Flashcard>
           child: RotationTransition(
             turns: Tween<double>(begin: -pi / 512, end: pi / 512)
                 .animate(controller),
-            child: Card(
-              color:
-                  widget.mark.color != null ? Color(widget.mark.color!) : null,
-              child: InkWell(
-                onTap: widget.dragEnabled ? null : () => print('tap inner'),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  child: Stack(
-                    fit: StackFit.passthrough,
-                    children: [
-                      Align(
-                        alignment: Alignment.topLeft,
-                        child: FittedBox(
-                          child: Icon(
-                            widget.mark.icon != null
-                                ? IconData(widget.mark.icon!,
-                                    fontFamily: 'CupertinoIcons',
-                                    fontPackage: 'cupertino_icons')
-                                : Icons.abc,
-                            size: 24 * 3,
-                            color: DefaultTextStyle.of(context).style.color,
+            child: OnPointerDownPhysic(
+              child: Card(
+                color: widget.mark.color != null
+                    ? Color(widget.mark.color!)
+                    : null,
+                child: InkWell(
+                  onTap: widget.dragEnabled ? null : () => print('tap inner'),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: Stack(
+                      fit: StackFit.passthrough,
+                      children: [
+                        Align(
+                          alignment: Alignment.topLeft,
+                          child: FittedBox(
+                            child: Icon(
+                              widget.mark.icon != null
+                                  ? IconData(widget.mark.icon!,
+                                      fontFamily: 'CupertinoIcons',
+                                      fontPackage: 'cupertino_icons')
+                                  : Icons.abc,
+                              size: 24 * 3,
+                              color: DefaultTextStyle.of(context).style.color,
+                            ),
                           ),
                         ),
-                      ),
-                      Align(
-                        alignment: Alignment.bottomLeft,
-                        child: matchFilterText(widget.mark.name),
-                      )
-                    ],
+                        Align(
+                          alignment: Alignment.bottomLeft,
+                          child: matchFilterText(widget.mark.name),
+                        )
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -221,5 +224,44 @@ class _FlashcardState extends State<Flashcard>
     Future.delayed(Duration(milliseconds: Random().nextInt(150)), () {
       controller.repeat(reverse: true);
     });
+  }
+}
+
+class OnPointerDownPhysic extends StatefulWidget {
+  final Widget child;
+  final Color? color;
+
+  const OnPointerDownPhysic({
+    super.key,
+    required this.child,
+    this.color,
+  });
+
+  @override
+  State<OnPointerDownPhysic> createState() => _OnPointerDownPhysicState();
+}
+
+class _OnPointerDownPhysicState extends State<OnPointerDownPhysic> {
+  var onPointerDown = false;
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Listener(
+      onPointerDown: (_) => setState(() => onPointerDown = true),
+      onPointerUp: (_) => setState(() => onPointerDown = false),
+      onPointerCancel: (_) => setState(() => onPointerDown = false),
+      child: AnimatedPhysicalModel(
+        duration: const Duration(milliseconds: 100),
+        color: onPointerDown
+            ? widget.color ?? colorScheme.primaryContainer.withAlpha(0xff)
+            : Colors.transparent,
+        elevation: onPointerDown ? 4 : 0,
+        shadowColor: colorScheme.inverseSurface,
+        borderRadius: BorderRadius.circular(kRadialReactionRadius),
+        clipBehavior: Clip.antiAlias,
+        curve: Curves.easeInOutCubic,
+        child: widget.child,
+      ),
+    );
   }
 }
