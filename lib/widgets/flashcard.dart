@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:ai_vocabulary/bottom_sheet/edit_flashcard_sheet.dart';
+import 'package:ai_vocabulary/database/my_db.dart';
 import 'package:ai_vocabulary/model/collection_mark.dart';
 import 'package:ai_vocabulary/utils/regex.dart';
 import 'package:flutter/cupertino.dart';
@@ -140,9 +141,13 @@ class _FlashcardState extends State<Flashcard>
                           ? null
                           : () {
                               Navigator.of(context).pop();
-                              setState(() {
-                                widget.mark.name = editName.text;
-                              });
+                              if (MyDB().renameMark(
+                                  name: widget.mark.name,
+                                  newName: editName.text)) {
+                                setState(() {
+                                  widget.mark.name = editName.text;
+                                });
+                              }
                             },
                       child: child,
                     ),
@@ -167,6 +172,8 @@ class _FlashcardState extends State<Flashcard>
                     widget.mark.color = mark.color;
                     widget.mark.icon = mark.icon;
                   });
+                  MyDB().editMark(
+                      name: mark.name, icon: mark.icon, color: mark.color);
                 }
                 if (mounted) Navigator.of(context).pop();
               }),

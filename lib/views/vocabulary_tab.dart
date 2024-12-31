@@ -1,3 +1,4 @@
+import 'package:ai_vocabulary/pages/collection_page.dart';
 import 'package:ai_vocabulary/provider/word_provider.dart';
 import 'package:ai_vocabulary/app_route.dart';
 import 'package:flutter/cupertino.dart';
@@ -14,7 +15,7 @@ class VocabularyTab extends StatelessWidget {
     final maxHeight = MediaQuery.of(context).size.height -
         kToolbarHeight -
         kBottomNavigationBarHeight;
-    final maxWidth = MediaQuery.of(context).size.width;
+    final hPadding = MediaQuery.of(context).size.width / 32;
     final textTheme = Theme.of(context).textTheme;
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -25,7 +26,7 @@ class VocabularyTab extends StatelessWidget {
           height: 150,
           alignment: Alignment.center,
           width: double.maxFinite,
-          margin: const EdgeInsets.symmetric(horizontal: 16),
+          margin: EdgeInsets.symmetric(horizontal: hPadding),
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(32),
               border: Border.all(),
@@ -35,62 +36,70 @@ class VocabularyTab extends StatelessWidget {
                   Navigator.pushNamed(context, AppRoute.todayWords),
               child: const Text("Today's study")),
         ),
-        SizedBox(
-          height: maxHeight / 4,
-          child: GridView.count(
-            primary: false,
-            crossAxisCount: 4,
-            crossAxisSpacing: 16,
-            mainAxisSpacing: 16,
-            children: [
-              SizedBox(
-                height: 80,
-                width: maxWidth / 4 - 8,
-                // color: CupertinoColors.systemRed,
-                child: StreamBuilder(
-                    stream: WordProvider().provideWord,
-                    builder: (context, snapshot) {
-                      return AbsorbPointer(
-                        absorbing: snapshot.data == null,
-                        child: GestureDetector(
-                          onTap: () =>
-                              Navigator.of(context).pushNamed(AppRoute.entry),
-                          child: const Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(CupertinoIcons.square_stack),
-                              Text("normal")
-                            ],
+        MediaQuery.removePadding(
+          context: context,
+          removeBottom: true,
+          child: Container(
+            // color: Colors.red,
+            height: maxHeight / 4,
+            padding: EdgeInsets.all(hPadding),
+            child: GridView.count(
+              primary: false,
+              crossAxisCount: 4,
+              crossAxisSpacing: 16,
+              mainAxisSpacing: 16,
+              children: [
+                Card.outlined(
+                  child: StreamBuilder(
+                      stream: WordProvider().provideWord,
+                      builder: (context, snapshot) {
+                        return AbsorbPointer(
+                          absorbing: snapshot.data == null,
+                          child: InkWell(
+                            onTap: () =>
+                                Navigator.of(context).pushNamed(AppRoute.entry),
+                            child: const Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(CupertinoIcons.square_stack),
+                                Text("study")
+                              ],
+                            ),
                           ),
-                        ),
-                      );
-                    }),
-              ),
-              SizedBox(
-                height: 80,
-                width: maxWidth / 4 - 8,
-                // color: CupertinoColors.systemRed,
-                child: const Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [Icon(CupertinoIcons.hand_draw), Text("game")],
+                        );
+                      }),
                 ),
-              ),
-              SizedBox(
-                height: 80,
-                width: maxWidth / 4 - 8,
-                // color: CupertinoColors.systemRed,
-                child: const Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(CupertinoIcons.photo),
-                    Text(
-                      "guess picture",
-                      overflow: TextOverflow.ellipsis,
-                    )
-                  ],
+                Card.outlined(
+                  child: InkWell(
+                    onTap: () => Navigator.of(context).push(platformPageRoute(
+                        context: context,
+                        builder: (context) => const CollectionPage())),
+                    child: const Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [Icon(CupertinoIcons.star), Text("favorite")],
+                    ),
+                  ),
                 ),
-              ),
-            ],
+                const Card.outlined(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [Icon(CupertinoIcons.hand_draw), Text("game")],
+                  ),
+                ),
+                const Card.outlined(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(CupertinoIcons.photo),
+                      Text(
+                        "guess picture",
+                        overflow: TextOverflow.ellipsis,
+                      )
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         )
       ],

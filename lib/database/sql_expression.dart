@@ -91,7 +91,7 @@ CREATE TABLE text_messages (
 );
 CREATE TABLE collections (
         id INTEGER NOT NULL, 
-        index INTEGER NOT NULL, 
+        "index" INTEGER NOT NULL, 
         name VARCHAR NOT NULL, 
         icon INTEGER, 
         color INTEGER, 

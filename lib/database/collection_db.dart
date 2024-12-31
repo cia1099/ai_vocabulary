@@ -1,7 +1,7 @@
 part of 'my_db.dart';
 
 extension CollectionDB on MyDB {
-  Iterable<CollectionMark> fetchMarks() {
+  Iterable<BookMark> fetchMarks() {
     final db = open(OpenMode.readOnly);
     final resultSet = db.select('SELECT * FROM collections');
     db.dispose();
@@ -9,7 +9,7 @@ extension CollectionDB on MyDB {
   }
 
   void insertCollection(String name, int index) {
-    const expression = 'INSERT INTO collections (name, index) VALUES (?, ?)';
+    const expression = 'INSERT INTO collections (name, "index") VALUES (?, ?)';
     final db = open(OpenMode.readWrite);
     db.execute(expression, [name, index]);
     db.dispose();
@@ -45,8 +45,8 @@ extension CollectionDB on MyDB {
     db.dispose();
   }
 
-  void updateIndexes(List<CollectionMark> marks) {
-    final expression = _updateExpression(['index']);
+  void updateIndexes(Iterable<CollectionMark> marks) {
+    final expression = _updateExpression(['"index"']);
     final db = open(OpenMode.readWrite);
     final stmt = db.prepare(expression);
     for (final mark in marks) {
@@ -58,7 +58,7 @@ extension CollectionDB on MyDB {
 
   String _updateExpression(Iterable<String> argsName) {
     assert(argsName.isNotEmpty);
-    const columnName = ['index', 'icon', 'color', 'name'];
+    const columnName = ['"index"', 'icon', 'color', 'name'];
     final posInput = argsName
         .where((e) => columnName.contains(e))
         .map((e) => '$e=?')

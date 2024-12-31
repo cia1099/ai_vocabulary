@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:ai_vocabulary/database/my_db.dart';
 import 'package:ai_vocabulary/model/collection_mark.dart';
 import 'package:ai_vocabulary/utils/function.dart';
 import 'package:ai_vocabulary/utils/shortcut.dart';
@@ -21,7 +22,7 @@ class CollectionPage extends StatefulWidget {
 }
 
 class _CollectionPageState extends State<CollectionPage> {
-  late List<BookMark> marks = fetchDB;
+  late List<BookMark> marks = fetchDB.toList();
 
   final textController = TextEditingController();
   final focusNode = FocusNode();
@@ -31,8 +32,7 @@ class _CollectionPageState extends State<CollectionPage> {
   var onFlip = false, dragEnabled = false;
 
   SliverAnimatedGridState? get gridState => gridKey.currentState;
-  List<BookMark> get fetchDB => List<BookMark>.generate(
-      4, (i) => CollectionMark(name: '${i & 1}$i', index: i));
+  Iterable<BookMark> get fetchDB => MyDB().fetchMarks();
   List<BookMark> get systemMark => [
         SystemMark(name: 'add', index: kMaxInt64),
         SystemMark(name: 'Uncategorized', index: -1)
@@ -236,11 +236,16 @@ class _CollectionPageState extends State<CollectionPage> {
                 onPressed: () {
                   final insertIndex = reverse < 0 ? 1 : marks.length - 1;
                   var count = 0;
-                  if (marks.whereType<CollectionMark>().isNotEmpty) {
+                  if (marks
+                      .where((m) => m.name.contains('Repository'))
+                      .isNotEmpty) {
                     count = marks
-                        .whereType<CollectionMark>()
-                        .map((m) => m.name.contains('Repository') ? 1 : 0)
-                        .reduce((v1, v2) => v1 + v2);
+                            .where((m) => m.name.contains('Repository'))
+                            .map((m) =>
+                                RegExp(r'\d+').firstMatch(m.name)?.group(0))
+                            .map((digit) => int.tryParse(digit ?? '') ?? 0)
+                            .reduce((v1, v2) => max(v1, v2)) +
+                        1;
                   }
                   final newMark = CollectionMark(
                       name:
@@ -249,6 +254,7 @@ class _CollectionPageState extends State<CollectionPage> {
                   marks.insert(insertIndex, newMark);
                   gridState?.insertItem(insertIndex,
                       duration: Durations.extralong1);
+                  MyDB().insertCollection(newMark.name, newMark.index);
                 },
                 elevation: 2,
                 shape: const CircleBorder(),
@@ -312,12 +318,18 @@ class _CollectionPageState extends State<CollectionPage> {
 
   void onRemove(CollectionMark mark) {
     final rmIndex = marks.indexOf(mark);
-    final maxIndex = marks
-        .whereType<CollectionMark>()
-        .map((m) => m.index)
-        .reduce((i1, i2) => max(i1, i2));
-    onReorder(rmIndex, marks.indexWhere((m) => m.index == maxIndex));
     final removedMark = marks.removeAt(rmIndex) as CollectionMark;
+    //TODO: current solution, bad implement because side effect
+    final backup = List.of(marks);
+    marks = fetchDB.toList() //guarantee marks are CollectionMark type
+      ..sort((a, b) => a.index.compareTo(b.index) * reverse);
+    //onReoder() changes the member marks,
+    if (reverse > 0) {
+      onReorder(marks.indexOf(removedMark), marks.length - 1);
+    } else {
+      onReorder(marks.indexOf(removedMark), 0);
+    }
+    marks = backup;
     gridState?.removeItem(
         rmIndex,
         (context, animation) => FadeTransition(
@@ -326,6 +338,7 @@ class _CollectionPageState extends State<CollectionPage> {
               child: Flashcard(mark: removedMark),
             ),
         duration: Durations.extralong4);
+    MyDB().removeMark(name: removedMark.name);
   }
 
   void onReorder(oldIndex, newIndex) {
@@ -339,6 +352,7 @@ class _CollectionPageState extends State<CollectionPage> {
         if (marks[i] is CollectionMark) marks[i].index += reverse;
       }
     }
+    MyDB().updateIndexes(marks.whereType<CollectionMark>());
   }
 }
 
