@@ -89,4 +89,13 @@ CREATE TABLE text_messages (
         FOREIGN KEY(word_id) REFERENCES words (id), 
         FOREIGN KEY(user_id) REFERENCES users (id)
 );
+CREATE TABLE collections (
+        id INTEGER NOT NULL, 
+        index INTEGER NOT NULL, 
+        name VARCHAR NOT NULL, 
+        icon INTEGER, 
+        color INTEGER, 
+        PRIMARY KEY (id), 
+        UNIQUE (name)
+);
 ''';

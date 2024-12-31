@@ -13,8 +13,9 @@ import 'sql_expression.dart';
 import 'package:path/path.dart' as p;
 import 'package:sqlite3/sqlite3.dart';
 
-part 'collect_db.dart';
+part 'acquaint_db.dart';
 part 'chat_msg_db.dart';
+part 'collection_db.dart';
 
 class MyDB with ChangeNotifier {
   late final String _appDirectory;

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 abstract class BookMark {
   String name;
   int index;
@@ -18,13 +20,27 @@ abstract class BookMark {
 class CollectionMark extends BookMark {
   int? color;
   int? icon;
-  // GlobalKey<State>? key;
   CollectionMark(
-      {this.color,
-      this.icon,
-      // this.key,
-      required super.name,
-      required super.index});
+      {this.color, this.icon, required super.name, required super.index});
+
+  factory CollectionMark.fromRawJson(String str) =>
+      CollectionMark.fromJson(json.decode(str));
+
+  String toRawJson() => json.encode(toJson());
+
+  factory CollectionMark.fromJson(Map<String, dynamic> json) => CollectionMark(
+        name: json["name"],
+        index: json["index"],
+        icon: json["icon"],
+        color: json["color"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "name": name,
+        "index": index,
+        "icon": icon,
+        "color": color,
+      };
 }
 
 class SystemMark extends BookMark {

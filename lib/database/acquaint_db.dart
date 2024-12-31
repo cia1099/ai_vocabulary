@@ -1,6 +1,6 @@
 part of 'my_db.dart';
 
-extension CollectDB on MyDB {
+extension AcquaintDB on MyDB {
   void updateCollectWord({
     required int wordId,
     int? acquaint,
