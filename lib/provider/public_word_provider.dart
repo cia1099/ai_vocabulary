@@ -43,6 +43,7 @@ extension PublicWordProvider on WordProvider {
   Future<List<Vocabulary>> requestWords(Set<int> wordIds) async {
     var words = <Vocabulary>[];
     Exception? error = ApiException('initial');
+    //errorID example: 1088
     while (error != null) {
       try {
         words = await getWords(wordIds);
@@ -51,9 +52,10 @@ extension PublicWordProvider on WordProvider {
         final errorIds = splitWords(e.message).expand((w) sync* {
           if (w.contains(RegExp(r'^-?\d+$'))) yield w;
         }).map((s) => int.parse(s));
-        print(errorIds);
+        debugPrint('There is errorIDs: $errorIds in fetch dictionary API');
         wordIds.removeAll(errorIds);
-        wordIds = await _sampleWordIds(wordIds, studyCount);
+        final resampleIDs = await _sampleWordIds(wordIds, errorIds.length);
+        wordIds.addAll(resampleIDs);
         error = e;
       }
     }

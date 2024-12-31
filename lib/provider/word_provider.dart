@@ -54,10 +54,12 @@ class WordProvider {
     if (shouldResample(file)) {
       final reviewIDs = MyDB().fetchReviewWordIDs();
       final setIds = await _sampleWordIds(reviewIDs, studyCount);
+      //TODO: Below possibly incur overlapped id when API exception
       final newWords = await requestWords(setIds);
       final reviews = reviewIDs.take(reviewCount).toList();
       reviews.shuffle();
       final reviewWords = MyDB().fetchWords(reviews);
+      //TODO: newWords will repeat to reviewWords in overlapped id
       _studyWords.addAll(reviewWords + newWords);
       wordIds = reviews + setIds.toList();
       final now = DateTime.now();
