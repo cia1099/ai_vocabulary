@@ -8,8 +8,8 @@ const insertExample =
     r'INSERT INTO examples (word_id, explanation_id, example) VALUES (?, ?, ?)';
 const insertAsset = r'INSERT INTO assets (word_id, filename) VALUES (?, ?)';
 
-const insertCollectWord =
-    r'INSERT INTO collect_words (word_id, user_id) VALUES (?, ?)';
+const insertAcquaintance =
+    r'INSERT INTO acquaintances (word_id, user_id) VALUES (?, ?)';
 
 const insertTextMessage =
     r'INSERT INTO text_messages (time_stamp, content, word_id, patterns, user_id) VALUES (?, ?, ?, ?, ?)';
@@ -69,7 +69,7 @@ CREATE TABLE users (
         email VARCHAR NOT NULL, 
         PRIMARY KEY (id)
 );
-CREATE TABLE collect_words (
+CREATE TABLE acquaintances (
         word_id INTEGER NOT NULL, 
         user_id UUID, 
         acquaint INTEGER NOT NULL DEFAULT 0, 
@@ -97,5 +97,14 @@ CREATE TABLE collections (
         color INTEGER, 
         PRIMARY KEY (id), 
         UNIQUE (name)
+);
+CREATE TABLE collect_words (
+        id INTEGER NOT NULL, 
+        word_id INTEGER NOT NULL, 
+        mark VARCHAR NOT NULL DEFAULT 'uncategorized',
+        PRIMARY KEY (id), 
+        CONSTRAINT collection_unique UNIQUE (word_id, mark), 
+        FOREIGN KEY(word_id) REFERENCES words (id), 
+        FOREIGN KEY(mark) REFERENCES collections (name)
 );
 ''';

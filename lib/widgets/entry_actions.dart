@@ -28,7 +28,7 @@ class _EntryActionsState extends State<EntryActions> {
     if (!widget.skipIndexes.contains(1))
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Future.delayed(Durations.long2, () {
-          collect = MyDB.instance.getCollectWord(widget.wordID).collect;
+          collect = MyDB.instance.getAcquaintance(widget.wordID).collect;
           setState(() {});
         });
       });
@@ -45,7 +45,7 @@ class _EntryActionsState extends State<EntryActions> {
   @override
   void dispose() {
     if (!widget.skipIndexes.contains(1)) {
-      MyDB.instance.updateCollectWord(wordId: widget.wordID, collect: collect);
+      MyDB.instance.updateAcquaintance(wordId: widget.wordID, collect: collect);
     }
     super.dispose();
   }
@@ -149,13 +149,13 @@ class NaiveSegment extends StatefulWidget {
 }
 
 class _NaiveSegmentState extends State<NaiveSegment> {
-  late final collectWord = MyDB.instance.getCollectWord(widget.wordID);
+  late final collectWord = MyDB.instance.getAcquaintance(widget.wordID);
   late int acquaint = collectWord.acquaint;
   String firstText = 'Unknown', secondText = 'Naive';
 
   @override
   void dispose() {
-    MyDB().updateCollectWord(wordId: widget.wordID, acquaint: acquaint);
+    MyDB().updateAcquaintance(wordId: widget.wordID, acquaint: acquaint);
     super.dispose();
   }
 

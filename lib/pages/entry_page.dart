@@ -216,7 +216,7 @@ class EntryPage extends StatelessWidget {
                         backgroundColor: colorScheme.surfaceContainer,
                       ),
                       onPressed: () {
-                        MyDB.instance.updateCollectWord(
+                        MyDB.instance.updateAcquaintance(
                             wordId: word.wordId, acquaint: kMaxAcquaintance);
                         // Navigator.of(context)
                         //     .pushNamed(AppRoute.entryVocabulary);
@@ -234,7 +234,7 @@ class EntryPage extends StatelessWidget {
                       children: [
                         TextButton(
                           onPressed: () {
-                            MyDB.instance.updateCollectWord(
+                            MyDB.instance.updateAcquaintance(
                                 wordId: word.wordId, acquaint: 0);
                             // Navigator.of(context)
                             //     .pushNamed(AppRoute.entryVocabulary);

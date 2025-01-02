@@ -1,4 +1,4 @@
-import 'package:ai_vocabulary/model/collection_mark.dart';
+import 'package:ai_vocabulary/model/collections.dart';
 import 'package:ai_vocabulary/utils/shortcut.dart';
 import 'package:ai_vocabulary/widgets/flashcard.dart';
 import 'package:flutter/cupertino.dart';

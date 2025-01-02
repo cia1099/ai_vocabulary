@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:ai_vocabulary/bottom_sheet/edit_flashcard_sheet.dart';
 import 'package:ai_vocabulary/database/my_db.dart';
-import 'package:ai_vocabulary/model/collection_mark.dart';
+import 'package:ai_vocabulary/model/collections.dart';
 import 'package:ai_vocabulary/utils/regex.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';

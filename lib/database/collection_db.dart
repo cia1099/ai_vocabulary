@@ -19,7 +19,8 @@ extension CollectionDB on MyDB {
     const expression = 'DELETE FROM collections WHERE name=?';
     final db = open(OpenMode.readWrite);
     db.execute(expression, [name]);
-    //TODO: also need to delete relative words in this collection
+    const removeRelative = 'DELETE FROM collect_words WHERE mark=?';
+    db.execute(removeRelative, [name]);
     db.dispose();
   }
 
@@ -64,5 +65,50 @@ extension CollectionDB on MyDB {
         .map((e) => '$e=?')
         .join(',');
     return 'UPDATE collections SET $posInput WHERE collections.name=?';
+  }
+
+  void addCollectWord(int wordID,
+      {Iterable<String> marks = const ['uncategorized']}) {
+    assert(marks.isNotEmpty);
+    const expression =
+        'INSERT INTO collect_words (word_id, mark) VALUES (?, ?)';
+    final db = open(OpenMode.readWrite);
+    final stmt = db.prepare(expression);
+    for (final mark in marks) {
+      stmt.execute([wordID, mark]);
+    }
+    stmt.dispose();
+    db.dispose();
+    // notifyListeners();
+  }
+
+  Iterable<String> fetchWordBelongMarks(int wordID) {
+    const expression = 'SELECT mark FROM collect_words WHERE word_id=?';
+    final db = open(OpenMode.readOnly);
+    final resultSet = db.select(expression, [wordID]);
+    db.dispose();
+    return resultSet.map((row) => row['mark'] as String);
+  }
+
+  void removeCollectWord(int wordID, {Iterable<String> marks = const []}) {
+    const expression = 'DELETE FROM collect_words WHERE word_id=? AND mark=?';
+    if (marks.isEmpty) return;
+    final db = open(OpenMode.readWrite);
+    final stmt = db.prepare(expression);
+    for (final mark in marks) {
+      stmt.execute([wordID, mark]);
+    }
+    stmt.dispose();
+    db.dispose();
+    // notifyListeners();
+  }
+
+  bool hasCollectWord(int wordID) {
+    const expression =
+        'SELECT count(word_id) AS count_word FROM collect_words WHERE word_id=?';
+    final db = open(OpenMode.readOnly);
+    final result = db.select(expression, [wordID]);
+    db.dispose();
+    return result.first['count_word'] > 0;
   }
 }

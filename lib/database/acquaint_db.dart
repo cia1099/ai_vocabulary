@@ -1,7 +1,7 @@
 part of 'my_db.dart';
 
 extension AcquaintDB on MyDB {
-  void updateCollectWord({
+  void updateAcquaintance({
     required int wordId,
     int? acquaint,
     bool? collect,
@@ -27,7 +27,7 @@ extension AcquaintDB on MyDB {
 
     if (posInput.isEmpty) return;
     final expression =
-        'UPDATE collect_words SET $posInput WHERE collect_words.word_id=?';
+        'UPDATE acquaintances SET $posInput WHERE acquaintances.word_id=?';
     final db = open(OpenMode.readWrite);
     db.execute(
         expression,
@@ -38,12 +38,12 @@ extension AcquaintDB on MyDB {
     db.dispose();
   }
 
-  CollectWord getCollectWord(int wordID) {
+  Acquaintance getAcquaintance(int wordID) {
     final db = open(OpenMode.readOnly);
     final resultSet = db.select(
-        'SELECT * FROM collect_words WHERE collect_words.word_id = ?',
+        'SELECT * FROM acquaintances WHERE acquaintances.word_id = ?',
         [wordID]);
-    final collects = resultSet.take(1).map((row) => CollectWord.fromJson(row));
+    final collects = resultSet.take(1).map((row) => Acquaintance.fromJson(row));
     db.dispose();
     return collects.first;
   }
@@ -51,7 +51,7 @@ extension AcquaintDB on MyDB {
   Iterable<int> fetchDoneWordIDs() {
     final db = open(OpenMode.readOnly);
     final resultSet = db.select(
-        'SELECT word_id FROM collect_words WHERE collect_words.acquaint >= ?',
+        'SELECT word_id FROM acquaintances WHERE acquaintances.acquaint >= ?',
         [kMaxAcquaintance]);
     db.dispose();
     return resultSet.map((row) => row['word_id'] as int);
@@ -60,7 +60,7 @@ extension AcquaintDB on MyDB {
   Iterable<int> fetchReviewWordIDs() {
     final db = open(OpenMode.readOnly);
     final resultSet = db.select(
-        'SELECT word_id FROM collect_words WHERE acquaint < ? AND acquaint > ?',
+        'SELECT word_id FROM acquaintances WHERE acquaint < ? AND acquaint > ?',
         [kMaxAcquaintance, 0]);
     db.dispose();
     return resultSet.map((row) => row['word_id'] as int);
@@ -69,7 +69,7 @@ extension AcquaintDB on MyDB {
   Iterable<int> fetchUnknownWordIDs() {
     final db = open(OpenMode.readOnly);
     final resultSet = db.select(
-        'SELECT word_id FROM collect_words WHERE collect_words.acquaint = ?',
+        'SELECT word_id FROM acquaintances WHERE acquaintances.acquaint = ?',
         [0]);
     db.dispose();
     return resultSet.map((row) => row['word_id'] as int);

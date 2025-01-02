@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:ai_vocabulary/database/my_db.dart';
-import 'package:ai_vocabulary/model/collection_mark.dart';
+import 'package:ai_vocabulary/model/collections.dart';
 import 'package:ai_vocabulary/utils/function.dart';
 import 'package:ai_vocabulary/utils/shortcut.dart';
 import 'package:ai_vocabulary/widgets/flashcard.dart';

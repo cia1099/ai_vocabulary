@@ -1,13 +1,13 @@
 import 'dart:convert';
 
-class CollectWord {
+class Acquaintance {
   final int wordId;
   final String? userId;
   int acquaint;
   bool collect;
   String? bookmark;
 
-  CollectWord({
+  Acquaintance({
     required this.wordId,
     required this.userId,
     required this.acquaint,
@@ -15,12 +15,12 @@ class CollectWord {
     required this.bookmark,
   });
 
-  factory CollectWord.fromRawJson(String str) =>
-      CollectWord.fromJson(json.decode(str));
+  factory Acquaintance.fromRawJson(String str) =>
+      Acquaintance.fromJson(json.decode(str));
 
   String toRawJson() => json.encode(toJson());
 
-  factory CollectWord.fromJson(Map<String, dynamic> json) => CollectWord(
+  factory Acquaintance.fromJson(Map<String, dynamic> json) => Acquaintance(
         wordId: json["word_id"],
         userId: json["user_id"],
         acquaint: json["acquaint"],

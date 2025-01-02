@@ -1,14 +1,14 @@
 import 'dart:collection';
 import 'dart:io';
 
-import 'package:ai_vocabulary/model/collection_mark.dart';
+import 'package:ai_vocabulary/model/collections.dart';
 import 'package:ai_vocabulary/model/message.dart';
 import 'package:ai_vocabulary/model/vocabulary.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../model/alphabet.dart';
-import '../model/collect_word.dart';
+import '../model/acquaintance.dart';
 import '../utils/shortcut.dart';
 import 'sql_expression.dart';
 import 'package:path/path.dart' as p;
@@ -56,7 +56,7 @@ class MyDB with ChangeNotifier {
       insertExplanation,
       insertExample,
       insertAsset,
-      insertCollectWord
+      insertAcquaintance
     ];
     final stmts = db.prepareMultiple(insert.join(';'));
     await for (final word in words) {
@@ -205,8 +205,6 @@ void main() {
   // for (final word in words) {
   //   print(word.toRawJson());
   // }
-  final db = myDB.open(OpenMode.readWrite);
-  final stmt = db.prepare(insertCollectWord);
-  stmt.execute([123, null]);
-  db.dispose();
+  // myDB.addCollectWord(830, marks: ['uncategorized', 'shit']);
+  myDB.hasCollectWord(10);
 }
