@@ -82,23 +82,31 @@ extension CollectionDB on MyDB {
     // notifyListeners();
   }
 
-  Iterable<String> fetchWordBelongMarks(int wordID) {
-    const expression = 'SELECT mark FROM collect_words WHERE word_id=?';
+  Iterable<IncludeWordMark> fetchMarksIncludeWord(int wordID) {
+    const expression = '''
+  WITH include_word AS (SELECT word_id AS word_id, mark AS mark 
+  FROM collect_words WHERE collect_words.word_id = ?) 
+  SELECT word_id, collections.name FROM include_word 
+  FULL OUTER JOIN collections ON include_word.mark = collections.name 
+  ORDER BY collections.index
+''';
     final db = open(OpenMode.readOnly);
     final resultSet = db.select(expression, [wordID]);
     db.dispose();
-    return resultSet.map((row) => row['mark'] as String);
+    return resultSet.map((row) => IncludeWordMark(
+          mark: row['name'] ?? 'uncategorized',
+          contain: row['word_id'] == wordID,
+        ));
   }
 
   void removeCollectWord(int wordID, {Iterable<String> marks = const []}) {
-    const expression = 'DELETE FROM collect_words WHERE word_id=? AND mark=?';
     if (marks.isEmpty) return;
+    final expression = '''
+    DELETE FROM collect_words 
+    WHERE word_id=? AND (${marks.map((e) => 'mark=?').join(' OR ')})
+    ''';
     final db = open(OpenMode.readWrite);
-    final stmt = db.prepare(expression);
-    for (final mark in marks) {
-      stmt.execute([wordID, mark]);
-    }
-    stmt.dispose();
+    db.execute(expression, [wordID, ...marks]);
     db.dispose();
     // notifyListeners();
   }

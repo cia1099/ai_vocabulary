@@ -46,3 +46,9 @@ class CollectionMark extends BookMark {
 class SystemMark extends BookMark {
   SystemMark({required super.name, required super.index});
 }
+
+class IncludeWordMark {
+  final String mark;
+  final bool contain;
+  IncludeWordMark({required this.mark, required this.contain});
+}

@@ -101,8 +101,14 @@ class MyDB with ChangeNotifier {
 
   List<Vocabulary> fetchWords(Iterable<int> wordIds) {
     final fetchWordId = '''
-SELECT words.id, words.word, assets.filename, definitions.part_of_speech, definitions.inflection, definitions.alphabet_uk, definitions.alphabet_us, definitions.audio_uk, definitions.audio_us, definitions.translate, explanations.subscript, explanations.explain, examples.example 
-FROM words LEFT OUTER JOIN assets ON assets.word_id = words.id JOIN definitions ON words.id = definitions.word_id JOIN explanations ON explanations.definition_id = definitions.id LEFT OUTER JOIN examples ON examples.explanation_id = explanations.id 
+SELECT words.id, words.word, assets.filename, definitions.part_of_speech, 
+definitions.inflection, definitions.alphabet_uk, definitions.alphabet_us, 
+definitions.audio_uk, definitions.audio_us, definitions.translate, 
+explanations.subscript, explanations.explain, examples.example 
+FROM words LEFT OUTER JOIN assets ON assets.word_id = words.id 
+JOIN definitions ON words.id = definitions.word_id 
+JOIN explanations ON explanations.definition_id = definitions.id 
+LEFT OUTER JOIN examples ON examples.explanation_id = explanations.id 
 WHERE words.id IN (${wordIds.map((_) => '?').join(',')})
 ''';
     final db = open(OpenMode.readOnly);
