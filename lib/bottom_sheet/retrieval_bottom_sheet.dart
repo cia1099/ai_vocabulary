@@ -53,11 +53,7 @@ class _RetrievalBottomSheetState extends State<RetrievalBottomSheet>
       initialChildSize: .32,
       builder: (context, scrollController) => PlatformWidgetBuilder(
         material: (_, child, ___) => child,
-        cupertino: (_, child, ___) => Container(
-            decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface,
-                borderRadius: BorderRadius.circular(16)),
-            child: child),
+        cupertino: (_, child, ___) => CupertinoPopupSurface(child: child),
         child: LayoutBuilder(
           builder: (context, constraints) {
             final sheetHeight = constraints.maxHeight;

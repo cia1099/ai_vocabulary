@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:ai_vocabulary/database/my_db.dart';
 import 'package:ai_vocabulary/model/collection_mark.dart';
@@ -12,6 +11,7 @@ import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:lottie/lottie.dart';
 import 'package:reorderable_grid_view/reorderable_grid_view.dart';
 
+import '../effects/pointer_down_physic.dart';
 import '../widgets/filter_input_bar.dart';
 
 class CollectionPage extends StatefulWidget {
@@ -236,16 +236,15 @@ class _CollectionPageState extends State<CollectionPage> {
                 onPressed: () {
                   final insertIndex = reverse < 0 ? 1 : marks.length - 1;
                   var count = 0;
-                  if (marks
+                  final repoNames = marks
                       .where((m) => m.name.contains('Repository'))
-                      .isNotEmpty) {
-                    count = marks
-                            .where((m) => m.name.contains('Repository'))
-                            .map((m) =>
-                                RegExp(r'\d+').firstMatch(m.name)?.group(0))
-                            .map((digit) => int.tryParse(digit ?? '') ?? 0)
-                            .reduce((v1, v2) => max(v1, v2)) +
-                        1;
+                      .map((m) => m.name);
+                  if (repoNames.isNotEmpty) {
+                    final nameNumbers = repoNames
+                        .map(
+                            (name) => RegExp(r'\d+').firstMatch(name)?.group(0))
+                        .map((digit) => int.tryParse(digit ?? '') ?? 0);
+                    for (; nameNumbers.contains(count); count++) {}
                   }
                   final newMark = CollectionMark(
                       name:

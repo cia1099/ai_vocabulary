@@ -1,3 +1,5 @@
+import 'package:flutter/cupertino.dart';
+
 const _speechShortcut = {
   "verb": "v.",
   "noun": "n.",
@@ -14,6 +16,10 @@ const kMaxAcquaintance = 5;
 const kRemindLength = 7;
 const kMenuDividerHeight = 8.0;
 const kMaxInt64 = 9223372036854775807;
+const kCupertinoSheetColor = CupertinoDynamicColor.withBrightness(
+  color: Color(0xCCF2F2F2),
+  darkColor: Color(0xBF1E1E1E),
+);
 
 String speechShortcut(String partOfSpeech, {int length = 0}) {
   final shortcut =

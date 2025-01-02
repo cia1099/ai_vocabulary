@@ -1,4 +1,5 @@
 import 'package:ai_vocabulary/model/collection_mark.dart';
+import 'package:ai_vocabulary/utils/shortcut.dart';
 import 'package:ai_vocabulary/widgets/flashcard.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -40,12 +41,10 @@ class _EditFlashcardSheetState extends State<EditFlashcardSheet> {
                   children: [
                     Container(
                         height: kToolbarHeight,
-                        decoration: const BoxDecoration(
-                            color: CupertinoDynamicColor.withBrightness(
-                              color: Color(0xCCF2F2F2),
-                              darkColor: Color(0xBF1E1E1E),
-                            ),
-                            borderRadius: BorderRadius.vertical(
+                        decoration: BoxDecoration(
+                            color: CupertinoDynamicColor.resolve(
+                                kCupertinoSheetColor, context),
+                            borderRadius: const BorderRadius.vertical(
                               top: Radius.circular(kRadialReactionRadius),
                             )),
                         child: Stack(

@@ -8,6 +8,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
+import '../effects/pointer_down_physic.dart';
+import '../effects/slide_appear.dart';
 import '../utils/shortcut.dart';
 
 class Flashcard extends StatefulWidget {
@@ -165,7 +167,8 @@ class _FlashcardState extends State<Flashcard>
           onPressed: () => showCupertinoModalPopup<CollectionMark?>(
                   context: context,
                   builder: (context) {
-                    return EditFlashcardSheet(mark: widget.mark);
+                    return SlideAppear(
+                        child: EditFlashcardSheet(mark: widget.mark));
                   }).then((mark) {
                 if (mark != null) {
                   setState(() {
@@ -231,44 +234,5 @@ class _FlashcardState extends State<Flashcard>
     Future.delayed(Duration(milliseconds: Random().nextInt(150)), () {
       controller.repeat(reverse: true);
     });
-  }
-}
-
-class OnPointerDownPhysic extends StatefulWidget {
-  final Widget child;
-  final Color? color;
-
-  const OnPointerDownPhysic({
-    super.key,
-    required this.child,
-    this.color,
-  });
-
-  @override
-  State<OnPointerDownPhysic> createState() => _OnPointerDownPhysicState();
-}
-
-class _OnPointerDownPhysicState extends State<OnPointerDownPhysic> {
-  var onPointerDown = false;
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Listener(
-      onPointerDown: (_) => setState(() => onPointerDown = true),
-      onPointerUp: (_) => setState(() => onPointerDown = false),
-      onPointerCancel: (_) => setState(() => onPointerDown = false),
-      child: AnimatedPhysicalModel(
-        duration: const Duration(milliseconds: 100),
-        color: onPointerDown
-            ? widget.color ?? colorScheme.primaryContainer.withAlpha(0xff)
-            : Colors.transparent,
-        elevation: onPointerDown ? 4 : 0,
-        shadowColor: colorScheme.inverseSurface,
-        borderRadius: BorderRadius.circular(kRadialReactionRadius),
-        clipBehavior: Clip.antiAlias,
-        curve: Curves.easeInOutCubic,
-        child: widget.child,
-      ),
-    );
   }
 }

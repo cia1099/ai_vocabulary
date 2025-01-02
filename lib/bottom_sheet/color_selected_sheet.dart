@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:ai_vocabulary/main.dart';
 import 'package:ai_vocabulary/theme.dart';
+import 'package:ai_vocabulary/utils/shortcut.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -34,7 +35,8 @@ class _ColorSelectedSheetState extends State<ColorSelectedSheet> {
           decoration: BoxDecoration(
               borderRadius: const BorderRadius.vertical(
                   top: Radius.circular(kRadialReactionRadius)),
-              color: colorScheme.surfaceBright),
+              color:
+                  CupertinoDynamicColor.resolve(kCupertinoSheetColor, context)),
           width: double.maxFinite,
           height: maxHeight, //220,
           child: Column(

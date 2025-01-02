@@ -94,7 +94,7 @@ class SettingTab extends StatelessWidget {
                     barrierColor: Theme.of(context)
                         .colorScheme
                         .inverseSurface
-                        .withOpacity(.4),
+                        .withValues(alpha: .4),
                     context: context,
                   )),
                 )

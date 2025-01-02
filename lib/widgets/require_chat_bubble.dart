@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../api/dict_api.dart';
+import '../effects/dot3indicator.dart';
 import '../model/message.dart';
 import '../painters/chat_bubble.dart';
 import 'chat_bubble.dart';
-import 'dot3indicator.dart';
 
 class RequireChatBubble extends StatelessWidget {
   final RequireMessage message;
