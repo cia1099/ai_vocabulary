@@ -1,3 +1,4 @@
+import 'package:ai_vocabulary/bottom_sheet/manage_collection.dart';
 import 'package:ai_vocabulary/provider/word_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -73,18 +74,18 @@ class _MyAppState extends State<MyApp> with AppRoute {
           ],
           onGenerateRoute: generateRoute,
           initialRoute: AppRoute.home,
-          // home: Builder(builder: (context) {
-          //   return PlatformScaffold(
-          //     body: Center(
-          //       child: CupertinoButton.filled(
-          //           onPressed: () => Navigator.of(context).push(
-          //               platformPageRoute(
-          //                   context: context,
-          //                   builder: (context) => ChatRoomPage(word: apple))),
-          //           child: const Text('Go Chat!')),
-          //     ),
-          //   );
-          // }),
+          home: Builder(builder: (context) {
+            return PlatformScaffold(
+              body: Center(
+                child: CupertinoButton.filled(
+                    onPressed: () => showPlatformModalSheet(
+                          context: context,
+                          builder: (context) => const ManageCollectionSheet(),
+                        ),
+                    child: const Text('Go Chat!')),
+              ),
+            );
+          }),
         ),
       ),
     );

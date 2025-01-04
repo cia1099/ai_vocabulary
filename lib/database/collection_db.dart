@@ -86,7 +86,7 @@ extension CollectionDB on MyDB {
     const expression = '''
   WITH include_word AS (SELECT word_id AS word_id, mark AS mark 
   FROM collect_words WHERE collect_words.word_id = ?) 
-  SELECT word_id, collections.name FROM include_word 
+  SELECT word_id, collections.name, collections.index FROM include_word 
   FULL OUTER JOIN collections ON include_word.mark = collections.name 
   ORDER BY collections.index
 ''';
@@ -103,7 +103,7 @@ extension CollectionDB on MyDB {
     if (marks.isEmpty) return;
     final expression = '''
     DELETE FROM collect_words 
-    WHERE word_id=? AND (${marks.map((e) => 'mark=?').join(' OR ')})
+    WHERE word_id=? AND mark IN (${marks.map((e) => '?').join(',')})
     ''';
     final db = open(OpenMode.readWrite);
     db.execute(expression, [wordID, ...marks]);
