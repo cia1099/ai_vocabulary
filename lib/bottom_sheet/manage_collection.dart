@@ -115,7 +115,7 @@ class _ManageCollectionSheetState extends State<ManageCollectionSheet> {
                               style: textTheme.titleLarge)),
                       leading: PlatformWidget(
                         cupertino: (_, __) => CupertinoCheckbox(
-                          value: marks[index].contain,
+                          value: marks[index].included,
                           onChanged: (value) => onChecked(index, value),
                           checkColor: colorScheme.onPrimary,
                           fillColor: WidgetStateColor.resolveWith(
@@ -125,7 +125,7 @@ class _ManageCollectionSheetState extends State<ManageCollectionSheet> {
                           ),
                         ),
                         material: (_, __) => Checkbox(
-                          value: marks[index].contain,
+                          value: marks[index].included,
                           onChanged: (value) => onChecked(index, value),
                           checkColor: colorScheme.onPrimary,
                           fillColor: WidgetStateColor.resolveWith(
@@ -139,21 +139,21 @@ class _ManageCollectionSheetState extends State<ManageCollectionSheet> {
                           index: index,
                           child: const Icon(CupertinoIcons.line_horizontal_3)),
                     ),
-                    // footer: PlatformListTile(
-                    //     leading: const Icon(
-                    //       CupertinoIcons.add_circled_solid,
-                    //       size: 20,
-                    //     ),
-                    //     onTap: createNewMark,
-                    //     title: Container(
-                    //         alignment: const Alignment(-1, 0),
-                    //         constraints: const BoxConstraints.tightForFinite(
-                    //             height: kToolbarHeight),
-                    //         child: Text(
-                    //           'New mark',
-                    //           style: textTheme.bodyLarge
-                    //               ?.apply(color: colorScheme.primary),
-                    //         ))),
+                    footer: PlatformListTile(
+                        leading: const Icon(
+                          CupertinoIcons.add_circled_solid,
+                          size: 20,
+                        ),
+                        onTap: createNewMark,
+                        title: Container(
+                            alignment: const Alignment(-1, 0),
+                            constraints: const BoxConstraints.tightForFinite(
+                                height: kToolbarHeight),
+                            child: Text(
+                              'New mark',
+                              style: textTheme.bodyLarge
+                                  ?.apply(color: colorScheme.primary),
+                            ))),
                     itemCount: marks.length,
                     onReorder: onReorder,
                   )),
@@ -166,7 +166,7 @@ class _ManageCollectionSheetState extends State<ManageCollectionSheet> {
                             top:
                                 BorderSide(color: colorScheme.outlineVariant))),
                     child: PlatformTextButton(
-                      onPressed: () {},
+                      onPressed: onDone,
                       padding: EdgeInsets.zero,
                       material: (_, __) => MaterialTextButtonData(
                           style: TextButton.styleFrom(
@@ -183,9 +183,37 @@ class _ManageCollectionSheetState extends State<ManageCollectionSheet> {
     );
   }
 
+  void onDone() {
+    Navigator.pop(context);
+    // remove unchecked CollectWords
+    MyDB().removeCollectWord(widget.wordID,
+        marks: marks.where((e) => !e.included).map((e) => e.name));
+    // insert new CollectionMarks
+    final oldMarks = MyDB().fetchMarksIncludeWord(widget.wordID);
+    marks
+        .asMap()
+        .entries
+        .where((m) => !oldMarks.contains(m.value))
+        .forEach((m) {
+      MyDB().insertCollection(m.value.name, m.key);
+    });
+    // insert new CollectWords
+    final newIncludeMarks = marks.where((m) => m.included).expand((m) sync* {
+      final oldMark = oldMarks.where((om) => om == m).firstOrNull;
+      if (oldMark == null || !oldMark.included) {
+        yield m;
+      }
+    });
+    MyDB().addCollectWord(widget.wordID,
+        marks: newIncludeMarks.map((e) => e.name));
+    // update indexes
+    MyDB().updateIndexes(marks.asMap().entries.map(
+        (entry) => IncludeWordMark(name: entry.value.name, index: entry.key)));
+  }
+
   void onChecked(int index, bool? value) {
     setState(() {
-      marks[index].contain = value ?? false;
+      marks[index].included = value ?? false;
     });
   }
 
@@ -197,7 +225,6 @@ class _ManageCollectionSheetState extends State<ManageCollectionSheet> {
       final mark = marks.removeAt(oldIndex);
       marks.insert(newIndex, mark);
     });
-    // MyDB().updateIndexes(marks);
   }
 
   void createNewMark() {

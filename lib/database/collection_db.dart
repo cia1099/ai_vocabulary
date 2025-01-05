@@ -69,7 +69,7 @@ extension CollectionDB on MyDB {
 
   void addCollectWord(int wordID,
       {Iterable<String> marks = const ['uncategorized']}) {
-    assert(marks.isNotEmpty);
+    if (marks.isEmpty) return;
     const expression =
         'INSERT INTO collect_words (word_id, mark) VALUES (?, ?)';
     final db = open(OpenMode.readWrite);
@@ -79,7 +79,7 @@ extension CollectionDB on MyDB {
     }
     stmt.dispose();
     db.dispose();
-    // notifyListeners();
+    notifyListeners();
   }
 
   Iterable<IncludeWordMark> fetchMarksIncludeWord(int wordID) {
@@ -95,7 +95,7 @@ extension CollectionDB on MyDB {
     db.dispose();
     return resultSet.map((row) => IncludeWordMark(
           name: row['name'] ?? 'uncategorized',
-          contain: row['word_id'] == wordID,
+          included: row['word_id'] == wordID,
           index: row['index'],
         ));
   }
@@ -109,7 +109,7 @@ extension CollectionDB on MyDB {
     final db = open(OpenMode.readWrite);
     db.execute(expression, [wordID, ...marks]);
     db.dispose();
-    // notifyListeners();
+    notifyListeners();
   }
 
   bool hasCollectWord(int wordID) {
