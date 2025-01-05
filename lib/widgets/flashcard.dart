@@ -128,7 +128,7 @@ class _FlashcardState extends State<Flashcard>
                         color: colorScheme.surfaceDim,
                         borderRadius:
                             BorderRadius.circular(kRadialReactionRadius / 2),
-                        border: Border.all(color: colorScheme.outline),
+                        border: Border.all(color: colorScheme.outlineVariant),
                       ),
                     )),
                 actions: [

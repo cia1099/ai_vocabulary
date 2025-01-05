@@ -1,4 +1,5 @@
 import 'package:ai_vocabulary/bottom_sheet/manage_collection.dart';
+import 'package:ai_vocabulary/database/my_db.dart';
 import 'package:ai_vocabulary/provider/word_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -26,6 +27,7 @@ class _MyAppState extends State<MyApp> with AppRoute {
   @override
   void initState() {
     super.initState();
+    MyDB();
     MyApp.colorSelectedIndex.addListener(colorListener);
     MyApp.brightSwitcher.addListener(brightListener);
   }
@@ -80,7 +82,8 @@ class _MyAppState extends State<MyApp> with AppRoute {
                 child: CupertinoButton.filled(
                     onPressed: () => showPlatformModalSheet(
                           context: context,
-                          builder: (context) => const ManageCollectionSheet(),
+                          builder: (context) =>
+                              const ManageCollectionSheet(wordID: 830),
                         ),
                     child: const Text('Go Chat!')),
               ),

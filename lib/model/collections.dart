@@ -47,8 +47,8 @@ class SystemMark extends BookMark {
   SystemMark({required super.name, required super.index});
 }
 
-class IncludeWordMark {
-  final String mark;
-  final bool contain;
-  IncludeWordMark({required this.mark, required this.contain});
+class IncludeWordMark extends BookMark {
+  bool contain;
+  IncludeWordMark(
+      {required super.name, required super.index, this.contain = false});
 }
