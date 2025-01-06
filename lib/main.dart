@@ -1,6 +1,4 @@
-import 'package:ai_vocabulary/bottom_sheet/manage_collection.dart';
 import 'package:ai_vocabulary/database/my_db.dart';
-import 'package:ai_vocabulary/effects/automated_pop_route.dart';
 import 'package:ai_vocabulary/provider/word_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -77,88 +75,19 @@ class _MyAppState extends State<MyApp> with AppRoute {
           ],
           onGenerateRoute: generateRoute,
           initialRoute: AppRoute.home,
-          home: Builder(builder: (context) {
-            return PlatformScaffold(
-              body: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  spacing: 20,
-                  children: [
-                    CupertinoButton.filled(
-                        onPressed: () => Navigator.push(
-                            context,
-                            AutomatedPopRoute(
-                              builder: (context) => Align(
-                                  alignment: const Alignment(0, -.75),
-                                  child: Card(
-                                    color: CupertinoColors.darkBackgroundGray,
-                                    shadowColor: Theme.of(context)
-                                        .colorScheme
-                                        .inverseSurface,
-                                    elevation: 5,
-                                    child: Container(
-                                      padding: const EdgeInsets.all(16),
-                                      constraints:
-                                          const BoxConstraints.tightForFinite(
-                                              height: 100),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(
-                                            'Added to collection!',
-                                            style: TextStyle(
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .onPrimary),
-                                          ),
-                                          PlatformTextButton(
-                                            onPressed: () {},
-                                            padding: EdgeInsets.zero,
-                                            child: Wrap(
-                                              spacing: 4,
-                                              crossAxisAlignment:
-                                                  WrapCrossAlignment.center,
-                                              children: [
-                                                const Text('Manage'),
-                                                Hero(
-                                                  tag: 'favorite',
-                                                  child: Icon(
-                                                      CupertinoIcons.star_fill,
-                                                      color: CupertinoDynamicColor
-                                                          .resolve(
-                                                              CupertinoColors
-                                                                  .systemYellow,
-                                                              context)),
-                                                )
-                                              ],
-                                            ),
-                                            material: (_, __) =>
-                                                MaterialTextButtonData(
-                                                    style: TextButton.styleFrom(
-                                              tapTargetSize:
-                                                  MaterialTapTargetSize
-                                                      .shrinkWrap,
-                                            )),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  )),
-                            )),
-                        // showPlatformModalSheet(
-                        //       context: context,
-                        //       builder: (context) =>
-                        //           const ManageCollectionSheet(wordID: 830),
-                        //     ),
-                        child: const Text('Go Route!')),
-                    const Hero(
-                        tag: 'favorite', child: Icon(CupertinoIcons.star)),
-                  ],
-                ),
-              ),
-            );
-          }),
+          // home: Builder(builder: (context) {
+          //   return PlatformScaffold(
+          //     body: Center(
+          //       child: CupertinoButton.filled(
+          //           onPressed: () => showPlatformModalSheet(
+          //                 context: context,
+          //                 builder: (context) =>
+          //                     const ManageCollectionSheet(wordID: 830),
+          //               ),
+          //           child: const Text('Go Route!')),
+          //     ),
+          //   );
+          // }),
         ),
       ),
     );

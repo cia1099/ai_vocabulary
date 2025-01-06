@@ -8,9 +8,12 @@ class AutomatedPopRoute<T> extends PageRoute<T> {
       Animation<double> secondaryAnimation, Widget child) transitionsBuilder;
   final Duration stay;
   Timer? timer;
+  @override
+  final Color? barrierColor;
 
   AutomatedPopRoute({
     required this.builder,
+    this.barrierColor,
     this.stay = Durations.extralong4,
     this.transitionsBuilder = _kDefaultIslandTransitionsBuilder,
   });
@@ -29,7 +32,7 @@ class AutomatedPopRoute<T> extends PageRoute<T> {
   @override
   Widget buildTransitions(BuildContext context, Animation<double> animation,
       Animation<double> secondaryAnimation, Widget child) {
-    return buildTransitions(context, animation, secondaryAnimation, child);
+    return transitionsBuilder(context, animation, secondaryAnimation, child);
   }
 
   @override
@@ -40,9 +43,6 @@ class AutomatedPopRoute<T> extends PageRoute<T> {
 
   @override
   Duration get transitionDuration => const Duration(milliseconds: 300);
-
-  @override
-  Color? get barrierColor => Colors.black54;
 
   @override
   bool get barrierDismissible => true;
@@ -66,12 +66,9 @@ Widget _kDefaultIslandTransitionsBuilder(
       parent: animation,
       curve: Curves.linearToEaseOut,
       reverseCurve: Curves.fastOutSlowIn);
-  return SlideTransition(
-      position:
-          Tween<Offset>(begin: const Offset(0, -1), end: Offset.zero).animate(
-        curveAnimation,
-      ),
-      child: ScaleTransition(
-          scale: Tween<double>(begin: .1, end: 1).animate(curveAnimation),
-          child: child));
+
+  return ScaleTransition(
+      alignment: const Alignment(0, -.95),
+      scale: Tween<double>(begin: 0, end: 1).animate(curveAnimation),
+      child: child);
 }

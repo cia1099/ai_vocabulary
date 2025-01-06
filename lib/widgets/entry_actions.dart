@@ -5,8 +5,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
+import '../effects/automated_pop_route.dart';
+import '../pages/add_collection_island.dart';
 import '../pages/report_popup.dart';
 import '../pages/search_popup.dart';
+import '../utils/function.dart';
 import '../utils/shortcut.dart';
 
 class EntryActions extends StatelessWidget {
@@ -65,16 +68,20 @@ class EntryActions extends StatelessWidget {
             final collect = MyDB().hasCollectWord(wordID);
             return GestureDetector(
                 onTap: toggleCollectionMethods(collect, context),
-                child: collect
-                    ? Icon(
-                        CupertinoIcons.star_fill,
-                        color: CupertinoColors.systemYellow,
-                        size: appBarIconSize,
-                      )
-                    : Icon(
-                        CupertinoIcons.star,
-                        size: appBarIconSize,
-                      ));
+                child: Hero(
+                  tag: 'favorite',
+                  child: Icon(
+                    collect ? CupertinoIcons.star_fill : CupertinoIcons.star,
+                    color: collect ? CupertinoColors.systemYellow : null,
+                    size: appBarIconSize,
+                  ),
+                  flightShuttleBuilder: (flightContext, animation,
+                          flightDirection, fromHeroContext, toHeroContext) =>
+                      ScaleTransition(
+                    scale: PeakQuadraticTween().animate(animation),
+                    child: toHeroContext.widget,
+                  ),
+                ));
           },
         ),
       if (!skipIndexes.contains(2))
@@ -115,13 +122,28 @@ class EntryActions extends StatelessWidget {
   VoidCallback toggleCollectionMethods(
       final bool hasCollection, BuildContext context) {
     if (!hasCollection) {
-      return () => MyDB().addCollectWord(wordID);
+      return () {
+        MyDB().addCollectWord(wordID);
+        Navigator.push(
+            context,
+            AutomatedPopRoute(
+              stay: const Duration(milliseconds: 1500),
+              barrierColor: Colors.black38,
+              builder: (context) => AddCollectionIsland(
+                onPressed: () => showManageCollectionSheet(context),
+              ),
+            ));
+      };
     } else {
-      return () => showPlatformModalSheet(
-            context: context,
-            builder: (context) => ManageCollectionSheet(wordID: wordID),
-          );
+      return () => showManageCollectionSheet(context);
     }
+  }
+
+  void showManageCollectionSheet(BuildContext context) {
+    showPlatformModalSheet(
+      context: context,
+      builder: (context) => ManageCollectionSheet(wordID: wordID),
+    );
   }
 }
 
