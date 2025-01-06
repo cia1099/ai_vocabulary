@@ -68,7 +68,7 @@ extension CollectionDB on MyDB {
   }
 
   void addCollectWord(int wordID,
-      {Iterable<String> marks = const ['uncategorized']}) {
+      {Iterable<String> marks = const [kUncategorizedName]}) {
     if (marks.isEmpty) return;
     const expression =
         'INSERT INTO collect_words (word_id, mark) VALUES (?, ?)';
@@ -94,7 +94,7 @@ extension CollectionDB on MyDB {
     final resultSet = db.select(expression, [wordID]);
     db.dispose();
     return resultSet.map((row) => IncludeWordMark(
-          name: row['name'] ?? 'uncategorized',
+          name: row['name'] ?? kUncategorizedName,
           included: row['word_id'] == wordID,
           index: row['index'],
         ));

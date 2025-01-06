@@ -1,5 +1,6 @@
 import 'package:ai_vocabulary/bottom_sheet/manage_collection.dart';
 import 'package:ai_vocabulary/database/my_db.dart';
+import 'package:ai_vocabulary/effects/isalnd_zoom_out.dart';
 import 'package:ai_vocabulary/provider/word_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -80,11 +81,47 @@ class _MyAppState extends State<MyApp> with AppRoute {
             return PlatformScaffold(
               body: Center(
                 child: CupertinoButton.filled(
-                    onPressed: () => showPlatformModalSheet(
-                          context: context,
-                          builder: (context) =>
-                              const ManageCollectionSheet(wordID: 830),
-                        ),
+                    onPressed: () => showOverlay(
+                        context: context,
+                        top: kToolbarHeight,
+                        child: Card(
+                          color: CupertinoColors.darkBackgroundGray,
+                          shadowColor:
+                              Theme.of(context).colorScheme.inverseSurface,
+                          elevation: 5,
+                          child: Container(
+                            padding: const EdgeInsets.all(16),
+                            constraints: const BoxConstraints.tightForFinite(
+                                height: 100),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'Added to collection!',
+                                  style: TextStyle(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onPrimary),
+                                ),
+                                PlatformTextButton(
+                                  onPressed: () {},
+                                  padding: EdgeInsets.zero,
+                                  child: const Text('Manage'),
+                                  material: (_, __) => MaterialTextButtonData(
+                                      style: TextButton.styleFrom(
+                                    tapTargetSize:
+                                        MaterialTapTargetSize.shrinkWrap,
+                                  )),
+                                ),
+                              ],
+                            ),
+                          ),
+                        )),
+                    // showPlatformModalSheet(
+                    //       context: context,
+                    //       builder: (context) =>
+                    //           const ManageCollectionSheet(wordID: 830),
+                    //     ),
                     child: const Text('Go Chat!')),
               ),
             );

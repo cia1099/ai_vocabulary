@@ -1,13 +1,15 @@
 import 'package:ai_vocabulary/app_route.dart';
+import 'package:ai_vocabulary/bottom_sheet/manage_collection.dart';
 import 'package:ai_vocabulary/database/my_db.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
 import '../pages/report_popup.dart';
 import '../pages/search_popup.dart';
 import '../utils/shortcut.dart';
 
-class EntryActions extends StatefulWidget {
+class EntryActions extends StatelessWidget {
   const EntryActions({
     super.key,
     required this.wordID,
@@ -17,47 +19,16 @@ class EntryActions extends StatefulWidget {
   final List<int> skipIndexes;
 
   @override
-  State<EntryActions> createState() => _EntryActionsState();
-}
-
-class _EntryActionsState extends State<EntryActions> {
-  var collect = false;
-  @override
-  void initState() {
-    super.initState();
-    if (!widget.skipIndexes.contains(1))
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        Future.delayed(Durations.long2, () {
-          collect = MyDB.instance.getAcquaintance(widget.wordID).collect;
-          setState(() {});
-        });
-      });
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Wrap(
       spacing: 8,
-      children: actions(widget.skipIndexes),
+      children: actions(skipIndexes, context),
     );
   }
 
-  @override
-  void dispose() {
-    if (!widget.skipIndexes.contains(1)) {
-      MyDB.instance.updateAcquaintance(wordId: widget.wordID, collect: collect);
-    }
-    super.dispose();
-  }
-
-  void toggleCollection() {
-    setState(() {
-      collect ^= true;
-    });
-  }
-
-  List<Widget> actions(List<int> skipIndexes) {
+  List<Widget> actions(List<int> skipIndexes, BuildContext context) {
     final appBarIconSize = Theme.of(context).appBarTheme.actionsIconTheme?.size;
+    final colorScheme = Theme.of(context).colorScheme;
     // final navColor =
     //     CupertinoTheme.of(context).textTheme.navActionTextStyle.color;
     return [
@@ -68,7 +39,7 @@ class _EntryActionsState extends State<EntryActions> {
                   barrierDismissible: true,
                   maintainState: true,
                   barrierColor:
-                      Theme.of(context).colorScheme.shadow.withOpacity(.4),
+                      colorScheme.inverseSurface.withValues(alpha: .4),
                   pageBuilder: (context, _, __) => const SearchPopUpPage(),
                   settings: const RouteSettings(name: AppRoute.searchWords),
                   transitionsBuilder:
@@ -88,27 +59,33 @@ class _EntryActionsState extends State<EntryActions> {
               // color: navColor,
             )),
       if (!skipIndexes.contains(1))
-        GestureDetector(
-            onTap: toggleCollection,
-            child: collect
-                ? Icon(
-                    CupertinoIcons.star_fill,
-                    color: CupertinoColors.systemYellow,
-                    size: appBarIconSize,
-                  )
-                : Icon(
-                    CupertinoIcons.star,
-                    size: appBarIconSize,
-                  )),
+        ListenableBuilder(
+          listenable: MyDB.instance,
+          builder: (context, child) {
+            final collect = MyDB().hasCollectWord(wordID);
+            return GestureDetector(
+                onTap: toggleCollectionMethods(collect, context),
+                child: collect
+                    ? Icon(
+                        CupertinoIcons.star_fill,
+                        color: CupertinoColors.systemYellow,
+                        size: appBarIconSize,
+                      )
+                    : Icon(
+                        CupertinoIcons.star,
+                        size: appBarIconSize,
+                      ));
+          },
+        ),
       if (!skipIndexes.contains(2))
         GestureDetector(
             onTap: () => Navigator.of(context).push(PageRouteBuilder(
                   opaque: false,
                   barrierDismissible: true,
                   barrierColor:
-                      Theme.of(context).colorScheme.shadow.withOpacity(.4),
+                      colorScheme.inverseSurface.withValues(alpha: .4),
                   pageBuilder: (context, animation, secondaryAnimation) =>
-                      ReportPopUpPage(wordID: widget.wordID),
+                      ReportPopUpPage(wordID: wordID),
                   // transitionDuration: Durations.medium1,
                   settings: const RouteSettings(name: AppRoute.menuPopup),
                   transitionsBuilder:
@@ -133,6 +110,18 @@ class _EntryActionsState extends State<EntryActions> {
               size: appBarIconSize,
             )),
     ];
+  }
+
+  VoidCallback toggleCollectionMethods(
+      final bool hasCollection, BuildContext context) {
+    if (!hasCollection) {
+      return () => MyDB().addCollectWord(wordID);
+    } else {
+      return () => showPlatformModalSheet(
+            context: context,
+            builder: (context) => ManageCollectionSheet(wordID: wordID),
+          );
+    }
   }
 }
 

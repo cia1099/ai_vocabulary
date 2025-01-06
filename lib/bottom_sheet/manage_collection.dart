@@ -1,4 +1,5 @@
 import 'package:ai_vocabulary/model/collections.dart';
+import 'package:ai_vocabulary/utils/shortcut.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
@@ -102,43 +103,7 @@ class _ManageCollectionSheetState extends State<ManageCollectionSheet> {
                   Expanded(
                       child: ReorderableListView.builder(
                     buildDefaultDragHandles: false,
-                    itemBuilder: (context, index) => PlatformListTile(
-                      key: Key(marks[index].name),
-                      title: Container(
-                          // color: Colors.red,
-                          constraints:
-                              const BoxConstraints(minHeight: kToolbarHeight),
-                          alignment: const Alignment(-1, 0),
-                          child: Text(marks[index].name,
-                              maxLines: 3,
-                              overflow: TextOverflow.ellipsis,
-                              style: textTheme.titleLarge)),
-                      leading: PlatformWidget(
-                        cupertino: (_, __) => CupertinoCheckbox(
-                          value: marks[index].included,
-                          onChanged: (value) => onChecked(index, value),
-                          checkColor: colorScheme.onPrimary,
-                          fillColor: WidgetStateColor.resolveWith(
-                            (states) => states.contains(WidgetState.selected)
-                                ? colorScheme.primary
-                                : const Color(0x00000000),
-                          ),
-                        ),
-                        material: (_, __) => Checkbox(
-                          value: marks[index].included,
-                          onChanged: (value) => onChecked(index, value),
-                          checkColor: colorScheme.onPrimary,
-                          fillColor: WidgetStateColor.resolveWith(
-                            (states) => states.contains(WidgetState.selected)
-                                ? colorScheme.primary
-                                : const Color(0x00000000),
-                          ),
-                        ),
-                      ),
-                      trailing: ReorderableDragStartListener(
-                          index: index,
-                          child: const Icon(CupertinoIcons.line_horizontal_3)),
-                    ),
+                    itemBuilder: (context, index) => itemBuilder(marks[index]),
                     footer: PlatformListTile(
                         leading: const Icon(
                           CupertinoIcons.add_circled_solid,
@@ -166,12 +131,12 @@ class _ManageCollectionSheetState extends State<ManageCollectionSheet> {
                             top:
                                 BorderSide(color: colorScheme.outlineVariant))),
                     child: PlatformTextButton(
-                      onPressed: onDone,
+                      onPressed: onSave,
                       padding: EdgeInsets.zero,
                       material: (_, __) => MaterialTextButtonData(
                           style: TextButton.styleFrom(
                               tapTargetSize: MaterialTapTargetSize.shrinkWrap)),
-                      child: const Text('Done'),
+                      child: const Text('Save'),
                     ),
                   ),
                 ],
@@ -183,12 +148,61 @@ class _ManageCollectionSheetState extends State<ManageCollectionSheet> {
     );
   }
 
-  void onDone() {
+  Widget itemBuilder(IncludeWordMark mark) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    return PlatformListTile(
+      key: Key(mark.name),
+      title: Container(
+          // color: Colors.red,
+          constraints: const BoxConstraints(minHeight: kToolbarHeight),
+          alignment: const Alignment(-1, 0),
+          child: Text(mark.name,
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+              style: textTheme.titleLarge)),
+      leading: PlatformWidget(
+        cupertino: (_, __) => CupertinoCheckbox(
+          value: mark.included,
+          onChanged: (value) => setState(() {
+            mark.included = value ?? false;
+          }),
+          checkColor: colorScheme.onPrimary,
+          fillColor: WidgetStateColor.resolveWith(
+            (states) => states.contains(WidgetState.selected)
+                ? colorScheme.primary
+                : const Color(0x00000000),
+          ),
+        ),
+        material: (_, __) => Checkbox(
+          value: mark.included,
+          onChanged: (value) => setState(() {
+            mark.included = value ?? false;
+          }),
+          checkColor: colorScheme.onPrimary,
+          fillColor: WidgetStateColor.resolveWith(
+            (states) => states.contains(WidgetState.selected)
+                ? colorScheme.primary
+                : const Color(0x00000000),
+          ),
+        ),
+      ),
+      trailing: ReorderableDragStartListener(
+          index: marks.indexOf(mark),
+          enabled: mark.name != kUncategorizedName,
+          child: Icon(mark.name != kUncategorizedName
+              ? CupertinoIcons.line_horizontal_3
+              : CupertinoIcons.text_badge_xmark)),
+    );
+  }
+
+  void onSave() {
     Navigator.pop(context);
     // remove unchecked CollectWords
     MyDB().removeCollectWord(widget.wordID,
         marks: marks.where((e) => !e.included).map((e) => e.name));
-    // insert new CollectionMarks
+    // insert new CollectionMarks and exclude kUncategorizedName
+    marks.removeWhere((m) => m.name == kUncategorizedName);
     final oldMarks = MyDB().fetchMarksIncludeWord(widget.wordID);
     marks
         .asMap()
@@ -211,16 +225,11 @@ class _ManageCollectionSheetState extends State<ManageCollectionSheet> {
         (entry) => IncludeWordMark(name: entry.value.name, index: entry.key)));
   }
 
-  void onChecked(int index, bool? value) {
-    setState(() {
-      marks[index].included = value ?? false;
-    });
-  }
-
   void onReorder(oldIndex, newIndex) {
     if (oldIndex < newIndex) {
       newIndex -= 1;
     }
+    if (marks.any((m) => m.name == kUncategorizedName) && newIndex < 1) return;
     setState(() {
       final mark = marks.removeAt(oldIndex);
       marks.insert(newIndex, mark);
