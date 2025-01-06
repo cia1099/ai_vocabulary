@@ -49,6 +49,5 @@ class SystemMark extends BookMark {
 
 class IncludeWordMark extends BookMark {
   bool included;
-  IncludeWordMark(
-      {required super.name, required super.index, this.included = false});
+  IncludeWordMark({required super.name, super.index, this.included = false});
 }

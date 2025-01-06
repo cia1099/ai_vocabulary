@@ -293,12 +293,9 @@ class _ManageCollectionSheetState extends State<ManageCollectionSheet> {
         ),
       ),
     ).then((newName) {
-      if (newName != null)
+      if (newName != null && mounted)
         setState(() {
-          Future.delayed(
-              Durations.medium1,
-              () => marks
-                  .add(IncludeWordMark(name: newName, index: marks.length)));
+          marks.add(IncludeWordMark(name: newName, index: marks.length));
         });
     });
   }

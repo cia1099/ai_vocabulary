@@ -3,38 +3,12 @@ part of 'my_db.dart';
 extension AcquaintDB on MyDB {
   void updateAcquaintance({
     required int wordId,
-    int? acquaint,
-    bool? collect,
-    String? bookmark,
+    required int acquaint,
   }) {
-    final inputs = <dynamic>[acquaint, collect, bookmark];
-    final posInput = List.generate(inputs.length, (i) {
-      final input = inputs.elementAt(i);
-      if (input == null) return input;
-      switch (i) {
-        case 0:
-          return 'acquaint=?';
-        case 1:
-          return 'collect=?';
-        case 2:
-          return 'bookmark=?';
-        default:
-          return input;
-      }
-    }).expand((e) sync* {
-      if (e != null) yield e;
-    }).join(',');
-
-    if (posInput.isEmpty) return;
-    final expression =
-        'UPDATE acquaintances SET $posInput WHERE acquaintances.word_id=?';
+    const expression =
+        'UPDATE acquaintances SET acquaint=? WHERE acquaintances.word_id=?';
     final db = open(OpenMode.readWrite);
-    db.execute(
-        expression,
-        inputs.expand((e) sync* {
-              if (e != null) yield e;
-            }).toList() +
-            [wordId]);
+    db.execute(expression, [wordId]);
     db.dispose();
   }
 

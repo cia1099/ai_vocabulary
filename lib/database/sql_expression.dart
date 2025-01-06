@@ -73,8 +73,6 @@ CREATE TABLE acquaintances (
         word_id INTEGER NOT NULL, 
         user_id UUID, 
         acquaint INTEGER NOT NULL DEFAULT 0, 
-        collect BOOLEAN NOT NULL DEFAULT false, 
-        bookmark VARCHAR, 
         PRIMARY KEY (word_id), 
         FOREIGN KEY(word_id) REFERENCES words (id),
         FOREIGN KEY(user_id) REFERENCES users (id)

@@ -95,7 +95,7 @@ class WordListPage extends StatelessWidget {
                                     ),
                                     TextSpan(text: '\t' * 2),
                                     TextSpan(
-                                        text: phonetics.first.phonetic,
+                                        text: phonetics.firstOrNull?.phonetic,
                                         style: TextStyle(
                                           color: colorScheme.onSurfaceVariant,
                                         )),
