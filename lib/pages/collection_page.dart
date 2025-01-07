@@ -61,7 +61,7 @@ class _CollectionPageState extends State<CollectionPage> {
             PlatformSliverAppBar(
               stretch: true,
               title: const Text("My Collections"),
-              backgroundColor: colorScheme.surfaceDim.withValues(alpha: .8),
+              // backgroundColor: colorScheme.surfaceDim.withValues(alpha: .8),
               material: (_, __) => MaterialSliverAppBarData(
                   pinned: true,
                   actions: actions(),
@@ -74,11 +74,11 @@ class _CollectionPageState extends State<CollectionPage> {
                     background: FlutterLogo(),
                   )),
               cupertino: (_, __) => CupertinoSliverAppBarData(
-                  backgroundColor: colorScheme.surfaceDim.withValues(alpha: .8),
+                  // backgroundColor: colorScheme.surfaceDim.withValues(alpha: .8),
                   trailing: Wrap(
-                    spacing: 4,
-                    children: actions(),
-                  )),
+                spacing: 4,
+                children: actions(),
+              )),
             ),
             SliverPersistentHeader(
               pinned: true,

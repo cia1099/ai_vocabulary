@@ -1,4 +1,5 @@
 import 'package:ai_vocabulary/database/my_db.dart';
+import 'package:ai_vocabulary/pages/favorite_words_page.dart';
 import 'package:ai_vocabulary/provider/word_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -75,6 +76,7 @@ class _MyAppState extends State<MyApp> with AppRoute {
           ],
           onGenerateRoute: generateRoute,
           initialRoute: AppRoute.home,
+          home: const FavoriteWordsPage(),
           // home: Builder(builder: (context) {
           //   return PlatformScaffold(
           //     body: Center(

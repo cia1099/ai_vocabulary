@@ -70,7 +70,7 @@ mixin AppRoute<T extends StatefulWidget> on State<T> {
               },
               maximumSize: const Size(300, 812.0), // Maximum size
               enabled: kIsWeb,
-              backgroundColor: CupertinoColors.systemGrey,
+              backgroundColor: CupertinoColors.systemGrey.resolveFrom(context),
             ),
         settings: RouteSettings(name: path));
   }

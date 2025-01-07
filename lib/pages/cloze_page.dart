@@ -117,7 +117,8 @@ class _ClozePageState extends State<ClozePage> {
                         style: textTheme.bodyLarge!.apply(
                             color: tip.value == defaultTip
                                 ? null
-                                : CupertinoColors.destructiveRed),
+                                : CupertinoColors.destructiveRed
+                                    .resolveFrom(context)),
                       )),
             )
           ],

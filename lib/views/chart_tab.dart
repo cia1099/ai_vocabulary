@@ -12,14 +12,15 @@ class ChartTab extends StatelessWidget {
         kToolbarHeight -
         kBottomNavigationBarHeight;
     return SingleChildScrollView(
-      physics: AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+      physics:
+          const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
       child: Container(
-        color: CupertinoColors.systemGrey5,
+        color: CupertinoColors.systemGrey5.resolveFrom(context),
         height: maxHeight,
         child: Column(
           children: [
             Container(
-              margin: EdgeInsets.only(left: 8),
+              margin: const EdgeInsets.only(left: 8),
               child: ImLineChart(
                 statisticTime: StatisticTime.hour,
                 playAnimation: true,
@@ -48,14 +49,14 @@ class ChartTab extends StatelessWidget {
                 ],
               ),
             ),
-            AspectRatio(
+            const AspectRatio(
               aspectRatio: 3,
               child: ImPieChart(
                 percentage: .25,
               ),
             ),
             Container(
-              color: CupertinoColors.systemGrey,
+              color: CupertinoColors.systemGrey.resolveFrom(context),
               height: 34,
             ),
           ],

@@ -153,6 +153,9 @@ class _ManageCollectionSheetState extends State<ManageCollectionSheet> {
     final textTheme = Theme.of(context).textTheme;
     return PlatformListTile(
       key: Key(mark.name),
+      onTap: () => setState(() {
+        mark.included ^= true;
+      }),
       title: Container(
           // color: Colors.red,
           constraints: const BoxConstraints(minHeight: kToolbarHeight),

@@ -69,15 +69,18 @@ class _FilterInputBarState extends State<FilterInputBar> {
                     cupertino: (_, __) => CupertinoTextFieldData(
                       decoration:
                           const BoxDecoration(color: Colors.transparent),
-                      prefix: const Icon(CupertinoIcons.equal_square,
-                          color: CupertinoColors.systemGrey4),
+                      prefix: Icon(CupertinoIcons.equal_square,
+                          color:
+                              CupertinoColors.systemGrey4.resolveFrom(context)),
                     ),
                     material: (_, __) => MaterialTextFieldData(
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         fillColor: Colors.transparent,
                         prefix: Icon(Icons.filter_alt_outlined,
-                            color: CupertinoColors.systemGrey4),
-                        border: OutlineInputBorder(borderSide: BorderSide.none),
+                            color: CupertinoColors.systemGrey4
+                                .resolveFrom(context)),
+                        border: const OutlineInputBorder(
+                            borderSide: BorderSide.none),
                       ),
                     ),
                   ),

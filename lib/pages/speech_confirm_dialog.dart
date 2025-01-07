@@ -294,13 +294,16 @@ class _SpeechConfirmDialogState extends State<SpeechConfirmDialog> {
     );
   }
 
-  Widget createAction(
-      {VoidCallback? onPressed,
-      required Widget action,
-      bool isDestructiveAction = false}) {
+  Widget createAction({
+    VoidCallback? onPressed,
+    required Widget action,
+    bool isDestructiveAction = false,
+  }) {
     return Material(
       type: MaterialType.transparency,
-      shape: const Border(top: BorderSide(color: CupertinoColors.systemGrey4)),
+      shape: Border(
+          top: BorderSide(
+              color: CupertinoColors.systemGrey4.resolveFrom(context))),
       child: InkWell(
         onTap: onPressed,
         child: AbsorbPointer(

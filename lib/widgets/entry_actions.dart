@@ -72,7 +72,9 @@ class EntryActions extends StatelessWidget {
                   tag: 'favorite',
                   child: Icon(
                     collect ? CupertinoIcons.star_fill : CupertinoIcons.star,
-                    color: collect ? CupertinoColors.systemYellow : null,
+                    color: collect
+                        ? CupertinoColors.systemYellow.resolveFrom(context)
+                        : null,
                     size: appBarIconSize,
                   ),
                   flightShuttleBuilder: (flightContext, animation,
@@ -183,7 +185,7 @@ class _NaiveSegmentState extends State<NaiveSegment> {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
       decoration: BoxDecoration(
-        color: colorScheme.tertiaryContainer.withOpacity(.8),
+        color: colorScheme.tertiaryContainer.withValues(alpha: .8),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Wrap(

@@ -32,7 +32,7 @@ class _ImagenDialogState extends State<ImagenDialog> {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(kRadialReactionRadius),
                 child: Container(
-                  color: CupertinoColors.systemBackground,
+                  color: CupertinoColors.systemBackground.resolveFrom(context),
                   width: width * .85,
                   height: height - 80,
                   child: Column(

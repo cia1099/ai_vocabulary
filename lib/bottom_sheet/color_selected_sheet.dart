@@ -68,6 +68,7 @@ class _ColorSelectedSheetState extends State<ColorSelectedSheet> {
                           border: Border.all(
                             color: colorSeed != index
                                 ? CupertinoColors.inactiveGray
+                                    .resolveFrom(context)
                                 : colorScheme.onPrimary,
                           )),
                       child: colorSeed != index
@@ -111,6 +112,7 @@ class _ColorSelectedSheetState extends State<ColorSelectedSheet> {
                                 border: Border.all(
                                     color: colorImage != index
                                         ? CupertinoColors.inactiveGray
+                                            .resolveFrom(context)
                                         : colorScheme.primary,
                                     width: 2),
                               ),

@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 
 import 'package:azlistview/azlistview.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
 import '../app_route.dart';
@@ -278,9 +277,9 @@ class _CheckButtonState extends State<_CheckButton> {
         });
       },
       child: _isCheck
-          ? const Icon(
+          ? Icon(
               CupertinoIcons.minus_circle_fill,
-              color: CupertinoColors.destructiveRed,
+              color: CupertinoColors.destructiveRed.resolveFrom(context),
             )
           : const Icon(CupertinoIcons.circle),
     );

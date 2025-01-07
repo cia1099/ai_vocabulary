@@ -12,6 +12,7 @@ class AddCollectionIsland extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hPadding = MediaQuery.of(context).size.width / 32;
+    final textTheme = Theme.of(context).textTheme;
     return Stack(
       children: [
         Positioned(
@@ -30,8 +31,9 @@ class AddCollectionIsland extends StatelessWidget {
               children: [
                 Text(
                   'Added to collection!',
-                  style:
-                      TextStyle(color: Theme.of(context).colorScheme.onPrimary),
+                  style: textTheme.titleMedium
+                      ?.apply(color: Theme.of(context).colorScheme.onPrimary),
+                  overflow: TextOverflow.ellipsis,
                 ),
                 PlatformTextButton(
                   onPressed: () {
@@ -43,8 +45,7 @@ class AddCollectionIsland extends StatelessWidget {
                     padding:
                         const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                     decoration: BoxDecoration(
-                      color: CupertinoDynamicColor.resolve(
-                          CupertinoColors.systemFill, context),
+                      color: CupertinoColors.systemFill.resolveFrom(context),
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Wrap(
@@ -54,8 +55,8 @@ class AddCollectionIsland extends StatelessWidget {
                         Hero(
                           tag: 'favorite',
                           child: Icon(CupertinoIcons.star_fill,
-                              color: CupertinoDynamicColor.resolve(
-                                  CupertinoColors.systemYellow, context)),
+                              color: CupertinoColors.systemYellow
+                                  .resolveFrom(context)),
                           placeholderBuilder: (context, heroSize, child) =>
                               const Icon(CupertinoIcons.star),
                         ),
