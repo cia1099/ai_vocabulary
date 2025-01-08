@@ -58,35 +58,49 @@ class _FlashcardState extends State<Flashcard>
                 .animate(controller),
             child: OnPointerDownPhysic(
               child: Card(
-                color: widget.mark.color != null
-                    ? Color(widget.mark.color!)
-                    : null,
-                child: InkWell(
-                  onTap: widget.dragEnabled ? null : () => print('tap inner'),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    child: Stack(
-                      fit: StackFit.passthrough,
-                      children: [
-                        Align(
-                          alignment: Alignment.topLeft,
-                          child: FittedBox(
-                            child: Icon(
-                              widget.mark.icon != null
-                                  ? IconData(widget.mark.icon!,
-                                      fontFamily: 'CupertinoIcons',
-                                      fontPackage: 'cupertino_icons')
-                                  : Icons.abc,
-                              size: 24 * 3,
-                              color: DefaultTextStyle.of(context).style.color,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: widget.mark.color != null
+                        ? LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                                HSVColor.fromColor(Color(widget.mark.color!))
+                                    .withValue(1)
+                                    .toColor(),
+                                HSVColor.fromColor(Color(widget.mark.color!))
+                                    .withValue(.75)
+                                    .toColor(),
+                              ])
+                        : null,
+                  ),
+                  child: InkWell(
+                    onTap: widget.dragEnabled ? null : () => print('tap inner'),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      child: Stack(
+                        fit: StackFit.passthrough,
+                        children: [
+                          Align(
+                            alignment: Alignment.topLeft,
+                            child: FittedBox(
+                              child: Icon(
+                                widget.mark.icon != null
+                                    ? IconData(widget.mark.icon!,
+                                        fontFamily: 'CupertinoIcons',
+                                        fontPackage: 'cupertino_icons')
+                                    : Icons.abc,
+                                size: 24 * 3,
+                                color: DefaultTextStyle.of(context).style.color,
+                              ),
                             ),
                           ),
-                        ),
-                        Align(
-                          alignment: Alignment.bottomLeft,
-                          child: matchFilterText(widget.mark.name),
-                        )
-                      ],
+                          Align(
+                            alignment: Alignment.bottomLeft,
+                            child: matchFilterText(widget.mark.name),
+                          )
+                        ],
+                      ),
                     ),
                   ),
                 ),

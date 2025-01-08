@@ -71,7 +71,7 @@ class _CollectionPageState extends State<CollectionPage> {
                       StretchMode.blurBackground,
                       StretchMode.fadeTitle,
                     ],
-                    background: FlutterLogo(),
+                    // background: FlutterLogo(),
                   )),
               cupertino: (_, __) => CupertinoSliverAppBarData(
                   // backgroundColor: colorScheme.surfaceDim.withValues(alpha: .8),

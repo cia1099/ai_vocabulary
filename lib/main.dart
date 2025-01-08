@@ -76,7 +76,7 @@ class _MyAppState extends State<MyApp> with AppRoute {
           ],
           onGenerateRoute: generateRoute,
           initialRoute: AppRoute.home,
-          home: const FavoriteWordsPage(),
+          // home: const FavoriteWordsPage(),
           // home: Builder(builder: (context) {
           //   return PlatformScaffold(
           //     body: Center(
