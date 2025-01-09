@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'package:ai_vocabulary/model/vocabulary.dart';
 import 'package:ai_vocabulary/provider/word_provider.dart';
+import 'package:ai_vocabulary/utils/regex.dart';
 import 'package:ai_vocabulary/utils/shortcut.dart';
 import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/cupertino.dart';
@@ -21,6 +22,7 @@ class FavoriteWordsPage extends StatefulWidget {
 }
 
 class _FavoriteWordsPageState extends State<FavoriteWordsPage> {
+  final textController = TextEditingController();
   late var words = fetchDB.toList();
   late List<GlobalObjectKey> capitalKeys;
 
@@ -67,14 +69,9 @@ class _FavoriteWordsPageState extends State<FavoriteWordsPage> {
                             bottom: 10, right: hPadding, left: hPadding),
                         backgroundColor:
                             kCupertinoSheetColor.resolveFrom(context),
-                        // focusNode: focusNode,
-                        // controller: textController,
-                        hintText: 'find it',
-                        // onChanged: (p0) {
-                        //   preventQuicklyChanged?.cancel();
-                        //   preventQuicklyChanged =
-                        //       Timer(Durations.medium4, () => filterMark(p0));
-                        // },
+                        controller: textController,
+                        hintText: 'Filter word',
+                        onChanged: (p0) => filterWord(p0),
                       )),
                   ...takeSections(),
                 ],
@@ -120,7 +117,7 @@ class _FavoriteWordsPageState extends State<FavoriteWordsPage> {
               ),
             ),
           ),
-          SliverFixedExtentList.builder(
+          SliverPrototypeExtentList.builder(
               itemBuilder: (context, index) {
                 final word = sectionWords.elementAt(index);
                 final phonetics = word.getPhonetics();
@@ -138,19 +135,19 @@ class _FavoriteWordsPageState extends State<FavoriteWordsPage> {
                     PlatformListTile(
                       title: Text.rich(
                         TextSpan(children: [
-                          TextSpan(
+                          ...matchFilterTextSpan(
                             text: word.word,
                             style: textTheme.titleMedium
                                 ?.copyWith(fontWeight: FontWeight.w600)
                                 .apply(fontSizeFactor: math.sqrt2),
                           ),
-                          TextSpan(text: '\t' * 4),
+                          const TextSpan(text: '\n'),
                           TextSpan(
                               text: phonetics.firstOrNull?.phonetic,
                               style: TextStyle(
                                 color: colorScheme.onSurfaceVariant,
                               )),
-                          TextSpan(text: '\t' * 2),
+                          TextSpan(text: '\t' * 4),
                           WidgetSpan(
                               child: PlatformIconButton(
                             onPressed: playPhonetic(null, word: word.word),
@@ -179,6 +176,7 @@ class _FavoriteWordsPageState extends State<FavoriteWordsPage> {
                                 ))
                             .toList(),
                       ),
+                      trailing: const CupertinoListTileChevron(),
                       onTap: () => Navigator.push(
                           context,
                           platformPageRoute(
@@ -195,10 +193,58 @@ class _FavoriteWordsPageState extends State<FavoriteWordsPage> {
                   ],
                 );
               },
-              itemExtent: 76,
+              prototypeItem: Column(
+                children: [
+                  const DottedLine(),
+                  PlatformListTile(
+                    title: Text.rich(
+                      TextSpan(children: [
+                        TextSpan(
+                          text: ' ',
+                          style: textTheme.titleMedium
+                              ?.copyWith(fontWeight: FontWeight.w600)
+                              .apply(fontSizeFactor: math.sqrt2),
+                        ),
+                        const TextSpan(text: '\n'),
+                        const TextSpan(text: ' ')
+                      ]),
+                      maxLines: 2,
+                      style: textTheme.titleMedium,
+                    ),
+                    subtitle: Text('', style: textTheme.bodyLarge),
+                  ),
+                ],
+              ),
               itemCount: sectionWords.length),
         ],
       );
+    });
+  }
+
+  Iterable<TextSpan> matchFilterTextSpan(
+      {required String text, TextStyle? style}) {
+    final pattern = textController.text;
+    final matches = text.matchIndexes(pattern);
+    if (matches.isEmpty) return [TextSpan(text: text, style: style)];
+    return List.generate(
+      text.length,
+      (i) => TextSpan(
+        text: text[i],
+        style: !matches.contains(i)
+            ? style
+            : style?.apply(
+                backgroundColor:
+                    Theme.of(context).colorScheme.tertiaryContainer,
+                color: Theme.of(context).colorScheme.onTertiaryContainer),
+      ),
+    );
+  }
+
+  void filterWord(String query) {
+    final queryWords =
+        fetchDB.where((word) => word.word.contains(query.toLowerCase()));
+    setState(() {
+      words = queryWords.toList();
     });
   }
 
@@ -228,11 +274,4 @@ class _FavoriteWordsPageState extends State<FavoriteWordsPage> {
           .toList(),
     );
   }
-}
-
-String createName() {
-  final rng = math.Random();
-  final lowerChars = String.fromCharCodes(
-      Iterable.generate(5 + rng.nextInt(6), (_) => rng.nextInt(26) + 97));
-  return lowerChars[0].toUpperCase() + lowerChars.substring(1);
 }
