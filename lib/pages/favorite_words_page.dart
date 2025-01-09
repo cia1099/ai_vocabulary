@@ -1,6 +1,7 @@
 import 'dart:math' as math;
+import 'package:ai_vocabulary/database/my_db.dart';
+import 'package:ai_vocabulary/model/collections.dart';
 import 'package:ai_vocabulary/model/vocabulary.dart';
-import 'package:ai_vocabulary/provider/word_provider.dart';
 import 'package:ai_vocabulary/utils/regex.dart';
 import 'package:ai_vocabulary/utils/shortcut.dart';
 import 'package:dotted_line/dotted_line.dart';
@@ -15,7 +16,8 @@ import '../widgets/filter_input_bar.dart';
 import 'vocabulary_page.dart';
 
 class FavoriteWordsPage extends StatefulWidget {
-  const FavoriteWordsPage({super.key});
+  final CollectionMark mark;
+  const FavoriteWordsPage({super.key, required this.mark});
 
   @override
   State<FavoriteWordsPage> createState() => _FavoriteWordsPageState();
@@ -26,7 +28,8 @@ class _FavoriteWordsPageState extends State<FavoriteWordsPage> {
   late var words = fetchDB.toList();
   late List<GlobalObjectKey> capitalKeys;
 
-  Iterable<Vocabulary> get fetchDB => WordProvider().subList();
+  Iterable<Vocabulary> get fetchDB =>
+      MyDB().fetchWordsFromMark(widget.mark.name);
 
   @override
   Widget build(BuildContext context) {
@@ -46,18 +49,48 @@ class _FavoriteWordsPageState extends State<FavoriteWordsPage> {
                 slivers: [
                   PlatformSliverAppBar(
                     stretch: true,
-                    title: const Text("Collected words"),
+                    title: Text(
+                      widget.mark.name.replaceAll(RegExp(r'\n'), ' '),
+                    ),
                     backgroundColor: kCupertinoSheetColor.resolveFrom(context),
                     material: (_, __) => MaterialSliverAppBarData(
                         pinned: true,
-                        flexibleSpace: const FlexibleSpaceBar(
-                          stretchModes: [
+                        flexibleSpace: FlexibleSpaceBar(
+                          stretchModes: const [
                             StretchMode.zoomBackground,
                             StretchMode.blurBackground,
                             StretchMode.fadeTitle,
                           ],
+                          background: FittedBox(
+                            fit: BoxFit.cover,
+                            child: DecoratedBox(
+                              decoration: BoxDecoration(
+                                  gradient: widget.mark.color == null
+                                      ? null
+                                      : LinearGradient(
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                          colors: [
+                                            HSVColor.fromColor(
+                                                    Color(widget.mark.color!))
+                                                .withValue(1)
+                                                .toColor(),
+                                            HSVColor.fromColor(
+                                                    Color(widget.mark.color!))
+                                                .withValue(.75)
+                                                .toColor(),
+                                          ],
+                                        )),
+                              child: Icon(widget.mark.icon == null
+                                  ? Icons.abc
+                                  : IconData(widget.mark.icon!,
+                                      fontFamily: 'CupertinoIcons',
+                                      fontPackage: 'cupertino_icons')),
+                            ),
+                          ),
                         )),
-                    // cupertino: (_, __) => CupertinoSliverAppBarData(),
+                    cupertino: (_, __) => CupertinoSliverAppBarData(
+                        previousPageTitle: 'Collections'),
                   ),
                   SliverResizingHeader(
                       minExtentPrototype: SizedBox.fromSize(

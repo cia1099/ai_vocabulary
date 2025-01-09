@@ -119,4 +119,14 @@ extension CollectionDB on MyDB {
     db.dispose();
     return result.first['count_word'] > 0;
   }
+
+  Iterable<Vocabulary> fetchWordsFromMark(String mark) {
+    const query =
+        '$fetchWordInID (SELECT word_id FROM collect_words WHERE mark=?)';
+    final db = open(OpenMode.readOnly);
+    final resultSet = db.select(query, [mark]);
+    final wordMaps = buildWordMaps(resultSet);
+    db.dispose();
+    return wordMaps.map((json) => Vocabulary.fromJson(json)).toList();
+  }
 }

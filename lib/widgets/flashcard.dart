@@ -10,6 +10,7 @@ import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
 import '../effects/pointer_down_physic.dart';
 import '../effects/slide_appear.dart';
+import '../pages/favorite_words_page.dart';
 import '../utils/shortcut.dart';
 
 class Flashcard extends StatefulWidget {
@@ -75,7 +76,15 @@ class _FlashcardState extends State<Flashcard>
                         : null,
                   ),
                   child: InkWell(
-                    onTap: widget.dragEnabled ? null : () => print('tap inner'),
+                    onTap: widget.dragEnabled
+                        ? null
+                        : () => Navigator.push(
+                            context,
+                            platformPageRoute(
+                                context: context,
+                                builder: (context) => FavoriteWordsPage(
+                                      mark: widget.mark,
+                                    ))),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8.0),
                       child: Stack(

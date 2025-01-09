@@ -14,6 +14,18 @@ const insertAcquaintance =
 const insertTextMessage =
     r'INSERT INTO text_messages (time_stamp, content, word_id, patterns, user_id) VALUES (?, ?, ?, ?, ?)';
 
+const fetchWordInID = '''
+SELECT words.id, words.word, assets.filename, definitions.part_of_speech, 
+definitions.inflection, definitions.alphabet_uk, definitions.alphabet_us, 
+definitions.audio_uk, definitions.audio_us, definitions.translate, 
+explanations.subscript, explanations.explain, examples.example 
+FROM words LEFT OUTER JOIN assets ON assets.word_id = words.id 
+JOIN definitions ON words.id = definitions.word_id 
+JOIN explanations ON explanations.definition_id = definitions.id 
+LEFT OUTER JOIN examples ON examples.explanation_id = explanations.id 
+WHERE words.id IN
+''';
+
 const createDictionary = '''
 CREATE TABLE words (
         id INTEGER NOT NULL, 

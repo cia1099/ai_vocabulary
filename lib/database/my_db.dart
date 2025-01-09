@@ -100,54 +100,10 @@ class MyDB with ChangeNotifier {
   }
 
   List<Vocabulary> fetchWords(Iterable<int> wordIds) {
-    final fetchWordId = '''
-SELECT words.id, words.word, assets.filename, definitions.part_of_speech, 
-definitions.inflection, definitions.alphabet_uk, definitions.alphabet_us, 
-definitions.audio_uk, definitions.audio_us, definitions.translate, 
-explanations.subscript, explanations.explain, examples.example 
-FROM words LEFT OUTER JOIN assets ON assets.word_id = words.id 
-JOIN definitions ON words.id = definitions.word_id 
-JOIN explanations ON explanations.definition_id = definitions.id 
-LEFT OUTER JOIN examples ON examples.explanation_id = explanations.id 
-WHERE words.id IN (${wordIds.map((_) => '?').join(',')})
-''';
+    final fetchWordId = '$fetchWordInID (${wordIds.map((_) => '?').join(',')})';
     final db = open(OpenMode.readOnly);
     final resultSet = db.select(fetchWordId, wordIds.toList());
-    final wordMaps = <Map<String, dynamic>>[];
-    for (final row in resultSet) {
-      final wordMap = traceWord(
-          Queue.of([
-            {
-              'word_id': row['id'],
-              'word': row['word'],
-              'asset': row['filename']
-            },
-            {'part_of_speech': row['part_of_speech']},
-            {
-              "part_of_speech": row['part_of_speech'],
-              "inflection": row['inflection'],
-              "phonetic_uk": row['alphabet_uk'],
-              "phonetic_us": row['alphabet_us'],
-              "audio_uk": row['audio_uk'],
-              "audio_us": row['audio_us'],
-              "translate": row['translate'],
-            },
-            {
-              "part_of_speech": row['part_of_speech'],
-              "explain": row['explain'],
-              "subscript": row['subscript'],
-            },
-            {
-              "part_of_speech": row['part_of_speech'],
-              "explain": row['explain'],
-              "example": row['example'],
-            },
-          ]),
-          wordMaps);
-      if (!wordMaps.any(((w) => w['word_id'] == row['id']))) {
-        wordMaps.add(wordMap);
-      }
-    }
+    final wordMaps = buildWordMaps(resultSet);
     db.dispose();
     return wordMaps.map((json) => Vocabulary.fromJson(json)).toList();
   }
@@ -159,6 +115,41 @@ WHERE words.id IN (${wordIds.map((_) => '?').join(',')})
   void notifyListeners() {
     super.notifyListeners();
   }
+}
+
+List<Map<String, dynamic>> buildWordMaps(ResultSet resultSet) {
+  final wordMaps = <Map<String, dynamic>>[];
+  for (final row in resultSet) {
+    final wordMap = traceWord(
+        Queue.of([
+          {'word_id': row['id'], 'word': row['word'], 'asset': row['filename']},
+          {'part_of_speech': row['part_of_speech']},
+          {
+            "part_of_speech": row['part_of_speech'],
+            "inflection": row['inflection'],
+            "phonetic_uk": row['alphabet_uk'],
+            "phonetic_us": row['alphabet_us'],
+            "audio_uk": row['audio_uk'],
+            "audio_us": row['audio_us'],
+            "translate": row['translate'],
+          },
+          {
+            "part_of_speech": row['part_of_speech'],
+            "explain": row['explain'],
+            "subscript": row['subscript'],
+          },
+          {
+            "part_of_speech": row['part_of_speech'],
+            "explain": row['explain'],
+            "example": row['example'],
+          },
+        ]),
+        wordMaps);
+    if (!wordMaps.any(((w) => w['word_id'] == row['id']))) {
+      wordMaps.add(wordMap);
+    }
+  }
+  return wordMaps;
 }
 
 Map<String, dynamic> traceWord(

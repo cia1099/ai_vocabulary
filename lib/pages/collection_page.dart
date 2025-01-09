@@ -13,6 +13,7 @@ import 'package:reorderable_grid_view/reorderable_grid_view.dart';
 
 import '../effects/pointer_down_physic.dart';
 import '../widgets/filter_input_bar.dart';
+import 'favorite_words_page.dart';
 
 class CollectionPage extends StatefulWidget {
   const CollectionPage({super.key});
@@ -263,7 +264,17 @@ class _CollectionPageState extends State<CollectionPage> {
           : OnPointerDownPhysic(
               child: Card.filled(
                 child: InkWell(
-                  onTap: () {},
+                  onTap: () => Navigator.push(
+                      context,
+                      platformPageRoute(
+                          context: context,
+                          builder: (context) => FavoriteWordsPage(
+                                mark: CollectionMark(
+                                  name: kUncategorizedName,
+                                  index: bookmark.index,
+                                  icon: CupertinoIcons.star.codePoint,
+                                ),
+                              ))),
                   child: Column(
                     children: [
                       Expanded(
