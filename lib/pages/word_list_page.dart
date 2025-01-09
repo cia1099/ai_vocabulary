@@ -73,57 +73,46 @@ class WordListPage extends StatelessWidget {
                                   Theme.of(context).dividerColor),
                         )),
                     PlatformListTile(
-                      title: Container(
-                        width: double.maxFinite,
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text.rich(
-                                  TextSpan(children: [
-                                    TextSpan(
-                                      text: word.word,
-                                      // style: textTheme.headlineSmall,
-                                      style: textTheme.titleMedium
-                                          ?.copyWith(
-                                              fontWeight: FontWeight.w600)
-                                          .apply(fontSizeFactor: 1.414),
-                                    ),
-                                    TextSpan(text: '\t' * 2),
-                                    TextSpan(
-                                        text: phonetics.firstOrNull?.phonetic,
-                                        style: TextStyle(
-                                          color: colorScheme.onSurfaceVariant,
-                                        )),
-                                  ]),
-                                  overflow: TextOverflow.ellipsis,
-                                  style: textTheme.titleMedium,
-                                ),
-                                RichText(
-                                    text: TextSpan(children: [
-                                  WidgetSpan(
-                                      child: GestureDetector(
-                                          onTap: playPhonetic(null,
-                                              word: word.word),
-                                          child: const Icon(
-                                              CupertinoIcons.volume_up)))
-                                ]))
-                              ],
-                            ),
-                            Wrap(
-                              spacing: 8,
-                              children: word.definitions
-                                  .map((d) =>
-                                      Text(speechShortcut(d.partOfSpeech)))
-                                  .toList(),
-                            ),
-                          ],
-                        ),
+                      title: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text.rich(
+                            TextSpan(children: [
+                              TextSpan(
+                                text: word.word,
+                                // style: textTheme.headlineSmall,
+                                style: textTheme.titleMedium
+                                    ?.copyWith(fontWeight: FontWeight.w600)
+                                    .apply(fontSizeFactor: 1.414),
+                              ),
+                              TextSpan(text: '\t' * 2),
+                              TextSpan(
+                                  text: phonetics.firstOrNull?.phonetic,
+                                  style: TextStyle(
+                                    color: colorScheme.onSurfaceVariant,
+                                  )),
+                            ]),
+                            overflow: TextOverflow.ellipsis,
+                            style: textTheme.titleMedium,
+                          ),
+                          RichText(
+                              text: TextSpan(children: [
+                            WidgetSpan(
+                                child: GestureDetector(
+                                    onTap: playPhonetic(null, word: word.word),
+                                    child:
+                                        const Icon(CupertinoIcons.volume_up)))
+                          ]))
+                        ],
                       ),
+                      subtitle: Wrap(
+                          spacing: 8,
+                          children: word.definitions
+                              .map((d) => Text(
+                                    speechShortcut(d.partOfSpeech),
+                                    style: textTheme.bodyLarge,
+                                  ))
+                              .toList()),
                       onTap: () => Navigator.of(context).push(platformPageRoute(
                         context: context,
                         builder: (context) => VocabularyPage(word: word),

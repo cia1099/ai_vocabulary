@@ -28,6 +28,7 @@ class _MyAppState extends State<MyApp> with AppRoute {
   void initState() {
     super.initState();
     MyDB();
+    // WordProvider();
     MyApp.colorSelectedIndex.addListener(colorListener);
     MyApp.brightSwitcher.addListener(brightListener);
   }

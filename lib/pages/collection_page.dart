@@ -61,7 +61,7 @@ class _CollectionPageState extends State<CollectionPage> {
             PlatformSliverAppBar(
               stretch: true,
               title: const Text("My Collections"),
-              // backgroundColor: colorScheme.surfaceDim.withValues(alpha: .8),
+              backgroundColor: kCupertinoSheetColor.resolveFrom(context),
               material: (_, __) => MaterialSliverAppBarData(
                   pinned: true,
                   actions: actions(),
@@ -74,7 +74,7 @@ class _CollectionPageState extends State<CollectionPage> {
                     // background: FlutterLogo(),
                   )),
               cupertino: (_, __) => CupertinoSliverAppBarData(
-                  // backgroundColor: colorScheme.surfaceDim.withValues(alpha: .8),
+                  // backgroundColor: kCupertinoSheetColor.resolveFrom(context),
                   trailing: Wrap(
                 spacing: 4,
                 children: actions(),
@@ -91,7 +91,7 @@ class _CollectionPageState extends State<CollectionPage> {
                       left: hPadding, right: hPadding, bottom: 10),
                   focusNode: focusNode,
                   controller: textController,
-                  // backgroundColor: colorScheme.surfaceDim.withValues(alpha: .8),
+                  backgroundColor: kCupertinoSheetColor.resolveFrom(context),
                   hintText: 'find it',
                   onChanged: (p0) {
                     preventQuicklyChanged?.cancel();
