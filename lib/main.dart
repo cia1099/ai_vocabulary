@@ -80,11 +80,12 @@ class _MyAppState extends State<MyApp> with AppRoute {
           //   return PlatformScaffold(
           //     body: Center(
           //       child: CupertinoButton.filled(
-          //           onPressed: () => showPlatformModalSheet(
-          //                 context: context,
-          //                 builder: (context) =>
-          //                     const ManageCollectionSheet(wordID: 830),
-          //               ),
+          //           onPressed: () => appearFamiliar(context, 'apple'),
+          //           // showPlatformModalSheet(
+          //           //       context: context,
+          //           //       builder: (context) =>
+          //           //           const ManageCollectionSheet(wordID: 830),
+          //           //     ),
           //           child: const Text('Go Route!')),
           //     ),
           //   );

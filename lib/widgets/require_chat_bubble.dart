@@ -1,6 +1,10 @@
+import 'dart:async';
+
+import 'package:ai_vocabulary/effects/show_toast.dart';
 import 'package:flutter/material.dart';
 
 import '../api/dict_api.dart';
+import '../database/my_db.dart';
 import '../effects/dot3indicator.dart';
 import '../model/message.dart';
 import '../painters/chat_bubble.dart';
@@ -63,14 +67,16 @@ class RequireChatBubble extends StatelessWidget {
                 wordID: message.wordID,
                 userID: ans.userId);
             updateMessage(tmessage);
-            // if (ans.quiz) {
-            //   Future.delayed(const Duration(seconds: 3), () async {
-            //     //TODO: show toast taht you get point
-            //     final acquaint = MyDB().getCollectWord(message.wordID).acquaint;
-            //     MyDB().updateCollectWord(
-            //         wordId: message.wordID, acquaint: acquaint + 1);
-            //   });
-            // }
+            if (ans.quiz) {
+              Timer(const Duration(seconds: 2), () {
+                final acquaint =
+                    MyDB().getAcquaintance(message.wordID).acquaint;
+                MyDB().updateAcquaintance(
+                    wordId: message.wordID, acquaint: acquaint + 1);
+                appearAward(
+                    context, message.vocabulary.split(', ').firstOrNull);
+              });
+            }
             return ChatBubble(
                 message: tmessage,
                 maxWidth: contentWidth,

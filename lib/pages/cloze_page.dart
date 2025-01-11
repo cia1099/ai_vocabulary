@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:ai_vocabulary/database/my_db.dart';
+import 'package:ai_vocabulary/effects/show_toast.dart';
 import 'package:ai_vocabulary/model/vocabulary.dart';
 import 'package:ai_vocabulary/utils/regex.dart';
 import 'package:ai_vocabulary/utils/shortcut.dart';
@@ -106,7 +107,7 @@ class _ClozePageState extends State<ClozePage> {
                 color: Theme.of(context)
                     .colorScheme
                     .secondaryContainer
-                    .withOpacity(.8),
+                    .withValues(alpha: .8),
                 borderRadius: BorderRadius.circular(16),
               ),
               alignment: Alignment.centerLeft,
@@ -192,6 +193,7 @@ class _ClozePageState extends State<ClozePage> {
     if (inputController.text.toLowerCase() == correctWord.toLowerCase()) {
       MyDB().updateAcquaintance(
           wordId: widget.word.wordId, acquaint: ++widget.word.acquaint);
+      appearAward(context, widget.word.word);
       return "Correct";
     }
     if (matches.contains(inputController.text)) {
