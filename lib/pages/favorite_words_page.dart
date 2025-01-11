@@ -30,6 +30,19 @@ class _FavoriteWordsPageState extends State<FavoriteWordsPage> {
 
   Iterable<Vocabulary> get fetchDB =>
       MyDB().fetchWordsFromMark(widget.mark.name);
+  late VoidCallback filterListener = () => filterWord(textController.text);
+
+  @override
+  void initState() {
+    super.initState();
+    MyDB().addListener(filterListener);
+  }
+
+  @override
+  void dispose() {
+    MyDB().removeListener(filterListener);
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {

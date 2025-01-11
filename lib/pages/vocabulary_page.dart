@@ -165,7 +165,7 @@ class VocabularyHead extends StatelessWidget {
                                 right: 0,
                                 child: Offstage(
                                   offstage: h < .1,
-                                  child: NaiveSegment(wordID: word.wordId),
+                                  child: NaiveSegment(word: word),
                                 )),
                           ]).take(fromEntry(routeName) ? 3 : 2),
                         CustomPaint(

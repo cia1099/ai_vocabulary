@@ -122,7 +122,12 @@ List<Map<String, dynamic>> buildWordMaps(ResultSet resultSet) {
   for (final row in resultSet) {
     final wordMap = traceWord(
         Queue.of([
-          {'word_id': row['id'], 'word': row['word'], 'asset': row['filename']},
+          {
+            'word_id': row['id'],
+            'word': row['word'],
+            'asset': row['filename'],
+            'acquaint': row['acquaint']
+          },
           {'part_of_speech': row['part_of_speech']},
           {
             "part_of_speech": row['part_of_speech'],

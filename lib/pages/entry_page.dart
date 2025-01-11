@@ -98,7 +98,8 @@ class EntryPage extends StatelessWidget {
                       height: 100,
                       margin: EdgeInsets.only(top: hPadding),
                       decoration: BoxDecoration(
-                        color: colorScheme.secondaryContainer.withOpacity(.8),
+                        color: colorScheme.secondaryContainer
+                            .withValues(alpha: .8),
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: Row(
@@ -243,7 +244,7 @@ class EntryPage extends StatelessWidget {
                           style: TextButton.styleFrom(
                               fixedSize: Size.square(screenWidth / 3),
                               backgroundColor: colorScheme.secondaryContainer
-                                  .withOpacity(.8),
+                                  .withValues(alpha: .8),
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(16))),
                           child: Text(
@@ -260,7 +261,7 @@ class EntryPage extends StatelessWidget {
                           style: TextButton.styleFrom(
                               fixedSize: Size.square(screenWidth / 3),
                               backgroundColor: colorScheme.secondaryContainer
-                                  .withOpacity(.8),
+                                  .withValues(alpha: .8),
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(16))),
                           child: Text(

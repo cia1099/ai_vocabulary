@@ -7,11 +7,13 @@ class Vocabulary {
   final String word;
   final List<Definition> definitions;
   final String? asset;
+  int acquaint;
 
   Vocabulary({
     required this.wordId,
     required this.word,
     required this.definitions,
+    this.acquaint = 0,
     this.asset,
   });
 
@@ -53,6 +55,7 @@ class Vocabulary {
         wordId: json["word_id"],
         word: json["word"],
         asset: json["asset"],
+        acquaint: json["acquaint"] ?? 0,
         definitions: List<Definition>.from(
             json["definitions"].map((x) => Definition.fromJson(x))),
       );
@@ -61,6 +64,7 @@ class Vocabulary {
         "word_id": wordId,
         "word": word,
         "asset": asset,
+        "acquaint": acquaint,
         "definitions": List<dynamic>.from(definitions.map((x) => x.toJson())),
       };
 }

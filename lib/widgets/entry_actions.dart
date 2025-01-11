@@ -1,6 +1,7 @@
 import 'package:ai_vocabulary/app_route.dart';
 import 'package:ai_vocabulary/bottom_sheet/manage_collection.dart';
 import 'package:ai_vocabulary/database/my_db.dart';
+import 'package:ai_vocabulary/model/vocabulary.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
@@ -152,23 +153,22 @@ class EntryActions extends StatelessWidget {
 class NaiveSegment extends StatefulWidget {
   const NaiveSegment({
     super.key,
-    required this.wordID,
+    required this.word,
   });
 
-  final int wordID;
+  final Vocabulary word;
 
   @override
   State<NaiveSegment> createState() => _NaiveSegmentState();
 }
 
 class _NaiveSegmentState extends State<NaiveSegment> {
-  late final collectWord = MyDB.instance.getAcquaintance(widget.wordID);
-  late int acquaint = collectWord.acquaint;
+  late int acquaint = MyDB().getAcquaintance(widget.word.wordId).acquaint;
   String firstText = 'Unknown', secondText = 'Naive';
 
   @override
   void dispose() {
-    MyDB().updateAcquaintance(wordId: widget.wordID, acquaint: acquaint);
+    MyDB().updateAcquaintance(wordId: widget.word.wordId, acquaint: acquaint);
     super.dispose();
   }
 
@@ -180,8 +180,7 @@ class _NaiveSegmentState extends State<NaiveSegment> {
         : acquaint < kMaxAcquaintance
             ? 'Unknown'
             : "Don't learn anymore";
-    secondText =
-        acquaint > 0 && acquaint < kMaxAcquaintance ? 'Naive' : 'withdraw';
+    secondText = acquaint == widget.word.acquaint ? 'Naive' : 'withdraw';
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
       decoration: BoxDecoration(
@@ -193,7 +192,7 @@ class _NaiveSegmentState extends State<NaiveSegment> {
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
             GestureDetector(
-                onTap: acquaint > 0 && acquaint < 5 ? resetLearned : null,
+                onTap: acquaint > 0 ? resetLearned : null,
                 child: Text.rich(
                     TextSpan(children: [
                       WidgetSpan(
@@ -213,7 +212,7 @@ class _NaiveSegmentState extends State<NaiveSegment> {
               ),
             ),
             GestureDetector(
-                onTap: acquaint > 0 && acquaint < 5 ? setNaive : withdraw,
+                onTap: acquaint == widget.word.acquaint ? setNaive : withdraw,
                 child: Text.rich(
                   TextSpan(children: [
                     WidgetSpan(
@@ -247,13 +246,7 @@ class _NaiveSegmentState extends State<NaiveSegment> {
 
   void withdraw() {
     setState(() {
-      if (collectWord.acquaint > 0 && collectWord.acquaint < kMaxAcquaintance) {
-        acquaint = collectWord.acquaint;
-      } else if (collectWord.acquaint == 0) {
-        acquaint = (++collectWord.acquaint).clamp(0, kMaxAcquaintance - 1);
-      } else {
-        acquaint = (--collectWord.acquaint).clamp(0, kMaxAcquaintance - 1);
-      }
+      acquaint = widget.word.acquaint;
     });
   }
 }

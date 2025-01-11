@@ -47,6 +47,13 @@ class _CollectionPageState extends State<CollectionPage> {
       gridState?.insertAllItems(0, marks.length,
           duration: Durations.extralong4);
     });
+    MyDB().addListener(updateOrderListener);
+  }
+
+  @override
+  void dispose() {
+    MyDB().removeListener(updateOrderListener);
+    super.dispose();
   }
 
   @override
@@ -324,6 +331,21 @@ class _CollectionPageState extends State<CollectionPage> {
         child: Text(dragEnabled ? 'Done' : 'Revise'),
       )
     ];
+  }
+
+  void updateOrderListener() {
+    final updatedMarks = fetchDB;
+    var hasUpdated = false;
+    for (var i = 0; i < marks.length; i++) {
+      final updatedMark = updatedMarks
+          .where((m) => m == marks[i] && m.index != marks[i].index)
+          .firstOrNull;
+      if (updatedMark != null) {
+        marks[i].index = updatedMark.index;
+        hasUpdated = true;
+      }
+    }
+    if (hasUpdated) setState(() {});
   }
 
   void onRemove(CollectionMark mark) {

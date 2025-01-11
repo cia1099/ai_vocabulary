@@ -8,7 +8,7 @@ extension AcquaintDB on MyDB {
     const expression =
         'UPDATE acquaintances SET acquaint=? WHERE acquaintances.word_id=?';
     final db = open(OpenMode.readWrite);
-    db.execute(expression, [wordId]);
+    db.execute(expression, [acquaint, wordId]);
     db.dispose();
   }
 

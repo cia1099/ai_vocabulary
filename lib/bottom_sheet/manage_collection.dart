@@ -226,6 +226,7 @@ class _ManageCollectionSheetState extends State<ManageCollectionSheet> {
     // update indexes
     MyDB().updateIndexes(marks.asMap().entries.map(
         (entry) => IncludeWordMark(name: entry.value.name, index: entry.key)));
+    MyDB().notifyListeners();
   }
 
   void onReorder(oldIndex, newIndex) {
