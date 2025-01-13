@@ -1,5 +1,7 @@
 import 'package:ai_vocabulary/database/my_db.dart';
+import 'package:ai_vocabulary/effects/show_toast.dart';
 import 'package:ai_vocabulary/provider/word_provider.dart';
+import 'package:ai_vocabulary/widgets/calendar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
@@ -76,20 +78,26 @@ class _MyAppState extends State<MyApp> with AppRoute {
           ],
           onGenerateRoute: generateRoute,
           initialRoute: AppRoute.home,
-          // home: Builder(builder: (context) {
-          //   return PlatformScaffold(
-          //     body: Center(
-          //       child: CupertinoButton.filled(
-          //           onPressed: () => appearFamiliar(context, 'apple'),
-          //           // showPlatformModalSheet(
-          //           //       context: context,
-          //           //       builder: (context) =>
-          //           //           const ManageCollectionSheet(wordID: 830),
-          //           //     ),
-          //           child: const Text('Go Route!')),
-          //     ),
-          //   );
-          // }),
+          home: Builder(builder: (context) {
+            return PlatformScaffold(
+              body: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Calendar(),
+                    CupertinoButton.filled(
+                        onPressed: () => appearAward(context, 'apple'),
+                        // showPlatformModalSheet(
+                        //       context: context,
+                        //       builder: (context) =>
+                        //           const ManageCollectionSheet(wordID: 830),
+                        //     ),
+                        child: const Text('Go Route!')),
+                  ],
+                ),
+              ),
+            );
+          }),
         ),
       ),
     );
