@@ -52,7 +52,7 @@ class ChartTab extends StatelessWidget {
           const AspectRatio(
             aspectRatio: 3,
             child: ImPieChart(
-              percentage: .25,
+              percentage: .7,
             ),
           ),
           Container(
