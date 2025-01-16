@@ -78,26 +78,26 @@ class _MyAppState extends State<MyApp> with AppRoute {
           ],
           onGenerateRoute: generateRoute,
           initialRoute: AppRoute.home,
-          home: Builder(builder: (context) {
-            return PlatformScaffold(
-              body: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Calendar(),
-                    CupertinoButton.filled(
-                        onPressed: () => appearAward(context, 'apple'),
-                        // showPlatformModalSheet(
-                        //       context: context,
-                        //       builder: (context) =>
-                        //           const ManageCollectionSheet(wordID: 830),
-                        //     ),
-                        child: const Text('Go Route!')),
-                  ],
-                ),
-              ),
-            );
-          }),
+          // home: Builder(builder: (context) {
+          //   return PlatformScaffold(
+          //     body: Center(
+          //       child: Column(
+          //         mainAxisAlignment: MainAxisAlignment.center,
+          //         children: [
+          //           const Calendar(),
+          //           CupertinoButton.filled(
+          //               onPressed: () => appearAward(context, 'apple'),
+          //               // showPlatformModalSheet(
+          //               //       context: context,
+          //               //       builder: (context) =>
+          //               //           const ManageCollectionSheet(wordID: 830),
+          //               //     ),
+          //               child: const Text('Go Route!')),
+          //         ],
+          //       ),
+          //     ),
+          //   );
+          // }),
         ),
       ),
     );

@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
 class ImLineChart extends StatefulWidget {
   final List<DateTime> xData;
@@ -65,7 +66,7 @@ class _ImLineChartState extends State<ImLineChart> {
     // debugPrint('${'=' * 20}\nminY=$minProfit\nmaxY=$maxProfit\n${'=' * 20}');
     final flow = dataFlow(spots);
     return AspectRatio(
-      aspectRatio: 1.70,
+      aspectRatio: 2 / sqrt(3),
       child: Padding(
           padding: const EdgeInsets.only(
             right: 8,
@@ -92,7 +93,7 @@ class _ImLineChartState extends State<ImLineChart> {
     final truncatedTick = value.toInt();
     final type = widget.statisticTime;
     if (!bin.sublist(0, bin.length - 1).contains(truncatedTick)) {
-      text = SizedBox.shrink();
+      text = const SizedBox.shrink();
     } else {
       if (type == StatisticTime.hour) {
         final quotient = truncatedTick ~/ 3;
@@ -155,13 +156,13 @@ class _ImLineChartState extends State<ImLineChart> {
         verticalInterval: widget.statisticTime.interval,
         getDrawingHorizontalLine: (value) {
           return FlLine(
-            color: CupertinoColors.systemGrey,
+            color: CupertinoColors.systemGrey.resolveFrom(context),
             strokeWidth: 1,
           );
         },
         getDrawingVerticalLine: (value) {
           return FlLine(
-            color: CupertinoColors.systemGrey,
+            color: CupertinoColors.systemGrey.resolveFrom(context),
             strokeWidth: 1,
             dashArray: [3, 5],
           );
@@ -188,14 +189,15 @@ class _ImLineChartState extends State<ImLineChart> {
             showTitles: true,
             interval: (maxY - minY) / 4,
             getTitlesWidget: yLabelTick,
-            reservedSize: 56,
+            reservedSize: 30,
           ),
         ),
       ),
       borderData: FlBorderData(
         show: widget.showGrid,
         border: Border.symmetric(
-            horizontal: BorderSide(color: CupertinoColors.systemGrey)),
+            horizontal: BorderSide(
+                color: CupertinoColors.systemGrey.resolveFrom(context))),
       ),
       minX: minX.toDouble(),
       maxX: maxX.toDouble(),
@@ -206,12 +208,13 @@ class _ImLineChartState extends State<ImLineChart> {
         getTouchedSpotIndicator: (barData, spotIndexes) => List.generate(
             spotIndexes.length,
             (index) => TouchedSpotIndicatorData(
-                  FlLine(color: CupertinoColors.systemRed),
+                  FlLine(color: CupertinoColors.systemRed.resolveFrom(context)),
                   FlDotData(
                       getDotPainter: (spot, percent, barData, idx) =>
                           FlDotCirclePainter(
                             color: CupertinoColors.white,
-                            strokeColor: CupertinoColors.systemRed,
+                            strokeColor:
+                                CupertinoColors.systemRed.resolveFrom(context),
                           )),
                 )),
         getTouchLineEnd: (barData, spotIndex) => maxY.toDouble(),
@@ -224,11 +227,11 @@ class _ImLineChartState extends State<ImLineChart> {
           tooltipPadding: const EdgeInsets.all(0),
           // tooltipBorder: BoxDecoration(),
           getTooltipItems: (touchedSpots) {
-            final txtStyle = TextStyle(
+            const txtStyle = TextStyle(
                 color: CupertinoColors.white, fontWeight: FontWeight.w400);
             return List.generate(
                 touchedSpots.length,
-                (idx) => LineTooltipItem(
+                (idx) => const LineTooltipItem(
                       '',
                       txtStyle,
                       children: [
@@ -262,15 +265,16 @@ class _ImLineChartState extends State<ImLineChart> {
   }
 
   LineChartBarData plotLine(List<FlSpot> spots) {
-    const gradientColors = [
-      Color(0x42243BB2),
-      Color(0x0F243BB2),
+    final colorScheme = Theme.of(context).colorScheme;
+    final gradientColors = [
+      colorScheme.primary.withAlpha(0x42),
+      colorScheme.primary.withAlpha(0x0F),
     ];
     return LineChartBarData(
       spots: spots,
       isCurved: true,
       preventCurveOverShooting: true,
-      color: CupertinoColors.systemBlue, //ImColor.accentColor,
+      color: colorScheme.primary,
       barWidth: 2.5,
       isStrokeCapRound: true,
       dotData: const FlDotData(
@@ -278,7 +282,7 @@ class _ImLineChartState extends State<ImLineChart> {
       ),
       belowBarData: BarAreaData(
         show: true,
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: gradientColors,
