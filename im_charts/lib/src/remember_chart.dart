@@ -5,17 +5,88 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class RememberChart extends StatelessWidget {
-  const RememberChart({super.key});
+  final double trainingRate;
+  const RememberChart({super.key, required this.trainingRate});
 
   @override
   Widget build(BuildContext context) {
-    double swipeDistance = 0.0;
+    double sliderValue = 0;
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
     return AspectRatio(
-      aspectRatio: 2 / sqrt(3),
-      child: LineChart(
-        figure(0, 10, context),
-        duration: Durations.medium1 * 2,
-        curve: Curves.easeOutSine,
+      aspectRatio: .95,
+      child: StatefulBuilder(
+        builder: (context, setState) => Column(
+          children: [
+            Container(
+              height: kTextTabBarHeight,
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              alignment: const Alignment(1, 0),
+              child: Wrap(spacing: 8, children: [
+                Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    decoration: BoxDecoration(
+                      color: colorScheme.primaryContainer,
+                      borderRadius:
+                          BorderRadius.circular(kRadialReactionRadius),
+                    ),
+                    child: Text('Your Memory',
+                        style: textTheme.titleSmall
+                            ?.apply(color: colorScheme.onPrimaryContainer))),
+                Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    decoration: BoxDecoration(
+                      color: colorScheme.tertiary,
+                      borderRadius:
+                          BorderRadius.circular(kRadialReactionRadius),
+                    ),
+                    child: Text(
+                      'Normal People',
+                      style: textTheme.titleSmall
+                          ?.apply(color: colorScheme.onTertiary),
+                    )),
+              ]),
+            ),
+            Expanded(
+              child: Stack(
+                children: [
+                  Positioned.fill(
+                    child: LineChart(
+                      figure(sliderValue.floor(), sliderValue.floor() + 10,
+                          context),
+                      duration: Durations.medium1 * 2,
+                      curve: Curves.easeOutSine,
+                    ),
+                  ),
+                  Align(
+                    alignment: const Alignment(-.95, 1),
+                    child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        decoration: BoxDecoration(
+                          color: colorScheme.primaryContainer,
+                          borderRadius:
+                              BorderRadius.circular(kRadialReactionRadius),
+                        ),
+                        child: Text('Day',
+                            style: textTheme.titleSmall?.apply(
+                                color: colorScheme.onPrimaryContainer))),
+                  ),
+                ],
+              ),
+            ),
+            CupertinoSlider(
+              key: const Key('slider'),
+              value: sliderValue,
+              max: 360,
+              divisions: 36,
+              onChanged: (value) {
+                setState(() {
+                  sliderValue = value;
+                });
+              },
+            )
+          ],
+        ),
       ),
     );
   }
@@ -23,71 +94,84 @@ class RememberChart extends StatelessWidget {
   LineChartData figure(int minX, int maxX, BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     return LineChartData(
-        gridData: gridDraw(context),
-        maxX: maxX + .5,
-        minX: minX - .5,
-        maxY: 1.01,
-        minY: .0,
-        titlesData: ticksDraw(),
-        borderData: FlBorderData(
-            border: const Border(bottom: BorderSide(), left: BorderSide())),
-        rangeAnnotations: RangeAnnotations(
-            verticalRangeAnnotations: List.generate(
-                (maxX - minX) ~/ 2,
-                (i) => VerticalRangeAnnotation(
-                    x1: 2 * i + .5 + minX,
-                    x2: 2 * i + 1.5 + minX,
-                    color: CupertinoColors.tertiarySystemFill
-                        .resolveFrom(context)))),
-        lineTouchData: LineTouchData(
-          getTouchedSpotIndicator: (barData, spotIndexes) => List.generate(
-              spotIndexes.length,
-              (index) => TouchedSpotIndicatorData(
-                    FlLine(
-                        strokeWidth: 5,
-                        color: colorScheme.onSecondaryContainer),
-                    FlDotData(
-                        show: false,
-                        getDotPainter: (spot, percent, barData, idx) =>
-                            FlDotCirclePainter(
-                              color: CupertinoColors.white,
-                              strokeColor: CupertinoColors.systemRed
-                                  .resolveFrom(context),
-                            )),
-                  )),
-          touchTooltipData: LineTouchTooltipData(
-            tooltipRoundedRadius: kRadialReactionRadius,
-            tooltipHorizontalAlignment: FLHorizontalAlignment.center,
-            tooltipHorizontalOffset: 4,
-            getTooltipColor: (touchedSpot) =>
-                colorScheme.secondaryContainer.withAlpha(0xcc),
-            getTooltipItems: (touchedSpots) => touchedSpots.map((sport) {
-              final memory = (sport.y * 1e2).roundToDouble();
-              return LineTooltipItem(
-                  'Remember\n${memory.toStringAsFixed(0)}%',
-                  Theme.of(context)
-                      .textTheme
-                      .titleSmall!
-                      .apply(color: colorScheme.onSecondaryContainer));
-            }).toList(),
-          ),
+      maxX: maxX + .5,
+      minX: minX - .5,
+      maxY: 1.01,
+      minY: .0,
+      lineBarsData: [
+        generalCurve(minX, maxX, color: colorScheme.tertiary),
+        generalCurve(minX, maxX,
+            color: colorScheme.primary, fib: trainingRate, shadow: true),
+      ],
+      lineTouchData: LineTouchData(
+        touchTooltipData: LineTouchTooltipData(
+          tooltipRoundedRadius: kRadialReactionRadius,
+          tooltipHorizontalAlignment: FLHorizontalAlignment.center,
+          tooltipHorizontalOffset: 4,
+          getTooltipColor: (touchedSpot) =>
+              const CupertinoDynamicColor.withBrightness(
+            color: Color(0xCCF2F2F2),
+            darkColor: Color(0xBF1E1E1E),
+          ).resolveFrom(context),
+          getTooltipItems: (touchedSpots) => touchedSpots.map((sport) {
+            final memory = (sport.y * 1e2).roundToDouble();
+            final color = sport.barIndex == 0
+                ? colorScheme.tertiary
+                : colorScheme.primary;
+            return LineTooltipItem('Remember: ${memory.toStringAsFixed(0)}%',
+                Theme.of(context).textTheme.titleSmall!.apply(color: color));
+          }).toList(),
         ),
-        lineBarsData: [
-          generalCurve(minX, maxX, color: colorScheme.tertiary),
-        ]);
+        getTouchedSpotIndicator: (barData, spotIndexes) => List.generate(
+            spotIndexes.length,
+            (index) => TouchedSpotIndicatorData(
+                  FlLine(
+                      strokeWidth: 5, color: colorScheme.onSecondaryContainer),
+                  const FlDotData(
+                    show: false,
+                  ),
+                )),
+      ),
+      gridData: gridDraw(context),
+      titlesData: ticksDraw(),
+      borderData: FlBorderData(
+          border: const Border(bottom: BorderSide(), left: BorderSide())),
+      rangeAnnotations: RangeAnnotations(
+          verticalRangeAnnotations: List.generate(
+              (maxX - minX) ~/ 2,
+              (i) => VerticalRangeAnnotation(
+                  x1: 2 * i + .5 + minX,
+                  x2: 2 * i + 1.5 + minX,
+                  color: CupertinoColors.tertiarySystemFill
+                      .resolveFrom(context)))),
+    );
   }
 
-  LineChartBarData generalCurve(int minX, int maxX, {required Color color}) {
+  LineChartBarData generalCurve(int minX, int maxX,
+      {required Color color, double fib = 1, bool shadow = false}) {
     final X = List.generate((maxX - minX) + 1, (i) => minX + i);
+    final gradientColors = [
+      color.withAlpha(0x42),
+      color.withAlpha(0x0F),
+    ];
     return LineChartBarData(
         spots: X
-            .map((x) => FlSpot(x.toDouble(), forgettingCurve(x.toDouble())))
+            .map(
+                (x) => FlSpot(x.toDouble(), forgettingCurve(x.toDouble(), fib)))
             .toList(),
         isCurved: true,
         preventCurveOverShooting: true,
         preventCurveOvershootingThreshold: 24,
         barWidth: 10,
         color: color.withAlpha(0xb0),
+        belowBarData: BarAreaData(
+          show: shadow,
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: gradientColors,
+          ),
+        ),
         dotData: FlDotData(
             getDotPainter: (spot, percent, barData, index) =>
                 FlDotCirclePainter(
