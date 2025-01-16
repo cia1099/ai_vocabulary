@@ -21,6 +21,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   var _index = 0;
+  final pageController = PageController();
   var editableAlphabet = false;
   final bottomItems = [
     BottomNavigationBarItem(
@@ -77,12 +78,23 @@ class _HomePageState extends State<HomePage> {
                   ]
                 : null,
           )),
-      body: IndexedStack(index: _index, children: [
-        const VocabularyTab(),
-        AlphabetListTab(editable: editableAlphabet),
-        const ChartTab(),
-        const SettingTab(),
-      ]),
+      body: PageView.builder(
+        controller: pageController,
+        itemBuilder: (context, index) => switch (index) {
+          1 => AlphabetListTab(editable: editableAlphabet),
+          2 => const ChartTab(),
+          3 => const SettingTab(),
+          _ => const VocabularyTab(),
+        },
+        itemCount: 4,
+        physics: const NeverScrollableScrollPhysics(),
+      ),
+      // IndexedStack(index: _index, children: [
+      //   const VocabularyTab(),
+      //   AlphabetListTab(editable: editableAlphabet),
+      //   const ChartTab(),
+      //   const SettingTab(),
+      // ]),
       bottomNavigationBar: BottomAppBar(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         height: kBottomNavigationBarHeight,
@@ -109,14 +121,15 @@ class _HomePageState extends State<HomePage> {
                       ? null
                       : setState(() {
                           _index = index;
+                          pageController.jumpToPage(index);
                         }),
                   icon: Column(
                     children: [
                       Theme(
                           data: ThemeData(
                               iconTheme: IconThemeData(
-                                  color: colorScheme.primary
-                                      .withOpacity(_index == index ? 1 : .4))),
+                                  color: colorScheme.primary.withValues(
+                                      alpha: _index == index ? 1 : .4))),
                           child: bottomItems[index].icon),
                       // _index == index
                       //     ? Expanded(
@@ -126,7 +139,7 @@ class _HomePageState extends State<HomePage> {
                         '${bottomItems[index].label}',
                         style: TextStyle(
                           color: colorScheme.primary
-                              .withOpacity(_index == index ? 1 : .4),
+                              .withValues(alpha: _index == index ? 1 : .4),
                           fontWeight: _index == index ? FontWeight.w600 : null,
                         ),
                       )

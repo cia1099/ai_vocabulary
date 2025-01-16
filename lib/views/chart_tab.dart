@@ -9,27 +9,28 @@ class ChartTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final maxHeight = MediaQuery.of(context).size.height -
-        kToolbarHeight -
-        kBottomNavigationBarHeight;
+    // final maxHeight = MediaQuery.of(context).size.height -
+    //     kToolbarHeight -
+    //     kBottomNavigationBarHeight;
     return SingleChildScrollView(
       physics:
           const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
       child: Column(
         children: [
           const Calendar(),
-          Container(
-            margin: const EdgeInsets.only(left: 8),
-            child: ImLineChart(
-              statisticTime: StatisticTime.hour,
-              playAnimation: true,
-              xData: List.generate(256, (index) => createTodayTime()),
-              yData: List.generate(256, (index) => createProfit()),
-              pointAtLine: (t, y) {
-                debugPrint('what time is the value?\nt=$t\nvalue=$y');
-              },
-            ),
-          ),
+          // Container(
+          //   margin: const EdgeInsets.only(left: 8),
+          //   child: ImLineChart(
+          //     statisticTime: StatisticTime.hour,
+          //     playAnimation: true,
+          //     xData: List.generate(256, (index) => createTodayTime()),
+          //     yData: List.generate(256, (index) => createProfit()),
+          //     pointAtLine: (t, y) {
+          //       debugPrint('what time is the value?\nt=$t\nvalue=$y');
+          //     },
+          //   ),
+          // ),
+          const RememberChart(trainingRate: 2.5),
           AspectRatio(
             aspectRatio: 1.5,
             child: ImBarChart(

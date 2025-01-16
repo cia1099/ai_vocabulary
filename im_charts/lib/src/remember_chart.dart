@@ -4,89 +4,102 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-class RememberChart extends StatelessWidget {
+class RememberChart extends StatefulWidget {
   final double trainingRate;
   const RememberChart({super.key, required this.trainingRate});
 
   @override
+  State<RememberChart> createState() => _RememberChartState();
+}
+
+class _RememberChartState extends State<RememberChart> {
+  var sliderValue = .0, flow = 1;
+  final flowDelay = Durations.short4;
+
+  @override
   Widget build(BuildContext context) {
-    double sliderValue = 0;
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    final minX = sliderValue.floor(), maxX = sliderValue.floor() + 10;
     return AspectRatio(
       aspectRatio: .95,
-      child: StatefulBuilder(
-        builder: (context, setState) => Column(
-          children: [
-            Container(
-              height: kTextTabBarHeight,
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              alignment: const Alignment(1, 0),
-              child: Wrap(spacing: 8, children: [
-                Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    decoration: BoxDecoration(
-                      color: colorScheme.primaryContainer,
-                      borderRadius:
-                          BorderRadius.circular(kRadialReactionRadius),
-                    ),
-                    child: Text('Your Memory',
-                        style: textTheme.titleSmall
-                            ?.apply(color: colorScheme.onPrimaryContainer))),
-                Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    decoration: BoxDecoration(
-                      color: colorScheme.tertiary,
-                      borderRadius:
-                          BorderRadius.circular(kRadialReactionRadius),
-                    ),
-                    child: Text(
-                      'Normal People',
+      child: Column(
+        children: [
+          Container(
+            height: kTextTabBarHeight,
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            alignment: const Alignment(1, 0),
+            child: Wrap(spacing: 8, children: [
+              Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  decoration: BoxDecoration(
+                    color: colorScheme.primaryContainer,
+                    borderRadius: BorderRadius.circular(kRadialReactionRadius),
+                  ),
+                  child: Text('Your Memory',
                       style: textTheme.titleSmall
-                          ?.apply(color: colorScheme.onTertiary),
-                    )),
-              ]),
-            ),
-            Expanded(
-              child: Stack(
-                children: [
-                  Positioned.fill(
-                    child: LineChart(
-                      figure(sliderValue.floor(), sliderValue.floor() + 10,
-                          context),
-                      duration: Durations.medium1 * 2,
-                      curve: Curves.easeOutSine,
-                    ),
+                          ?.apply(color: colorScheme.onPrimaryContainer))),
+              Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  decoration: BoxDecoration(
+                    color: colorScheme.tertiary,
+                    borderRadius: BorderRadius.circular(kRadialReactionRadius),
                   ),
-                  Align(
-                    alignment: const Alignment(-.95, 1),
-                    child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                        decoration: BoxDecoration(
-                          color: colorScheme.primaryContainer,
-                          borderRadius:
-                              BorderRadius.circular(kRadialReactionRadius),
-                        ),
-                        child: Text('Day',
-                            style: textTheme.titleSmall?.apply(
-                                color: colorScheme.onPrimaryContainer))),
-                  ),
-                ],
-              ),
+                  child: Text(
+                    'Normal People',
+                    style: textTheme.titleSmall
+                        ?.apply(color: colorScheme.onTertiary),
+                  )),
+            ]),
+          ),
+          Expanded(
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: StreamBuilder(
+                      stream: (i) async* {
+                        while (i < maxX - minX + 1) {
+                          yield ++i;
+                          await Future.delayed(flowDelay);
+                        }
+                      }(flow),
+                      builder: (context, snapshot) {
+                        flow = snapshot.data ?? flow;
+                        return LineChart(
+                          figure(minX, maxX, context),
+                          duration: flowDelay * 2,
+                          curve: Curves.easeOutSine,
+                        );
+                      }),
+                ),
+                Align(
+                  alignment: const Alignment(-.98, 1),
+                  child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      decoration: BoxDecoration(
+                        color: colorScheme.primaryContainer,
+                        borderRadius:
+                            BorderRadius.circular(kRadialReactionRadius),
+                      ),
+                      child: Text('Day',
+                          style: textTheme.titleSmall
+                              ?.apply(color: colorScheme.onPrimaryContainer))),
+                ),
+              ],
             ),
-            CupertinoSlider(
-              key: const Key('slider'),
-              value: sliderValue,
-              max: 360,
-              divisions: 36,
-              onChanged: (value) {
-                setState(() {
-                  sliderValue = value;
-                });
-              },
-            )
-          ],
-        ),
+          ),
+          CupertinoSlider(
+            key: const Key('slider'),
+            value: sliderValue,
+            max: 360,
+            divisions: 36,
+            onChanged: (value) {
+              setState(() {
+                sliderValue = value;
+              });
+            },
+          )
+        ],
       ),
     );
   }
@@ -95,13 +108,15 @@ class RememberChart extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     return LineChartData(
       maxX: maxX + .5,
-      minX: minX - .5,
+      minX: minX - .2,
       maxY: 1.01,
       minY: .0,
       lineBarsData: [
         generalCurve(minX, maxX, color: colorScheme.tertiary),
         generalCurve(minX, maxX,
-            color: colorScheme.primary, fib: trainingRate, shadow: true),
+            color: colorScheme.primaryContainer,
+            fib: widget.trainingRate,
+            shadow: true),
       ],
       lineTouchData: LineTouchData(
         touchTooltipData: LineTouchTooltipData(
@@ -117,7 +132,7 @@ class RememberChart extends StatelessWidget {
             final memory = (sport.y * 1e2).roundToDouble();
             final color = sport.barIndex == 0
                 ? colorScheme.tertiary
-                : colorScheme.primary;
+                : colorScheme.onPrimaryContainer;
             return LineTooltipItem('Remember: ${memory.toStringAsFixed(0)}%',
                 Theme.of(context).textTheme.titleSmall!.apply(color: color));
           }).toList(),
@@ -149,7 +164,14 @@ class RememberChart extends StatelessWidget {
 
   LineChartBarData generalCurve(int minX, int maxX,
       {required Color color, double fib = 1, bool shadow = false}) {
-    final X = List.generate((maxX - minX) + 1, (i) => minX + i);
+    final length = maxX - minX + 1;
+    var X = [];
+    if (shadow) {
+      X = List.generate(flow, (i) => minX + i) +
+          List.filled(length - flow, flow - 1);
+    } else {
+      X = List.generate(length, (i) => minX + i);
+    }
     final gradientColors = [
       color.withAlpha(0x42),
       color.withAlpha(0x0F),
