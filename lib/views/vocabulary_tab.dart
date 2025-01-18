@@ -17,6 +17,15 @@ class VocabularyTab extends StatelessWidget {
         kBottomNavigationBarHeight;
     final hPadding = MediaQuery.of(context).size.width / 32;
     final textTheme = Theme.of(context).textTheme;
+    // return PageView.builder(
+    //   scrollDirection: Axis.vertical,
+    //   itemBuilder: (context, index) => Center(
+    //     child: Text(
+    //       '$index',
+    //       textScaler: const TextScaler.linear(5),
+    //     ),
+    //   ),
+    // );
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -103,6 +112,33 @@ class VocabularyTab extends StatelessWidget {
           ),
         )
       ],
+    );
+  }
+}
+
+class SecondPage extends StatelessWidget {
+  const SecondPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(kToolbarHeight),
+        child: PlatformAppBar(
+          title: const Text('第二页'),
+          material: (_, __) => MaterialAppBarData(
+            backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+          ),
+        ),
+      ),
+      body: Container(
+        // color: Colors.blueGrey,
+        alignment: const Alignment(0, 0),
+        child: const Text(
+          '这是第二页',
+          style: TextStyle(fontSize: 24),
+        ),
+      ),
     );
   }
 }
