@@ -126,7 +126,8 @@ List<Map<String, dynamic>> buildWordMaps(ResultSet resultSet) {
             'word_id': row['id'],
             'word': row['word'],
             'asset': row['filename'],
-            'acquaint': row['acquaint']
+            'acquaint': row['acquaint'],
+            'last_learned_time': row['last_learned_time']
           },
           {'part_of_speech': row['part_of_speech']},
           {

@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'dart:math';
-part 'phonetic.dart';
+part 'vocabulary_ext.dart';
 
 class Vocabulary {
   final int wordId;
@@ -8,43 +8,16 @@ class Vocabulary {
   final List<Definition> definitions;
   final String? asset;
   int acquaint;
+  final int? lastLearnedTime;
 
   Vocabulary({
     required this.wordId,
     required this.word,
     required this.definitions,
-    this.acquaint = 0,
     this.asset,
+    this.acquaint = 0,
+    this.lastLearnedTime,
   });
-
-  Iterable<String> get getInflection => definitions
-          .map((d) => (d.inflection ?? '').split(', '))
-          .reduce((d1, d2) => d1 + d2)
-          .expand((d) sync* {
-        if (d.isNotEmpty) yield d;
-      }).toSet();
-
-  Iterable<String> get getMatchingPatterns {
-    final selfExplainWord = definitions
-        .map((d) => d.explanations)
-        .reduce((e1, e2) => e1 + e2)
-        .map((e) => e.explain)
-        .expand((e) sync* {
-      final explainWord = e.split(' ');
-      if (explainWord.length == 1) yield explainWord[0];
-    });
-    return Set.from(getInflection)
-      ..add(word)
-      ..addAll(selfExplainWord);
-  }
-
-  Iterable<String> get getExamples => definitions
-      .map((d) => d.explanations)
-      .reduce((e1, e2) => e1 + e2)
-      .map((e) => e.examples)
-      .reduce((e1, e2) => e1 + e2);
-
-  int differ(String queryWord) => word.diff(queryWord);
 
   factory Vocabulary.fromRawJson(String str) =>
       Vocabulary.fromJson(json.decode(str));
@@ -56,6 +29,7 @@ class Vocabulary {
         word: json["word"],
         asset: json["asset"],
         acquaint: json["acquaint"] ?? 0,
+        lastLearnedTime: json["last_learned_time"],
         definitions: List<Definition>.from(
             json["definitions"].map((x) => Definition.fromJson(x))),
       );
@@ -64,7 +38,8 @@ class Vocabulary {
         "word_id": wordId,
         "word": word,
         "asset": asset,
-        "acquaint": acquaint,
+        'acquaint': acquaint,
+        'last_learned_time': lastLearnedTime,
         "definitions": List<dynamic>.from(definitions.map((x) => x.toJson())),
       };
 }

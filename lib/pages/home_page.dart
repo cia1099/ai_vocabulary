@@ -1,3 +1,4 @@
+import 'package:ai_vocabulary/model/vocabulary.dart';
 import 'package:ai_vocabulary/widgets/imagen_dialog.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';

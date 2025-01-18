@@ -4,11 +4,15 @@ extension AcquaintDB on MyDB {
   void updateAcquaintance({
     required int wordId,
     required int acquaint,
+    bool isFailure = false,
   }) {
-    const expression =
-        'UPDATE acquaintances SET acquaint=? WHERE acquaintances.word_id=?';
+    final lastLearnedTime =
+        !isFailure ? null : DateTime.now().millisecondsSinceEpoch ~/ 6e4;
+    final expression =
+        'UPDATE acquaintances SET acquaint=?${isFailure ? ',last_learned_time=?' : ''} WHERE acquaintances.word_id=?';
     final db = open(OpenMode.readWrite);
-    db.execute(expression, [acquaint, wordId]);
+    db.execute(expression,
+        [acquaint, lastLearnedTime, wordId]..removeWhere((e) => e == null));
     db.dispose();
   }
 

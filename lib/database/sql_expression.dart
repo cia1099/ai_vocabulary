@@ -16,8 +16,8 @@ const insertTextMessage =
 
 const fetchWordInID = '''
 SELECT words.id, words.word, assets.filename, 
-acquaintances.acquaint, definitions.part_of_speech, 
-definitions.inflection, definitions.alphabet_uk, definitions.alphabet_us, 
+acquaintances.acquaint, acquaintances.last_learned_time, 
+definitions.part_of_speech, definitions.inflection, definitions.alphabet_uk, definitions.alphabet_us, 
 definitions.audio_uk, definitions.audio_us, definitions.translate, 
 explanations.subscript, explanations.explain, examples.example 
 FROM words LEFT OUTER JOIN assets ON assets.word_id = words.id 
@@ -87,6 +87,7 @@ CREATE TABLE acquaintances (
         word_id INTEGER NOT NULL, 
         user_id UUID, 
         acquaint INTEGER NOT NULL DEFAULT 0, 
+        last_learned_time INTEGER, 
         PRIMARY KEY (word_id), 
         FOREIGN KEY(word_id) REFERENCES words (id),
         FOREIGN KEY(user_id) REFERENCES users (id)
