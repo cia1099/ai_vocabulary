@@ -1,3 +1,4 @@
+import 'package:ai_vocabulary/pages/home_page.dart';
 import 'package:ai_vocabulary/pages/word_list_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -6,7 +7,6 @@ import 'package:flutter_web_frame/flutter_web_frame.dart';
 
 import 'package:ai_vocabulary/pages/cloze_page.dart';
 import 'package:ai_vocabulary/pages/entry_page.dart';
-import 'package:ai_vocabulary/pages/home_page.dart';
 import 'package:ai_vocabulary/pages/vocabulary_page.dart';
 
 import 'provider/word_provider.dart';
