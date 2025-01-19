@@ -1,36 +1,114 @@
 import 'package:ai_vocabulary/model/vocabulary.dart';
 import 'package:ai_vocabulary/pages/collection_page.dart';
-import 'package:ai_vocabulary/pages/entry_page.dart';
 import 'package:ai_vocabulary/provider/word_provider.dart';
 import 'package:ai_vocabulary/app_route.dart';
+import 'package:ai_vocabulary/utils/shortcut.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/src/scheduler/ticker.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 import '../widgets/definition_tile.dart';
 
-class VocabularyTab extends StatelessWidget {
+class VocabularyTab extends StatelessWidget implements TickerProvider {
+  final void Function(int index)? onTabChanged;
   const VocabularyTab({
     super.key,
+    this.onTabChanged,
   });
 
   @override
   Widget build(BuildContext context) {
+    // return oldDesign(context);
+    final pageController = PageController(initialPage: 1);
+    final tabController =
+        TabController(initialIndex: 1, length: 2, vsync: this);
+    tabController.addListener(() {
+      pageController.animateToPage(tabController.index,
+          duration: Durations.short4, curve: Curves.ease);
+    });
+    var dragStartX = .0;
+    return PlatformScaffold(
+      appBar: PlatformAppBar(
+        title: TabBar(
+            controller: tabController,
+            tabAlignment: TabAlignment.center,
+            dividerColor: const Color(0x00000000),
+            tabs: const [Tab(text: 'Review'), Tab(text: 'Recommend')]),
+        backgroundColor: kCupertinoSheetColor.resolveFrom(context),
+      ),
+      body: SafeArea(
+        child: Listener(
+          onPointerDown: (event) {
+            dragStartX = event.position.dx;
+          },
+          onPointerCancel: (event) => dragStartX = .0,
+          onPointerUp: (event) {
+            final dx = event.position.dx - dragStartX;
+            const threshold = 120.0;
+            if (dx < -threshold && tabController.index == 0) {
+              tabController.animateTo(1);
+              pageController.nextPage(
+                  duration: Durations.short4, curve: Curves.ease);
+              onTabChanged?.call(0);
+            } else if (dx > threshold && tabController.index == 1) {
+              tabController.animateTo(0);
+              pageController.previousPage(
+                  duration: Durations.short4, curve: Curves.ease);
+              onTabChanged?.call(1);
+            }
+          },
+          child: PageView.builder(
+            key: ObjectKey(pageController),
+            controller: pageController,
+            physics: const NeverScrollableScrollPhysics(),
+            itemBuilder: (context, index) => index.isEven
+                ? const Center(
+                    child: Text(
+                      'Review tab view',
+                      textScaler: TextScaler.linear(2.5),
+                    ),
+                  )
+                : StreamBuilder(
+                    key: ObjectKey(WordProvider()),
+                    stream: WordProvider.instance.provideWord,
+                    builder: (context, snapshot) {
+                      if (snapshot.data == null)
+                        return Center(
+                            child: SpinKitFadingCircle(
+                          color: Theme.of(context).colorScheme.primaryContainer,
+                        ));
+                      return PageView.builder(
+                        scrollDirection: Axis.vertical,
+                        itemBuilder: (context, index) {
+                          final word =
+                              WordProvider().subList().elementAt(index);
+                          return Entry(
+                            word: word,
+                          );
+                        },
+                        itemCount: WordProvider().studyCount,
+                      );
+                    }),
+            itemCount: 2,
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Ticker createTicker(TickerCallback onTick) {
+    return Ticker(onTick);
+  }
+
+  Widget oldDesign(BuildContext context) {
     final maxHeight = MediaQuery.of(context).size.height -
         kToolbarHeight -
         kBottomNavigationBarHeight;
     final hPadding = MediaQuery.of(context).size.width / 32;
     final textTheme = Theme.of(context).textTheme;
-    return PageView.builder(
-      scrollDirection: Axis.vertical,
-      itemBuilder: (context, index) {
-        final word = WordProvider().subList().elementAt(index);
-        return Entry(
-          word: word,
-        );
-      },
-      itemCount: WordProvider().studyCount,
-    );
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -304,33 +382,6 @@ class Entry extends StatelessWidget {
             ],
           )
         ],
-      ),
-    );
-  }
-}
-
-class SecondPage extends StatelessWidget {
-  const SecondPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(kToolbarHeight),
-        child: PlatformAppBar(
-          title: const Text('第二页'),
-          material: (_, __) => MaterialAppBarData(
-            backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-          ),
-        ),
-      ),
-      body: Container(
-        // color: Colors.blueGrey,
-        alignment: const Alignment(0, 0),
-        child: const Text(
-          '这是第二页',
-          style: TextStyle(fontSize: 24),
-        ),
       ),
     );
   }
