@@ -17,92 +17,103 @@ class SettingTab extends StatelessWidget {
         kBottomNavigationBarHeight -
         34;
     final switches = List.generate(7, (_) => Random().nextBool());
-    return StatefulBuilder(
-      builder: (_, setState) {
-        return SizedBox(
-          // color: CupertinoColors.systemGrey2,
-          height: maxHeight,
-          child: SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(
-                parent: BouncingScrollPhysics()),
-            child: Column(
-              children: [
-                const Padding(padding: EdgeInsets.only(top: 24)),
-                PlatformListTile(
-                  title: const Text('Send me marketing emails'),
-                  // The Material switch has a platform adaptive constructor.
-                  trailing: PlatformSwitch(
-                    value: switches[0],
-                    onChanged: (value) => setState(() => switches[0] = value),
+    return PlatformScaffold(
+      appBar: PlatformAppBar(
+        title: const Text('Settings'),
+        material: (_, __) => MaterialAppBarData(
+          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        ),
+      ),
+      body: StatefulBuilder(
+        builder: (_, setState) {
+          return SizedBox(
+            // color: CupertinoColors.systemGrey2,
+            height: maxHeight,
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(
+                  parent: BouncingScrollPhysics()),
+              child: Column(
+                children: [
+                  const Padding(padding: EdgeInsets.only(top: 24)),
+                  PlatformListTile(
+                    title: const Text('Send me marketing emails'),
+                    // The Material switch has a platform adaptive constructor.
+                    trailing: PlatformSwitch(
+                      value: switches[0],
+                      onChanged: (value) => setState(() => switches[0] = value),
+                    ),
                   ),
-                ),
-                PlatformListTile(
-                  title: const Text('Enable notifications'),
-                  trailing: PlatformSwitch(
-                    value: switches[1],
-                    onChanged: (value) => setState(() => switches[1] = value),
+                  PlatformListTile(
+                    title: const Text('Enable notifications'),
+                    trailing: PlatformSwitch(
+                      value: switches[1],
+                      onChanged: (value) => setState(() => switches[1] = value),
+                    ),
                   ),
-                ),
-                PlatformListTile(
-                  title: const Text('Remind me to rate this app'),
-                  trailing: PlatformSwitch(
-                    value: switches[2],
-                    onChanged: (value) => setState(() => switches[2] = value),
+                  PlatformListTile(
+                    title: const Text('Remind me to rate this app'),
+                    trailing: PlatformSwitch(
+                      value: switches[2],
+                      onChanged: (value) => setState(() => switches[2] = value),
+                    ),
                   ),
-                ),
-                PlatformListTile(
-                  title: const Text('Background song refresh'),
-                  trailing: PlatformSwitch(
-                    value: switches[3],
-                    onChanged: (value) => setState(() => switches[3] = value),
+                  PlatformListTile(
+                    title: const Text('Background song refresh'),
+                    trailing: PlatformSwitch(
+                      value: switches[3],
+                      onChanged: (value) => setState(() => switches[3] = value),
+                    ),
                   ),
-                ),
-                PlatformListTile(
-                  title: const Text('Recommend me songs based on my location'),
-                  trailing: PlatformSwitch(
-                    value: switches[4],
-                    onChanged: (value) => setState(() => switches[4] = value),
+                  PlatformListTile(
+                    title:
+                        const Text('Recommend me songs based on my location'),
+                    trailing: PlatformSwitch(
+                      value: switches[4],
+                      onChanged: (value) => setState(() => switches[4] = value),
+                    ),
                   ),
-                ),
-                PlatformListTile(
-                  title: const Text('Auto-transition playback to cast devices'),
-                  trailing: PlatformSwitch(
-                    value: switches[5],
-                    onChanged: (value) => setState(() => switches[5] = value),
+                  PlatformListTile(
+                    title:
+                        const Text('Auto-transition playback to cast devices'),
+                    trailing: PlatformSwitch(
+                      value: switches[5],
+                      onChanged: (value) => setState(() => switches[5] = value),
+                    ),
                   ),
-                ),
-                PlatformListTile(
-                  title: const Text('Find friends from my contact list'),
-                  trailing: PlatformSwitch(
-                    value: switches[6],
-                    onChanged: (value) => setState(() => switches[6] = value),
+                  PlatformListTile(
+                    title: const Text('Find friends from my contact list'),
+                    trailing: PlatformSwitch(
+                      value: switches[6],
+                      onChanged: (value) => setState(() => switches[6] = value),
+                    ),
                   ),
-                ),
-                PlatformListTile(
-                  title: const Text('Dark mode'),
-                  trailing: PlatformSwitch(
-                    value: MyApp.brightSwitcher.value,
-                    onChanged: (value) =>
-                        setState(() => MyApp.brightSwitcher.value = value),
+                  PlatformListTile(
+                    title: const Text('Dark mode'),
+                    trailing: PlatformSwitch(
+                      value: MyApp.brightSwitcher.value,
+                      onChanged: (value) =>
+                          setState(() => MyApp.brightSwitcher.value = value),
+                    ),
                   ),
-                ),
-                PlatformListTile(
-                  title: const Text('Application Color Theme'),
-                  trailing: const CupertinoListTileChevron(),
-                  onTap: () => Navigator.of(context).push(CupertinoDialogRoute(
-                    builder: (context) => const ColorSelectPage(),
-                    barrierColor: Theme.of(context)
-                        .colorScheme
-                        .inverseSurface
-                        .withValues(alpha: .4),
-                    context: context,
-                  )),
-                )
-              ],
+                  PlatformListTile(
+                    title: const Text('Application Color Theme'),
+                    trailing: const CupertinoListTileChevron(),
+                    onTap: () =>
+                        Navigator.of(context).push(CupertinoDialogRoute(
+                      builder: (context) => const ColorSelectPage(),
+                      barrierColor: Theme.of(context)
+                          .colorScheme
+                          .inverseSurface
+                          .withValues(alpha: .4),
+                      context: context,
+                    )),
+                  )
+                ],
+              ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 }
