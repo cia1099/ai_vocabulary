@@ -21,6 +21,8 @@ class ChartTab extends StatelessWidget {
           PlatformSliverAppBar(
             stretch: true,
             title: const Text('Charts'),
+            cupertino: (_, __) =>
+                CupertinoSliverAppBarData(transitionBetweenRoutes: false),
           ),
           const SliverToBoxAdapter(child: Calendar()),
           const SliverToBoxAdapter(child: RememberChart(trainingRate: 2.5)),

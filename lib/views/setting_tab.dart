@@ -23,6 +23,8 @@ class SettingTab extends StatelessWidget {
         material: (_, __) => MaterialAppBarData(
           backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         ),
+        cupertino: (_, __) =>
+            CupertinoNavigationBarData(transitionBetweenRoutes: false),
       ),
       body: StatefulBuilder(
         builder: (_, setState) {

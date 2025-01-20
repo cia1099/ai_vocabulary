@@ -83,10 +83,11 @@ class _CollectionPageState extends State<CollectionPage> {
                   )),
               cupertino: (_, __) => CupertinoSliverAppBarData(
                   // backgroundColor: kCupertinoSheetColor.resolveFrom(context),
+                  transitionBetweenRoutes: false,
                   trailing: Wrap(
-                spacing: 4,
-                children: actions(),
-              )),
+                    spacing: 4,
+                    children: actions(),
+                  )),
             ),
             SliverPersistentHeader(
               pinned: true,

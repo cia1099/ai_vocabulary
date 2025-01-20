@@ -1,4 +1,5 @@
 import 'package:ai_vocabulary/model/vocabulary.dart';
+import 'package:ai_vocabulary/pages/collection_page.dart';
 import 'package:ai_vocabulary/widgets/imagen_dialog.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -139,7 +140,13 @@ class _NavigationPageState extends State<NavigationPage> {
       ),
       resizeToAvoidBottomInset: false,
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () => Navigator.push(
+            context,
+            platformPageRoute(
+              context: context,
+              fullscreenDialog: true,
+              builder: (context) => const CollectionPage(),
+            )),
         shape: const CircleBorder(),
         elevation: 1,
         child: const Icon(CupertinoIcons.add),

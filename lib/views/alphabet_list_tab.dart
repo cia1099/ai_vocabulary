@@ -42,8 +42,7 @@ class _AlphabetListTabState extends State<AlphabetListTab> {
             backgroundColor: kCupertinoSheetColor.resolveFrom(context),
             stretch: true,
             cupertino: (_, __) => CupertinoSliverAppBarData(
-              trailing: buildTrail(),
-            ),
+                trailing: buildTrail(), transitionBetweenRoutes: false),
             material: (_, __) => MaterialSliverAppBarData(
               actions: [buildTrail()],
             ),
