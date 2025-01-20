@@ -5,13 +5,12 @@ import 'package:ai_vocabulary/app_route.dart';
 import 'package:ai_vocabulary/utils/shortcut.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/scheduler/ticker.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 import '../widgets/definition_tile.dart';
 
-class VocabularyTab extends StatelessWidget implements TickerProvider {
+class VocabularyTab extends StatefulWidget {
   final void Function(int index)? onTabChanged;
   const VocabularyTab({
     super.key,
@@ -19,15 +18,19 @@ class VocabularyTab extends StatelessWidget implements TickerProvider {
   });
 
   @override
+  State<VocabularyTab> createState() => _VocabularyTabState();
+}
+
+class _VocabularyTabState extends State<VocabularyTab>
+    with SingleTickerProviderStateMixin {
+  final pageController = PageController(initialPage: 1);
+  late final tabController =
+      TabController(initialIndex: 1, length: 2, vsync: this);
+
+  @override
   Widget build(BuildContext context) {
     // return oldDesign(context);
-    final pageController = PageController(initialPage: 1);
-    final tabController =
-        TabController(initialIndex: 1, length: 2, vsync: this);
-    tabController.addListener(() {
-      pageController.animateToPage(tabController.index,
-          duration: Durations.short4, curve: Curves.ease);
-    });
+
     return PlatformScaffold(
       appBar: PlatformAppBar(
         title: TabBar(
@@ -48,11 +51,11 @@ class VocabularyTab extends StatelessWidget implements TickerProvider {
             }
           },
           child: PageView.builder(
-            key: ObjectKey(pageController),
+            // key: PageStorageKey(pageController),
             controller: pageController,
             onPageChanged: (value) {
               tabController.animateTo(value);
-              onTabChanged?.call((value + 1) & 1);
+              widget.onTabChanged?.call((value + 1) & 1);
             },
             physics: const NeverScrollableScrollPhysics(),
             itemBuilder: (context, index) => index.isEven
@@ -73,17 +76,20 @@ class VocabularyTab extends StatelessWidget implements TickerProvider {
                         ));
                       return PageView.builder(
                         scrollDirection: Axis.vertical,
+                        findChildIndexCallback: (key) =>
+                            (key as ValueKey).value,
                         itemBuilder: (context, index) {
                           final word =
                               WordProvider().subList().elementAt(index);
                           return Entry(
+                            key: ValueKey(index),
                             word: word,
                           );
                         },
                         itemCount: WordProvider().studyCount,
                       );
                     }),
-            itemCount: 2,
+            itemCount: tabController.length,
           ),
         ),
       ),
@@ -91,8 +97,18 @@ class VocabularyTab extends StatelessWidget implements TickerProvider {
   }
 
   @override
-  Ticker createTicker(TickerCallback onTick) {
-    return Ticker(onTick);
+  void initState() {
+    super.initState();
+    tabController.addListener(() {
+      pageController.animateToPage(tabController.index,
+          duration: Durations.short4, curve: Curves.ease);
+    });
+  }
+
+  @override
+  void dispose() {
+    tabController.dispose();
+    super.dispose();
   }
 
   Widget oldDesign(BuildContext context) {
@@ -191,7 +207,7 @@ class VocabularyTab extends StatelessWidget implements TickerProvider {
   }
 }
 
-class Entry extends StatelessWidget {
+class Entry extends StatefulWidget {
   const Entry({
     super.key,
     required this.word,
@@ -200,12 +216,18 @@ class Entry extends StatelessWidget {
   final Vocabulary word;
 
   @override
+  State<Entry> createState() => _EntryState();
+}
+
+class _EntryState extends State<Entry> with AutomaticKeepAliveClientMixin {
+  @override
   Widget build(BuildContext context) {
+    super.build(context);
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
     final screenWidth = MediaQuery.of(context).size.width;
     final hPadding = screenWidth / 32;
-    final phonetics = word.getPhonetics();
+    final phonetics = widget.word.getPhonetics();
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: hPadding),
       child: Column(
@@ -264,11 +286,11 @@ class Entry extends StatelessWidget {
                             border: Border.all(color: CupertinoColors.black)),
                         child: const Text("Learned 3 month ago"),
                       ),
-                      Text(word.word, style: textTheme.displayMedium),
+                      Text(widget.word.word, style: textTheme.displayMedium),
                       Wrap(
                         spacing: 8,
                         runSpacing: 4,
-                        children: word.getInflection
+                        children: widget.word.getInflection
                             .map((e) => Container(
                                   padding: const EdgeInsets.symmetric(
                                       vertical: 4, horizontal: 8),
@@ -301,7 +323,7 @@ class Entry extends StatelessWidget {
                               WidgetSpan(
                                   child: GestureDetector(
                                       onTap: playPhonetic(p.audioUrl,
-                                          word: word.word),
+                                          word: widget.word.word),
                                       child:
                                           const Icon(CupertinoIcons.volume_up)))
                             ], style: textTheme.titleLarge),
@@ -377,4 +399,7 @@ class Entry extends StatelessWidget {
       ),
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }

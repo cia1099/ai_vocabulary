@@ -13,6 +13,7 @@ class HomePage extends StatelessWidget {
     return ValueListenableBuilder(
       valueListenable: tabIndex,
       builder: (context, value, child) => PageView(
+        // key: PageStorageKey(pageController),
         controller: pageController,
         physics: value == 0
             ? const ClampingScrollPhysics()
