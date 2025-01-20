@@ -28,7 +28,6 @@ class VocabularyTab extends StatelessWidget implements TickerProvider {
       pageController.animateToPage(tabController.index,
           duration: Durations.short4, curve: Curves.ease);
     });
-    var dragStartX = .0;
     return PlatformScaffold(
       appBar: PlatformAppBar(
         title: TabBar(
@@ -40,28 +39,21 @@ class VocabularyTab extends StatelessWidget implements TickerProvider {
       ),
       body: SafeArea(
         child: Listener(
-          onPointerDown: (event) {
-            dragStartX = event.position.dx;
-          },
-          onPointerCancel: (event) => dragStartX = .0,
-          onPointerUp: (event) {
-            final dx = event.position.dx - dragStartX;
-            const threshold = 120.0;
-            if (dx < -threshold && tabController.index == 0) {
-              tabController.animateTo(1);
-              pageController.nextPage(
-                  duration: Durations.short4, curve: Curves.ease);
-              onTabChanged?.call(0);
-            } else if (dx > threshold && tabController.index == 1) {
-              tabController.animateTo(0);
-              pageController.previousPage(
-                  duration: Durations.short4, curve: Curves.ease);
-              onTabChanged?.call(1);
+          onPointerMove: (event) {
+            final dx = event.delta.dx;
+            final x = pageController.position.pixels;
+            final shift = x - dx;
+            if (shift < x || tabController.index == 0) {
+              pageController.jumpTo(shift);
             }
           },
           child: PageView.builder(
             key: ObjectKey(pageController),
             controller: pageController,
+            onPageChanged: (value) {
+              tabController.animateTo(value);
+              onTabChanged?.call((value + 1) & 1);
+            },
             physics: const NeverScrollableScrollPhysics(),
             itemBuilder: (context, index) => index.isEven
                 ? const Center(
