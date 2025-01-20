@@ -140,7 +140,7 @@ class _RetrievalBottomSheetState extends State<RetrievalBottomSheet>
                         return PageView.builder(
                           itemCount: words.length,
                           onPageChanged: (value) =>
-                              tabController?.index = value,
+                              tabController?.animateTo(value),
                           itemBuilder: (context, index) {
                             final word = words[index];
                             return MatchingWordView(

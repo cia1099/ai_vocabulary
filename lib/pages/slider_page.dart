@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'package:ai_vocabulary/widgets/capital_avatar.dart';
+import 'package:ai_vocabulary/widgets/chat_bubble.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
@@ -124,54 +126,18 @@ class _SliderPageState extends State<SliderPage>
                     style: TextStyle(color: colorScheme.onSurfaceVariant)),
               ),
               const Expanded(child: SizedBox()),
-              Wrap(
-                spacing: screenWidth / 12,
-                children: [
-                  TextButton(
-                    onPressed: () {
-                      // MyDB.instance
-                      //     .updateAcquaintance(wordId: word.wordId, acquaint: 0);
-                      // // Navigator.of(context)
-                      // //     .pushNamed(AppRoute.SliderPageVocabulary);
-                      // pushNamed(context, AppRoute.SliderPageVocabulary);
-                    },
-                    style: TextButton.styleFrom(
-                        fixedSize: Size.square(screenWidth / 3),
-                        backgroundColor: colorScheme.secondaryContainer
-                            .withValues(alpha: .8),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16))),
-                    child: Text(
-                      "Unknown",
-                      style:
-                          textTheme.titleLarge!.apply(color: colorScheme.error),
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: null,
-                    // onPressed: () => pushNamed(
-                    //     context,
-                    //     AppRoute
-                    //         .cloze), //Navigator.of(context).pushNamed(AppRoute.cloze),
-                    style: TextButton.styleFrom(
-                        fixedSize: Size.square(screenWidth / 3),
-                        backgroundColor: colorScheme.secondaryContainer
-                            .withValues(alpha: .8),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16))),
-                    child: Text(
-                      "Recognize",
-                      style: textTheme.titleLarge!
-                          .apply(color: colorScheme.primary),
-                    ),
-                  ),
-                ],
-              )
             ],
           ),
         ),
+        AnimatedPositioned(
+          bottom: kFloatingActionButtonMargin * 1.6,
+          duration: Durations.medium1,
+          height: 100,
+          width: screenWidth * .85,
+          child: DefinitionSliders(definitions: widget.word.definitions),
+        ),
         const Align(
-          alignment: Alignment(1, .95),
+          alignment: Alignment(1, .2),
           child: FractionallySizedBox(
             widthFactor: .16,
             child: AspectRatio(
@@ -186,7 +152,7 @@ class _SliderPageState extends State<SliderPage>
           alignment: const Alignment(.95, 1),
           child: FractionallySizedBox(
             widthFactor: .12,
-            heightFactor: .4,
+            heightFactor: .36,
             child: LayoutBuilder(
               builder: (context, constraints) {
                 final width = constraints.maxWidth;
@@ -194,8 +160,8 @@ class _SliderPageState extends State<SliderPage>
                   // color: Colors.grey,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
-                    spacing: 16,
-                    // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    // spacing: 16,
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       PlatformIconButton(
                         onPressed: () {},
@@ -234,7 +200,12 @@ class _SliderPageState extends State<SliderPage>
                                 tapTargetSize:
                                     MaterialTapTargetSize.shrinkWrap)),
                       ),
-                      // SizedBox.square(dimension: width * .9)
+                      CapitalAvatar(
+                        name: widget.word.word,
+                        id: widget.word.wordId,
+                        url: widget.word.asset,
+                        size: width * .9,
+                      )
                     ],
                   ),
                 );
@@ -248,4 +219,65 @@ class _SliderPageState extends State<SliderPage>
 
   @override
   bool get wantKeepAlive => true;
+}
+
+class DefinitionSliders extends StatefulWidget {
+  const DefinitionSliders({
+    super.key,
+    required this.definitions,
+  });
+
+  final List<Definition> definitions;
+
+  @override
+  State<DefinitionSliders> createState() => _DefinitionSlidersState();
+}
+
+class _DefinitionSlidersState extends State<DefinitionSliders>
+    with TickerProviderStateMixin {
+  late final tabController = widget.definitions.length > 1
+      ? TabController(length: widget.definitions.length, vsync: this)
+      : null;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    return Row(
+      spacing: 4,
+      children: [
+        if (tabController != null)
+          RotatedBox(
+            quarterTurns: 1,
+            child: TabPageSelector(
+              controller: tabController,
+              selectedColor: Theme.of(context).colorScheme.primary,
+            ),
+          ),
+        Expanded(
+          child: PageView.builder(
+            scrollDirection: Axis.vertical,
+            onPageChanged: (value) => tabController?.animateTo(value),
+            itemBuilder: (context, index) {
+              final definition = widget.definitions[index];
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(definition.partOfSpeech,
+                      style: textTheme.titleLarge
+                          ?.copyWith(fontWeight: FontWeight.w600)),
+                  DefaultTextStyle(
+                      style: textTheme.bodyLarge!,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 3,
+                      child: ClickableText(definition.index2Explanation())),
+                ],
+              );
+            },
+            itemCount: widget.definitions.length,
+          ),
+        ),
+      ],
+    );
+  }
 }
