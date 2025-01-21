@@ -1,3 +1,5 @@
+import 'package:flutter/painting.dart';
+
 Iterable<String> splitWords(String text) {
   return text
       .split(RegExp(r'(?=\s+|[,.!?"=\[\]\(\)\/])|(?<=\s+|[,.!?"=\[\]\(\)\/])'))
@@ -46,5 +48,26 @@ extension SlidingWindow on String {
       }
     }
     return -1;
+  }
+}
+
+extension BinarySearch on TextPainter {
+  int overflowIndex(double maxWidth) {
+    layout(maxWidth: maxWidth);
+    if (!didExceedMaxLines) return -1;
+    final span = text as TextSpan;
+    final str = span.text!;
+    int start = 0, end = str.length;
+    while (start < end) {
+      final mid = (start + end) >> 1;
+      text = TextSpan(text: str.substring(0, mid), style: span.style);
+      layout(maxWidth: maxWidth);
+      if (didExceedMaxLines) {
+        end = mid;
+      } else {
+        start = mid + 1;
+      }
+    }
+    return start - 1;
   }
 }
