@@ -63,30 +63,7 @@ class EntryActions extends StatelessWidget {
               // color: navColor,
             )),
       if (!skipIndexes.contains(1))
-        ListenableBuilder(
-          listenable: MyDB.instance,
-          builder: (context, child) {
-            final collect = MyDB().hasCollectWord(wordID);
-            return GestureDetector(
-                onTap: toggleCollectionMethods(collect, context),
-                child: Hero(
-                  tag: 'favorite',
-                  child: Icon(
-                    collect ? CupertinoIcons.star_fill : CupertinoIcons.star,
-                    color: collect
-                        ? CupertinoColors.systemYellow.resolveFrom(context)
-                        : null,
-                    size: appBarIconSize,
-                  ),
-                  flightShuttleBuilder: (flightContext, animation,
-                          flightDirection, fromHeroContext, toHeroContext) =>
-                      ScaleTransition(
-                    scale: PeakQuadraticTween().animate(animation),
-                    child: toHeroContext.widget,
-                  ),
-                ));
-          },
-        ),
+        FavoriteStar(wordID: wordID, size: appBarIconSize),
       if (!skipIndexes.contains(2))
         GestureDetector(
             onTap: () => Navigator.of(context).push(PageRouteBuilder(
@@ -121,6 +98,45 @@ class EntryActions extends StatelessWidget {
             )),
     ];
   }
+}
+
+class FavoriteStar extends StatelessWidget {
+  const FavoriteStar({
+    super.key,
+    required this.wordID,
+    this.size,
+  });
+
+  final int wordID;
+  final double? size;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListenableBuilder(
+      listenable: MyDB.instance,
+      builder: (context, child) {
+        final collect = MyDB().hasCollectWord(wordID);
+        return GestureDetector(
+            onTap: toggleCollectionMethods(collect, context),
+            child: Hero(
+              tag: 'favorite_$wordID',
+              child: Icon(
+                collect ? CupertinoIcons.star_fill : CupertinoIcons.star,
+                color: collect
+                    ? CupertinoColors.systemYellow.resolveFrom(context)
+                    : null,
+                size: size,
+              ),
+              flightShuttleBuilder: (flightContext, animation, flightDirection,
+                      fromHeroContext, toHeroContext) =>
+                  ScaleTransition(
+                scale: PeakQuadraticTween().animate(animation),
+                child: toHeroContext.widget,
+              ),
+            ));
+      },
+    );
+  }
 
   VoidCallback toggleCollectionMethods(
       final bool hasCollection, BuildContext context) {
@@ -131,8 +147,12 @@ class EntryActions extends StatelessWidget {
             context,
             AutomatedPopRoute(
               stay: const Duration(milliseconds: 1500),
-              barrierColor: Colors.black38,
+              barrierColor: Theme.of(context)
+                  .colorScheme
+                  .inverseSurface
+                  .withValues(alpha: .12),
               builder: (context) => AddCollectionIsland(
+                wordID: wordID,
                 onPressed: () => showManageCollectionSheet(context),
               ),
             ));

@@ -4,9 +4,11 @@ import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
 class AddCollectionIsland extends StatelessWidget {
   final VoidCallback? onPressed;
+  final int wordID;
   const AddCollectionIsland({
     super.key,
     this.onPressed,
+    required this.wordID,
   });
 
   @override
@@ -53,7 +55,7 @@ class AddCollectionIsland extends StatelessWidget {
                       crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
                         Hero(
-                          tag: 'favorite',
+                          tag: 'favorite_$wordID',
                           child: Icon(CupertinoIcons.star_fill,
                               color: CupertinoColors.systemYellow
                                   .resolveFrom(context)),

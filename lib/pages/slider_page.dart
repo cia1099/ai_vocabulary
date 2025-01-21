@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:ai_vocabulary/utils/clickable_text_mixin.dart';
 import 'package:ai_vocabulary/utils/regex.dart';
 import 'package:ai_vocabulary/widgets/capital_avatar.dart';
+import 'package:ai_vocabulary/widgets/entry_actions.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -192,18 +193,8 @@ class _SliderPageState extends State<SliderPage>
                                 tapTargetSize:
                                     MaterialTapTargetSize.shrinkWrap)),
                       ),
-                      PlatformIconButton(
-                        onPressed: () {},
-                        padding: EdgeInsets.zero,
-                        icon: Icon(
-                          CupertinoIcons.star,
-                          size: width * .9,
-                        ),
-                        material: (_, __) => MaterialIconButtonData(
-                            style: IconButton.styleFrom(
-                                tapTargetSize:
-                                    MaterialTapTargetSize.shrinkWrap)),
-                      ),
+                      FavoriteStar(
+                          wordID: widget.word.wordId, size: width * .9),
                       PlatformIconButton(
                         onPressed: () {},
                         padding: EdgeInsets.zero,
@@ -246,7 +237,7 @@ class DefinitionSliders extends StatefulWidget {
   });
 
   final List<Definition> definitions;
-  final void Function(double) getMore;
+  final void Function(double requiredHeight) getMore;
   static const double kDefaultHeight = 100.0;
 
   @override
