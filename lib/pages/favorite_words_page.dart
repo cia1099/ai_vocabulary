@@ -4,6 +4,7 @@ import 'package:ai_vocabulary/model/collections.dart';
 import 'package:ai_vocabulary/model/vocabulary.dart';
 import 'package:ai_vocabulary/utils/regex.dart';
 import 'package:ai_vocabulary/utils/shortcut.dart';
+import 'package:ai_vocabulary/widgets/flashcard.dart';
 import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -27,6 +28,7 @@ class _FavoriteWordsPageState extends State<FavoriteWordsPage> {
   final textController = TextEditingController();
   late var words = fetchDB.toList();
   late List<GlobalObjectKey> capitalKeys;
+  ColorScheme? markScheme;
 
   Iterable<Vocabulary> get fetchDB =>
       MyDB().fetchWordsFromMark(widget.mark.name);
@@ -50,7 +52,13 @@ class _FavoriteWordsPageState extends State<FavoriteWordsPage> {
     words.sort((a, b) => a.word.compareTo(b.word));
     final capitals = words.map((e) => e.word[0]).toSet();
     capitalKeys = capitals.map((e) => GlobalObjectKey(e)).toList();
-    return PlatformScaffold(
+    if (widget.mark.color != null) {
+      markScheme = ColorScheme.fromSeed(
+          seedColor: Color(widget.mark.color!),
+          brightness: Theme.of(context).brightness);
+    }
+    // markScheme = markScheme?.copyWith(brightness: Theme.of(context).brightness);
+    return Scaffold(
       body: SafeArea(
         top: false,
         child: MediaQuery.removeViewInsets(
@@ -65,7 +73,8 @@ class _FavoriteWordsPageState extends State<FavoriteWordsPage> {
                     title: Text(
                       widget.mark.name.replaceAll(RegExp(r'\n'), ' '),
                     ),
-                    backgroundColor: kCupertinoSheetColor.resolveFrom(context),
+                    backgroundColor: markScheme?.primaryContainer ??
+                        kCupertinoSheetColor.resolveFrom(context),
                     material: (_, __) => MaterialSliverAppBarData(
                         pinned: true,
                         flexibleSpace: FlexibleSpaceBar(
@@ -74,26 +83,11 @@ class _FavoriteWordsPageState extends State<FavoriteWordsPage> {
                             StretchMode.blurBackground,
                             StretchMode.fadeTitle,
                           ],
-                          background: FittedBox(
-                            fit: BoxFit.cover,
-                            child: DecoratedBox(
-                              decoration: BoxDecoration(
-                                  gradient: widget.mark.color == null
-                                      ? null
-                                      : LinearGradient(
-                                          begin: Alignment.topLeft,
-                                          end: Alignment.bottomRight,
-                                          colors: [
-                                            HSVColor.fromColor(
-                                                    Color(widget.mark.color!))
-                                                .withValue(1)
-                                                .toColor(),
-                                            HSVColor.fromColor(
-                                                    Color(widget.mark.color!))
-                                                .withValue(.75)
-                                                .toColor(),
-                                          ],
-                                        )),
+                          background: DecoratedBox(
+                            decoration: BoxDecoration(
+                                gradient: widget.mark.gradient(context)),
+                            child: FittedBox(
+                              fit: BoxFit.fill,
                               child: Icon(widget.mark.icon == null
                                   ? Icons.abc
                                   : IconData(widget.mark.icon!,
@@ -113,7 +107,7 @@ class _FavoriteWordsPageState extends State<FavoriteWordsPage> {
                       child: FilterInputBar(
                         padding: EdgeInsets.only(
                             bottom: 10, right: hPadding, left: hPadding),
-                        backgroundColor:
+                        backgroundColor: markScheme?.primaryContainer ??
                             kCupertinoSheetColor.resolveFrom(context),
                         controller: textController,
                         hintText: 'Filter word',
@@ -147,19 +141,21 @@ class _FavoriteWordsPageState extends State<FavoriteWordsPage> {
           SliverPinnedHeader(
             key: capitalKeys[i],
             child: Container(
-              height: kTextTabBarHeight, //* math.sqrt2,
+              height: kTextTabBarHeight * math.sqrt1_2,
               padding: EdgeInsets.symmetric(horizontal: hPadding),
               decoration: BoxDecoration(
                 border: Border(
                     bottom: BorderSide(
                         strokeAlign: -1, color: colorScheme.outlineVariant)),
-                color:
-                    kCupertinoSheetColor.resolveFrom(context).withAlpha(0xf0),
+                color: (markScheme?.primaryContainer ??
+                        kCupertinoSheetColor.resolveFrom(context))
+                    .withAlpha(0xf0),
               ),
               alignment: const Alignment(-1, 1),
               child: Text(
                 capital.toString().toUpperCase(),
-                textScaler: const TextScaler.linear(2.5),
+                textScaler: TextScaler.linear((1 + math.sqrt(5)) / 2),
+                style: TextStyle(color: markScheme?.onPrimaryContainer),
               ),
             ),
           ),

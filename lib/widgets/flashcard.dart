@@ -61,19 +61,7 @@ class _FlashcardState extends State<Flashcard>
               child: Card(
                 child: DecoratedBox(
                   decoration: BoxDecoration(
-                    gradient: widget.mark.color != null
-                        ? LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                                HSVColor.fromColor(Color(widget.mark.color!))
-                                    .withValue(1)
-                                    .toColor(),
-                                HSVColor.fromColor(Color(widget.mark.color!))
-                                    .withValue(.75)
-                                    .toColor(),
-                              ])
-                        : null,
+                    gradient: widget.mark.gradient(context),
                   ),
                   child: InkWell(
                     onTap: widget.dragEnabled
@@ -257,5 +245,30 @@ class _FlashcardState extends State<Flashcard>
     Future.delayed(Duration(milliseconds: Random().nextInt(150)), () {
       controller.repeat(reverse: true);
     });
+  }
+}
+
+extension CardColors on CollectionMark {
+  Gradient? gradient(BuildContext context) {
+    final brightness = Theme.of(context).brightness;
+    return color == null
+        ? null
+        : LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: brightness == Brightness.light
+                ? [
+                    HSVColor.fromColor(Color(color!)).withValue(1).toColor(),
+                    HSVColor.fromColor(Color(color!)).withValue(.75).toColor(),
+                  ]
+                : [
+                    HSVColor.fromColor(Color(color!))
+                        .withSaturation(.5)
+                        .toColor(),
+                    HSVColor.fromColor(Color(color!))
+                        .withSaturation(.75)
+                        .toColor(),
+                  ],
+          );
   }
 }
