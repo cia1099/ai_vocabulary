@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
 import '../model/vocabulary.dart';
-import '../views/matching_word_view.dart';
+import '../pages/views/matching_word_view.dart';
 import '../widgets/definition_tile.dart';
 import '../widgets/example_paragraph.dart';
 

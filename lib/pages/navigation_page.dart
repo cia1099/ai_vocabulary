@@ -8,10 +8,11 @@ import 'package:text2speech/text2speech.dart';
 
 import '../bottom_sheet/retrieval_bottom_sheet.dart';
 import '../mock_data.dart';
-import '../views/alphabet_list_tab.dart';
-import '../views/chart_tab.dart';
-import '../views/setting_tab.dart';
-import '../views/vocabulary_tab.dart';
+
+import '../tabs/alphabet_list_tab.dart';
+import '../tabs/chart_tab.dart';
+import '../tabs/setting_tab.dart';
+import '../tabs/vocabulary_tab.dart';
 import '../widgets/definition_tile.dart';
 
 class NavigationPage extends StatefulWidget {
@@ -78,9 +79,9 @@ class _NavigationPageState extends State<NavigationPage> {
       bottomNavigationBar: BottomAppBar(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         height: kBottomNavigationBarHeight,
-        // color: Colors.red,
-        notchMargin: 8,
+        notchMargin: 2,
         shape: const CircularNotchedRectangle(),
+        // color: Colors.red,
         child: MediaQuery.removePadding(
           context: context,
           removeTop: true,
@@ -147,11 +148,13 @@ class _NavigationPageState extends State<NavigationPage> {
               fullscreenDialog: true,
               builder: (context) => const CollectionPage(),
             )),
+        mini: true,
         shape: const CircleBorder(),
         elevation: 1,
         child: const Icon(CupertinoIcons.add),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButtonLocation:
+          FloatingActionButtonLocation.miniCenterDocked,
     );
   }
 

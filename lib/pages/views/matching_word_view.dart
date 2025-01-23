@@ -3,8 +3,8 @@ import 'package:ai_vocabulary/model/vocabulary.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import '../utils/shortcut.dart';
-import '../widgets/align_paragraph.dart';
+import '../../utils/shortcut.dart';
+import '../../widgets/align_paragraph.dart';
 
 class MatchingWordView extends StatefulWidget {
   const MatchingWordView({

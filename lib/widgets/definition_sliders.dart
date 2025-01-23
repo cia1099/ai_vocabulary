@@ -90,10 +90,10 @@ class _DefinitionSlidersState extends State<DefinitionSliders>
                         textPainter.overflowIndex(constraints.maxWidth);
                     // print('overflow index = $overflowIndex');
                     // print('paint: ${textPainter.plainText}');
-                    var splitText = text;
+                    var splitText = textPainter.plainText;
                     var remainText = '';
                     if (overflowIndex > 0) {
-                      splitText = text.substring(0, overflowIndex - 9);
+                      splitText = splitText.substring(0, overflowIndex - 9);
                       final lastSpace = splitText.lastIndexOf(' ');
                       remainText = splitText.substring(lastSpace);
                       splitText = splitText.substring(0, lastSpace);
