@@ -6,10 +6,7 @@ import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:flutter_web_frame/flutter_web_frame.dart';
 
 import 'package:ai_vocabulary/pages/cloze_page.dart';
-import 'package:ai_vocabulary/pages/entry_page.dart';
 import 'package:ai_vocabulary/pages/vocabulary_page.dart';
-
-import 'provider/word_provider.dart';
 
 mixin AppRoute<T extends StatefulWidget> on State<T> {
   static const home = '/';
@@ -27,15 +24,15 @@ mixin AppRoute<T extends StatefulWidget> on State<T> {
   Route generateRoute(RouteSettings settings) {
     final uri = Uri.tryParse(settings.name!);
     var path = uri?.path;
-    final currentWord = WordProvider.instance.currentWord;
+    const currentWord = null;
     // if (currentWord == null) path = AppRoute.home;
     return platformPageRoute(
         context: context,
         builder: (context) => FlutterWebFrame(
               builder: (context) {
                 switch (path) {
-                  case AppRoute.entry:
-                    return EntryPage();
+                  // case AppRoute.entry:
+                  // return EntryPage();
                   case AppRoute.cloze:
                     // if (currentWord == null) return const EntryPage();
                     return ClozePage(word: currentWord!);
@@ -44,26 +41,26 @@ mixin AppRoute<T extends StatefulWidget> on State<T> {
                     return VocabularyPage(
                         word: currentWord!,
                         nextTap: () {
-                          if (WordProvider().shouldRemind()) {
-                            Navigator.of(context)
-                                .popAndPushNamed(AppRoute.reviewWords);
-                          } else {
-                            WordProvider().nextStudyWord();
-                            Navigator.of(context)
-                                .popUntil(ModalRoute.withName(AppRoute.entry));
-                          }
+                          // if (WordProvider().shouldRemind()) {
+                          //   Navigator.of(context)
+                          //       .popAndPushNamed(AppRoute.reviewWords);
+                          // } else {
+                          //   WordProvider().nextStudyWord();
+                          //   Navigator.of(context)
+                          //       .popUntil(ModalRoute.withName(AppRoute.entry));
+                          // }
                         });
                   case AppRoute.todayWords:
-                    return WordListPage(words: WordProvider().subList());
+                  // return WordListPage(words: WordProvider().subList());
                   case AppRoute.reviewWords:
-                    final reviews = WordProvider().remindWords();
-                    return WordListPage(
-                        words: reviews,
-                        nextTap: () {
-                          WordProvider().nextStudyWord();
-                          Navigator.of(context)
-                              .popUntil(ModalRoute.withName(AppRoute.entry));
-                        });
+                  // final reviews = WordProvider().remindWords();
+                  // return WordListPage(
+                  //     words: reviews,
+                  //     nextTap: () {
+                  //       WordProvider().nextStudyWord();
+                  //       Navigator.of(context)
+                  //           .popUntil(ModalRoute.withName(AppRoute.entry));
+                  //     });
                   default:
                     return const HomePage();
                 }

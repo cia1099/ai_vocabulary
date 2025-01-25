@@ -1,6 +1,6 @@
-part of 'word_provider.dart';
+part of 'old_provider.dart';
 
-extension PublicWordProvider on WordProvider {
+extension PublicWordProvider on OldProvider {
   void nextStudyWord([int? index]) {
     if (index == null) {
       _learnedIndex = min(_learnedIndex + 1, _studyWords.length);

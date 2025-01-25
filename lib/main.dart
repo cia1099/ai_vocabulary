@@ -1,10 +1,9 @@
 import 'package:ai_vocabulary/database/my_db.dart';
-import 'package:ai_vocabulary/provider/word_provider.dart';
+import 'package:ai_vocabulary/pages/home_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
-import 'app_route.dart';
 import 'theme.dart';
 
 void main() {
@@ -20,7 +19,7 @@ class MyApp extends StatefulWidget {
   State<MyApp> createState() => _MyAppState();
 }
 
-class _MyAppState extends State<MyApp> with AppRoute {
+class _MyAppState extends State<MyApp> {
   var appTheme = ThemeData();
 
   @override
@@ -34,7 +33,6 @@ class _MyAppState extends State<MyApp> with AppRoute {
 
   @override
   void dispose() {
-    WordProvider().dispose();
     // MyDB().dispose();
     MyApp.colorSelectedIndex.removeListener(colorListener);
     MyApp.brightSwitcher.removeListener(brightListener);
@@ -74,8 +72,9 @@ class _MyAppState extends State<MyApp> with AppRoute {
             DefaultWidgetsLocalizations.delegate,
             DefaultCupertinoLocalizations.delegate,
           ],
-          onGenerateRoute: generateRoute,
-          initialRoute: AppRoute.home,
+          // onGenerateRoute: generateRoute,
+          // initialRoute: AppRoute.home,
+          home: const HomePage(),
           // home: Builder(builder: (context) {
           //   return PlatformScaffold(
           //     body: Center(
