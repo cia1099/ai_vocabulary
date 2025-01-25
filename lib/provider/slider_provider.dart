@@ -12,6 +12,7 @@ class SliderProvider {
   SliderProvider({this.pageController}) {
     fetchStudyWords(0).whenComplete(() {
       currentWord = _studyWords.firstOrNull;
+      _completer.complete();
     });
   }
   final PageController? pageController;
@@ -19,6 +20,9 @@ class SliderProvider {
   Vocabulary? _currentWord;
   final _providerState = StreamController<Vocabulary?>();
   late final _provider = _providerState.stream.asBroadcastStream();
+  final _completer = Completer<void>();
+
+  Future<void> initial() => _completer.future;
 
   Stream<Vocabulary?> get provideWord async* {
     yield _currentWord;
@@ -38,23 +42,24 @@ class SliderProvider {
 
   var _fetchTime = 0;
   Future<void> fetchStudyWords(int index) async {
-    const kMaxLength = 100, studyCount = 25;
-    if (index % kMaxLength ~/ 20 != _fetchTime && _studyWords.isNotEmpty)
-      return;
+    const kMaxLength = 10, initCount = 5;
+    if (index % kMaxLength ~/ 2 != _fetchTime) return;
     _fetchTime = ++_fetchTime % 5;
     final count = _studyWords.length < kMaxLength && _fetchTime == 4
-        ? 15
+        ? 1
         : _studyWords.isNotEmpty
-            ? 20
-            : studyCount;
+            ? 2
+            : initCount;
     final wordIDs =
         await sampleWordIds(_studyWords.map((w) => w.wordId), count);
+    print(
+        'page = $index, fetchTime = $_fetchTime, sampleIDs = ${wordIDs.join(', ')}');
     final words = await requestWords(wordIDs);
     if (_studyWords.length < kMaxLength) {
       _studyWords.addAll(words);
     } else {
-      final insertIndex = (_fetchTime - 1) * 20;
-      _studyWords.replaceRange(insertIndex, insertIndex + 20, words);
+      final insertIndex = _fetchTime * 2;
+      _studyWords.replaceRange(insertIndex, insertIndex + 2, words);
     }
   }
 }
@@ -85,8 +90,8 @@ Future<Set<int>> sampleWordIds(Iterable<int> reviewIDs, final int count) async {
   final maxId = await getMaxId();
   final doneIDs = MyDB().fetchDoneWordIDs();
   final rng = Random();
-  final wordIds =
-      Set.of(MyDB().fetchUnknownWordIDs().take(count).toList()..shuffle());
+  final wordIds = <int>{};
+  // Set.of(MyDB().fetchUnknownWordIDs().take(count).toList()..shuffle());
   while (wordIds.length < count) {
     final id = rng.nextInt(maxId) + 1;
     if (doneIDs.contains(id) || reviewIDs.contains(id)) continue;

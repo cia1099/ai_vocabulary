@@ -1,5 +1,6 @@
 import 'package:ai_vocabulary/pages/collection_page.dart';
 import 'package:ai_vocabulary/pages/slider_page.dart';
+import 'package:ai_vocabulary/provider/slider_provider.dart';
 import 'package:ai_vocabulary/provider/word_provider.dart';
 import 'package:ai_vocabulary/app_route.dart';
 import 'package:ai_vocabulary/utils/shortcut.dart';
@@ -24,6 +25,7 @@ class _VocabularyTabState extends State<VocabularyTab>
   final pageController = PageController(initialPage: 1);
   late final tabController =
       TabController(initialIndex: 1, length: 2, vsync: this);
+  final recommend = SliderProvider(pageController: PageController());
 
   @override
   Widget build(BuildContext context) {
@@ -70,32 +72,47 @@ class _VocabularyTabState extends State<VocabularyTab>
                             textScaler: TextScaler.linear(2.5),
                           ),
                         )
-                      : StreamBuilder(
-                          key: ObjectKey(WordProvider()),
-                          stream: WordProvider.instance.provideWord,
+                      : FutureBuilder(
+                          future: recommend.initial(),
                           builder: (context, snapshot) {
-                            if (snapshot.data == null)
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
                               return Center(
-                                  child: SpinKitFadingCircle(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .primaryContainer,
-                              ));
+                                child: SpinKitFadingCircle(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .primaryContainer,
+                                ),
+                              );
+                            }
                             return PageView.builder(
                               scrollDirection: Axis.vertical,
                               findChildIndexCallback: (key) =>
                                   (key as ValueKey).value,
-                              itemBuilder: (context, index) {
-                                final word =
-                                    WordProvider().subList().elementAt(index);
-                                return SliderPage(
-                                  key: ValueKey(index),
-                                  word: word,
-                                );
+                              controller: recommend.pageController,
+                              onPageChanged: (index) {
+                                recommend.currentWord =
+                                    recommend[index % recommend.length];
+                                recommend
+                                    .fetchStudyWords(index)
+                                    .whenComplete(() {
+                                  print(
+                                      'recommend = ${recommend.map((e) => e.wordId).join(', ')}');
+                                });
+                                // if (index > recommend.length) {
+                                //   recommend.pageController
+                                //       ?.jumpToPage(index - recommend.length);
+                                // }
                               },
-                              itemCount: WordProvider().studyCount,
+                              itemBuilder: (context, index) {
+                                final i = index % recommend.length;
+                                final word = recommend[i];
+                                return SliderPage(
+                                    key: ValueKey(index), word: word);
+                              },
                             );
-                          }),
+                          },
+                        ),
                   itemCount: tabController.length,
                 ),
               ),
