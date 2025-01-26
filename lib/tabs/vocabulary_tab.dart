@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
+import '../app_settings.dart';
+
 class VocabularyTab extends StatefulWidget {
   final void Function(int index)? onTabChanged;
   const VocabularyTab({
@@ -61,11 +63,13 @@ class _VocabularyTabState extends State<VocabularyTab>
                   onPageChanged: (value) {
                     tabController.animateTo(value);
                     widget.onTabChanged?.call((value + 1) & 1);
+                    AppSettings.of(context).wordProvider =
+                        value == 0 ? review : recommend;
                   },
                   physics: const NeverScrollableScrollPhysics(),
                   children: [
-                    SliderView(provider: review),
-                    SliderView(provider: recommend),
+                    sliders(provider: review),
+                    sliders(provider: recommend),
                   ],
                 ),
               ),
@@ -114,6 +118,64 @@ class _VocabularyTabState extends State<VocabularyTab>
     );
   }
 
+  Widget sliders({required WordProvider provider}) {
+    return FutureBuilder(
+      future: provider.isReady,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(
+            child: SpinKitFadingCircle(
+              color: Theme.of(context).colorScheme.primaryContainer,
+            ),
+          );
+        }
+        if (provider.length == 0) {
+          return const Center(
+            child: Text(
+              "You don't have to do review",
+              textAlign: TextAlign.center,
+              textScaler: TextScaler.linear(2.5),
+            ),
+          );
+        }
+        return PageView.builder(
+          key: PageStorageKey(provider[0].wordId),
+          scrollDirection: Axis.vertical,
+          findChildIndexCallback: (key) => (key as ValueKey).value,
+          controller: provider.pageController,
+          onPageChanged: (index) {
+            provider.currentWord = provider[index % provider.length];
+
+            if (provider is RecommendProvider) {
+              (provider).fetchStudyWords(index);
+              //TODO onError handle http failure
+              //     .whenComplete(() {
+              //   print(
+              //       'provider = ${provider.map((e) => e.wordId).join(', ')}');
+              //   print('words = ${provider.map((e) => e.word).join(', ')}');
+              // });
+              if (index == provider.length) {
+                Future.delayed(Durations.extralong4, () {
+                  setState(() {
+                    provider.pageController?.jumpToPage(0);
+                  });
+                });
+              }
+            }
+          },
+          itemBuilder: (context, index) {
+            final i = index % provider.length;
+            final word = provider[i];
+            return SliderPage(key: ValueKey(index), word: word);
+          },
+          itemCount: provider is RecommendProvider
+              ? RecommendProvider.kMaxLength + 1
+              : provider.length,
+        );
+      },
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -127,75 +189,5 @@ class _VocabularyTabState extends State<VocabularyTab>
   void dispose() {
     tabController.dispose();
     super.dispose();
-  }
-}
-
-class SliderView extends StatelessWidget {
-  const SliderView({
-    super.key,
-    required this.provider,
-  });
-
-  final WordProvider provider;
-
-  @override
-  Widget build(BuildContext context) {
-    return StatefulBuilder(
-      builder: (context, setState) => FutureBuilder(
-        future: provider.initial(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
-              child: SpinKitFadingCircle(
-                color: Theme.of(context).colorScheme.primaryContainer,
-              ),
-            );
-          }
-          if (provider.length == 0) {
-            return const Center(
-              child: Text(
-                "You don't have to do review",
-                textAlign: TextAlign.center,
-                textScaler: TextScaler.linear(2.5),
-              ),
-            );
-          }
-          return PageView.builder(
-            key: PageStorageKey(provider[0].wordId),
-            scrollDirection: Axis.vertical,
-            findChildIndexCallback: (key) => (key as ValueKey).value,
-            controller: provider.pageController,
-            onPageChanged: (index) {
-              provider.currentWord = provider[index % provider.length];
-
-              if (provider is RecommendProvider) {
-                (provider as RecommendProvider).fetchStudyWords(index);
-                //TODO onError handle http failure
-                //     .whenComplete(() {
-                //   print(
-                //       'provider = ${provider.map((e) => e.wordId).join(', ')}');
-                //   print('words = ${provider.map((e) => e.word).join(', ')}');
-                // });
-                if (index == provider.length) {
-                  Future.delayed(Durations.extralong4, () {
-                    setState(() {
-                      provider.pageController?.jumpToPage(0);
-                    });
-                  });
-                }
-              }
-            },
-            itemBuilder: (context, index) {
-              final i = index % provider.length;
-              final word = provider[i];
-              return SliderPage(key: ValueKey(index), word: word);
-            },
-            itemCount: provider is RecommendProvider
-                ? RecommendProvider.kMaxLength + 1
-                : provider.length,
-          );
-        },
-      ),
-    );
   }
 }

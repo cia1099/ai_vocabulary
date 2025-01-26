@@ -28,6 +28,7 @@ class _DefinitionSlidersState extends State<DefinitionSliders>
   late final tabController = widget.definitions.length > 1
       ? TabController(length: widget.definitions.length, vsync: this)
       : null;
+  final controller = PageController(initialPage: 0);
 
   @override
   Widget build(BuildContext context) {
@@ -74,6 +75,7 @@ class _DefinitionSlidersState extends State<DefinitionSliders>
                     remainHeight ~/ (style.fontSize! * style.height!);
                 return PageView.builder(
                   scrollDirection: Axis.vertical,
+                  controller: controller,
                   onPageChanged: (value) {
                     tabController?.animateTo(value);
                     widget.getMore(DefinitionSliders.kDefaultHeight);
@@ -190,5 +192,14 @@ class _DefinitionSlidersState extends State<DefinitionSliders>
           ),
           builder: (context) => RetrievalBottomSheet(queryWord: word),
         );
+    //Flutter's bug, it will display last page
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (controller.hasClients &&
+          controller.page != null &&
+          controller.page! > 1e-1) {
+        debugPrint('shit bug fluter pageview at: ${controller.page}');
+        controller.jumpToPage(0);
+      }
+    });
   }
 }

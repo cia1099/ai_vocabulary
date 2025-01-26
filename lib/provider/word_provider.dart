@@ -16,9 +16,9 @@ abstract class WordProvider {
   Vocabulary? _currentWord;
   final _providerState = StreamController<Vocabulary?>();
   late final _provider = _providerState.stream.asBroadcastStream();
-  final _completer = Completer<void>();
+  final _completer = Completer<bool>();
 
-  Future<void> initial() => _completer.future;
+  Future<bool> get isReady => _completer.future;
 
   Stream<Vocabulary?> get provideWord async* {
     yield _currentWord;
@@ -43,8 +43,8 @@ class RecommendProvider extends WordProvider {
   RecommendProvider({super.pageController}) {
     fetchStudyWords(0).whenComplete(() {
       currentWord = _studyWords.firstOrNull;
-      _completer.complete();
-    });
+      _completer.complete(true);
+    }).onError((e, _) => _completer.completeError(false));
   }
 
   static const kMaxLength = 10;
@@ -75,11 +75,12 @@ class RecommendProvider extends WordProvider {
 class ReviewProvider extends WordProvider {
   ReviewProvider({super.pageController}) {
     fetchReviewWords().whenComplete(() {
-      _completer.complete();
-    });
+      _completer.complete(true);
+    }).onError((e, __) => _completer.completeError(e.toString()));
   }
 
   Future<void> fetchReviewWords() async {
+    await MyDB().isReady;
     final reviewIDs = MyDB().fetchReviewWordIDs();
     final words = MyDB().fetchWords(reviewIDs);
     _studyWords.addAll(words);

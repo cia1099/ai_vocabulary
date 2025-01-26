@@ -1,10 +1,10 @@
 import 'dart:math';
 
-import 'package:ai_vocabulary/main.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
+import '../app_settings.dart';
 import '../pages/color_select_page.dart';
 
 class SettingTab extends StatelessWidget {
@@ -92,9 +92,10 @@ class SettingTab extends StatelessWidget {
                   PlatformListTile(
                     title: const Text('Dark mode'),
                     trailing: PlatformSwitch(
-                      value: MyApp.brightSwitcher.value,
-                      onChanged: (value) =>
-                          setState(() => MyApp.brightSwitcher.value = value),
+                      value:
+                          AppSettings.of(context).brightness == Brightness.dark,
+                      onChanged: (value) => AppSettings.of(context).brightness =
+                          value ? Brightness.dark : Brightness.light,
                     ),
                   ),
                   PlatformListTile(

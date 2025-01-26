@@ -1,19 +1,18 @@
-import 'package:ai_vocabulary/database/my_db.dart';
 import 'package:ai_vocabulary/pages/home_page.dart';
+import 'package:ai_vocabulary/provider/word_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
+import 'app_settings.dart';
 import 'theme.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(AppSettings(notifier: MySettings(), child: const MyApp()));
 }
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
-  static final colorSelectedIndex = ValueNotifier(0);
-  static final brightSwitcher = ValueNotifier(false);
 
   @override
   State<MyApp> createState() => _MyAppState();
@@ -25,22 +24,29 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    MyDB();
-    // WordProvider();
-    MyApp.colorSelectedIndex.addListener(colorListener);
-    MyApp.brightSwitcher.addListener(brightListener);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      AppSettings.of(context).addListener(handleSettings);
+    });
   }
 
   @override
   void dispose() {
     // MyDB().dispose();
-    MyApp.colorSelectedIndex.removeListener(colorListener);
-    MyApp.brightSwitcher.removeListener(brightListener);
+    AppSettings.of(context).removeListener(handleSettings);
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final provider = AppSettings.of(context).wordProvider;
+    switch (provider.runtimeType) {
+      case ReviewProvider:
+        print('review');
+      case RecommendProvider:
+        print('recommend');
+      default:
+        break;
+    }
     return PlatformProvider(
       settings: PlatformSettingsData(
         iosUsesMaterialWidgets: true,
@@ -100,20 +106,6 @@ class _MyAppState extends State<MyApp> {
     );
   }
 
-  void colorListener() {
-    final index = MyApp.colorSelectedIndex.value;
-    if (index < ColorSeed.values.length) {
-      handleColorSelect(index);
-    } else if (index - ColorSeed.values.length <
-        ColorImageProvider.values.length) {
-      handleImageSelect(index - ColorSeed.values.length);
-    }
-  }
-
-  void brightListener() {
-    handleBrightnessChange(MyApp.brightSwitcher.value);
-  }
-
   void handleBrightnessChange(bool useDarkMode) {
     final brightness = useDarkMode ? Brightness.dark : Brightness.light;
     setState(() {
@@ -128,24 +120,27 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
-  void handleColorSelect(int index) {
-    setState(() {
-      appTheme = ThemeData.from(
-          colorScheme: ColorScheme.fromSeed(
+  void handleSettings() async {
+    final mySettings = AppSettings.of(context);
+    final index = mySettings.color;
+    if (mySettings.brightness != appTheme.brightness) {
+      return handleBrightnessChange(mySettings.brightness == Brightness.dark);
+    }
+    var colorScheme = appTheme.colorScheme;
+    if (index < ColorSeed.values.length) {
+      colorScheme = ColorScheme.fromSeed(
         seedColor: ColorSeed.values[index].color,
-        brightness: appTheme.brightness,
-      ));
-    });
-  }
-
-  void handleImageSelect(int index) {
-    final String url = ColorImageProvider.values[index].url;
-    ColorScheme.fromImageProvider(
-            provider: NetworkImage(url), brightness: appTheme.brightness)
-        .then((newScheme) {
-      setState(() {
-        appTheme = ThemeData.from(colorScheme: newScheme);
-      });
+        brightness: mySettings.brightness,
+      );
+    } else if (index - ColorSeed.values.length <
+        ColorImageProvider.values.length) {
+      final url =
+          ColorImageProvider.values[index - ColorSeed.values.length].url;
+      colorScheme = await ColorScheme.fromImageProvider(
+          provider: NetworkImage(url), brightness: mySettings.brightness);
+    }
+    setState(() {
+      appTheme = ThemeData.from(colorScheme: colorScheme);
     });
   }
 }

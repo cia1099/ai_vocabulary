@@ -1,10 +1,11 @@
 import 'dart:io';
 
-import 'package:ai_vocabulary/main.dart';
 import 'package:ai_vocabulary/theme.dart';
 import 'package:ai_vocabulary/utils/shortcut.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
+import '../app_settings.dart';
 
 class ColorSelectedSheet extends StatefulWidget {
   const ColorSelectedSheet({
@@ -17,9 +18,10 @@ class ColorSelectedSheet extends StatefulWidget {
 
 class _ColorSelectedSheetState extends State<ColorSelectedSheet> {
   int? colorSeed, colorImage;
+
   @override
-  void initState() {
-    super.initState();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     updateColorIndex();
   }
 
@@ -56,7 +58,7 @@ class _ColorSelectedSheetState extends State<ColorSelectedSheet> {
                   padding: const EdgeInsets.symmetric(horizontal: 8),
                   itemBuilder: (context, index) => GestureDetector(
                     onTap: () {
-                      MyApp.colorSelectedIndex.value = index;
+                      AppSettings.of(context).color = index;
                       setState(updateColorIndex);
                     },
                     child: Container(
@@ -97,7 +99,7 @@ class _ColorSelectedSheetState extends State<ColorSelectedSheet> {
                       ColorImageProvider.values.length,
                       (index) => GestureDetector(
                         onTap: () {
-                          MyApp.colorSelectedIndex.value =
+                          AppSettings.of(context).color =
                               index + ColorSeed.values.length;
                           setState(updateColorIndex);
                         },
@@ -160,7 +162,7 @@ class _ColorSelectedSheetState extends State<ColorSelectedSheet> {
   }
 
   void updateColorIndex() {
-    final colorIndex = MyApp.colorSelectedIndex.value;
+    final colorIndex = AppSettings.of(context).color;
     if (colorIndex < ColorSeed.values.length) {
       colorSeed = colorIndex;
       colorImage = null;

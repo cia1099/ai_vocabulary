@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:collection';
 import 'dart:io';
 
@@ -25,7 +26,11 @@ class MyDB with ChangeNotifier {
   static const _dbName = 'my.db';
   static MyDB? _instance;
   MyDB._internal() {
-    _init();
+    _init().whenComplete(() {
+      _completer.complete(true);
+    }).onError((_, __) {
+      _completer.completeError(false);
+    });
   }
   static MyDB get instance => _instance ??= MyDB._internal();
   factory MyDB() => instance;
@@ -47,6 +52,9 @@ class MyDB with ChangeNotifier {
     db.execute(createDictionary);
     db.dispose();
   }
+
+  final _completer = Completer<bool>();
+  Future<bool> get isReady => _completer.future;
 
   void insertWords(Stream<Vocabulary> words) async {
     final db = open(OpenMode.readWrite);
