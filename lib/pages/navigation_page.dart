@@ -71,7 +71,10 @@ class _NavigationPageState extends State<NavigationPage> {
           //   physics: const NeverScrollableScrollPhysics(),
           // ),
           IndexedStack(index: _index, children: [
-        VocabularyTab(onTabChanged: widget.onTabChanged),
+        MediaQuery.removeViewInsets(
+            context: context,
+            removeBottom: true,
+            child: VocabularyTab(onTabChanged: widget.onTabChanged)),
         const AlphabetListTab(),
         ChartTab(key: _index == 2 ? ValueKey(_index) : null),
         const SettingTab(),

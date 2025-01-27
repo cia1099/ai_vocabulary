@@ -9,10 +9,10 @@ import '../model/vocabulary.dart';
 import '../utils/regex.dart';
 
 abstract class WordProvider {
-  WordProvider({this.pageController});
+  WordProvider();
 
   final _studyWords = <Vocabulary>[];
-  final PageController? pageController;
+  final pageController = PageController();
   Vocabulary? _currentWord;
   final _providerState = StreamController<Vocabulary?>();
   late final _provider = _providerState.stream.asBroadcastStream();
@@ -40,11 +40,12 @@ abstract class WordProvider {
 }
 
 class RecommendProvider extends WordProvider {
-  RecommendProvider({super.pageController}) {
+  RecommendProvider() {
     fetchStudyWords(0).whenComplete(() {
       currentWord = _studyWords.firstOrNull;
       _completer.complete(true);
-    }).onError((e, _) => _completer.completeError(false));
+    }).onError(
+        (e, _) => _completer.completeError(TimeoutException(e.toString())));
   }
 
   static const kMaxLength = 10;
@@ -73,7 +74,7 @@ class RecommendProvider extends WordProvider {
 }
 
 class ReviewProvider extends WordProvider {
-  ReviewProvider({super.pageController}) {
+  ReviewProvider() {
     fetchReviewWords().whenComplete(() {
       _completer.complete(true);
     }).onError((e, __) => _completer.completeError(e.toString()));

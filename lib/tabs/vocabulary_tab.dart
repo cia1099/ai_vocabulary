@@ -24,8 +24,8 @@ class _VocabularyTabState extends State<VocabularyTab>
   final pageController = PageController(initialPage: 1);
   late final tabController =
       TabController(initialIndex: 1, length: 2, vsync: this);
-  final recommend = RecommendProvider(pageController: PageController());
-  final review = ReviewProvider(pageController: PageController());
+  final recommend = RecommendProvider();
+  final review = ReviewProvider();
 
   @override
   Widget build(BuildContext context) {
@@ -45,6 +45,7 @@ class _VocabularyTabState extends State<VocabularyTab>
             CupertinoNavigationBarData(transitionBetweenRoutes: false),
       ),
       body: SafeArea(
+        bottom: false,
         child: Listener(
           onPointerMove: (event) {
             final dx = event.delta.dx;
@@ -157,7 +158,7 @@ class _VocabularyTabState extends State<VocabularyTab>
               if (index == provider.length) {
                 Future.delayed(Durations.extralong4, () {
                   setState(() {
-                    provider.pageController?.jumpToPage(0);
+                    provider.pageController.jumpToPage(0);
                   });
                 });
               }
@@ -182,6 +183,9 @@ class _VocabularyTabState extends State<VocabularyTab>
     tabController.addListener(() {
       pageController.animateToPage(tabController.index,
           duration: Durations.short4, curve: Curves.ease);
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      AppSettings.of(context).wordProvider ??= recommend;
     });
   }
 

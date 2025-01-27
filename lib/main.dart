@@ -1,5 +1,4 @@
-import 'package:ai_vocabulary/pages/home_page.dart';
-import 'package:ai_vocabulary/provider/word_provider.dart';
+import 'package:ai_vocabulary/app_route.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
@@ -18,7 +17,7 @@ class MyApp extends StatefulWidget {
   State<MyApp> createState() => _MyAppState();
 }
 
-class _MyAppState extends State<MyApp> {
+class _MyAppState extends State<MyApp> with AppRoute {
   var appTheme = ThemeData();
 
   @override
@@ -31,22 +30,12 @@ class _MyAppState extends State<MyApp> {
 
   @override
   void dispose() {
-    // MyDB().dispose();
     AppSettings.of(context).removeListener(handleSettings);
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final provider = AppSettings.of(context).wordProvider;
-    switch (provider.runtimeType) {
-      case ReviewProvider:
-        print('review');
-      case RecommendProvider:
-        print('recommend');
-      default:
-        break;
-    }
     return PlatformProvider(
       settings: PlatformSettingsData(
         iosUsesMaterialWidgets: true,
@@ -65,7 +54,7 @@ class _MyAppState extends State<MyApp> {
                   navActionTextStyle: CupertinoTheme.of(context)
                       .textTheme
                       .actionTextStyle
-                      .apply(color: appTheme.colorScheme.primary),
+                      .apply(color: appTheme.colorScheme.onPrimaryContainer),
                 ),
                 // primaryColor: appTheme.colorScheme.primary,
                 barBackgroundColor: appTheme.colorScheme.primaryContainer,
@@ -78,9 +67,9 @@ class _MyAppState extends State<MyApp> {
             DefaultWidgetsLocalizations.delegate,
             DefaultCupertinoLocalizations.delegate,
           ],
-          // onGenerateRoute: generateRoute,
-          // initialRoute: AppRoute.home,
-          home: const HomePage(),
+          onGenerateRoute: generateRoute,
+          initialRoute: AppRoute.home,
+          // home: const HomePage(),
           // home: Builder(builder: (context) {
           //   return PlatformScaffold(
           //     body: Center(
@@ -122,10 +111,10 @@ class _MyAppState extends State<MyApp> {
 
   void handleSettings() async {
     final mySettings = AppSettings.of(context);
-    final index = mySettings.color;
     if (mySettings.brightness != appTheme.brightness) {
       return handleBrightnessChange(mySettings.brightness == Brightness.dark);
     }
+    final index = mySettings.color;
     var colorScheme = appTheme.colorScheme;
     if (index < ColorSeed.values.length) {
       colorScheme = ColorScheme.fromSeed(
@@ -138,6 +127,10 @@ class _MyAppState extends State<MyApp> {
           ColorImageProvider.values[index - ColorSeed.values.length].url;
       colorScheme = await ColorScheme.fromImageProvider(
           provider: NetworkImage(url), brightness: mySettings.brightness);
+    }
+    if (colorScheme == appTheme.colorScheme) {
+      // print('without stateState');
+      return;
     }
     setState(() {
       appTheme = ThemeData.from(colorScheme: colorScheme);

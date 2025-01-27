@@ -4,17 +4,18 @@ import 'package:ai_vocabulary/database/my_db.dart';
 import 'package:ai_vocabulary/effects/show_toast.dart';
 import 'package:ai_vocabulary/model/vocabulary.dart';
 import 'package:ai_vocabulary/utils/regex.dart';
-import 'package:ai_vocabulary/utils/shortcut.dart';
 import 'package:ai_vocabulary/widgets/entry_actions.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
 import '../app_route.dart';
+import '../utils/shortcut.dart';
 
 class ClozePage extends StatefulWidget {
-  const ClozePage({super.key, required this.word});
+  const ClozePage({super.key, required this.word, this.actions});
   final Vocabulary word;
+  final Widget? actions;
 
   @override
   State<ClozePage> createState() => _ClozePageState();
@@ -61,21 +62,31 @@ class _ClozePageState extends State<ClozePage> {
     final textTheme = Theme.of(context).textTheme;
     final hPadding = MediaQuery.of(context).size.width / 16;
     return Scaffold(
-      appBar: PreferredSize(
-          preferredSize: const Size.fromHeight(kToolbarHeight),
-          child: Stack(
-            children: [
-              PlatformAppBar(
-                material: (_, __) => MaterialAppBarData(
-                  backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-                ),
-              ),
-              Positioned(
-                  bottom: kAppBarPadding,
-                  right: 16,
-                  child: EntryActions(wordID: word.wordId)),
-            ],
-          )),
+      appBar:
+          // PlatformAppBar(
+          //   title: const Text('Cloze Quiz'),
+          //   material: (_, __) => MaterialAppBarData(
+          //       actions: widget.actions != null ? [widget.actions!] : null),
+          //   cupertino: (_, __) => CupertinoNavigationBarData(
+          //       transitionBetweenRoutes: false, trailing: widget.actions),
+          // ),
+          PreferredSize(
+              preferredSize: const Size.fromHeight(kToolbarHeight),
+              child: Stack(
+                children: [
+                  PlatformAppBar(
+                    title: const Text('Cloze Quiz'),
+                    material: (_, __) => MaterialAppBarData(
+                      backgroundColor:
+                          Theme.of(context).colorScheme.inversePrimary,
+                    ),
+                  ),
+                  Positioned(
+                      bottom: kAppBarPadding,
+                      right: 16,
+                      child: EntryActions(wordID: word.wordId)),
+                ],
+              )),
       body: SafeArea(
           child: Padding(
         padding: EdgeInsets.all(hPadding),

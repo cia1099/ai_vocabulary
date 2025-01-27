@@ -8,6 +8,9 @@ import 'package:flutter_web_frame/flutter_web_frame.dart';
 import 'package:ai_vocabulary/pages/cloze_page.dart';
 import 'package:ai_vocabulary/pages/vocabulary_page.dart';
 
+import 'app_settings.dart';
+import 'provider/word_provider.dart';
+
 mixin AppRoute<T extends StatefulWidget> on State<T> {
   static const home = '/';
   static const entry = '/entry';
@@ -30,6 +33,15 @@ mixin AppRoute<T extends StatefulWidget> on State<T> {
         context: context,
         builder: (context) => FlutterWebFrame(
               builder: (context) {
+                final provider = AppSettings.of(context).wordProvider;
+                switch (provider.runtimeType) {
+                  case ReviewProvider:
+                    print('review');
+                  case RecommendProvider:
+                    print('recommend');
+                  default:
+                    break;
+                }
                 switch (path) {
                   // case AppRoute.entry:
                   // return EntryPage();
