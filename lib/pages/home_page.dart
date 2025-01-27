@@ -1,8 +1,10 @@
+import 'package:ai_vocabulary/app_route.dart';
 import 'package:ai_vocabulary/app_settings.dart';
+import 'package:ai_vocabulary/model/vocabulary.dart';
 import 'package:ai_vocabulary/pages/cloze_page.dart';
 import 'package:ai_vocabulary/pages/navigation_page.dart';
+import 'package:ai_vocabulary/provider/word_provider.dart';
 import 'package:ai_vocabulary/utils/gesture_route_page.dart';
-import 'package:ai_vocabulary/widgets/entry_actions.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
@@ -18,39 +20,13 @@ class HomePage extends StatelessWidget {
     return ValueListenableBuilder(
       valueListenable: tabIndex,
       builder: (context, value, child) {
+        final provider = AppSettings.of(context).wordProvider;
         return GestureRoutePage(
-            draggable: value == 0,
-            primaryPage: child!,
-            newPage: const SecondPage(
-              hasActions: true,
-            ));
-        // return PageView(
-        //   controller: pageController,
-        //   physics: value == 0
-        //       ? const ClampingScrollPhysics()
-        //       : const NeverScrollableScrollPhysics(),
-        //   onPageChanged: (index) {
-        //     pageController
-        //         .animateToPage(0,
-        //             duration: Durations.short2, curve: Curves.ease)
-        //         .then((_) {
-        //       if (index > 0) {
-        //         Navigator.push(
-        //             context,
-        //             platformPageRoute(
-        //                 context: context,
-        //                 builder: (context) => SecondPage(
-        //                       controller: pageController,
-        //                       hasActions: true,
-        //                     )));
-        //       }
-        //     });
-        //   },
-        //   children: [
-        //     child!,
-        //     if (value == 0) SecondPage(controller: pageController),
-        //   ],
-        // );
+          draggable: value == 0 && provider is RecommendProvider,
+          pushPage: SecondPage(provider: provider),
+          routeName: AppRoute.cloze,
+          child: child!,
+        );
       },
       child: NavigationPage(onTabChanged: (index) => tabIndex.value = index),
     );
@@ -58,12 +34,11 @@ class HomePage extends StatelessWidget {
 }
 
 class SecondPage extends StatelessWidget {
-  final bool hasActions;
-  const SecondPage({super.key, this.hasActions = false});
+  final WordProvider? provider;
+  const SecondPage({super.key, this.provider});
 
   @override
   Widget build(BuildContext context) {
-    final provider = AppSettings.of(context).wordProvider;
     return StreamBuilder(
       stream: provider?.provideWord,
       builder: (context, snapshot) {
@@ -78,8 +53,9 @@ class SecondPage extends StatelessWidget {
         }
         final word = snapshot.data!;
         return ClozePage(
+          key: ValueKey(word.wordId),
           word: word,
-          actions: hasActions ? EntryActions(wordID: word.wordId) : null,
+          entry: word.generateClozeEntry(),
         );
       },
     );

@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:ai_vocabulary/database/my_db.dart';
 import 'package:ai_vocabulary/effects/show_toast.dart';
 import 'package:ai_vocabulary/model/vocabulary.dart';
@@ -10,12 +8,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
 import '../app_route.dart';
-import '../utils/shortcut.dart';
 
 class ClozePage extends StatefulWidget {
-  const ClozePage({super.key, required this.word, this.actions});
+  const ClozePage({super.key, required this.word, this.entry});
   final Vocabulary word;
-  final Widget? actions;
+  final MapEntry<String, String>? entry;
 
   @override
   State<ClozePage> createState() => _ClozePageState();
@@ -25,14 +22,17 @@ class _ClozePageState extends State<ClozePage> {
   final defaultTip = 'Press enter or space to submit answer';
   late final tip = ValueNotifier(defaultTip);
   final inputController = TextEditingController();
-  final rng = Random();
   final focusNode = FocusNode();
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance
-        .addPostFrameCallback((_) => focusNode.requestFocus());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final routeName = ModalRoute.of(context)?.settings.name;
+      if (routeName == AppRoute.cloze) {
+        focusNode.requestFocus();
+      }
+    });
   }
 
   @override
@@ -46,47 +46,43 @@ class _ClozePageState extends State<ClozePage> {
   @override
   Widget build(BuildContext context) {
     final word = widget.word;
-    var idx = rng.nextInt(word.definitions.length);
-    var example = '', explain = '';
-    final definition = word.definitions[idx];
-    idx = rng.nextInt(definition.explanations.length);
-    final explanation = definition.explanations[idx];
-    explain = explanation.explain;
-    if (explanation.examples.isEmpty) {
-      example = explain.split(' ').length > 1 ? word.word : explain;
-    } else {
-      idx = rng.nextInt(explanation.examples.length);
-      example = explanation.examples[idx];
-    }
+    final entry = widget.entry ?? word.generateClozeEntry();
+    final explain = entry.key;
+    final example = entry.value;
 
     final textTheme = Theme.of(context).textTheme;
     final hPadding = MediaQuery.of(context).size.width / 16;
-    return Scaffold(
-      appBar:
-          // PlatformAppBar(
-          //   title: const Text('Cloze Quiz'),
-          //   material: (_, __) => MaterialAppBarData(
-          //       actions: widget.actions != null ? [widget.actions!] : null),
-          //   cupertino: (_, __) => CupertinoNavigationBarData(
-          //       transitionBetweenRoutes: false, trailing: widget.actions),
-          // ),
-          PreferredSize(
-              preferredSize: const Size.fromHeight(kToolbarHeight),
-              child: Stack(
-                children: [
-                  PlatformAppBar(
-                    title: const Text('Cloze Quiz'),
-                    material: (_, __) => MaterialAppBarData(
-                      backgroundColor:
-                          Theme.of(context).colorScheme.inversePrimary,
-                    ),
-                  ),
-                  Positioned(
-                      bottom: kAppBarPadding,
-                      right: 16,
-                      child: EntryActions(wordID: word.wordId)),
-                ],
-              )),
+    final routeName = ModalRoute.of(context)?.settings.name;
+    return PlatformScaffold(
+      appBar: PlatformAppBar(
+        title: const Text('Cloze Quiz'),
+        material: (_, __) => MaterialAppBarData(
+            actions: routeName == AppRoute.cloze
+                ? [EntryActions(wordID: word.wordId)]
+                : null),
+        cupertino: (_, __) => CupertinoNavigationBarData(
+            transitionBetweenRoutes: false,
+            trailing: routeName == AppRoute.cloze
+                ? EntryActions(wordID: word.wordId)
+                : null),
+      ),
+      // PreferredSize(
+      //     preferredSize: const Size.fromHeight(kToolbarHeight),
+      //     child: Stack(
+      //       children: [
+      //         PlatformAppBar(
+      //           title: const Text('Cloze Quiz'),
+      //           material: (_, __) => MaterialAppBarData(
+      //             backgroundColor:
+      //                 Theme.of(context).colorScheme.inversePrimary,
+      //           ),
+      //         ),
+      //         Positioned(
+      //             bottom: kAppBarPadding,
+      //             right: 16,
+      //             child: EntryActions(wordID: word.wordId)),
+      //       ],
+      //     )),
       body: SafeArea(
           child: Padding(
         padding: EdgeInsets.all(hPadding),
@@ -107,7 +103,8 @@ class _ClozePageState extends State<ClozePage> {
                 child: Text.rich(
                     TextSpan(
                       children: generateCloze(example, word.getMatchingPatterns,
-                          Theme.of(context).colorScheme),
+                          Theme.of(context).colorScheme,
+                          autofocus: routeName == AppRoute.cloze),
                     ),
                     style: textTheme.bodyLarge)),
             Container(
@@ -140,9 +137,10 @@ class _ClozePageState extends State<ClozePage> {
   }
 
   List<InlineSpan> generateCloze(
-      String text, Iterable<String> matches, ColorScheme colorScheme) {
+      String text, Iterable<String> matches, ColorScheme colorScheme,
+      {bool autofocus = true}) {
     return splitWords(text).map((s) {
-      if (matches.contains(s.toLowerCase())) {
+      if (matches.contains(s) || matches.contains(s.toLowerCase())) {
         final wordPainter = TextPainter(
             text: TextSpan(text: s),
             maxLines: 1,
@@ -155,7 +153,7 @@ class _ClozePageState extends State<ClozePage> {
           valueListenable: check,
           builder: (context, _, __) {
             return TextFormField(
-              autofocus: true,
+              autofocus: autofocus,
               focusNode: focusNode,
               keyboardType: TextInputType.text,
               onChanged: (input) {

@@ -37,6 +37,23 @@ extension VocabularyExtension on Vocabulary {
         if (d.phoneticUs != null && !isExtra)
           yield Phonetic(d.phoneticUs!, d.audioUs);
       });
+
+  MapEntry<String, String> generateClozeEntry([int? seed]) {
+    final rng = Random(seed);
+    var idx = rng.nextInt(definitions.length);
+    var example = '', explain = '';
+    final definition = definitions[idx];
+    idx = rng.nextInt(definition.explanations.length);
+    final explanation = definition.explanations[idx];
+    explain = explanation.explain;
+    if (explanation.examples.isEmpty) {
+      example = explain.split(' ').length > 1 ? word : explain;
+    } else {
+      idx = rng.nextInt(explanation.examples.length);
+      example = explanation.examples[idx];
+    }
+    return MapEntry(explain, example);
+  }
 }
 
 class Phonetic {

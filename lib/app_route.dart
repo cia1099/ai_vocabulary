@@ -36,9 +36,9 @@ mixin AppRoute<T extends StatefulWidget> on State<T> {
                 final provider = AppSettings.of(context).wordProvider;
                 switch (provider.runtimeType) {
                   case ReviewProvider:
-                    print('review');
+                    print('review from route');
                   case RecommendProvider:
-                    print('recommend');
+                    print('recommend from route');
                   default:
                     break;
                 }
