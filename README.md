@@ -10,6 +10,16 @@ Good example on IntrinsicHeight when you want Stack size follow its children who
 * [lib/main.dart](lib/main.dart)\
 override CupertinoTheme's colors with MaterialTheme
 
+* [lib/painters/bubble_shape.dart](lib/painters/bubble_shape.dart)\
+A customized shape which can used to every decoration with [ShapeDecoration](lib/widgets/chat_bubble.dart?plain=1#L48-L52).
+
+* [lib/pages/favorite_words_page.dart](lib/pages/favorite_words_page.dart)\
+Used sliver_tools package to implement alphabet list view. In addition, the list has UITableView behavior like UIKit feature.
+
+* [lib/utils/gesture_route_page.dart](lib/utils/gesture_route_page.dart)\
+Approached gesture navigation push a new page
+
+
 ## Getting Started
 
 This project is a starting point for a Flutter application.
