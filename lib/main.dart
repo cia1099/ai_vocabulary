@@ -17,7 +17,7 @@ class MyApp extends StatefulWidget {
   State<MyApp> createState() => _MyAppState();
 }
 
-class _MyAppState extends State<MyApp> with AppRoute {
+class _MyAppState extends State<MyApp> {
   var appTheme = ThemeData();
 
   @override
@@ -67,7 +67,12 @@ class _MyAppState extends State<MyApp> with AppRoute {
             DefaultWidgetsLocalizations.delegate,
             DefaultCupertinoLocalizations.delegate,
           ],
-          onGenerateRoute: generateRoute,
+          onGenerateRoute: //generateRoute,
+              (settings) => AppRoute(
+            settings: settings,
+            barrierColor: (kCupertinoModalBarrierColor as CupertinoDynamicColor)
+                .resolveFrom(context),
+          ),
           initialRoute: AppRoute.home,
           // home: const HomePage(),
           // home: Builder(builder: (context) {

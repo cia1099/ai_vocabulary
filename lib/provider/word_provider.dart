@@ -85,6 +85,7 @@ class ReviewProvider extends WordProvider {
     final reviewIDs = MyDB().fetchReviewWordIDs();
     final words = MyDB().fetchWords(reviewIDs);
     _studyWords.addAll(words);
+    currentWord = _studyWords.firstOrNull;
   }
 }
 
