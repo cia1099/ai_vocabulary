@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
 import 'app_settings.dart';
+import 'pages/home_page.dart';
 import 'theme.dart';
 
 void main() {
@@ -74,7 +75,7 @@ class _MyAppState extends State<MyApp> {
                 .resolveFrom(context),
           ),
           initialRoute: AppRoute.home,
-          // home: const HomePage(),
+          home: const HomePage(),
           // home: Builder(builder: (context) {
           //   return PlatformScaffold(
           //     body: Center(

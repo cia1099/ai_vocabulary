@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:ai_vocabulary/app_route.dart';
 import 'package:ai_vocabulary/widgets/capital_avatar.dart';
 import 'package:ai_vocabulary/widgets/entry_actions.dart';
 import 'package:flutter/cupertino.dart';
@@ -176,7 +177,9 @@ class _SliderPageState extends State<SliderPage>
                     runSpacing: 8,
                     children: [
                       PlatformIconButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/shit');
+                        },
                         padding: EdgeInsets.zero,
                         icon: Transform(
                           alignment: const Alignment(0, 0),
@@ -206,11 +209,15 @@ class _SliderPageState extends State<SliderPage>
                                 tapTargetSize:
                                     MaterialTapTargetSize.shrinkWrap)),
                       ),
-                      CapitalAvatar(
-                        name: widget.word.word,
-                        id: widget.word.wordId,
-                        url: widget.word.asset,
-                        size: width * .9,
+                      GestureDetector(
+                        onTap: () =>
+                            Navigator.pushNamed(context, AppRoute.vocabulary),
+                        child: CapitalAvatar(
+                          name: widget.word.word,
+                          id: widget.word.wordId,
+                          url: widget.word.asset,
+                          size: width * .9,
+                        ),
                       )
                     ],
                   ),

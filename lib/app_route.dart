@@ -1,91 +1,14 @@
 import 'package:ai_vocabulary/pages/home_page.dart';
-import 'package:ai_vocabulary/pages/word_list_page.dart';
 import 'package:ai_vocabulary/utils/shortcut.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
-import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:flutter_web_frame/flutter_web_frame.dart';
 
 import 'package:ai_vocabulary/pages/cloze_page.dart';
 import 'package:ai_vocabulary/pages/vocabulary_page.dart';
 
 import 'app_settings.dart';
-import 'provider/word_provider.dart';
-
-// mixin AppRoute<T extends StatefulWidget> on State<T> {
-//   static const home = '/';
-//   static const entry = '/entry';
-//   static const entryVocabulary = '/entry/vocabulary';
-//   static const cloze = '/entry/cloze';
-//   static const reviewWords = '/entry/review';
-//   static const todayWords = '/today/words';
-//   static const chatRoom = '/chat/room';
-//   static const vocabulary = '/vocabulary';
-//   static const report = '/report';
-//   static const menuPopup = '/menu/popup';
-//   static const searchWords = '/search/words';
-
-//   Route generateRoute(RouteSettings settings) {
-//     final uri = Uri.tryParse(settings.name!);
-//     final path = uri?.path;
-//     return platformPageRoute(
-//         context: context,
-//         builder: (context) => FlutterWebFrame(
-//               builder: (context) {
-//                 final provider = AppSettings.of(context).wordProvider;
-//                 final currentWord = provider?.currentWord;
-//                 switch (provider.runtimeType) {
-//                   case ReviewProvider:
-//                     print('review from route, word: ${currentWord?.word}');
-//                   case RecommendProvider:
-//                     print('recommend from route, word: ${currentWord?.word}');
-//                   default:
-//                     break;
-//                 }
-//                 switch (path) {
-//                   // case AppRoute.entry:
-//                   // return EntryPage();
-//                   case AppRoute.cloze:
-//                     // if (currentWord == null) return const EntryPage();
-//                     return ClozePage(word: currentWord!);
-//                   case AppRoute.entryVocabulary:
-//                     // if (currentWord == null) return const EntryPage();
-//                     return VocabularyPage(
-//                         word: currentWord!,
-//                         nextTap: () {
-//                           // if (WordProvider().shouldRemind()) {
-//                           //   Navigator.of(context)
-//                           //       .popAndPushNamed(AppRoute.reviewWords);
-//                           // } else {
-//                           //   WordProvider().nextStudyWord();
-//                           //   Navigator.of(context)
-//                           //       .popUntil(ModalRoute.withName(AppRoute.entry));
-//                           // }
-//                         });
-//                   case AppRoute.todayWords:
-//                   // return WordListPage(words: WordProvider().subList());
-//                   case AppRoute.reviewWords:
-//                   // final reviews = WordProvider().remindWords();
-//                   // return WordListPage(
-//                   //     words: reviews,
-//                   //     nextTap: () {
-//                   //       WordProvider().nextStudyWord();
-//                   //       Navigator.of(context)
-//                   //           .popUntil(ModalRoute.withName(AppRoute.entry));
-//                   //     });
-//                   default:
-//                     print('build from $provider');
-//                     return const HomePage();
-//                 }
-//               },
-//               maximumSize: const Size(300, 812.0), // Maximum size
-//               enabled: kIsWeb,
-//               backgroundColor: CupertinoColors.systemGrey.resolveFrom(context),
-//             ),
-//         settings: RouteSettings(name: path));
-//   }
-// }
 
 class AppRoute<T> extends PageRoute<T> {
   static const home = '/';
@@ -112,43 +35,26 @@ class AppRoute<T> extends PageRoute<T> {
       builder: (context) {
         final provider = AppSettings.of(context).wordProvider;
         final currentWord = provider?.currentWord;
-        switch (provider.runtimeType) {
-          case ReviewProvider:
-            print('review from route, word: ${currentWord?.word}');
-          case RecommendProvider:
-            print('recommend from route, word: ${currentWord?.word}');
-          default:
-            break;
-        }
-        if (!Navigator.canPop(context)) return const HomePage();
-        if (currentWord == null) {
-          return Center(
-            child: FractionallySizedBox(
-              widthFactor: .3333,
-              child: AspectRatio(
-                aspectRatio: 1,
-                child: Container(
-                    alignment: const Alignment(0, 0),
-                    decoration: BoxDecoration(
-                      color: kCupertinoSheetColor.resolveFrom(context),
-                      borderRadius:
-                          BorderRadius.circular(kRadialReactionRadius / 2),
-                    ),
-                    child: const CircularProgressIndicator.adaptive()),
-              ),
-            ),
-          );
-        }
+
         final uri = Uri.tryParse(settings.name!);
-        final path = uri?.path;
+        var path = uri?.path;
+        // if (path != AppRoute.home && !validation(context))
+        if (!validation(context)) {
+          if (currentWord == null) {
+            path = "'$path' needs word, but word is null";
+          } else {
+            path = "'$path' not found";
+          }
+        }
+
         switch (path) {
-          // case AppRoute.entry:
-          // return EntryPage();
           case AppRoute.cloze:
-            return ClozePage(word: currentWord);
+            return ClozePage(word: currentWord!);
+          case AppRoute.vocabulary:
+            return VocabularyPage(word: currentWord!);
           case AppRoute.entryVocabulary:
             return VocabularyPage(
-                word: currentWord,
+                word: currentWord!,
                 nextTap: () {
                   // if (WordProvider().shouldRemind()) {
                   //   Navigator.of(context)
@@ -170,8 +76,10 @@ class AppRoute<T> extends PageRoute<T> {
           //       Navigator.of(context)
           //           .popUntil(ModalRoute.withName(AppRoute.entry));
           //     });
-          default:
+          case AppRoute.home:
             return const HomePage();
+          default:
+            return dummyDialog(context, path);
         }
       },
       maximumSize: const Size(300, 812.0), // Maximum size
@@ -180,48 +88,39 @@ class AppRoute<T> extends PageRoute<T> {
     );
   }
 
+  Widget dummyDialog(BuildContext context, String? msg) {
+    return Center(
+      child: FractionallySizedBox(
+        widthFactor: .3333,
+        child: AspectRatio(
+          aspectRatio: 1,
+          child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: kCupertinoSheetColor.resolveFrom(context),
+                borderRadius: BorderRadius.circular(kRadialReactionRadius / 2),
+              ),
+              child: Stack(
+                children: [
+                  const Center(child: CircularProgressIndicator.adaptive()),
+                  Align(
+                    alignment: const Alignment(0, 1),
+                    child: Text(
+                      '$msg',
+                      style:
+                          TextStyle(color: Theme.of(context).colorScheme.error),
+                    ),
+                  )
+                ],
+              )),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget buildTransitions(BuildContext context, Animation<double> animation,
       Animation<double> secondaryAnimation, Widget child) {
-    final provider = AppSettings.of(context).wordProvider;
-    final uri = Uri.tryParse(settings.name!);
-    final path = uri?.path;
-    // return StreamBuilder(
-    //   stream: provider?.provideWord,
-    //   builder: (context, snapshot) {
-    //     if (snapshot.data == null) {
-    //       return FadeTransition(
-    //         opacity: CurvedAnimation(
-    //           parent: animation,
-    //           curve: Curves.easeInOut,
-    //         ),
-    //         child: animation.status == AnimationStatus.reverse
-    //             ? child
-    //             : ScaleTransition(
-    //                 scale: Tween(begin: 1.3, end: 1.0).animate(animation),
-    //                 child: child),
-    //       );
-    //     }
-    //     return
-    //         // CupertinoPageTransition(
-    //         //     primaryRouteAnimation: animation,
-    //         //     secondaryRouteAnimation: secondaryAnimation,
-    //         //     linearTransition: false,
-    //         //     child: child);
-    //         SlideTransition(
-    //       position: Tween(begin: Offset.fromDirection(0), end: Offset.zero)
-    //           .animate(CurvedAnimation(
-    //         parent: animation,
-    //         curve: Curves.linearToEaseOut,
-    //         reverseCurve: Curves.easeInToLinear,
-    //       )),
-    //       textDirection: Directionality.of(context),
-    //       transformHitTests: false,
-    //       child: child,
-    //     );
-    //   },
-    // );
-    if (provider?.currentWord == null && Navigator.canPop(context)) {
+    if (!validation(context)) {
       return FadeTransition(
         opacity: CurvedAnimation(
             parent: animation,
@@ -247,6 +146,14 @@ class AppRoute<T> extends PageRoute<T> {
     );
   }
 
+  bool validation(BuildContext context) {
+    final currentWord = AppSettings.of(context).wordProvider?.currentWord;
+    final uri = Uri.tryParse(settings.name ?? '');
+    final path = uri?.path;
+    final validName = AppRouters.asMap().values.contains(path);
+    return currentWord != null && validName;
+  }
+
   @override
   bool get maintainState => false;
 
@@ -265,4 +172,30 @@ class AppRoute<T> extends PageRoute<T> {
 
 bool fromEntry(String? routeName) {
   return routeName != null && routeName.contains('entry');
+}
+
+enum AppRouters implements Comparable<String> {
+  home('/'),
+  entry('/entry'),
+  entryVocabulary('/entry/vocabulary'),
+  cloze('/entry/cloze'),
+  reviewWords('/entry/review'),
+  todayWords('/today/words'),
+  chatRoom('/chat/room'),
+  vocabulary('/vocabulary'),
+  report('/report'),
+  menuPopup('/menu/popup'),
+  searchWords('/search/words');
+
+  static Map<String, String> asMap() {
+    return {
+      for (final e in AppRouters.values) e.name: e.path,
+    };
+  }
+
+  final String path;
+  const AppRouters(this.path);
+
+  @override
+  int compareTo(String other) => name.compareTo(other);
 }

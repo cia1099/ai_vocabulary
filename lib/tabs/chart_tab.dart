@@ -26,26 +26,26 @@ class ChartTab extends StatelessWidget {
           ),
           const SliverToBoxAdapter(child: Calendar()),
           const SliverToBoxAdapter(child: RememberChart(trainingRate: 2.5)),
-          SliverToBoxAdapter(
-            child: AspectRatio(
-              aspectRatio: 1.5,
-              child: ImBarChart(
-                barData: List.generate(10, (index) => createProfit()),
-                barLabel: [
-                  'PC28' * 50,
-                  '一分快三',
-                  '香港六合彩',
-                  '龙虎',
-                  '三公',
-                  '快车',
-                  '鱼虾蟹',
-                  '百人牛牛',
-                  '轮盘',
-                  '百家乐'
-                ],
-              ),
-            ),
-          ),
+          // SliverToBoxAdapter(
+          //   child: AspectRatio(
+          //     aspectRatio: 1.5,
+          //     child: ImBarChart(
+          //       barData: List.generate(10, (index) => createProfit()),
+          //       barLabel: [
+          //         'PC28' * 50,
+          //         '一分快三',
+          //         '香港六合彩',
+          //         '龙虎',
+          //         '三公',
+          //         '快车',
+          //         '鱼虾蟹',
+          //         '百人牛牛',
+          //         '轮盘',
+          //         '百家乐'
+          //       ],
+          //     ),
+          //   ),
+          // ),
           const SliverToBoxAdapter(
             child: AspectRatio(
               aspectRatio: 3,
