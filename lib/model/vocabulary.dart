@@ -42,6 +42,16 @@ class Vocabulary {
         'last_learned_time': lastLearnedTime,
         "definitions": List<dynamic>.from(definitions.map((x) => x.toJson())),
       };
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! Vocabulary) return false;
+    return wordId == other.wordId && word == other.word;
+  }
+
+  @override
+  int get hashCode => wordId.hashCode ^ word.hashCode;
 }
 
 class Definition {

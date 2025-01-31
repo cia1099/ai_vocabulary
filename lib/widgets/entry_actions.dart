@@ -16,10 +16,10 @@ import '../utils/shortcut.dart';
 class EntryActions extends StatelessWidget {
   const EntryActions({
     super.key,
-    required this.wordID,
+    this.wordID,
     this.skipIndexes = const [],
   });
-  final int wordID;
+  final int? wordID;
   final List<int> skipIndexes;
 
   @override
@@ -62,9 +62,9 @@ class EntryActions extends StatelessWidget {
               size: appBarIconSize,
               // color: navColor,
             )),
-      if (!skipIndexes.contains(1))
-        FavoriteStar(wordID: wordID, size: appBarIconSize),
-      if (!skipIndexes.contains(2))
+      if (!skipIndexes.contains(1) && wordID != null)
+        FavoriteStar(wordID: wordID!, size: appBarIconSize),
+      if (!skipIndexes.contains(2) && wordID != null)
         GestureDetector(
             onTap: () => Navigator.of(context).push(PageRouteBuilder(
                   opaque: false,
@@ -72,7 +72,7 @@ class EntryActions extends StatelessWidget {
                   barrierColor:
                       colorScheme.inverseSurface.withValues(alpha: .4),
                   pageBuilder: (context, animation, secondaryAnimation) =>
-                      ReportPopUpPage(wordID: wordID),
+                      ReportPopUpPage(wordID: wordID!),
                   // transitionDuration: Durations.medium1,
                   settings: const RouteSettings(name: AppRoute.menuPopup),
                   transitionsBuilder:

@@ -68,8 +68,7 @@ class _MyAppState extends State<MyApp> {
             DefaultWidgetsLocalizations.delegate,
             DefaultCupertinoLocalizations.delegate,
           ],
-          onGenerateRoute: //generateRoute,
-              (settings) => AppRoute(
+          onGenerateRoute: (settings) => AppRoute(
             settings: settings,
             barrierColor: (kCupertinoModalBarrierColor as CupertinoDynamicColor)
                 .resolveFrom(context),

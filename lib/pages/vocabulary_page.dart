@@ -48,6 +48,7 @@ class VocabularyPage extends StatelessWidget {
                         flexibleSpace: VocabularyHead(
                           headerHeight: headerHeight,
                           word: word,
+                          backTap: nextTap,
                         ),
                         leading: const SizedBox(),
                       ),
@@ -103,10 +104,12 @@ class VocabularyHead extends StatelessWidget {
     super.key,
     required this.headerHeight,
     required this.word,
+    this.backTap,
   });
 
   final double headerHeight;
   final Vocabulary word;
+  final VoidCallback? backTap;
 
   @override
   Widget build(BuildContext context) {
@@ -152,7 +155,7 @@ class VocabularyHead extends StatelessWidget {
                               top: 0,
                               left: 0,
                               child: CupertinoNavigationBarBackButton(
-                                onPressed: Navigator.of(context).pop,
+                                onPressed: backTap ?? Navigator.of(context).pop,
                                 previousPageTitle: 'Back',
                               ),
                             ),
@@ -160,13 +163,13 @@ class VocabularyHead extends StatelessWidget {
                                 top: 16,
                                 right: 0,
                                 child: EntryActions(wordID: word.wordId)),
-                            Positioned(
-                                bottom: 0,
-                                right: 0,
-                                child: Offstage(
-                                  offstage: h < .1,
-                                  child: NaiveSegment(word: word),
-                                )),
+                            // Positioned(
+                            //     bottom: 0,
+                            //     right: 0,
+                            //     child: Offstage(
+                            //       offstage: h < .1,
+                            //       child: NaiveSegment(word: word),
+                            //     )),
                           ]).take(fromEntry(routeName) ? 3 : 2),
                         CustomPaint(
                           foregroundPainter: TitlePainter(

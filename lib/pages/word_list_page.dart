@@ -25,26 +25,20 @@ class WordListPage extends StatelessWidget {
     final title = routeName != null && routeName.contains('entry')
         ? 'Review Words'
         : 'My table vocabulary';
-    return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(kToolbarHeight),
-        child: Stack(
-          children: [
-            PlatformAppBar(
-              title: Text(title),
-              material: (_, __) => MaterialAppBarData(
-                backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+    return PlatformScaffold(
+      appBar: PlatformAppBar(
+        leading: nextTap == null
+            ? null
+            : CupertinoNavigationBarBackButton(
+                onPressed: nextTap,
               ),
-            ),
-            if (words.isNotEmpty)
-              Positioned(
-                  bottom: kAppBarPadding,
-                  right: 16,
-                  child: EntryActions(
-                    wordID: words.last.wordId,
-                    skipIndexes: const [1, 2],
-                  ))
-          ],
+        title: Text(title),
+        backgroundColor: colorScheme.primaryContainer,
+        cupertino: (_, __) =>
+            CupertinoNavigationBarData(trailing: const EntryActions()),
+        material: (_, __) => MaterialAppBarData(
+          backgroundColor: colorScheme.inversePrimary,
+          actions: [const EntryActions()],
         ),
       ),
       body: SafeArea(

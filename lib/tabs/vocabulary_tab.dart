@@ -24,7 +24,7 @@ class _VocabularyTabState extends State<VocabularyTab>
   final pageController = PageController(initialPage: 1);
   late final tabController =
       TabController(initialIndex: 1, length: 2, vsync: this);
-  final recommend = RecommendProvider();
+  late final recommend = RecommendProvider(context: context);
   final review = ReviewProvider();
 
   @override
@@ -148,19 +148,21 @@ class _VocabularyTabState extends State<VocabularyTab>
             provider.currentWord = provider[index % provider.length];
 
             if (provider is RecommendProvider) {
-              (provider).fetchStudyWords(index);
+              provider.fetchStudyWords(index);
               //TODO onError handle http failure
               //     .whenComplete(() {
-              //   print(
-              //       'provider = ${provider.map((e) => e.wordId).join(', ')}');
-              //   print('words = ${provider.map((e) => e.word).join(', ')}');
+              //   print('provider = ${provider.map((e) => e.wordId).join(', ')}');
+              //   //   print('words = ${provider.map((e) => e.word).join(', ')}');
               // });
-              if (index == provider.length) {
+              if (index == RecommendProvider.kMaxLength) {
                 Future.delayed(Durations.extralong4, () {
                   setState(() {
                     provider.pageController.jumpToPage(0);
                   });
                 });
+              } else if (index > 0 && provider.pageController.position.atEdge) {
+                //TODO: fetch http request error
+                print('at max page');
               }
             }
           },
@@ -169,9 +171,7 @@ class _VocabularyTabState extends State<VocabularyTab>
             final word = provider[i];
             return SliderPage(key: ValueKey(index), word: word);
           },
-          itemCount: provider is RecommendProvider
-              ? RecommendProvider.kMaxLength + 1
-              : provider.length,
+          itemCount: provider.length + (provider is RecommendProvider ? 1 : 0),
         );
       },
     );

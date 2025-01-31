@@ -61,8 +61,12 @@ class _SliderPageState extends State<SliderPage>
                                     Border.all(color: colorScheme.onSurface)),
                             child: const Text("Learned 3 month ago"),
                           ),
-                          Text(widget.word.word,
-                              style: textTheme.displayMedium),
+                          Text(
+                            widget.word.word,
+                            style: textTheme.displayMedium,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                           Wrap(
                             spacing: 8,
                             runSpacing: 4,

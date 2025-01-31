@@ -1,4 +1,4 @@
-import 'package:ai_vocabulary/pages/home_page.dart';
+import 'package:ai_vocabulary/pages/word_list_page.dart';
 import 'package:ai_vocabulary/utils/shortcut.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -35,10 +35,9 @@ class AppRoute<T> extends PageRoute<T> {
       builder: (context) {
         final provider = AppSettings.of(context).wordProvider;
         final currentWord = provider?.currentWord;
-
         final uri = Uri.tryParse(settings.name!);
         var path = uri?.path;
-        // if (path != AppRoute.home && !validation(context))
+
         if (!validation(context)) {
           if (currentWord == null) {
             path = "'$path' needs word, but word is null";
@@ -55,29 +54,30 @@ class AppRoute<T> extends PageRoute<T> {
           case AppRoute.entryVocabulary:
             return VocabularyPage(
                 word: currentWord!,
-                nextTap: () {
-                  // if (WordProvider().shouldRemind()) {
-                  //   Navigator.of(context)
-                  //       .popAndPushNamed(AppRoute.reviewWords);
-                  // } else {
-                  //   WordProvider().nextStudyWord();
-                  //   Navigator.of(context)
-                  //       .popUntil(ModalRoute.withName(AppRoute.entry));
-                  // }
-                });
+                nextTap: provider == null
+                    ? null
+                    : () {
+                        if (provider.shouldRemind()) {
+                          Navigator.popAndPushNamed(
+                              context, AppRoute.reviewWords);
+                        } else {
+                          provider.nextStudyWord();
+                          Navigator.popUntil(context, (route) => route.isFirst);
+                        }
+                      });
           case AppRoute.todayWords:
           // return WordListPage(words: WordProvider().subList());
           case AppRoute.reviewWords:
-          // final reviews = WordProvider().remindWords();
-          // return WordListPage(
-          //     words: reviews,
-          //     nextTap: () {
-          //       WordProvider().nextStudyWord();
-          //       Navigator.of(context)
-          //           .popUntil(ModalRoute.withName(AppRoute.entry));
-          //     });
-          case AppRoute.home:
-            return const HomePage();
+            final reviews = provider?.remindWords() ?? [];
+            return WordListPage(
+              words: reviews,
+              nextTap: provider == null
+                  ? null
+                  : () {
+                      provider.nextStudyWord();
+                      Navigator.popUntil(context, (route) => route.isFirst);
+                    },
+            );
           default:
             return dummyDialog(context, path);
         }
@@ -175,7 +175,7 @@ bool fromEntry(String? routeName) {
 }
 
 enum AppRouters implements Comparable<String> {
-  home('/'),
+  // home('/'), // You shouldn't navigate to home, because it's root page
   entry('/entry'),
   entryVocabulary('/entry/vocabulary'),
   cloze('/entry/cloze'),

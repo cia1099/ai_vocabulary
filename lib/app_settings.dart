@@ -36,4 +36,9 @@ class MySettings extends ChangeNotifier {
     _wordProvider = other;
     notifyListeners();
   }
+
+  @override
+  void notifyListeners() {
+    super.notifyListeners();
+  }
 }

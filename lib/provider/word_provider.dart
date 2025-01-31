@@ -1,16 +1,16 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:flutter/cupertino.dart';
+import 'package:ai_vocabulary/utils/shortcut.dart';
+import 'package:flutter/material.dart';
 
 import '../api/dict_api.dart';
+import '../app_settings.dart';
 import '../database/my_db.dart';
 import '../model/vocabulary.dart';
 import '../utils/regex.dart';
 
 abstract class WordProvider {
-  WordProvider();
-
   final _studyWords = <Vocabulary>[];
   final pageController = PageController();
   Vocabulary? _currentWord;
@@ -31,16 +31,38 @@ abstract class WordProvider {
   }
 
   Vocabulary? get currentWord => _currentWord;
-
-  // List<Vocabulary> get studyWords => _studyWords;
   int get length => _studyWords.length;
   Vocabulary operator [](int i) => _studyWords[i];
   Iterable<T> map<T>(T Function(Vocabulary) toElement) =>
       _studyWords.map(toElement);
+  // reminder
+  final _remindWords = <Vocabulary>{};
+  bool shouldRemind() {
+    if (currentWord != null) {
+      _remindWords.add(currentWord!);
+    }
+    return _remindWords.isNotEmpty &&
+            _remindWords.length % kRemindLength == 0 ||
+        _remindWords.length >= length;
+  }
+
+  List<Vocabulary> remindWords() {
+    final reminds = _remindWords.toList();
+    _remindWords.clear();
+    return reminds;
+  }
+
+  void nextStudyWord() {
+    Future.delayed(Durations.extralong4, () {
+      pageController.nextPage(
+          duration: Durations.medium3, curve: Curves.easeInBack);
+    });
+  }
 }
 
 class RecommendProvider extends WordProvider {
-  RecommendProvider() {
+  final BuildContext context;
+  RecommendProvider({required this.context}) {
     fetchStudyWords(0).whenComplete(() {
       currentWord = _studyWords.firstOrNull;
       _completer.complete(true);
@@ -66,6 +88,7 @@ class RecommendProvider extends WordProvider {
     final words = await requestWords(wordIDs);
     if (_studyWords.length < kMaxLength) {
       _studyWords.addAll(words);
+      if (context.mounted) AppSettings.of(context).notifyListeners();
     } else {
       final insertIndex = _fetchTime * 2;
       _studyWords.replaceRange(insertIndex, insertIndex + 2, words);
