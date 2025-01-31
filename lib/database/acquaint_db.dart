@@ -4,16 +4,17 @@ extension AcquaintDB on MyDB {
   void updateAcquaintance({
     required int wordId,
     required int acquaint,
-    bool isFailure = false,
+    bool isCorrect = false,
   }) {
     final lastLearnedTime =
-        !isFailure ? null : DateTime.now().millisecondsSinceEpoch ~/ 6e4;
+        !isCorrect ? null : DateTime.now().millisecondsSinceEpoch ~/ 6e4;
     final expression =
-        'UPDATE acquaintances SET acquaint=?${isFailure ? ',last_learned_time=?' : ''} WHERE acquaintances.word_id=?';
+        'UPDATE acquaintances SET acquaint=?${isCorrect ? ',last_learned_time=?' : ''} WHERE acquaintances.word_id=?';
     final db = open(OpenMode.readWrite);
     db.execute(expression,
         [acquaint, lastLearnedTime, wordId]..removeWhere((e) => e == null));
     db.dispose();
+    Future.microtask(notifyListeners); //I don't know why it has to use Future
   }
 
   Acquaintance getAcquaintance(int wordID) {

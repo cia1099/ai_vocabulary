@@ -1,6 +1,8 @@
 import 'dart:math';
 
 import 'package:ai_vocabulary/app_route.dart';
+import 'package:ai_vocabulary/database/my_db.dart';
+import 'package:ai_vocabulary/utils/function.dart';
 import 'package:ai_vocabulary/widgets/capital_avatar.dart';
 import 'package:ai_vocabulary/widgets/entry_actions.dart';
 import 'package:flutter/cupertino.dart';
@@ -160,8 +162,23 @@ class _SliderPageState extends State<SliderPage>
               aspectRatio: 1,
               child: GestureDetector(
                 onTap: () => Navigator.pushNamed(context, AppRoute.cloze),
-                child: const ImPieChart(
-                  percentage: .3,
+                child: ListenableBuilder(
+                  listenable: MyDB(),
+                  builder: (context, child) {
+                    final acquaintance =
+                        MyDB().getAcquaintance(widget.word.wordId);
+                    final acquaint = acquaintance.acquaint;
+                    final lastLearnedTime = acquaintance.lastLearnedTime;
+                    if (acquaint == 0 || lastLearnedTime == null) return child!;
+
+                    final fib = Fibonacci().sequence(acquaint);
+                    final elapsed =
+                        DateTime.now().millisecondsSinceEpoch ~/ 6e4 -
+                            lastLearnedTime;
+                    final percentage = retention(elapsed, fib);
+                    return ImPieChart(percentage: percentage);
+                  },
+                  child: const ImPieChart(),
                 ),
               ),
             ),

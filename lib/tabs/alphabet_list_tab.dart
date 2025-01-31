@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 
 import 'package:azlistview/azlistview.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
 import '../app_route.dart';
@@ -244,10 +245,10 @@ class _AlphabetListTabState extends State<AlphabetListTab> {
   }
 
   void updateFutureContacts() {
-    setState(() {
-      azContacts.clear();
-      futureContacts = fetchContacts();
-    });
+    azContacts.clear();
+    futureContacts = fetchContacts();
+    SchedulerBinding.instance
+        .scheduleTask(() => setState(() {}), Priority.idle);
   }
 
   @override

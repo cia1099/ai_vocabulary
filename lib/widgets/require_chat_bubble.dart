@@ -72,7 +72,9 @@ class RequireChatBubble extends StatelessWidget {
                 final acquaint =
                     MyDB().getAcquaintance(message.wordID).acquaint;
                 MyDB().updateAcquaintance(
-                    wordId: message.wordID, acquaint: acquaint + 1);
+                    wordId: message.wordID,
+                    acquaint: acquaint + 1,
+                    isCorrect: ans.quiz);
                 appearAward(
                     context, message.vocabulary.split(', ').firstOrNull);
               });

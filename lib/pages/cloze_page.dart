@@ -201,7 +201,9 @@ class _ClozePageState extends State<ClozePage> {
   String verifyAnswer(String correctWord, Iterable<String> matches) {
     if (inputController.text.toLowerCase() == correctWord.toLowerCase()) {
       MyDB().updateAcquaintance(
-          wordId: widget.word.wordId, acquaint: ++widget.word.acquaint);
+          wordId: widget.word.wordId,
+          acquaint: ++widget.word.acquaint,
+          isCorrect: true);
       appearAward(context, widget.word.word);
       return "Correct";
     }
