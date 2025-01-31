@@ -152,14 +152,17 @@ class _SliderPageState extends State<SliderPage>
             );
           },
         ),
-        const Align(
-          alignment: Alignment(1, .25),
+        Align(
+          alignment: const Alignment(1, .25),
           child: FractionallySizedBox(
             widthFactor: .16,
             child: AspectRatio(
               aspectRatio: 1,
-              child: ImPieChart(
-                percentage: .3,
+              child: GestureDetector(
+                onTap: () => Navigator.pushNamed(context, AppRoute.cloze),
+                child: const ImPieChart(
+                  percentage: .3,
+                ),
               ),
             ),
           ),
@@ -172,6 +175,7 @@ class _SliderPageState extends State<SliderPage>
             child: LayoutBuilder(
               builder: (context, constraints) {
                 final width = constraints.maxWidth;
+                final iconSize = width * .9;
                 return Container(
                   // color: Colors.grey,
                   margin: const EdgeInsets.only(
@@ -190,7 +194,7 @@ class _SliderPageState extends State<SliderPage>
                           transform: Matrix4.rotationY(pi),
                           child: Icon(
                             CupertinoIcons.captions_bubble,
-                            size: width * .9,
+                            size: iconSize,
                           ),
                         ),
                         material: (_, __) => MaterialIconButtonData(
@@ -198,16 +202,14 @@ class _SliderPageState extends State<SliderPage>
                                 tapTargetSize:
                                     MaterialTapTargetSize.shrinkWrap)),
                       ),
-                      FavoriteStar(
-                          wordID: widget.word.wordId, size: width * .9),
+                      FavoriteStar(wordID: widget.word.wordId, size: iconSize),
                       PlatformIconButton(
                         onPressed: () {},
                         padding: EdgeInsets.zero,
                         icon: Transform(
                             alignment: const Alignment(0, 0),
                             transform: Matrix4.rotationY(pi),
-                            child:
-                                Icon(CupertinoIcons.reply, size: width * .9)),
+                            child: Icon(CupertinoIcons.reply, size: iconSize)),
                         material: (_, __) => MaterialIconButtonData(
                             style: IconButton.styleFrom(
                                 tapTargetSize:
@@ -220,7 +222,7 @@ class _SliderPageState extends State<SliderPage>
                           name: widget.word.word,
                           id: widget.word.wordId,
                           url: widget.word.asset,
-                          size: width * .9,
+                          size: iconSize,
                         ),
                       )
                     ],

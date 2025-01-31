@@ -38,13 +38,13 @@ class MyDB with ChangeNotifier {
   Database open(OpenMode mode) =>
       sqlite3.open(p.join(appDirectory, _dbName), mode: mode);
   String get appDirectory => _appDirectory;
-  Future<String> get futureAppDirectory async =>
-      getApplicationDocumentsDirectory().then((value) => value.path);
+  // Future<String> get futureAppDirectory async =>
+  //     getApplicationDocumentsDirectory().then((value) => value.path);
 
   Future<void> _init() async {
     // _appDirectory = '';
     final documentsDirectory = await getApplicationDocumentsDirectory();
-    print("Application directory: $documentsDirectory");
+    debugPrint("Application directory: $documentsDirectory");
     _appDirectory = documentsDirectory.path;
     final dbPath = p.join(appDirectory, _dbName);
     if (File(dbPath).existsSync()) return;
@@ -56,7 +56,7 @@ class MyDB with ChangeNotifier {
   final _completer = Completer<bool>();
   Future<bool> get isReady => _completer.future;
 
-  void insertWords(Stream<Vocabulary> words) async {
+  Future<void> insertWords(Stream<Vocabulary> words) async {
     final db = open(OpenMode.readWrite);
     final insert = [
       insertWord,
@@ -69,36 +69,17 @@ class MyDB with ChangeNotifier {
     final stmts = db.prepareMultiple(insert.join(';'));
     await for (final word in words) {
       try {
-        stmts[0].execute([word.wordId, word.word]);
-        for (final definition in word.definitions) {
-          final definitionID = stmts[1].select([
-            word.wordId,
-            definition.partOfSpeech,
-            definition.inflection,
-            definition.phoneticUs,
-            definition.phoneticUk,
-            definition.audioUs,
-            definition.audioUk,
-            definition.translate
-          ]).first['id'] as int;
-          for (final explanation in definition.explanations) {
-            final explanationID = stmts[2].select([
-              word.wordId,
-              definitionID,
-              explanation.explain,
-              explanation.subscript
-            ]).first['id'] as int;
-            for (final example in explanation.examples) {
-              stmts[3].execute([word.wordId, explanationID, example]);
-            } //for example
-          } //for explanation
-        } //for definition
-        if (word.asset != null) {
-          stmts[4].execute([word.wordId, word.asset]);
+        insertVocabulary(word, stmts);
+      } on SqliteException catch (e) {
+        debugPrint(
+            'SQL error(${e.resultCode}): ${e.message}=(${word.wordId})${word.word}');
+        final rm = db.prepareMultiple(deleteVocabulary)
+          ..forEach((stmt) => stmt.execute([word.wordId]));
+        for (var stmt in rm) {
+          stmt.dispose();
         }
-        stmts[5].execute([word.wordId, null]);
-      } on SqliteException {
-        continue;
+        stmts.removeLast().dispose();
+        insertVocabulary(word, stmts);
       }
     }
     for (var stmt in stmts) {
@@ -114,6 +95,39 @@ class MyDB with ChangeNotifier {
     final wordMaps = buildWordMaps(resultSet);
     db.dispose();
     return wordMaps.map((json) => Vocabulary.fromJson(json)).toList();
+  }
+
+  void insertVocabulary(Vocabulary word, List<PreparedStatement> stmts) {
+    stmts[0].execute([word.wordId, word.word]);
+    for (final definition in word.definitions) {
+      final definitionID = stmts[1].select([
+        word.wordId,
+        definition.partOfSpeech,
+        definition.inflection,
+        definition.phoneticUs,
+        definition.phoneticUk,
+        definition.audioUs,
+        definition.audioUk,
+        definition.translate
+      ]).first['id'] as int;
+      for (final explanation in definition.explanations) {
+        final explanationID = stmts[2].select([
+          word.wordId,
+          definitionID,
+          explanation.explain,
+          explanation.subscript
+        ]).first['id'] as int;
+        for (final example in explanation.examples) {
+          stmts[3].execute([word.wordId, explanationID, example]);
+        } //for example
+      } //for explanation
+    } //for definition
+    if (word.asset != null) {
+      stmts[4].execute([word.wordId, word.asset]);
+    }
+    if (stmts.length > 5) {
+      stmts[5].execute([word.wordId, null]);
+    }
   }
 
   // void dispose() {

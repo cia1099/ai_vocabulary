@@ -14,6 +14,14 @@ const insertAcquaintance =
 const insertTextMessage =
     r'INSERT INTO text_messages (time_stamp, content, word_id, patterns, user_id) VALUES (?, ?, ?, ?, ?)';
 
+const deleteVocabulary = '''
+DELETE FROM assets WHERE word_id=?;
+DELETE FROM examples WHERE word_id=?;
+DELETE FROM explanations WHERE word_id=?;
+DELETE FROM definitions WHERE word_id=?;
+DELETE FROM words WHERE id=?;
+''';
+
 const fetchWordInID = '''
 SELECT words.id, words.word, assets.filename, 
 acquaintances.acquaint, acquaintances.last_learned_time, 

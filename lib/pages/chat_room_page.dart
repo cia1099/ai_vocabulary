@@ -63,7 +63,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> implements ChatInput {
   @override
   void initState() {
     super.initState();
-    MyDB().futureAppDirectory.then((_) {
+    MyDB().isReady.then((_) {
       messages.addAll(widget.getMessages());
       WidgetsBinding.instance.addPostFrameCallback((_) {
         setState(() {

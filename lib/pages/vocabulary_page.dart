@@ -163,13 +163,13 @@ class VocabularyHead extends StatelessWidget {
                                 top: 16,
                                 right: 0,
                                 child: EntryActions(wordID: word.wordId)),
-                            // Positioned(
-                            //     bottom: 0,
-                            //     right: 0,
-                            //     child: Offstage(
-                            //       offstage: h < .1,
-                            //       child: NaiveSegment(word: word),
-                            //     )),
+                            Positioned(
+                                bottom: 0,
+                                right: 0,
+                                child: Offstage(
+                                  offstage: h < .1,
+                                  child: NaiveSegment(word: word),
+                                )),
                           ]).take(fromEntry(routeName) ? 3 : 2),
                         CustomPaint(
                           foregroundPainter: TitlePainter(

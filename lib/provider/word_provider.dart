@@ -131,7 +131,8 @@ Future<List<Vocabulary>> requestWords(Set<int> wordIds) async {
       error = e;
     }
   }
-  return words;
+  MyDB.instance.insertWords(Stream.fromIterable(words));
+  return words..shuffle();
 }
 
 Future<Set<int>> sampleWordIds(Iterable<int> reviewIDs, final int count) async {

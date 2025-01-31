@@ -29,7 +29,6 @@ class _VocabularyTabState extends State<VocabularyTab>
 
   @override
   Widget build(BuildContext context) {
-    // return oldDesign(context);
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
     final hPadding = MediaQuery.of(context).size.width / 32;
@@ -126,7 +125,7 @@ class _VocabularyTabState extends State<VocabularyTab>
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(
             child: SpinKitFadingCircle(
-              color: Theme.of(context).colorScheme.primaryContainer,
+              color: Theme.of(context).colorScheme.secondary,
             ),
           );
         }

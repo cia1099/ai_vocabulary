@@ -43,14 +43,9 @@ class OldProvider {
   }
 
   Future<void> _init() async {
-    late final String appDirectory;
-    try {
-      appDirectory = MyDB().appDirectory;
-    } on Error {
-      appDirectory = await MyDB().futureAppDirectory;
-    }
+    await MyDB().isReady;
     var wordIds = <int>[];
-    final file = File(p.join(appDirectory, fileName));
+    final file = File(p.join(MyDB().appDirectory, fileName));
     if (shouldResample(file)) {
       final reviewIDs = MyDB().fetchReviewWordIDs();
       final setIds = await _sampleWordIds(reviewIDs, studyCount);

@@ -71,7 +71,7 @@ class _ChatInputPanelState extends State<ChatInputPanel> {
         ),
         FutureBuilder(
           //TODO: remove this futureBuilder
-          future: MyDB().futureAppDirectory,
+          future: MyDB().isReady,
           builder: (context, snapshot) => snapshot.data == null
               ? Placeholder(
                   fallbackHeight: widget.minHeight * 5 / 8, //screenHeight / 16,
@@ -85,7 +85,7 @@ class _ChatInputPanelState extends State<ChatInputPanel> {
                     margin: const EdgeInsets.only(top: 4),
                     alignment: Alignment.center,
                     child: RecordSpeechButton(
-                      appDirectory: snapshot.data!,
+                      appDirectory: MyDB().appDirectory,
                       createWavFileName: () {
                         final now = DateTime.now();
                         return '${now.millisecondsSinceEpoch}.wav';

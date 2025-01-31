@@ -50,12 +50,7 @@ extension ChatMsgDB on MyDB {
   }
 
   Future<Iterable<AlphabetModel>> fetchAlphabetModels() async {
-    try {
-      appDirectory;
-    } on Error {
-      // print('error');
-      await futureAppDirectory;
-    }
+    await isReady;
     const query = '''
       SELECT words.id AS word_id, words.word, assets.filename, 
       max(text_messages.time_stamp) AS time_stamp 
