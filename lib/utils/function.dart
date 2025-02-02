@@ -30,6 +30,64 @@ class Fibonacci {
   int call(int n) => sequence(n);
 }
 
+class WeightedSelector<T> {
+  final Iterable<T> elements;
+  final Iterable<double> weights;
+  final Random _random = Random();
+  List<T> _remainingElements = [];
+  List<double> _remainingWeights = [];
+
+  WeightedSelector(this.elements, this.weights)
+      : assert(elements.length == weights.length) {
+    _remainingElements = List.from(elements);
+    _remainingWeights = List.from(weights);
+  }
+
+  T? sample() {
+    if (_remainingElements.isEmpty) return null;
+
+    List<double> cdf = _computeCDF(_remainingWeights);
+    final r = _random.nextDouble();
+
+    int index = _binarySearch(cdf, r);
+
+    T selected = _remainingElements.removeAt(index);
+    _remainingWeights.removeAt(index);
+
+    return selected;
+  }
+
+  List<T> sampleN(int n) {
+    if (n <= 0 || _remainingElements.isEmpty) return [];
+    final selected = sample();
+    final samples = sampleN(n - 1);
+    if (selected != null) samples.add(selected);
+    return samples;
+  }
+
+  List<double> _computeCDF(List<double> weights) {
+    double sum = weights.reduce((a, b) => a + b);
+    double cumulative = 0;
+    return weights.map((w) {
+      cumulative += w / sum;
+      return cumulative;
+    }).toList();
+  }
+
+  int _binarySearch(List<double> cdf, double target) {
+    int low = 0, high = cdf.length - 1;
+    while (low < high) {
+      final mid = (low + high) >> 1;
+      if (cdf[mid] < target) {
+        low = mid + 1;
+      } else {
+        high = mid;
+      }
+    }
+    return low;
+  }
+}
+
 // double retention(int inMinute, int fib) {
 //   final factor = (6 * inMinute / 1440 / fib).clamp(1.0, double.infinity);
 //   final r = log(factor);

@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:ai_vocabulary/utils/function.dart';
 import 'package:ai_vocabulary/utils/shortcut.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:im_charts/im_charts.dart';
 
@@ -60,6 +61,7 @@ abstract class WordProvider {
       pageController.nextPage(
           duration: Durations.medium3, curve: Curves.easeInBack);
     });
+    MyDB().notifyListeners();
   }
 }
 
@@ -84,11 +86,23 @@ class RecommendProvider extends WordProvider {
         : _studyWords.isNotEmpty
             ? 2
             : initCount;
-    final wordIDs =
-        await sampleWordIds(_studyWords.map((w) => w.wordId), count);
+    await MyDB().isReady;
+    final reviewIDs = MyDB().fetchReviewWordIDs().toList();
+    reviewIDs
+        .removeWhere((id) => _studyWords.map((w) => w.wordId).contains(id));
+    final requestIDs = await sampleWordIds(
+        _studyWords.map((w) => w.wordId).toList() + reviewIDs, count);
     // print(
-    //     'page = $index, fetchTime = $_fetchTime, sampleIDs = ${wordIDs.join(', ')}');
-    final words = await requestWords(wordIDs);
+    //     'page = $index, fetchTime = $_fetchTime, sampleIDs = ${requestIDs.join(', ')}');
+    // final words = await requestWords(requestIDs);
+    final candidateWords = (await Future.wait(
+            [requestWords(requestIDs), fetchWords(reviewIDs, take: count * 2)]))
+        .reduce((a, b) => a + b);
+    final fib = Fibonacci();
+    final selector = WeightedSelector(candidateWords,
+        candidateWords.map((w) => 1 - calculateRetention(w, fib)));
+    final words = selector.sampleN(count);
+
     if (_studyWords.length < kMaxLength) {
       _studyWords.addAll(words);
       if (context.mounted) AppSettings.of(context).notifyListeners();
@@ -111,26 +125,13 @@ class ReviewProvider extends WordProvider {
       _completer = Completer<bool>();
     }
     final reviewIDs = MyDB().fetchReviewWordIDs();
-    final words = MyDB().fetchWords(reviewIDs);
-    final fibonacci = Fibonacci();
-    words.sort((a, b) => calculateRetention(a, fibonacci)
-        .compareTo(calculateRetention(b, fibonacci)));
+    final words = await fetchWords(reviewIDs);
     _studyWords
       ..clear()
       ..addAll(words);
     currentWord = _studyWords.firstOrNull;
     _completer.complete(true);
   }
-}
-
-double calculateRetention(Vocabulary word, Fibonacci fibonacci) {
-  final acquaint = word.acquaint;
-  final lastLearnedTime = word.lastLearnedTime;
-  if (acquaint == 0 || lastLearnedTime == null) return 0;
-  final fib = fibonacci(acquaint);
-  final inMinute =
-      DateTime.now().millisecondsSinceEpoch ~/ 6e4 - lastLearnedTime;
-  return forgettingCurve(inMinute / 1440, fib.toDouble());
 }
 
 Future<List<Vocabulary>> requestWords(Set<int> wordIds) async {
@@ -156,7 +157,16 @@ Future<List<Vocabulary>> requestWords(Set<int> wordIds) async {
   return words..shuffle();
 }
 
-Future<Set<int>> sampleWordIds(Iterable<int> reviewIDs, final int count) async {
+Future<List<Vocabulary>> fetchWords(Iterable<int> wordIDs, {int? take}) async {
+  await MyDB().isReady;
+  final words = MyDB().fetchWords(wordIDs);
+  final fibonacci = Fibonacci();
+  words.sort((a, b) => calculateRetention(a, fibonacci)
+      .compareTo(calculateRetention(b, fibonacci)));
+  return take == null ? words : words.take(take).toList();
+}
+
+Future<Set<int>> sampleWordIds(Iterable<int> existIDs, final int count) async {
   final maxId = await getMaxId();
   final doneIDs = MyDB().fetchDoneWordIDs();
   final rng = Random();
@@ -164,8 +174,18 @@ Future<Set<int>> sampleWordIds(Iterable<int> reviewIDs, final int count) async {
   // Set.of(MyDB().fetchUnknownWordIDs().take(count).toList()..shuffle());
   while (wordIds.length < count) {
     final id = rng.nextInt(maxId) + 1;
-    if (doneIDs.contains(id) || reviewIDs.contains(id)) continue;
+    if (doneIDs.contains(id) || existIDs.contains(id)) continue;
     wordIds.add(id);
   }
   return wordIds;
+}
+
+double calculateRetention(Vocabulary word, Fibonacci fibonacci) {
+  final acquaint = word.acquaint;
+  final lastLearnedTime = word.lastLearnedTime;
+  if (acquaint == 0 || lastLearnedTime == null) return 0;
+  final fib = fibonacci(acquaint);
+  final inMinute =
+      DateTime.now().millisecondsSinceEpoch ~/ 6e4 - lastLearnedTime;
+  return forgettingCurve(inMinute / 1440, fib.toDouble());
 }
