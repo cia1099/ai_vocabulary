@@ -24,7 +24,7 @@ extension AcquaintDB on MyDB {
         [wordID]);
     final collects = resultSet.take(1).map((row) => Acquaintance.fromJson(row));
     db.dispose();
-    return collects.first;
+    return collects.firstOrNull ?? Acquaintance(wordId: wordID, acquaint: 0);
   }
 
   Iterable<int> fetchDoneWordIDs() {

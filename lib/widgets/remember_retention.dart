@@ -1,22 +1,22 @@
-import 'package:flutter/cupertino.dart';
+import 'package:ai_vocabulary/model/acquaintance.dart';
+import 'package:flutter/material.dart';
 import 'package:im_charts/im_charts.dart';
+import 'package:intl/intl.dart';
 
-import '../database/my_db.dart';
 import '../utils/function.dart';
 
 class RememberRetention extends StatelessWidget {
   const RememberRetention({
     super.key,
-    required this.wordID,
+    this.acquaintance,
   });
 
-  final int wordID;
+  final Acquaintance? acquaintance;
 
   @override
   Widget build(BuildContext context) {
-    final acquaintance = MyDB().getAcquaintance(wordID);
-    final acquaint = acquaintance.acquaint;
-    final lastLearnedTime = acquaintance.lastLearnedTime;
+    final acquaint = acquaintance?.acquaint ?? 0;
+    final lastLearnedTime = acquaintance?.lastLearnedTime;
     var percentage = 0.0;
     if (acquaint > 0 && lastLearnedTime != null) {
       final fib = Fibonacci().sequence(acquaint);
@@ -26,5 +26,50 @@ class RememberRetention extends StatelessWidget {
     }
 
     return ImPieChart(percentage: percentage);
+  }
+}
+
+class LearnedLabel extends StatelessWidget {
+  const LearnedLabel({
+    super.key,
+    this.lastLearnedTime,
+  });
+  final int? lastLearnedTime;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Offstage(
+      offstage: lastLearnedTime == null,
+      child: Container(
+        padding: const EdgeInsets.all(4),
+        decoration:
+            BoxDecoration(border: Border.all(color: colorScheme.onSurface)),
+        child: Text("${title(lastLearnedTime)}"),
+      ),
+    );
+  }
+
+  String? title(int? lastLearnedTime) {
+    String? info;
+    if (lastLearnedTime == null) return info;
+    final now = DateTime.now();
+    final dt = now.millisecondsSinceEpoch ~/ 6e4 - lastLearnedTime;
+
+    if (dt < 60 * 4) {
+      info = 'recently';
+    } else if (dt < 1440) {
+      info = '${dt ~/ 60} hours ago';
+    } else if (dt < 2880) {
+      info = 'yesterday after ${dt ~/ 60} hours';
+    } else if (dt < 43200) {
+      info = '${dt ~/ 1440} days ago';
+    } else if (dt < 518400) {
+      info = '${dt ~/ 43200} month ago';
+    } else {
+      info =
+          'at ${DateFormat('y/M/d').format(DateTime.fromMillisecondsSinceEpoch(lastLearnedTime * 6e4.toInt()))}';
+    }
+    return 'Learned $info';
   }
 }

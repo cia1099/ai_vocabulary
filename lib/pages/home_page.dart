@@ -45,7 +45,7 @@ class SecondPage extends StatelessWidget {
           return PlatformScaffold(
             body: Center(
               child: SpinKitFadingCircle(
-                color: Theme.of(context).colorScheme.primaryContainer,
+                color: Theme.of(context).colorScheme.secondary,
               ),
             ),
           );

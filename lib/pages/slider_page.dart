@@ -1,6 +1,8 @@
 import 'dart:math';
 
 import 'package:ai_vocabulary/app_route.dart';
+import 'package:ai_vocabulary/database/my_db.dart';
+import 'package:ai_vocabulary/model/acquaintance.dart';
 import 'package:ai_vocabulary/widgets/capital_avatar.dart';
 import 'package:ai_vocabulary/widgets/entry_actions.dart';
 import 'package:flutter/cupertino.dart';
@@ -26,6 +28,7 @@ class SliderPage extends StatefulWidget {
 
 class _SliderPageState extends State<SliderPage>
     with AutomaticKeepAliveClientMixin {
+  Acquaintance? acquaintance;
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -35,6 +38,14 @@ class _SliderPageState extends State<SliderPage>
     final hPadding = screenWidth / 32;
     final phonetics = widget.word.getPhonetics();
     var defSliderHeight = DefinitionSliders.kDefaultHeight;
+    if (acquaintance == null) {
+      acquaintance = Acquaintance(
+          wordId: widget.word.wordId,
+          acquaint: widget.word.acquaint,
+          lastLearnedTime: widget.word.lastLearnedTime);
+    } else {
+      acquaintance = MyDB().getAcquaintance(widget.word.wordId);
+    }
     return Stack(
       children: [
         Padding(
@@ -54,12 +65,8 @@ class _SliderPageState extends State<SliderPage>
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: BoxDecoration(
-                                border:
-                                    Border.all(color: colorScheme.onSurface)),
-                            child: const Text("Learned 3 month ago"),
+                          LearnedLabel(
+                            lastLearnedTime: acquaintance?.lastLearnedTime,
                           ),
                           Text(
                             widget.word.word,
@@ -160,7 +167,7 @@ class _SliderPageState extends State<SliderPage>
               aspectRatio: 1,
               child: GestureDetector(
                 onTap: () => Navigator.pushNamed(context, AppRoute.cloze),
-                child: RememberRetention(wordID: widget.word.wordId),
+                child: RememberRetention(acquaintance: acquaintance),
               ),
             ),
           ),

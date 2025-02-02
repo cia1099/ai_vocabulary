@@ -8,9 +8,9 @@ class Acquaintance {
 
   Acquaintance({
     required this.wordId,
-    required this.userId,
     required this.acquaint,
     this.lastLearnedTime,
+    this.userId,
   });
 
   factory Acquaintance.fromRawJson(String str) =>
