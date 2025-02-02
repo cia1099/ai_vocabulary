@@ -157,13 +157,16 @@ Future<List<Vocabulary>> requestWords(Set<int> wordIds) async {
   return words..shuffle();
 }
 
-Future<List<Vocabulary>> fetchWords(Iterable<int> wordIDs, {int? take}) async {
-  await MyDB().isReady;
-  final words = MyDB().fetchWords(wordIDs);
+Future<List<Vocabulary>> fetchWords(Iterable<int> wordIds, {int? take}) async {
+  final words = await compute(sortByRetention, MyDB().fetchWords(wordIds));
+  return words.sublist(0, take?.clamp(0, words.length));
+}
+
+List<Vocabulary> sortByRetention(Iterable<Vocabulary> words) {
   final fibonacci = Fibonacci();
-  words.sort((a, b) => calculateRetention(a, fibonacci)
-      .compareTo(calculateRetention(b, fibonacci)));
-  return take == null ? words : words.take(take).toList();
+  return words.toList()
+    ..sort((a, b) => calculateRetention(a, fibonacci)
+        .compareTo(calculateRetention(b, fibonacci)));
 }
 
 Future<Set<int>> sampleWordIds(Iterable<int> existIDs, final int count) async {

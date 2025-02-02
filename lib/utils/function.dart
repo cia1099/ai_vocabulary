@@ -17,7 +17,7 @@ class PeakQuadraticTween extends Tween<double> {
 }
 
 class Fibonacci {
-  final _memory = [1, 2];
+  final _memory = [1, 1];
 
   int sequence(int n) {
     final element = _memory.elementAtOrNull(n);
