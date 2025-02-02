@@ -54,7 +54,7 @@ class SecondPage extends StatelessWidget {
         return ClozePage(
           key: ValueKey(word.wordId),
           word: word,
-          entry: word.generateClozeEntry(),
+          entry: word.generateClozeEntry(provider?.clozeSeed),
         );
       },
     );

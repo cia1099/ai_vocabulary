@@ -1,3 +1,6 @@
+import 'dart:math';
+
+import 'package:ai_vocabulary/database/my_db.dart';
 import 'package:ai_vocabulary/pages/slider_page.dart';
 import 'package:ai_vocabulary/provider/word_provider.dart';
 import 'package:ai_vocabulary/utils/shortcut.dart';
@@ -25,6 +28,7 @@ class _VocabularyTabState extends State<VocabularyTab>
       TabController(initialIndex: 1, length: 2, vsync: this);
   late final recommend = RecommendProvider(context: context);
   final review = ReviewProvider();
+  final rng = Random();
 
   @override
   Widget build(BuildContext context) {
@@ -137,39 +141,44 @@ class _VocabularyTabState extends State<VocabularyTab>
             ),
           );
         }
-        return PageView.builder(
-          key: PageStorageKey(provider[0].wordId),
-          scrollDirection: Axis.vertical,
-          findChildIndexCallback: (key) => (key as ValueKey).value,
-          controller: provider.pageController,
-          onPageChanged: (index) {
-            provider.currentWord = provider[index % provider.length];
-
-            if (provider is RecommendProvider) {
-              provider.fetchStudyWords(index);
-              //TODO onError handle http failure
-              //     .whenComplete(() {
-              //   print('provider = ${provider.map((e) => e.wordId).join(', ')}');
-              //   //   print('words = ${provider.map((e) => e.word).join(', ')}');
-              // });
-              if (index == RecommendProvider.kMaxLength) {
-                Future.delayed(Durations.extralong4, () {
-                  setState(() {
-                    provider.pageController.jumpToPage(0);
+        return ListenableBuilder(
+          listenable: MyDB(),
+          builder: (context, child) => PageView.builder(
+            key: PageStorageKey(provider),
+            scrollDirection: Axis.vertical,
+            findChildIndexCallback: (key) => (key as ValueKey).value,
+            controller: provider.pageController,
+            onPageChanged: (index) {
+              provider.currentWord = provider[index % provider.length];
+              provider.clozeSeed = rng.nextInt(256);
+              if (provider is RecommendProvider) {
+                provider.fetchStudyWords(index);
+                //TODO onError handle http failure
+                //     .whenComplete(() {
+                //   print('provider = ${provider.map((e) => e.wordId).join(', ')}');
+                //   //   print('words = ${provider.map((e) => e.word).join(', ')}');
+                // });
+                if (index == RecommendProvider.kMaxLength) {
+                  Future.delayed(Durations.extralong4, () {
+                    setState(() {
+                      provider.pageController.jumpToPage(0);
+                    });
                   });
-                });
-              } else if (index > 0 && provider.pageController.position.atEdge) {
-                //TODO: fetch http request error
-                print('at max page');
+                } else if (index > 0 &&
+                    provider.pageController.position.atEdge) {
+                  //TODO: fetch http request error
+                  print('at max page');
+                }
               }
-            }
-          },
-          itemBuilder: (context, index) {
-            final i = index % provider.length;
-            final word = provider[i];
-            return SliderPage(key: ValueKey(index), word: word);
-          },
-          itemCount: provider.length + (provider is RecommendProvider ? 1 : 0),
+            },
+            itemBuilder: (context, index) {
+              final i = index % provider.length;
+              final word = provider[i];
+              return SliderPage(key: ValueKey(index), word: word);
+            },
+            itemCount:
+                provider.length + (provider is RecommendProvider ? 1 : 0),
+          ),
         );
       },
     );

@@ -1,18 +1,16 @@
 import 'dart:math';
 
 import 'package:ai_vocabulary/app_route.dart';
-import 'package:ai_vocabulary/database/my_db.dart';
-import 'package:ai_vocabulary/utils/function.dart';
 import 'package:ai_vocabulary/widgets/capital_avatar.dart';
 import 'package:ai_vocabulary/widgets/entry_actions.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
-import 'package:im_charts/im_charts.dart';
 
 import '../model/vocabulary.dart';
 import '../widgets/definition_sliders.dart';
 import '../widgets/definition_tile.dart';
+import '../widgets/remember_retention.dart';
 
 class SliderPage extends StatefulWidget {
   const SliderPage({
@@ -162,24 +160,7 @@ class _SliderPageState extends State<SliderPage>
               aspectRatio: 1,
               child: GestureDetector(
                 onTap: () => Navigator.pushNamed(context, AppRoute.cloze),
-                child: ListenableBuilder(
-                  listenable: MyDB(),
-                  builder: (context, child) {
-                    final acquaintance =
-                        MyDB().getAcquaintance(widget.word.wordId);
-                    final acquaint = acquaintance.acquaint;
-                    final lastLearnedTime = acquaintance.lastLearnedTime;
-                    if (acquaint == 0 || lastLearnedTime == null) return child!;
-
-                    final fib = Fibonacci().sequence(acquaint);
-                    final elapsed =
-                        DateTime.now().millisecondsSinceEpoch ~/ 6e4 -
-                            lastLearnedTime;
-                    final percentage = retention(elapsed, fib);
-                    return ImPieChart(percentage: percentage);
-                  },
-                  child: const ImPieChart(),
-                ),
+                child: RememberRetention(wordID: widget.word.wordId),
               ),
             ),
           ),

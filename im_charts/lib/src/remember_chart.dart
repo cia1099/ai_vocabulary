@@ -250,6 +250,7 @@ class _RememberChartState extends State<RememberChart> {
 }
 
 double forgettingCurve(double t, [double fib = 1]) {
-  final r = log(t * 6 / fib).clamp(.0, double.infinity);
+  final f = (t * 6 / fib).clamp(1.0, double.infinity);
+  final r = log(f);
   return 1.84 / (r * r + 1.84);
 }

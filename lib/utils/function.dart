@@ -30,8 +30,8 @@ class Fibonacci {
   int call(int n) => sequence(n);
 }
 
-double retention(int inMinute, int fib) {
-  final factor = (4 * inMinute / 1440 / fib).clamp(1.0, double.infinity);
-  final r = log(factor);
-  return 1.84 / (r * r + 1.84);
-}
+// double retention(int inMinute, int fib) {
+//   final factor = (6 * inMinute / 1440 / fib).clamp(1.0, double.infinity);
+//   final r = log(factor);
+//   return 1.84 / (r * r + 1.84);
+// }

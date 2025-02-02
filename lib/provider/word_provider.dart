@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:ai_vocabulary/utils/function.dart';
 import 'package:ai_vocabulary/utils/shortcut.dart';
 import 'package:flutter/material.dart';
+import 'package:im_charts/im_charts.dart';
 
 import '../api/dict_api.dart';
 import '../app_settings.dart';
@@ -17,6 +19,7 @@ abstract class WordProvider {
   final _providerState = StreamController<Vocabulary?>();
   late final _provider = _providerState.stream.asBroadcastStream();
   var _completer = Completer<bool>();
+  var clozeSeed = 101; //To keep cloze example is the same when navigation occur
 
   Future<bool> get isReady => _completer.future;
 
@@ -109,11 +112,25 @@ class ReviewProvider extends WordProvider {
     }
     final reviewIDs = MyDB().fetchReviewWordIDs();
     final words = MyDB().fetchWords(reviewIDs);
-    _studyWords.clear();
-    _studyWords.addAll(words);
+    final fibonacci = Fibonacci();
+    words.sort((a, b) => calculateRetention(a, fibonacci)
+        .compareTo(calculateRetention(b, fibonacci)));
+    _studyWords
+      ..clear()
+      ..addAll(words);
     currentWord = _studyWords.firstOrNull;
     _completer.complete(true);
   }
+}
+
+double calculateRetention(Vocabulary word, Fibonacci fibonacci) {
+  final acquaint = word.acquaint;
+  final lastLearnedTime = word.lastLearnedTime;
+  if (acquaint == 0 || lastLearnedTime == null) return 0;
+  final fib = fibonacci(acquaint);
+  final inMinute =
+      DateTime.now().millisecondsSinceEpoch ~/ 6e4 - lastLearnedTime;
+  return forgettingCurve(inMinute / 1440, fib.toDouble());
 }
 
 Future<List<Vocabulary>> requestWords(Set<int> wordIds) async {
