@@ -102,6 +102,8 @@ class RecommendProvider extends WordProvider {
     final selector = WeightedSelector(candidateWords,
         candidateWords.map((w) => 1 - calculateRetention(w, fib)));
     final words = selector.sampleN(count);
+    MyDB().insertWords(
+        Stream.fromIterable(words.where((w) => requestIDs.contains(w.wordId))));
 
     if (_studyWords.length < kMaxLength) {
       _studyWords.addAll(words);
@@ -153,8 +155,8 @@ Future<List<Vocabulary>> requestWords(Set<int> wordIds) async {
       error = e;
     }
   }
-  MyDB.instance.insertWords(Stream.fromIterable(words));
-  return words..shuffle();
+  // MyDB.instance.insertWords(Stream.fromIterable(words));
+  return words;
 }
 
 Future<List<Vocabulary>> fetchWords(Iterable<int> wordIds, {int? take}) async {

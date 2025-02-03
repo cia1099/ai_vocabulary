@@ -36,6 +36,34 @@ LEFT OUTER JOIN examples ON examples.explanation_id = explanations.id
 WHERE words.id IN
 ''';
 
+const retention = '''
+WITH RECURSIVE Fibonacci(id, acquaint, n, a, b) AS (
+    SELECT word_id, acquaint, 0, 1, 1 
+    FROM acquaintances 
+    WHERE acquaint > 0
+    UNION ALL 
+    SELECT id, acquaint, n + 1, b, a + b 
+    FROM Fibonacci 
+    WHERE n + 1 <= acquaint
+),
+fibCTE AS (
+    SELECT id, MAX(a) AS fib 
+    FROM Fibonacci 
+    GROUP BY id
+)
+SELECT acq.word_id, acq.acquaint, acq.last_learned_time,
+    CASE 
+        WHEN acq.last_learned_time IS NULL OR acq.acquaint = 0
+        THEN 0.0 
+        WHEN (? - acq.last_learned_time) / 240.0 / f.fib >= 1.0 
+        THEN 1.84 / (POW(LN((? - acq.last_learned_time) / 240.0 / f.fib), 2) + 1.84) 
+        ELSE 1.0 
+    END AS retention
+FROM acquaintances acq
+JOIN fibCTE f ON acq.word_id = f.id
+ORDER BY retention ASC;
+''';
+
 const createDictionary = '''
 CREATE TABLE words (
         id INTEGER NOT NULL, 

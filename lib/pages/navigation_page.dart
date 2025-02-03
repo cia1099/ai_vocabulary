@@ -1,3 +1,4 @@
+import 'package:ai_vocabulary/app_settings.dart';
 import 'package:ai_vocabulary/model/vocabulary.dart';
 import 'package:ai_vocabulary/pages/collection_page.dart';
 import 'package:ai_vocabulary/widgets/imagen_dialog.dart';
@@ -101,13 +102,20 @@ class _NavigationPageState extends State<NavigationPage> {
 
                 return PlatformIconButton(
                   padding: EdgeInsets.zero,
-                  onPressed: () => _index == index
-                      ? null
-                      : setState(() {
-                          _index = index;
-                          widget.onTabChanged?.call(index);
-                          // widget.tabController.jumpToPage(index);
-                        }),
+                  onPressed: _index == index
+                      ? index != 0
+                          ? null
+                          : () => AppSettings.of(context)
+                              .wordProvider
+                              ?.pageController
+                              .animateToPage(0,
+                                  duration: Durations.medium3,
+                                  curve: Curves.easeIn)
+                      : () => setState(() {
+                            _index = index;
+                            widget.onTabChanged?.call(index);
+                            // widget.tabController.jumpToPage(index);
+                          }),
                   icon: Column(
                     children: [
                       Theme(

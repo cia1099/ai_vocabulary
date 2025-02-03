@@ -194,9 +194,8 @@ class _SliderPageState extends State<SliderPage>
                           Navigator.pushNamed(context, '/shit');
                         },
                         padding: EdgeInsets.zero,
-                        icon: Transform(
-                          alignment: const Alignment(0, 0),
-                          transform: Matrix4.rotationY(pi),
+                        icon: Transform.flip(
+                          flipX: true,
                           child: Icon(
                             CupertinoIcons.captions_bubble,
                             size: iconSize,

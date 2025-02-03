@@ -114,7 +114,10 @@ class _RememberChartState extends State<RememberChart> {
       lineBarsData: [
         generalCurve(minX, maxX, color: colorScheme.tertiary),
         generalCurve(minX, maxX,
-            color: colorScheme.primaryContainer,
+            color: CupertinoDynamicColor.withBrightness(
+                    color: colorScheme.inversePrimary,
+                    darkColor: colorScheme.primaryContainer)
+                .resolveFrom(context),
             fib: widget.trainingRate,
             shadow: true),
       ],

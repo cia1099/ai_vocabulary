@@ -31,13 +31,11 @@ class Fibonacci {
 }
 
 class WeightedSelector<T> {
-  final Iterable<T> elements;
-  final Iterable<double> weights;
   final Random _random = Random();
   List<T> _remainingElements = [];
   List<double> _remainingWeights = [];
 
-  WeightedSelector(this.elements, this.weights)
+  WeightedSelector(Iterable<T> elements, Iterable<double> weights)
       : assert(elements.length == weights.length) {
     _remainingElements = List.from(elements);
     _remainingWeights = List.from(weights);
@@ -49,7 +47,7 @@ class WeightedSelector<T> {
     List<double> cdf = _computeCDF(_remainingWeights);
     final r = _random.nextDouble();
 
-    int index = _binarySearch(cdf, r);
+    int index = _binaryApproach(cdf, r);
 
     T selected = _remainingElements.removeAt(index);
     _remainingWeights.removeAt(index);
@@ -74,7 +72,7 @@ class WeightedSelector<T> {
     }).toList();
   }
 
-  int _binarySearch(List<double> cdf, double target) {
+  int _binaryApproach(List<double> cdf, double target) {
     int low = 0, high = cdf.length - 1;
     while (low < high) {
       final mid = (low + high) >> 1;
