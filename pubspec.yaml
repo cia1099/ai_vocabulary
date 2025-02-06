@@ -50,6 +50,7 @@ flutter:
   assets:
     - assets/
     - assets/lottie/
+    - assets/sounds/
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 
