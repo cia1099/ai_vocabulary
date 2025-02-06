@@ -9,6 +9,7 @@ import 'package:ai_vocabulary/pages/cloze_page.dart';
 import 'package:ai_vocabulary/pages/vocabulary_page.dart';
 
 import 'app_settings.dart';
+import 'pages/report_page.dart';
 
 class AppRoute<T> extends PageRoute<T> {
   static const home = '/';
@@ -78,6 +79,8 @@ class AppRoute<T> extends PageRoute<T> {
                       Navigator.popUntil(context, (route) => route.isFirst);
                     },
             );
+          case AppRoute.report:
+            return ReportPage(wordId: currentWord!.wordId);
           default:
             return dummyDialog(context, path);
         }

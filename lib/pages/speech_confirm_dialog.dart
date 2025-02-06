@@ -222,6 +222,8 @@ class _SpeechConfirmDialogState extends State<SpeechConfirmDialog> {
                                   });
                                   textController.clear();
                                 },
+                                startRecordHint: () => immediatelyPlay(
+                                    'assets/sounds/speech_to_text_listening.m4r'),
                                 child: createAction(
                                   onPressed: enableRecord ? () {} : null,
                                   action: ConstrainedBox(

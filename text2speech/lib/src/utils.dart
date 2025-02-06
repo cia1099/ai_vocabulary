@@ -2,8 +2,7 @@ import 'dart:typed_data';
 
 import 'package:audioplayers/audioplayers.dart';
 
-Future<void> immediatelyPlay(String url,
-    [String? mimeType = 'audio/mp3']) async {
+Future<void> immediatelyPlay(String url, [String? mimeType]) async {
   // url = redirectUrl(url);
   final player = AudioPlayer();
   final subscript = player.onPlayerComplete.listen(
@@ -13,7 +12,8 @@ Future<void> immediatelyPlay(String url,
   if (url.contains('http')) {
     await player.play(UrlSource(url, mimeType: mimeType));
   } else if (url.contains('assets/')) {
-    await player.play(AssetSource(url, mimeType: mimeType));
+    await player
+        .play(AssetSource(url.replaceAll('assets/', ''), mimeType: mimeType));
   } else {
     await player.play(DeviceFileSource(url, mimeType: mimeType));
   }

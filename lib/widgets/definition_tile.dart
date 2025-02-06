@@ -178,5 +178,7 @@ class PartOfSpeechTitle extends StatelessWidget {
 
 VoidCallback playPhonetic(String? url,
     {required String word, gTTS gTTs = gTTS.US}) {
-  return url != null ? () => immediatelyPlay(url) : () => soundGTTs(word, gTTs);
+  return url != null
+      ? () => immediatelyPlay(url, 'audio/mp3')
+      : () => soundGTTs(word, gTTs);
 }

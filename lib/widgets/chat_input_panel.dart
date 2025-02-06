@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:speech_record/speech_record.dart';
+import 'package:text2speech/text2speech.dart';
 
 import '../database/my_db.dart';
 import '../model/message.dart';
@@ -91,6 +92,8 @@ class _ChatInputPanelState extends State<ChatInputPanel> {
                         return '${now.millisecondsSinceEpoch}.wav';
                       },
                       doneRecord: widget.delegate.doneRecord,
+                      startRecordHint: () => immediatelyPlay(
+                          'assets/sounds/speech_to_text_listening.m4r'),
                       blinkShape: RoundedRectangleBorder(
                           borderRadius:
                               BorderRadius.circular(kRadialReactionRadius)),

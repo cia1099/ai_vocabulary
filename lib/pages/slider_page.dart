@@ -127,18 +127,13 @@ class _SliderPageState extends State<SliderPage>
                   // foregroundColor: colorScheme.onSurfaceVariant,
                   backgroundColor: colorScheme.surfaceContainer,
                 ),
-                onPressed: () {
-                  // MyDB.instance.updateAcquaintance(
-                  //     wordId: word.wordId, acquaint: kMaxAcquaintance);
-                  // // Navigator.of(context)
-                  // //     .pushNamed(AppRoute.SliderPageVocabulary);
-                  // pushNamed(context, AppRoute.SliderPageVocabulary);
-                },
-                icon: Icon(CupertinoIcons.trash,
+                onPressed: () => Navigator.pushNamed(context, AppRoute.cloze),
+                icon: Icon(CupertinoIcons.square_arrow_right_fill,
                     color: colorScheme.onSurfaceVariant),
-                label: Text('Mark as too easy',
+                label: Text('Go to quiz',
                     style: TextStyle(color: colorScheme.onSurfaceVariant)),
               ),
+              const PhoneticButton(height: 110),
               const Expanded(child: SizedBox()),
             ],
           ),
@@ -177,69 +172,136 @@ class _SliderPageState extends State<SliderPage>
           child: FractionallySizedBox(
             widthFactor: .12,
             // heightFactor: .36,
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                final width = constraints.maxWidth;
-                final iconSize = width * .9;
-                return Container(
-                  // color: Colors.grey,
-                  margin: const EdgeInsets.only(
-                      bottom: kFloatingActionButtonMargin),
-                  child: Wrap(
-                    alignment: WrapAlignment.end,
-                    runSpacing: 8,
-                    children: [
-                      PlatformIconButton(
-                        onPressed: () {
-                          Navigator.pushNamed(context, '/shit');
-                        },
-                        padding: EdgeInsets.zero,
-                        icon: Transform.flip(
-                          flipX: true,
-                          child: Icon(
-                            CupertinoIcons.captions_bubble,
-                            size: iconSize,
-                          ),
-                        ),
-                        material: (_, __) => MaterialIconButtonData(
-                            style: IconButton.styleFrom(
-                                tapTargetSize:
-                                    MaterialTapTargetSize.shrinkWrap)),
-                      ),
-                      FavoriteStar(wordID: widget.word.wordId, size: iconSize),
-                      PlatformIconButton(
-                        onPressed: () {},
-                        padding: EdgeInsets.zero,
-                        icon: Transform(
-                            alignment: const Alignment(0, 0),
-                            transform: Matrix4.rotationY(pi),
-                            child: Icon(CupertinoIcons.reply, size: iconSize)),
-                        material: (_, __) => MaterialIconButtonData(
-                            style: IconButton.styleFrom(
-                                tapTargetSize:
-                                    MaterialTapTargetSize.shrinkWrap)),
-                      ),
-                      GestureDetector(
-                        onTap: () =>
-                            Navigator.pushNamed(context, AppRoute.vocabulary),
-                        child: CapitalAvatar(
-                          name: widget.word.word,
-                          id: widget.word.wordId,
-                          url: widget.word.asset,
-                          size: iconSize,
-                        ),
-                      )
-                    ],
-                  ),
-                );
-              },
-            ),
+            child: wordActions(),
           ),
         )
       ],
     );
   }
 
+  LayoutBuilder wordActions() {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
+        final iconSize = width * .9;
+        return Container(
+          // color: Colors.grey,
+          margin: const EdgeInsets.only(bottom: kFloatingActionButtonMargin),
+          child: Wrap(
+            alignment: WrapAlignment.end,
+            runSpacing: 8,
+            children: [
+              PlatformIconButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/shit');
+                },
+                padding: EdgeInsets.zero,
+                icon: Transform.flip(
+                  flipX: true,
+                  child: Icon(
+                    CupertinoIcons.captions_bubble,
+                    size: iconSize,
+                  ),
+                ),
+                material: (_, __) => MaterialIconButtonData(
+                    style: IconButton.styleFrom(
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap)),
+              ),
+              FavoriteStar(wordID: widget.word.wordId, size: iconSize),
+              PlatformIconButton(
+                onPressed: () => Navigator.pushNamed(context, AppRoute.report),
+                padding: EdgeInsets.zero,
+                icon: Transform(
+                    alignment: const Alignment(0, 0),
+                    transform: Matrix4.rotationY(pi),
+                    child: Icon(CupertinoIcons.reply, size: iconSize)),
+                material: (_, __) => MaterialIconButtonData(
+                    style: IconButton.styleFrom(
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap)),
+              ),
+              GestureDetector(
+                onTap: () => Navigator.pushNamed(context, AppRoute.vocabulary),
+                child: CapitalAvatar(
+                  name: widget.word.word,
+                  id: widget.word.wordId,
+                  url: widget.word.asset,
+                  size: iconSize,
+                ),
+              )
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   bool get wantKeepAlive => true;
+}
+
+class PhoneticButton extends StatefulWidget {
+  const PhoneticButton({
+    super.key,
+    required this.height,
+  });
+
+  final double height;
+
+  @override
+  State<PhoneticButton> createState() => _PhoneticButtonState();
+}
+
+class _PhoneticButtonState extends State<PhoneticButton> {
+  var isPress = false;
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final strokeColor = CupertinoDynamicColor.withBrightness(
+            color: colorScheme.secondaryContainer,
+            darkColor: colorScheme.secondary)
+        .resolveFrom(context);
+    final height = widget.height;
+    return GestureDetector(
+      onTapDown: (details) {
+        setState(() => isPress = true);
+      },
+      onTapUp: (details) {
+        setState(() => isPress = false);
+      },
+      child: AnimatedContainer(
+        duration: Durations.long2,
+        width: 200,
+        height: height,
+        decoration: BoxDecoration(
+            color: !isPress ? colorScheme.surfaceContainer : null,
+            borderRadius: BorderRadius.circular(kRadialReactionRadius)),
+        child: Stack(
+          alignment: const Alignment(0, 0),
+          children: [
+            // const SpeakRipple(progress: 1, diameter: height),
+            AnimatedPhysicalModel(
+              duration: Durations.long2,
+              color: strokeColor,
+              animateColor: false,
+              shadowColor: colorScheme.inverseSurface,
+              elevation: !isPress ? 4 : 1,
+              shape: BoxShape.circle,
+              child: CircleAvatar(
+                radius: height * .6 / 2,
+                backgroundColor: colorScheme.inversePrimary,
+                child: Icon(
+                  Icons.mic,
+                  size: height * .4,
+                  color: colorScheme.onPrimaryContainer,
+                ),
+              ),
+            ),
+            if (!isPress)
+              const Positioned(
+                  bottom: 0, child: Text('Press to speak out word')),
+          ],
+        ),
+      ),
+    );
+  }
 }
