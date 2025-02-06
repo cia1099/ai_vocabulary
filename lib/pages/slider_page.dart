@@ -8,6 +8,8 @@ import 'package:ai_vocabulary/widgets/entry_actions.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
+import 'package:speech_record/speech_record.dart';
+import 'package:text2speech/text2speech.dart';
 
 import '../model/vocabulary.dart';
 import '../widgets/definition_sliders.dart';
@@ -133,7 +135,11 @@ class _SliderPageState extends State<SliderPage>
                 label: Text('Go to quiz',
                     style: TextStyle(color: colorScheme.onSurfaceVariant)),
               ),
-              const PhoneticButton(height: 110),
+              PhoneticButton(
+                height: 105,
+                startRecordHint: () => immediatelyPlay(
+                    'assets/sounds/speech_to_text_listening.m4r'),
+              ),
               const Expanded(child: SizedBox()),
             ],
           ),
@@ -237,71 +243,4 @@ class _SliderPageState extends State<SliderPage>
 
   @override
   bool get wantKeepAlive => true;
-}
-
-class PhoneticButton extends StatefulWidget {
-  const PhoneticButton({
-    super.key,
-    required this.height,
-  });
-
-  final double height;
-
-  @override
-  State<PhoneticButton> createState() => _PhoneticButtonState();
-}
-
-class _PhoneticButtonState extends State<PhoneticButton> {
-  var isPress = false;
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final strokeColor = CupertinoDynamicColor.withBrightness(
-            color: colorScheme.secondaryContainer,
-            darkColor: colorScheme.secondary)
-        .resolveFrom(context);
-    final height = widget.height;
-    return GestureDetector(
-      onTapDown: (details) {
-        setState(() => isPress = true);
-      },
-      onTapUp: (details) {
-        setState(() => isPress = false);
-      },
-      child: AnimatedContainer(
-        duration: Durations.long2,
-        width: 200,
-        height: height,
-        decoration: BoxDecoration(
-            color: !isPress ? colorScheme.surfaceContainer : null,
-            borderRadius: BorderRadius.circular(kRadialReactionRadius)),
-        child: Stack(
-          alignment: const Alignment(0, 0),
-          children: [
-            // const SpeakRipple(progress: 1, diameter: height),
-            AnimatedPhysicalModel(
-              duration: Durations.long2,
-              color: strokeColor,
-              animateColor: false,
-              shadowColor: colorScheme.inverseSurface,
-              elevation: !isPress ? 4 : 1,
-              shape: BoxShape.circle,
-              child: CircleAvatar(
-                radius: height * .6 / 2,
-                backgroundColor: colorScheme.inversePrimary,
-                child: Icon(
-                  Icons.mic,
-                  size: height * .4,
-                  color: colorScheme.onPrimaryContainer,
-                ),
-              ),
-            ),
-            if (!isPress)
-              const Positioned(
-                  bottom: 0, child: Text('Press to speak out word')),
-          ],
-        ),
-      ),
-    );
-  }
 }

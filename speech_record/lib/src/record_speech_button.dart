@@ -95,7 +95,7 @@ class _RecordSpeechButtonState extends State<RecordSpeechButton> {
             child: StreamBuilder(
                 stream: record.onStateChanged(),
                 builder: (context, snapshot) => AnimatedSwitcher(
-                      duration: Durations.short2,
+                      duration: widget.protectLatency * .5,
                       child: snapshot.data != RecordState.record
                           ? widget.child
                           : ConstrainedBox(
@@ -128,19 +128,15 @@ class _RecordSpeechButtonState extends State<RecordSpeechButton> {
         stream: (Duration delay) async* {
           while (await record.isRecording()) {
             final ap = await record.getAmplitude();
-            yield ap.current;
+            yield (ap.current - kMinAmplitude) / -kMinAmplitude;
             await Future.delayed(delay);
           }
         }(Durations.short1),
         builder: (context, snapshot) {
-          final ap = snapshot.data ?? kMinAmplitude;
-          final radius =
-              ((ap.clamp(kMinAmplitude, kMaxAmplitude) - kMinAmplitude) /
-                      -kMinAmplitude)
-                  .clamp(.0, 1.0);
+          final ap = snapshot.data ?? .0;
           return ShaderMask(
             shaderCallback: (bounds) => RadialGradient(
-              radius: radius,
+              radius: ap,
               colors: colors,
               stops: stops,
             ).createShader(bounds),

@@ -1,7 +1,7 @@
 library speech_record;
 
 export 'src/record_speech_button.dart';
-export 'src/speak_ripple.dart';
+export 'src/phonetic_button.dart';
 
 //**
 //repository definition: https://github.com/llfbandit/record/issues/51
