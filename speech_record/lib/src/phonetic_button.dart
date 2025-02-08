@@ -13,11 +13,13 @@ class PhoneticButton extends StatefulWidget {
     required this.height,
     this.startRecordHint,
     this.protectLatency = Durations.long2,
+    this.doneRecord,
   });
 
   final double height;
   final Duration protectLatency;
   final VoidCallback? startRecordHint;
+  final void Function(List<int> wavBytes)? doneRecord;
 
   @override
   State<PhoneticButton> createState() => _PhoneticButtonState();
@@ -25,7 +27,7 @@ class PhoneticButton extends StatefulWidget {
 
 class _PhoneticButtonState extends State<PhoneticButton> {
   Timer? tapProtection;
-  final recordBytes = <int>[];
+  final pcmBuffer = <int>[];
   var isPress = false;
   final recorder = AudioRecorder();
   late var futurePermission = Future.value(true); //recorder.hasPermission();
@@ -56,14 +58,17 @@ class _PhoneticButtonState extends State<PhoneticButton> {
             setState(() => isPress = true);
             tapProtection = Timer(widget.protectLatency, () async {
               final recordStream = await recorder.startStream(
-                  const RecordConfig(encoder: AudioEncoder.pcm16bits));
+                  const RecordConfig(
+                      encoder: AudioEncoder.pcm16bits,
+                      sampleRate: kAzureSampleRate,
+                      bitRate: kAzureBitRate));
               widget.startRecordHint?.call();
-              recordBytes.clear();
               await for (final bytes in recordStream) {
-                recordBytes.addAll(bytes);
+                pcmBuffer.addAll(bytes);
               }
-              //TODO: http request here
-              print('finished record we got length:${recordBytes.length}');
+              widget.doneRecord?.call(
+                  convertPcmToWav(pcmBuffer, sampleRate: kAzureSampleRate));
+              pcmBuffer.clear();
             });
           },
           onTapUp: (details) {

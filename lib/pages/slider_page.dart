@@ -1,5 +1,7 @@
 import 'dart:math';
+import 'dart:typed_data';
 
+import 'package:ai_vocabulary/api/dict_api.dart';
 import 'package:ai_vocabulary/app_route.dart';
 import 'package:ai_vocabulary/database/my_db.dart';
 import 'package:ai_vocabulary/model/acquaintance.dart';
@@ -139,6 +141,15 @@ class _SliderPageState extends State<SliderPage>
                 height: 105,
                 startRecordHint: () => immediatelyPlay(
                     'assets/sounds/speech_to_text_listening.m4r'),
+                doneRecord: (bytes) async {
+                  bytesPlay(Uint8List.fromList(bytes), 'audio/wav');
+                  try {
+                    final sr = await recognizeSpeechBytes(bytes);
+                    print(sr.text);
+                  } catch (e) {
+                    print(e.toString());
+                  }
+                },
               ),
               const Expanded(child: SizedBox()),
             ],

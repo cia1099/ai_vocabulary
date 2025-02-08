@@ -98,6 +98,29 @@ Future<SpeechRecognition> recognizeSpeech(String filePath) async {
   }
 }
 
+Future<SpeechRecognition> recognizeSpeechBytes(List<int> bytes) async {
+  final url = Uri.http(baseURL, '/dict/chat/speech');
+  final headers = {
+    'Content-Type': 'multipart/form-data',
+  };
+  final request = http.MultipartRequest('POST', url)..headers.addAll(headers);
+  request.files.add(http.MultipartFile.fromBytes(
+    'speech',
+    bytes,
+    filename: 'temporary.wav',
+    contentType: MediaType('audio', 'wav'),
+  ));
+  final res = await request.send();
+  final body = utf8.decode(await res.stream.last);
+  if (res.statusCode == 200) {
+    final apiResponse = ApiResponse.fromRawJson(body);
+    if (apiResponse.status != 200) throw ApiException(apiResponse.content);
+    return SpeechRecognition.fromRawJson(apiResponse.content);
+  } else {
+    throw HttpException(body, uri: url);
+  }
+}
+
 Future<ApiResponse> _httpGet(Uri url) async {
   try {
     final res = await http.get(url).timeout(kHttpTimeOut);
