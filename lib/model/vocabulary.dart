@@ -8,7 +8,7 @@ class Vocabulary {
   final List<Definition> definitions;
   final String? asset;
   int acquaint;
-  final int? lastLearnedTime;
+  int? lastLearnedTime;
 
   Vocabulary({
     required this.wordId,

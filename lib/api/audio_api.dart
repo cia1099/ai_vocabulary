@@ -29,3 +29,50 @@ Future<void> soundAzure(String text,
     throw HttpException(res.body, uri: url);
   }
 }
+
+Future<SpeechRecognition> recognizeSpeech(String filePath) async {
+  final url = Uri.http(baseURL, '/dict/chat/speech');
+  final headers = {
+    'Content-Type': 'multipart/form-data',
+  };
+  final request = http.MultipartRequest('POST', url)..headers.addAll(headers);
+  request.files.add(await http.MultipartFile.fromPath(
+    'speech',
+    filePath,
+    filename: p.basename(filePath),
+    contentType: MediaType('audio', p.extension(filePath).substring(1)),
+  ));
+  final res = await request.send();
+  final body = utf8.decode(await res.stream.last);
+  if (res.statusCode == 200) {
+    final apiResponse = ApiResponse.fromRawJson(body);
+    if (apiResponse.status != 200) throw ApiException(apiResponse.content);
+    return SpeechRecognition.fromRawJson(apiResponse.content);
+  } else {
+    throw HttpException(body, uri: url);
+  }
+}
+
+Future<SpeechRecognition> recognizeSpeechBytes(List<int> bytes,
+    {String filename = 'temporary.wav'}) async {
+  final url = Uri.http(baseURL, '/dict/chat/speech');
+  final headers = {
+    'Content-Type': 'multipart/form-data',
+  };
+  final request = http.MultipartRequest('POST', url)..headers.addAll(headers);
+  request.files.add(http.MultipartFile.fromBytes(
+    'speech',
+    bytes,
+    filename: filename,
+    contentType: MediaType('audio', p.extension(filename).substring(1)),
+  ));
+  final res = await request.send();
+  final body = utf8.decode(await res.stream.last);
+  if (res.statusCode == 200) {
+    final apiResponse = ApiResponse.fromRawJson(body);
+    if (apiResponse.status != 200) throw ApiException(apiResponse.content);
+    return SpeechRecognition.fromRawJson(apiResponse.content);
+  } else {
+    throw HttpException(body, uri: url);
+  }
+}

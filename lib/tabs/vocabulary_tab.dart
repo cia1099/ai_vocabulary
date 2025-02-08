@@ -144,9 +144,9 @@ class _VocabularyTabState extends State<VocabularyTab>
         return ListenableBuilder(
           listenable: MyDB(),
           builder: (context, child) => PageView.builder(
-            key: PageStorageKey(provider),
+            // key: PageStorageKey(provider),
+            // findChildIndexCallback: (key) => (key as ValueKey).value,
             scrollDirection: Axis.vertical,
-            findChildIndexCallback: (key) => (key as ValueKey).value,
             controller: provider.pageController,
             onPageChanged: (index) {
               provider.currentWord = provider[index % provider.length];
@@ -174,7 +174,7 @@ class _VocabularyTabState extends State<VocabularyTab>
             itemBuilder: (context, index) {
               final i = index % provider.length;
               final word = provider[i];
-              return SliderPage(key: ValueKey(index), word: word);
+              return SliderPage(word: word);
             },
             itemCount:
                 provider.length + (provider is RecommendProvider ? 1 : 0),

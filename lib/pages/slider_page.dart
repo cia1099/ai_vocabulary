@@ -30,12 +30,10 @@ class SliderPage extends StatefulWidget {
   State<SliderPage> createState() => _SliderPageState();
 }
 
-class _SliderPageState extends State<SliderPage>
-    with AutomaticKeepAliveClientMixin {
+class _SliderPageState extends State<SliderPage> {
   Acquaintance? acquaintance;
   @override
   Widget build(BuildContext context) {
-    super.build(context);
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
     final screenWidth = MediaQuery.of(context).size.width;
@@ -49,6 +47,8 @@ class _SliderPageState extends State<SliderPage>
           lastLearnedTime: widget.word.lastLearnedTime);
     } else {
       acquaintance = MyDB().getAcquaintance(widget.word.wordId);
+      widget.word.acquaint = acquaintance!.acquaint;
+      widget.word.lastLearnedTime = acquaintance!.lastLearnedTime;
     }
     return Stack(
       children: [
@@ -251,7 +251,4 @@ class _SliderPageState extends State<SliderPage>
       },
     );
   }
-
-  @override
-  bool get wantKeepAlive => true;
 }

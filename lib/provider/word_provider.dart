@@ -5,6 +5,7 @@ import 'package:ai_vocabulary/utils/function.dart';
 import 'package:ai_vocabulary/utils/shortcut.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:im_charts/im_charts.dart';
 
 import '../api/dict_api.dart';
@@ -15,7 +16,8 @@ import '../utils/regex.dart';
 
 abstract class WordProvider {
   final _studyWords = <Vocabulary>[];
-  final pageController = PageController();
+  late final pageController =
+      PageController(onAttach: _onAttach, keepPage: false);
   Vocabulary? _currentWord;
   final _providerState = StreamController<Vocabulary?>();
   late final _provider = _providerState.stream.asBroadcastStream();
@@ -62,6 +64,15 @@ abstract class WordProvider {
           duration: Durations.medium3, curve: Curves.easeInBack);
     });
     MyDB().notifyListeners();
+  }
+
+  void _onAttach(ScrollPosition position) {
+    final page = _studyWords.indexWhere((w) => w == currentWord);
+    if (page > -1) {
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        if (position.haveDimensions) pageController.jumpToPage(page);
+      });
+    }
   }
 }
 
