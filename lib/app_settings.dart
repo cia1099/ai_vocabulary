@@ -14,6 +14,7 @@ class MySettings extends ChangeNotifier {
   int _color = 0;
   Brightness _brightness = Brightness.light;
   WordProvider? _wordProvider;
+  bool _hideSliderTitle = false;
 
   int get color => _color;
   set color(int newColor) {
@@ -35,6 +36,14 @@ class MySettings extends ChangeNotifier {
     if (identical(_wordProvider, other)) return;
     _wordProvider = other;
     notifyListeners();
+  }
+
+  bool get hideSliderTitle => _hideSliderTitle;
+  set hideSliderTitle(bool isHide) {
+    if (_hideSliderTitle ^ isHide) {
+      _hideSliderTitle = isHide;
+      notifyListeners();
+    }
   }
 
   @override

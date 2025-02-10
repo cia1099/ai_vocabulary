@@ -83,10 +83,11 @@ class SettingTab extends StatelessWidget {
                     ),
                   ),
                   PlatformListTile(
-                    title: const Text('Find friends from my contact list'),
+                    title: const Text('Does hide vocabulary title in sliders?'),
                     trailing: PlatformSwitch(
-                      value: switches[6],
-                      onChanged: (value) => setState(() => switches[6] = value),
+                      value: AppSettings.of(context).hideSliderTitle,
+                      onChanged: (value) =>
+                          AppSettings.of(context).hideSliderTitle = value,
                     ),
                   ),
                   PlatformListTile(

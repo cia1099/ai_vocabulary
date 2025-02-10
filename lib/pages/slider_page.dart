@@ -30,12 +30,14 @@ class SliderPage extends StatefulWidget {
   State<SliderPage> createState() => _SliderPageState();
 }
 
-class _SliderPageState extends State<SliderPage> {
+class _SliderPageState extends State<SliderPage>
+    with AutomaticKeepAliveClientMixin {
   Acquaintance? acquaintance;
   final titleKey = GlobalKey<SliderTitleState>();
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
     final screenWidth = MediaQuery.of(context).size.width;
@@ -83,7 +85,10 @@ class _SliderPageState extends State<SliderPage> {
               Container(
                 // color: Colors.green,
                 constraints: BoxConstraints.tightFor(height: 250 - 80 - dH),
-                child: SliderTitle(key: titleKey, word: widget.word),
+                child: SliderTitle(
+                    key: titleKey,
+                    updateKeepAlive: updateKeepAlive,
+                    word: widget.word),
               ),
               Container(
                 // color: Colors.red,
@@ -230,4 +235,7 @@ class _SliderPageState extends State<SliderPage> {
       },
     );
   }
+
+  @override
+  bool get wantKeepAlive => titleKey.currentState?.isCorrect ?? false;
 }

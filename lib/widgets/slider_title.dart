@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:ai_vocabulary/app_settings.dart';
 import 'package:ai_vocabulary/utils/shortcut.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -12,9 +13,10 @@ import '../model/chat_answer.dart';
 import '../model/vocabulary.dart';
 
 class SliderTitle extends StatefulWidget {
-  const SliderTitle({super.key, required this.word});
+  const SliderTitle({super.key, required this.word, this.updateKeepAlive});
 
   final Vocabulary word;
+  final VoidCallback? updateKeepAlive;
   @override
   State<SliderTitle> createState() => SliderTitleState();
 }
@@ -59,14 +61,15 @@ class SliderTitleState extends State<SliderTitle> {
             ),
           ],
         ),
-        AnimatedOpacity(
-          duration: Durations.extralong1,
-          opacity: isCorrect ? .0 : 1.0,
-          child: const CupertinoPopupSurface(
-            isSurfacePainted: false,
-            child: Center(),
+        if (AppSettings.of(context).hideSliderTitle)
+          AnimatedOpacity(
+            duration: Durations.extralong1,
+            opacity: isCorrect ? .0 : 1.0,
+            child: const CupertinoPopupSurface(
+              isSurfacePainted: false,
+              child: Center(),
+            ),
           ),
-        ),
         Center(
           child: StreamBuilder(
             stream: (future) async* {
@@ -133,12 +136,15 @@ class SliderTitleState extends State<SliderTitle> {
         widget.word.getMatchingPatterns.where((w) => recognition.contains(w));
     final correctColor = CupertinoColors.systemGreen.resolveFrom(context);
     if (correct.isNotEmpty) {
-      if (!isCorrect) {
-        SchedulerBinding.instance.scheduleTask(
-            () => setState(() {
-                  isCorrect = true;
-                }),
-            Priority.idle);
+      if (!isCorrect && AppSettings.of(context).hideSliderTitle) {
+        SchedulerBinding.instance.scheduleTask(() {
+          if (mounted) {
+            setState(() {
+              isCorrect = true;
+            });
+            widget.updateKeepAlive?.call();
+          }
+        }, Priority.idle);
       }
       return Text(correct.first,
           key: const Key('correct'),
