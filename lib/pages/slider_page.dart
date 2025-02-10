@@ -1,12 +1,12 @@
 import 'dart:math';
 import 'dart:typed_data';
 
-import 'package:ai_vocabulary/api/dict_api.dart';
 import 'package:ai_vocabulary/app_route.dart';
 import 'package:ai_vocabulary/database/my_db.dart';
 import 'package:ai_vocabulary/model/acquaintance.dart';
 import 'package:ai_vocabulary/widgets/capital_avatar.dart';
 import 'package:ai_vocabulary/widgets/entry_actions.dart';
+import 'package:ai_vocabulary/widgets/slider_title.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
@@ -32,6 +32,8 @@ class SliderPage extends StatefulWidget {
 
 class _SliderPageState extends State<SliderPage> {
   Acquaintance? acquaintance;
+  final titleKey = GlobalKey<SliderTitleState>();
+
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
@@ -50,82 +52,64 @@ class _SliderPageState extends State<SliderPage> {
       widget.word.acquaint = acquaintance!.acquaint;
       widget.word.lastLearnedTime = acquaintance!.lastLearnedTime;
     }
+    final labelHeight =
+        textTheme.bodyMedium!.fontSize! * textTheme.bodyMedium!.height! + 10;
+    final dH = acquaintance?.lastLearnedTime == null ? .0 : labelHeight;
+    // final textbutton = TextButton.icon(
+    //   onPressed: () {},
+    //   label: const Text('123'),
+    // ).defaultStyleOf(context).minimumSize?.resolve({WidgetState.hovered});
+    // final remainHeight = MediaQuery.sizeOf(context).height -
+    //     250 -
+    //     kToolbarHeight -
+    //     116 -
+    //     hPadding -
+    //     80 -
+    //     DefinitionSliders.kDefaultHeight -
+    //     textbutton!.height;
+    // print(textbutton);
+    // print('remain height = $remainHeight');
     return Stack(
       children: [
         Padding(
           padding: EdgeInsets.only(
-              top: 100 + hPadding, left: hPadding, right: hPadding),
+              top: 100 + hPadding + 16, left: hPadding, right: hPadding),
           child: Column(
             children: [
+              //#begin height=250
+              LearnedLabel(
+                lastLearnedTime: acquaintance?.lastLearnedTime,
+              ),
               Container(
                 // color: Colors.green,
-                height: 250,
-                width: double.maxFinite,
-                margin: const EdgeInsets.only(top: 16),
-                child: Column(
-                  children: [
-                    SizedBox(
-                      height: 250 - 80,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          LearnedLabel(
-                            lastLearnedTime: acquaintance?.lastLearnedTime,
-                          ),
-                          Text(
-                            widget.word.word,
-                            style: textTheme.displayMedium,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          Wrap(
-                            spacing: 8,
-                            runSpacing: 4,
-                            children: widget.word.getInflection
-                                .map((e) => Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 4, horizontal: 8),
-                                      decoration: BoxDecoration(
-                                          color: colorScheme.primaryContainer,
-                                          borderRadius: BorderRadius.circular(
-                                              textTheme.bodyMedium!.fontSize!)),
-                                      child: Text(e,
-                                          style: TextStyle(
-                                              color: colorScheme
-                                                  .onPrimaryContainer)),
-                                    ))
-                                .toList(),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Container(
-                      // color: Colors.red,
-                      height: 80,
-                      alignment: const Alignment(0, 0),
-                      child: Wrap(
-                        children: phonetics
-                            .map(
-                              (p) => RichText(
-                                text: TextSpan(children: [
-                                  TextSpan(text: '\t' * 4),
-                                  TextSpan(text: p.phonetic),
-                                  TextSpan(text: '\t' * 2),
-                                  WidgetSpan(
-                                      child: GestureDetector(
-                                          onTap: playPhonetic(p.audioUrl,
-                                              word: widget.word.word),
-                                          child: const Icon(
-                                              CupertinoIcons.volume_up)))
-                                ], style: textTheme.titleLarge),
-                              ),
-                            )
-                            .toList(),
-                      ),
-                    )
-                  ],
+                constraints: BoxConstraints.tightFor(height: 250 - 80 - dH),
+                child: SliderTitle(key: titleKey, word: widget.word),
+              ),
+              Container(
+                // color: Colors.red,
+                height: 80,
+                alignment: const Alignment(0, 0),
+                child: Wrap(
+                  children: phonetics
+                      .map(
+                        (p) => RichText(
+                          text: TextSpan(children: [
+                            TextSpan(text: '\t' * 4),
+                            TextSpan(text: p.phonetic),
+                            TextSpan(text: '\t' * 2),
+                            WidgetSpan(
+                                child: GestureDetector(
+                                    onTap: playPhonetic(p.audioUrl,
+                                        word: widget.word.word),
+                                    child:
+                                        const Icon(CupertinoIcons.volume_up)))
+                          ], style: textTheme.titleLarge),
+                        ),
+                      )
+                      .toList(),
                 ),
               ),
+              //#end height=250
               TextButton.icon(
                 style: TextButton.styleFrom(
                   // foregroundColor: colorScheme.onSurfaceVariant,
@@ -141,14 +125,9 @@ class _SliderPageState extends State<SliderPage> {
                 height: 105,
                 startRecordHint: () => immediatelyPlay(
                     'assets/sounds/speech_to_text_listening.m4r'),
-                doneRecord: (bytes) async {
+                doneRecord: (bytes) {
                   bytesPlay(Uint8List.fromList(bytes), 'audio/wav');
-                  try {
-                    final sr = await recognizeSpeechBytes(bytes);
-                    print(sr.text);
-                  } catch (e) {
-                    print(e.toString());
-                  }
+                  titleKey.currentState?.inputSpeech(bytes);
                 },
               ),
               const Expanded(child: SizedBox()),

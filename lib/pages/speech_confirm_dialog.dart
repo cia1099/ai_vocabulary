@@ -83,7 +83,7 @@ class _SpeechConfirmDialogState extends State<SpeechConfirmDialog> {
                                     Card.filled(
                                         margin: const EdgeInsets.symmetric(
                                             horizontal: 12),
-                                        shape: ContinuousRectangleBorder(
+                                        shape: RoundedRectangleBorder(
                                             side: BorderSide(
                                                 color: textTheme
                                                     .navActionTextStyle.color!,

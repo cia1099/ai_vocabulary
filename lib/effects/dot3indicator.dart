@@ -15,8 +15,8 @@ class DotDotDotIndicator extends StatelessWidget {
         final num = index % 3;
         final colors = [
           dotColor,
-          dotColor.withOpacity(0.7),
-          dotColor.withOpacity(0.4),
+          dotColor.withValues(alpha: 0.7),
+          dotColor.withValues(alpha: 0.4),
         ];
         return DecoratedBox(
           decoration: BoxDecoration(color: colors[num], shape: BoxShape.circle),

@@ -43,9 +43,10 @@ class LearnedLabel extends StatelessWidget {
       offstage: lastLearnedTime == null,
       child: Container(
         padding: const EdgeInsets.all(4),
-        decoration:
-            BoxDecoration(border: Border.all(color: colorScheme.onSurface)),
-        child: Text("${title(lastLearnedTime)}"),
+        decoration: BoxDecoration(
+            // color: Colors.yellow,
+            border: Border.all(color: colorScheme.onSurface)),
+        child: Text("${title(lastLearnedTime)}", maxLines: 1),
       ),
     );
   }
