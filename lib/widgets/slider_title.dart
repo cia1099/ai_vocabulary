@@ -13,21 +13,22 @@ import '../model/chat_answer.dart';
 import '../model/vocabulary.dart';
 
 class SliderTitle extends StatefulWidget {
-  const SliderTitle({super.key, required this.word, this.updateKeepAlive});
+  const SliderTitle({super.key, required this.word});
 
   final Vocabulary word;
-  final VoidCallback? updateKeepAlive;
   @override
   State<SliderTitle> createState() => SliderTitleState();
 }
 
-class SliderTitleState extends State<SliderTitle> {
+class SliderTitleState extends State<SliderTitle>
+    with AutomaticKeepAliveClientMixin {
   var futureRecognize =
       Future.value(SpeechRecognition(text: '', recognize: true));
   var isCorrect = false;
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
     return Stack(
@@ -142,9 +143,9 @@ class SliderTitleState extends State<SliderTitle> {
             setState(() {
               isCorrect = true;
             });
-            widget.updateKeepAlive?.call();
+            updateKeepAlive();
           }
-        }, Priority.idle);
+        }, Priority.touch);
       }
       return Text(correct.first,
           key: const Key('correct'),
@@ -174,4 +175,7 @@ class SliderTitleState extends State<SliderTitle> {
       style: textTheme.displayMedium,
     );
   }
+
+  @override
+  bool get wantKeepAlive => isCorrect;
 }
