@@ -30,8 +30,8 @@ class RequireChatBubble extends StatelessWidget {
     final leadingWidth = screenWidth * .1;
     final contentWidth = screenWidth * (.75 + (leading == null ? .1 : 0));
     final req = message;
-    final future = chatVocabulary(
-            req.vocabulary.split(', ').first, req.content, req.timeStamp >= 0)
+    final future = chatVocabulary(req.vocabulary.split(', ').first, req.content,
+            req.srcMsg.timeStamp == 0)
         .then((ans) async {
       if (!ChatBubble.showContents.value) await soundAzure(ans.answer);
       return ans;

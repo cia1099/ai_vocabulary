@@ -136,7 +136,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> implements ChatInput {
                         messages.add(RequireMessage(
                           srcMsg: TextMessage(
                               content: tips[index],
-                              timeStamp: 0,
+                              timeStamp: 0, //used to help
                               wordID: widget.word.wordId,
                               patterns: [widget.word.word]),
                         ));
@@ -201,7 +201,8 @@ class _ChatRoomPageState extends State<ChatRoomPage> implements ChatInput {
 
   bool sendMessage(TextMessage message) {
     setState(() {
-      messages.removeWhere((msg) => msg is RequireMessage);
+      messages.removeWhere(
+          (msg) => msg is RequireMessage && identical(msg.srcMsg, message));
       messages.add(RequireMessage(srcMsg: message));
     });
     return false; //reset hasError

@@ -182,8 +182,9 @@ class _ChatInputPanelState extends State<ChatInputPanel> {
                 : () {
                     focusNode.unfocus();
                     widget.delegate.onSubmit(InfoMessage(
-                        content: textController.text,
-                        timeStamp: DateTime.now().millisecondsSinceEpoch));
+                      content: textController.text,
+                      // timeStamp: DateTime.now().millisecondsSinceEpoch
+                    ));
                     textController.clear();
                   },
             icon: icon,

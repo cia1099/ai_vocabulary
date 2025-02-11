@@ -9,10 +9,8 @@ abstract class Message {
   final String? userID;
 
   Message(
-      {this.wordID = -1,
-      required this.content,
-      required this.timeStamp,
-      this.userID});
+      {this.wordID = -1, required this.content, this.userID, int? timeStamp})
+      : timeStamp = timeStamp ?? DateTime.now().millisecondsSinceEpoch;
 }
 
 class TextMessage extends Message with ChangeNotifier {
@@ -20,9 +18,9 @@ class TextMessage extends Message with ChangeNotifier {
   var _hasError = false;
   TextMessage(
       {required super.content,
-      required super.timeStamp,
       required super.wordID,
       this.patterns = const Iterable.empty(),
+      super.timeStamp,
       super.userID})
       : assert(wordID > 0);
   bool get hasError => _hasError;
@@ -58,7 +56,7 @@ class TextMessage extends Message with ChangeNotifier {
 class InfoMessage extends Message {
   InfoMessage({
     required super.content,
-    required super.timeStamp,
+    super.timeStamp,
   });
 }
 
@@ -67,7 +65,6 @@ class RequireMessage extends Message {
   final TextMessage srcMsg;
   RequireMessage({
     required this.srcMsg,
-    super.timeStamp = -1,
   })  : vocabulary = srcMsg.patterns.join(', '),
         super(wordID: srcMsg.wordID, content: srcMsg.content);
 }

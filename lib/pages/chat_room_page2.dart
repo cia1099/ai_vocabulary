@@ -86,6 +86,7 @@ class ChatListTile extends StatelessWidget {
         );
       case RequireMessage:
         return RequireChatBubble(
+            key: ValueKey(message.timeStamp),
             leading: leading,
             message: message as RequireMessage,
             upgradeMessage: upgradeMessage);
