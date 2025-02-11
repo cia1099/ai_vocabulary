@@ -82,13 +82,15 @@ Future<ApiResponse> _httpGet(Uri url) async {
       throw HttpException(res.body, uri: url);
     }
     return ApiResponse.fromRawJson(res.body);
-  } on TimeoutException {
-    rethrow;
-  } on http.ClientException catch (e) {
-    throw TimeoutException("$e");
   } catch (_) {
     rethrow;
   }
+  // on TimeoutException {
+  //   rethrow;
+  // }
+  // on http.ClientException catch (e) {
+  //   throw TimeoutException(e.message);
+  // }
 }
 
 class ApiResponse {

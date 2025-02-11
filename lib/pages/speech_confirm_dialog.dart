@@ -1,7 +1,9 @@
 import 'dart:io';
 
 import 'package:ai_vocabulary/api/dict_api.dart';
+import 'package:ai_vocabulary/model/chat_answer.dart';
 import 'package:ai_vocabulary/model/message.dart';
+import 'package:ai_vocabulary/utils/handle_except.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
@@ -44,255 +46,147 @@ class _SpeechConfirmDialogState extends State<SpeechConfirmDialog> {
         int.parse(p.withoutExtension(p.basename(widget.filePath)));
     return Padding(
       padding: MediaQuery.of(context).viewInsets,
-      child: Stack(
-        children: [
-          Align(
-            alignment: const Alignment(0, .7),
-            child: FractionallySizedBox(
-              widthFactor: .9,
-              child: CupertinoPopupSurface(
-                child: Padding(
-                  padding: EdgeInsets.only(top: hPadding),
-                  child: FutureBuilder(
-                    future: futureRecognition,
-                    builder: (context, snapshot) {
-                      final enableRecord =
-                          snapshot.connectionState != ConnectionState.waiting &&
-                              !editMode;
-                      return Wrap(
-                        alignment: WrapAlignment.center,
-                        children: [
-                          Text(
-                            textController.text.isEmpty
-                                ? 'Speech Recognizing...'
-                                : 'Did you say this paragraph?',
-                            style: textTheme.navTitleTextStyle,
-                          ),
-                          ConstrainedBox(
-                            constraints: const BoxConstraints(
-                                minHeight: 128, minWidth: double.infinity),
-                            child: Padding(
-                              padding: EdgeInsets.only(
-                                  left: hPadding,
-                                  right: hPadding,
-                                  bottom: hPadding),
-                              child: IntrinsicHeight(
-                                child: Stack(
-                                  fit: StackFit.passthrough,
-                                  children: [
-                                    Card.filled(
-                                        margin: const EdgeInsets.symmetric(
-                                            horizontal: 12),
-                                        shape: RoundedRectangleBorder(
-                                            side: BorderSide(
-                                                color: textTheme
-                                                    .navActionTextStyle.color!,
-                                                width: 2),
-                                            borderRadius: BorderRadius.circular(
-                                                kRadialReactionRadius)),
-                                        child: snapshot.connectionState ==
-                                                ConnectionState.waiting
-                                            ? Center(
-                                                child: SpinKitWave(
-                                                    size: 36,
-                                                    itemCount: 7,
-                                                    color:
-                                                        colorScheme.tertiary))
-                                            : snapshot.hasError
-                                                ? Center(
-                                                    child: Text(
-                                                        '${snapshot.error}',
-                                                        style: TextStyle(
-                                                            color: colorScheme
-                                                                .error)))
-                                                : CupertinoTextField.borderless(
-                                                    focusNode: focusNode,
-                                                    autofocus: editMode,
-                                                    readOnly: !editMode,
-                                                    controller: textController,
-                                                    placeholder:
-                                                        "Sorry we can't recognize your speech",
-                                                    placeholderStyle: TextStyle(
-                                                        color: colorScheme
-                                                            .onTertiaryContainer),
-                                                    maxLines: null,
-                                                    textAlignVertical:
-                                                        TextAlignVertical
-                                                            .center,
-                                                    textAlign: TextAlign.center,
-                                                    textInputAction:
-                                                        TextInputAction.done,
-                                                    onChanged: (value) =>
-                                                        textController.text =
-                                                            value,
-                                                    onEditingComplete: () =>
-                                                        setState(() {
-                                                      editMode = false;
-                                                    }),
-                                                  )),
-                                    playAlign(),
-                                  ],
-                                ),
-                              ),
+      child: Align(
+        alignment: const Alignment(0, .7),
+        child: FractionallySizedBox(
+          widthFactor: .9,
+          child: CupertinoPopupSurface(
+            child: FutureBuilder(
+              future: futureRecognition,
+              builder: (context, snapshot) {
+                final enableRecord =
+                    snapshot.connectionState != ConnectionState.waiting &&
+                        !editMode;
+                return Wrap(
+                  alignment: WrapAlignment.center,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(top: hPadding),
+                      child: Text(
+                        textController.text.isEmpty
+                            ? 'Speech Recognizing...'
+                            : 'Did you say this paragraph?',
+                        style: textTheme.navTitleTextStyle,
+                      ),
+                    ),
+                    Container(
+                      constraints: const BoxConstraints(minHeight: 128),
+                      padding: EdgeInsets.only(
+                          left: hPadding, right: hPadding, bottom: hPadding),
+                      child: IntrinsicHeight(
+                        child: Stack(
+                          fit: StackFit.passthrough,
+                          children: [
+                            Card.filled(
+                              margin:
+                                  const EdgeInsets.symmetric(horizontal: 12),
+                              shape: RoundedRectangleBorder(
+                                  side: BorderSide(
+                                      color:
+                                          textTheme.navActionTextStyle.color!,
+                                      width: 2),
+                                  borderRadius: BorderRadius.circular(
+                                      kRadialReactionRadius)),
+                              child: displaySpeech(snapshot, colorScheme),
                             ),
-                          ),
-                          ConstrainedBox(
-                            constraints:
-                                const BoxConstraints(minWidth: double.infinity),
-                            child: createAction(
-                              onPressed: textController.text.isNotEmpty
-                                  ? () => Navigator.of(context).pop(InfoMessage(
-                                      content: textController.text,
-                                      timeStamp: timeStamp))
-                                  : null,
-                              action: ConstrainedBox(
-                                constraints:
-                                    const BoxConstraints(maxWidth: 250 / 2),
-                                child: Stack(
-                                  alignment: AlignmentDirectional.center,
-                                  children: [
-                                    Align(
-                                      alignment: const Alignment(-1, 0),
-                                      child: Builder(
-                                          builder: (context) => Icon(
-                                              CupertinoIcons.shift,
-                                              color:
-                                                  DefaultTextStyle.of(context)
-                                                      .style
-                                                      .color)),
-                                    ),
-                                    const Center(child: Text('Confirm')),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                          ConstrainedBox(
-                            constraints:
-                                const BoxConstraints(minWidth: double.infinity),
-                            child: createAction(
-                              onPressed: snapshot.data != null &&
-                                      snapshot.connectionState !=
-                                          ConnectionState.waiting
-                                  ? () => setState(() {
-                                        editMode = true;
-                                        focusNode.requestFocus();
-                                      })
-                                  : null,
-                              action: ConstrainedBox(
-                                constraints:
-                                    const BoxConstraints(maxWidth: 250 / 2),
-                                child: Stack(
-                                  alignment: AlignmentDirectional.center,
-                                  children: [
-                                    Align(
-                                      alignment: const Alignment(-1, 0),
-                                      child: Builder(
-                                          builder: (context) => Icon(
-                                              CupertinoIcons
-                                                  .pencil_ellipsis_rectangle,
-                                              color:
-                                                  DefaultTextStyle.of(context)
-                                                      .style
-                                                      .color)),
-                                    ),
-                                    const Center(child: Text('Edit')),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                          ConstrainedBox(
-                            constraints:
-                                const BoxConstraints(minWidth: double.infinity),
-                            child: AbsorbPointer(
-                              absorbing: !enableRecord,
-                              child: RecordSpeechButton(
-                                appDirectory:
-                                    p.dirname(p.dirname(widget.filePath)),
-                                createWavFileName: () =>
-                                    p.basename(widget.filePath),
-                                doneRecord: (outputPath) {
-                                  if (outputPath == null) return;
-                                  setState(() {
-                                    futureRecognition =
-                                        recognizeSpeech(outputPath)
-                                          ..then((recognition) => textController
-                                              .text = recognition.text);
-                                  });
-                                  textController.clear();
-                                },
-                                startRecordHint: () => immediatelyPlay(
-                                    'assets/sounds/speech_to_text_listening.m4r'),
-                                child: createAction(
-                                  onPressed: enableRecord ? () {} : null,
-                                  action: ConstrainedBox(
-                                    constraints:
-                                        const BoxConstraints(maxWidth: 250 / 2),
-                                    child: Stack(
-                                      alignment: AlignmentDirectional.center,
-                                      children: [
-                                        Align(
-                                          alignment: const Alignment(-1, 0),
-                                          child: Builder(
-                                              builder: (context) => Icon(
-                                                  CupertinoIcons.mic,
-                                                  color: DefaultTextStyle.of(
-                                                          context)
-                                                      .style
-                                                      .color)),
-                                        ),
-                                        const Center(child: Text('Retake')),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          ConstrainedBox(
-                            constraints:
-                                const BoxConstraints(minWidth: double.infinity),
-                            child: createAction(
-                              isDestructiveAction: true,
-                              onPressed: () {
-                                File(widget.filePath).delete();
-                                Navigator.of(context).pop(null);
-                              },
-                              action: ConstrainedBox(
-                                constraints:
-                                    const BoxConstraints(maxWidth: 250 / 2),
-                                child: Stack(
-                                  alignment: AlignmentDirectional.center,
-                                  children: [
-                                    Align(
-                                      alignment: const Alignment(-1, 0),
-                                      child: Builder(builder: (context) {
-                                        final color =
-                                            DefaultTextStyle.of(context)
-                                                .style
-                                                .color;
-                                        return Icon(
-                                            CupertinoIcons.delete_simple,
-                                            color: color);
-                                      }),
-                                    ),
-                                    const Center(child: Text('Dismiss')),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      );
-                    },
-                  ),
-                ),
-              ),
+                            playAlign(),
+                          ],
+                        ),
+                      ),
+                    ),
+                    createAction(
+                      onPressed: textController.text.isNotEmpty
+                          ? () => Navigator.of(context).pop(InfoMessage(
+                              content: textController.text,
+                              timeStamp: timeStamp))
+                          : null,
+                      action: const ActionButton(
+                          title: 'Confirm', iconData: CupertinoIcons.shift),
+                    ),
+                    createAction(
+                        onPressed: snapshot.data != null &&
+                                snapshot.connectionState !=
+                                    ConnectionState.waiting
+                            ? () => setState(() {
+                                  editMode = true;
+                                  focusNode.requestFocus();
+                                })
+                            : null,
+                        action: const ActionButton(
+                          title: 'Edit',
+                          iconData: CupertinoIcons.pencil_ellipsis_rectangle,
+                        )),
+                    AbsorbPointer(
+                      absorbing: !enableRecord,
+                      child: RecordSpeechButton(
+                        appDirectory: p.dirname(p.dirname(widget.filePath)),
+                        createWavFileName: () => p.basename(widget.filePath),
+                        doneRecord: (outputPath) {
+                          if (outputPath == null) return;
+                          setState(() {
+                            futureRecognition = recognizeSpeech(outputPath)
+                              ..then((recognition) =>
+                                  textController.text = recognition.text);
+                          });
+                          textController.clear();
+                        },
+                        startRecordHint: () => immediatelyPlay(
+                            'assets/sounds/speech_to_text_listening.m4r'),
+                        child: createAction(
+                          onPressed: enableRecord ? () {} : null,
+                          action: const ActionButton(
+                              title: 'Retake', iconData: CupertinoIcons.mic),
+                        ),
+                      ),
+                    ),
+                    createAction(
+                      isDestructiveAction: true,
+                      onPressed: () {
+                        File(widget.filePath).delete();
+                        Navigator.of(context).pop(null);
+                      },
+                      action: const ActionButton(
+                        title: 'Dismiss',
+                        iconData: CupertinoIcons.delete_simple,
+                      ),
+                    ),
+                  ],
+                );
+              },
             ),
-          )
-        ],
+          ),
+        ),
       ),
+    );
+  }
+
+  Widget displaySpeech(
+      AsyncSnapshot<SpeechRecognition> snapshot, ColorScheme colorScheme) {
+    if (snapshot.connectionState == ConnectionState.waiting) {
+      return Center(
+          child:
+              SpinKitWave(size: 36, itemCount: 7, color: colorScheme.tertiary));
+    }
+    if (snapshot.hasError) {
+      return Center(
+          child: Text(messageExceptions(snapshot.error),
+              style: TextStyle(color: colorScheme.error)));
+    }
+    return CupertinoTextField.borderless(
+      focusNode: focusNode,
+      autofocus: editMode,
+      readOnly: !editMode,
+      controller: textController,
+      placeholder: "Sorry we can't recognize your speech",
+      placeholderStyle: TextStyle(color: colorScheme.onTertiaryContainer),
+      maxLines: null,
+      textAlignVertical: TextAlignVertical.center,
+      textAlign: TextAlign.center,
+      textInputAction: TextInputAction.done,
+      onChanged: (value) => textController.text = value,
+      onEditingComplete: () => setState(() {
+        editMode = false;
+      }),
     );
   }
 
@@ -331,4 +225,33 @@ class _SpeechConfirmDialogState extends State<SpeechConfirmDialog> {
           child: const Icon(CupertinoIcons.play_circle_fill, size: 36),
         ),
       ));
+}
+
+class ActionButton extends StatelessWidget {
+  const ActionButton({
+    super.key,
+    required this.title,
+    required this.iconData,
+  });
+  final String title;
+  final IconData iconData;
+
+  @override
+  Widget build(BuildContext context) {
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 250 / 2),
+      child: Stack(
+        alignment: AlignmentDirectional.center,
+        children: [
+          Align(
+              alignment: const Alignment(-1, 0),
+              child: Icon(
+                iconData,
+                color: DefaultTextStyle.of(context).style.color,
+              )),
+          Center(child: Text(title)),
+        ],
+      ),
+    );
+  }
 }

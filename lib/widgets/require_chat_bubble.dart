@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:ai_vocabulary/effects/show_toast.dart';
+import 'package:ai_vocabulary/painters/bubble_shape.dart';
+import 'package:ai_vocabulary/utils/handle_except.dart';
 import 'package:flutter/material.dart';
 
 import '../api/dict_api.dart';
@@ -13,12 +15,12 @@ import 'chat_bubble.dart';
 class RequireChatBubble extends StatelessWidget {
   final RequireMessage message;
   final Widget? leading;
-  final void Function(Message?) updateMessage;
+  final void Function(TextMessage) upgradeMessage;
   const RequireChatBubble({
     super.key,
     required this.message,
     this.leading,
-    required this.updateMessage,
+    required this.upgradeMessage,
   });
 
   @override
@@ -55,18 +57,29 @@ class RequireChatBubble extends StatelessWidget {
               );
             }
             if (snapshot.hasError) {
-              updateMessage(null);
-              return Text('${snapshot.error}',
-                  style: TextStyle(color: colorScheme.error));
+              Future.microtask(() => message.srcMsg.hasError = true);
+              return Container(
+                constraints: BoxConstraints(maxWidth: contentWidth),
+                padding: const EdgeInsets.only(
+                    right: 8, left: 8, top: 8, bottom: 12),
+                decoration: ShapeDecoration(
+                    color: colorScheme.errorContainer,
+                    shape: const ChatBubbleShape(isMe: false)),
+                child: Text(
+                  messageExceptions(snapshot.error),
+                  style: TextStyle(color: colorScheme.onErrorContainer),
+                  textScaler: const TextScaler.linear(1.414),
+                ),
+              );
             }
             final ans = snapshot.data!;
-            final tmessage = TextMessage(
+            final responseMsg = TextMessage(
                 content: ans.answer,
                 timeStamp: ans.created,
                 patterns: message.vocabulary.split(', '),
                 wordID: message.wordID,
                 userID: ans.userId);
-            updateMessage(tmessage);
+            upgradeMessage(responseMsg);
             if (ans.quiz) {
               Timer(const Duration(seconds: 2), () {
                 final acquaint =
@@ -80,7 +93,7 @@ class RequireChatBubble extends StatelessWidget {
               });
             }
             return ChatBubble(
-                message: tmessage,
+                message: responseMsg,
                 maxWidth: contentWidth,
                 child: StreamBuilder(
                     stream: (String text) async* {
@@ -95,9 +108,10 @@ class RequireChatBubble extends StatelessWidget {
                     }(ans.answer)
                         .asBroadcastStream(),
                     builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.done)
+                      if (snapshot.connectionState == ConnectionState.done) {
                         return ClickableText(ans.answer,
-                            patterns: tmessage.patterns);
+                            patterns: responseMsg.patterns);
+                      }
                       return snapshot.data ?? waitingContent(contentWidth);
                     }));
           },

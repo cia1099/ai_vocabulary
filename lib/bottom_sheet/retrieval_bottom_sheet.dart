@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:ai_vocabulary/api/dict_api.dart';
+import 'package:ai_vocabulary/utils/handle_except.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
@@ -117,13 +118,13 @@ class _RetrievalBottomSheetState extends State<RetrievalBottomSheet>
                         builder: (context, snapshot) {
                           final words = snapshot.data;
                           if (snapshot.hasError) {
-                            var error = snapshot.error;
+                            final error = snapshot.error;
                             if (error is TimeoutException) {
                               return Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   const Text(
-                                      "Do not detect network or request timeout"),
+                                      "Can't detect network or request has been timeout"),
                                   PlatformTextButton(
                                     onPressed: () => setState(() {
                                       futureWords = fetchWords();
@@ -134,7 +135,7 @@ class _RetrievalBottomSheetState extends State<RetrievalBottomSheet>
                               );
                             } else {
                               return Center(
-                                child: Text('$error',
+                                child: Text(messageExceptions(error),
                                     style: TextStyle(
                                         color: Theme.of(context)
                                             .colorScheme

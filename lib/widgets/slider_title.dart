@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:ai_vocabulary/app_settings.dart';
+import 'package:ai_vocabulary/utils/handle_except.dart';
 import 'package:ai_vocabulary/utils/shortcut.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -90,7 +91,7 @@ class SliderTitleState extends State<SliderTitle>
                   children: [TwoDotLoader(), Text('Speech Recognizing...')],
                 );
               } else if (snapshot.hasError) {
-                content = Text('${snapshot.error}',
+                content = Text(messageExceptions(snapshot.error),
                     key: const Key('error'),
                     style: TextStyle(
                       color: colorScheme.error,

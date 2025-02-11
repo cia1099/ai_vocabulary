@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
+
 abstract class Message {
   final String content;
   final int timeStamp;
@@ -13,8 +15,9 @@ abstract class Message {
       this.userID});
 }
 
-class TextMessage extends Message {
+class TextMessage extends Message with ChangeNotifier {
   final Iterable<String> patterns;
+  var _hasError = false;
   TextMessage(
       {required super.content,
       required super.timeStamp,
@@ -22,6 +25,13 @@ class TextMessage extends Message {
       this.patterns = const Iterable.empty(),
       super.userID})
       : assert(wordID > 0);
+  bool get hasError => _hasError;
+  set hasError(bool error) {
+    if (_hasError ^ error) {
+      _hasError = error;
+      notifyListeners();
+    }
+  }
 
   factory TextMessage.fromRawJson(String str) =>
       TextMessage.fromJson(json.decode(str));
@@ -54,10 +64,10 @@ class InfoMessage extends Message {
 
 class RequireMessage extends Message {
   final String vocabulary;
+  final TextMessage srcMsg;
   RequireMessage({
-    required this.vocabulary,
-    required super.wordID,
-    required super.content,
+    required this.srcMsg,
     super.timeStamp = -1,
-  });
+  })  : vocabulary = srcMsg.patterns.join(', '),
+        super(wordID: srcMsg.wordID, content: srcMsg.content);
 }

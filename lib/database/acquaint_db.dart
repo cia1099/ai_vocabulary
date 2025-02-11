@@ -39,8 +39,8 @@ extension AcquaintDB on MyDB {
   Iterable<int> fetchReviewWordIDs() {
     final db = open(OpenMode.readOnly);
     final resultSet = db.select(
-        'SELECT word_id FROM acquaintances WHERE acquaint < ? AND acquaint > ?',
-        [kMaxAcquaintance, 0]);
+        'SELECT word_id FROM acquaintances WHERE acquaint < ? AND last_learned_time IS NOT NULL',
+        [kMaxAcquaintance]);
     db.dispose();
     return resultSet.map((row) => row['word_id'] as int);
   }
