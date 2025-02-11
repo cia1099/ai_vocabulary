@@ -36,6 +36,34 @@ LEFT OUTER JOIN examples ON examples.explanation_id = explanations.id
 WHERE words.id IN
 ''';
 
+const avgFib = '''
+WITH RECURSIVE Fibonacci(id, acquaint, n, a, b) AS (
+    SELECT word_id, acquaint, 0, 1, 1 
+    FROM acquaintances 
+    WHERE last_learned_time IS NOT NULL
+    UNION ALL 
+    SELECT id, acquaint, n + 1, b, a + b 
+    FROM Fibonacci 
+    WHERE n + 1 <= acquaint
+),
+fibCTE AS (
+    SELECT id, MAX(a) AS fib 
+    FROM Fibonacci 
+    GROUP BY id
+),
+probabilityCTE AS (SELECT 
+    word_id, 
+    1.0/(? - last_learned_time) / 
+    NULLIF((SELECT SUM(1.0/(? - last_learned_time)) 
+            FROM acquaintances 
+            WHERE last_learned_time IS NOT NULL), 0) AS rate
+FROM acquaintances 
+WHERE last_learned_time IS NOT NULL
+)
+SELECT SUM(p.rate * f.fib) AS avgFib FROM probabilityCTE p
+JOIN fibCTE f ON p.word_id = f.id;
+''';
+
 const retention = '''
 WITH RECURSIVE Fibonacci(id, acquaint, n, a, b) AS (
     SELECT word_id, acquaint, 0, 1, 1 

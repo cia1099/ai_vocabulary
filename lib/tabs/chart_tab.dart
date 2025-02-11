@@ -1,3 +1,4 @@
+import 'package:ai_vocabulary/database/my_db.dart';
 import 'package:ai_vocabulary/widgets/calendar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -25,7 +26,18 @@ class ChartTab extends StatelessWidget {
                 CupertinoSliverAppBarData(transitionBetweenRoutes: false),
           ),
           const SliverToBoxAdapter(child: Calendar()),
-          const SliverToBoxAdapter(child: RememberChart(trainingRate: 2.5)),
+          SliverToBoxAdapter(
+              child: FutureBuilder(
+                  future: MyDB().averageFibonacci,
+                  builder: (context, snapshot) => Stack(
+                        alignment: const Alignment(0, -.25),
+                        children: [
+                          RememberChart(trainingRate: snapshot.data),
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting)
+                            const CircularProgressIndicator.adaptive()
+                        ],
+                      ))),
           // SliverToBoxAdapter(
           //   child: AspectRatio(
           //     aspectRatio: 1.5,

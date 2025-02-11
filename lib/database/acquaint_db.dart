@@ -53,4 +53,13 @@ extension AcquaintDB on MyDB {
     db.dispose();
     return resultSet.map((row) => row['word_id'] as int);
   }
+
+  Future<double?> get averageFibonacci async {
+    await isReady;
+    final db = open(OpenMode.readOnly);
+    final now = DateTime.now().millisecondsSinceEpoch ~/ 6e4;
+    final resultSet = db.select(avgFib, [now, now]);
+    db.dispose();
+    return resultSet.firstOrNull?['avgFib'];
+  }
 }

@@ -5,7 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class RememberChart extends StatefulWidget {
-  final double trainingRate;
+  final double? trainingRate;
   const RememberChart({super.key, required this.trainingRate});
 
   @override
@@ -113,13 +113,14 @@ class _RememberChartState extends State<RememberChart> {
       minY: .0,
       lineBarsData: [
         generalCurve(minX, maxX, color: colorScheme.tertiary),
-        generalCurve(minX, maxX,
-            color: CupertinoDynamicColor.withBrightness(
-                    color: colorScheme.inversePrimary,
-                    darkColor: colorScheme.primaryContainer)
-                .resolveFrom(context),
-            fib: widget.trainingRate,
-            shadow: true),
+        if (widget.trainingRate != null)
+          generalCurve(minX, maxX,
+              color: CupertinoDynamicColor.withBrightness(
+                      color: colorScheme.inversePrimary,
+                      darkColor: colorScheme.primaryContainer)
+                  .resolveFrom(context),
+              fib: widget.trainingRate!,
+              shadow: true),
       ],
       lineTouchData: LineTouchData(
         touchTooltipData: LineTouchTooltipData(

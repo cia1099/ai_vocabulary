@@ -145,7 +145,7 @@ class SliderTitleState extends State<SliderTitle>
             });
             updateKeepAlive();
           }
-        }, Priority.touch);
+        }, Priority.idle);
       }
       return Text(correct.first,
           key: const Key('correct'),

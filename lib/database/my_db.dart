@@ -222,14 +222,3 @@ Map<String, dynamic> traceWord(
   }
   return obj;
 }
-
-void main() {
-  final myDB = MyDB();
-  // myDB.insertWords(Stream.fromIterable([apple, apple]));
-  // final words = myDB.fetchWords([12316]);
-  // for (final word in words) {
-  //   print(word.toRawJson());
-  // }
-  // myDB.addCollectWord(830, marks: ['uncategorized', 'shit']);
-  myDB.hasCollectWord(10);
-}
