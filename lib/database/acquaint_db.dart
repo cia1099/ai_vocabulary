@@ -54,6 +54,22 @@ extension AcquaintDB on MyDB {
     return resultSet.map((row) => row['word_id'] as int);
   }
 
+  StudyCount fetchStudyCounts() {
+    const query = '''
+    SELECT 
+      SUM(CASE WHEN acquaint <= 1 AND last_learned_time > ? THEN 1 ELSE 0 END) AS new_count,
+      SUM(CASE WHEN acquaint > 1 AND last_learned_time > ? THEN 1 ELSE 0 END) AS review_count
+    FROM acquaintances;
+''';
+    final db = open(OpenMode.readOnly);
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final resultSet =
+        db.select(query, List.filled(2, today.millisecondsSinceEpoch ~/ 6e4));
+    db.dispose();
+    return StudyCount.fromJson(resultSet.first);
+  }
+
   Future<double?> get averageFibonacci async {
     await isReady;
     final db = open(OpenMode.readOnly);

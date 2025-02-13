@@ -9,6 +9,7 @@ import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 import '../app_settings.dart';
+import '../widgets/study_board.dart';
 
 class VocabularyTab extends StatefulWidget {
   final void Function(int index)? onTabChanged;
@@ -32,9 +33,6 @@ class _VocabularyTabState extends State<VocabularyTab>
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-    final colorScheme = Theme.of(context).colorScheme;
-    final hPadding = MediaQuery.of(context).size.width / 32;
     return PlatformScaffold(
       appBar: PlatformAppBar(
         title: TabBar(
@@ -76,43 +74,9 @@ class _VocabularyTabState extends State<VocabularyTab>
                   ],
                 ),
               ),
-              Align(
-                alignment: const Alignment(0, -1),
-                child: Container(
-                  height: 100,
-                  margin: EdgeInsets.only(
-                      top: hPadding, left: hPadding, right: hPadding),
-                  decoration: BoxDecoration(
-                    color: colorScheme.secondaryContainer.withValues(alpha: .8),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Text("Review today"),
-                          Text('0/20', style: textTheme.headlineSmall),
-                        ],
-                      ),
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Text("New today"),
-                          Text('0/20', style: textTheme.headlineSmall),
-                        ],
-                      ),
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Text("Learning today"),
-                          Text('0min', style: textTheme.headlineSmall),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
+              const Align(
+                alignment: Alignment(0, -1),
+                child: StudyBoard(),
               ),
             ],
           ),

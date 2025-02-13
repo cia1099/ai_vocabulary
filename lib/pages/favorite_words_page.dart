@@ -50,7 +50,7 @@ class _FavoriteWordsPageState extends State<FavoriteWordsPage> {
   Widget build(BuildContext context) {
     final hPadding = MediaQuery.of(context).size.width / 32;
     words.sort((a, b) => a.word.compareTo(b.word));
-    final capitals = words.map((e) => e.word[0]).toSet();
+    final capitals = words.map((e) => e.word[0].toUpperCase()).toSet();
     capitalKeys = capitals.map((e) => GlobalObjectKey(e)).toList();
     if (widget.mark.color != null) {
       markScheme = ColorScheme.fromSeed(
@@ -134,7 +134,8 @@ class _FavoriteWordsPageState extends State<FavoriteWordsPage> {
     final colorScheme = Theme.of(context).colorScheme;
     return Iterable.generate(capitalKeys.length, (i) {
       final capital = capitalKeys[i].value;
-      final sectionWords = words.where((w) => w.word[0] == capital);
+      final sectionWords =
+          words.where((w) => w.word[0].toUpperCase() == capital);
       return MultiSliver(
         pushPinnedChildren: true,
         children: [
@@ -153,7 +154,7 @@ class _FavoriteWordsPageState extends State<FavoriteWordsPage> {
               ),
               alignment: const Alignment(-1, 1),
               child: Text(
-                capital.toString().toUpperCase(),
+                capital.toString(),
                 textScaler: TextScaler.linear((1 + math.sqrt(5)) / 2),
                 style: TextStyle(color: markScheme?.onPrimaryContainer),
               ),
@@ -310,7 +311,7 @@ class _FavoriteWordsPageState extends State<FavoriteWordsPage> {
                 cupertino: (_, __) => CupertinoTextButtonData(
                     minSize: textTheme.bodyMedium?.fontSize),
                 child: Text(
-                  key.value.toString().toUpperCase(),
+                  key.value.toString(),
                 ),
               ))
           .toList(),

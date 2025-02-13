@@ -32,3 +32,28 @@ class Acquaintance {
         "last_learned_time": lastLearnedTime,
       };
 }
+
+class StudyCount {
+  int newCount;
+  int reviewCount;
+
+  StudyCount({
+    this.newCount = 0,
+    this.reviewCount = 0,
+  });
+
+  factory StudyCount.fromRawJson(String str) =>
+      StudyCount.fromJson(json.decode(str));
+
+  String toRawJson() => json.encode(toJson());
+
+  factory StudyCount.fromJson(Map<String, dynamic> json) => StudyCount(
+        newCount: json["new_count"],
+        reviewCount: json["review_count"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "new_count": newCount,
+        "review_count": reviewCount,
+      };
+}

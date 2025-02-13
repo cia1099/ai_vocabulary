@@ -16,7 +16,6 @@ class ChatListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      key: key,
       // width: double.infinity,
       margin: const EdgeInsets.all(8),
       child: createContent(message, context: context),
