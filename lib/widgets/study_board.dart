@@ -84,7 +84,7 @@ class _StudyBoardState extends State<StudyBoard> with WidgetsBindingObserver {
               valueListenable: elapsedMinute,
               builder: (context, value, _) {
                 final hour = value ~/ 60;
-                final elapsedHour = hour > 0 ? '${hour}h:' : '';
+                final elapsedHour = hour > 0 ? '${hour}h' : '';
                 return Text('$elapsedHour${value % 60}min',
                     style: textTheme.headlineSmall);
               },

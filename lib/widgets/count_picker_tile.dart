@@ -1,0 +1,91 @@
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
+
+import '../app_settings.dart';
+import '../utils/shortcut.dart';
+
+class CountPickerTile extends StatelessWidget {
+  const CountPickerTile({
+    super.key,
+    required this.titlePattern,
+  });
+  final String titlePattern;
+
+  @override
+  Widget build(BuildContext context) {
+    final picker = ValueNotifier(0); // AppSetting can update this
+    final titles = titlePattern.split(',');
+    return StatefulBuilder(
+      builder: (context, setState) {
+        final box = context.findRenderObject() as RenderBox?;
+        final anchor = box?.localToGlobal(Offset.zero);
+        Rect? rect;
+        if (anchor != null && box != null) {
+          final width = box.size.width / 2;
+          rect = Rect.fromLTWH(
+              box.size.width / 2 - width / 2, anchor.dy - 20, width, 56 * 1.5);
+        } else {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            setState(() {});
+          });
+        }
+        return PlatformListTile(
+          onTap: rect == null ? null : () => showPickUp(context, rect!, picker),
+          title: Text.rich(TextSpan(children: [
+            for (final text in titles)
+              text != '?'
+                  ? TextSpan(text: text)
+                  : WidgetSpan(
+                      child: ValueListenableBuilder(
+                        valueListenable: picker,
+                        builder: (context, value, _) => Text(
+                            '${5 * (value + 1)}',
+                            style: TextStyle(
+                                color: Theme.of(context).colorScheme.primary,
+                                fontWeight: FontWeight.w600)),
+                      ),
+                    )
+          ])),
+          trailing: Icon(
+            CupertinoIcons.chevron_down,
+            size: CupertinoTheme.of(context).textTheme.textStyle.fontSize,
+            color: CupertinoColors.systemGrey2.resolveFrom(context),
+          ),
+        );
+      },
+    );
+  }
+
+  void showPickUp(BuildContext context, Rect rect, ValueNotifier<int> picker,
+      [MySettings? setting]) {
+    showCupertinoDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (context) {
+        return Stack(
+          children: [
+            Positioned.fromRect(
+              rect: rect,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: kCupertinoSheetColor.resolveFrom(context),
+                  borderRadius:
+                      BorderRadius.circular(kRadialReactionRadius / 2),
+                ),
+                child: CupertinoPicker.builder(
+                  itemExtent: 32,
+                  scrollController:
+                      FixedExtentScrollController(initialItem: picker.value),
+                  onSelectedItemChanged: (value) => picker.value = value,
+                  itemBuilder: (context, index) => Text('${5 * (index + 1)}'),
+                  childCount: 40,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}

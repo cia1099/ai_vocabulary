@@ -6,6 +6,7 @@ import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
 import '../app_settings.dart';
 import '../pages/color_select_page.dart';
+import '../widgets/count_picker_tile.dart';
 
 class SettingTab extends StatelessWidget {
   const SettingTab({super.key});
@@ -82,36 +83,46 @@ class SettingTab extends StatelessWidget {
                       onChanged: (value) => setState(() => switches[5] = value),
                     ),
                   ),
-                  PlatformListTile(
-                    title: const Text('Does hide vocabulary title in sliders?'),
-                    trailing: PlatformSwitch(
-                      value: AppSettings.of(context).hideSliderTitle,
-                      onChanged: (value) =>
-                          AppSettings.of(context).hideSliderTitle = value,
+                  CupertinoFormSection(header: const Text('Study'), children: [
+                    PlatformListTile(
+                      title:
+                          const Text('Does hide vocabulary title in sliders?'),
+                      trailing: PlatformSwitch(
+                        value: AppSettings.of(context).hideSliderTitle,
+                        onChanged: (value) =>
+                            AppSettings.of(context).hideSliderTitle = value,
+                      ),
                     ),
-                  ),
-                  PlatformListTile(
-                    title: const Text('Dark mode'),
-                    trailing: PlatformSwitch(
-                      value:
-                          AppSettings.of(context).brightness == Brightness.dark,
-                      onChanged: (value) => AppSettings.of(context).brightness =
-                          value ? Brightness.dark : Brightness.light,
+                    const CountPickerTile(
+                        titlePattern: 'Review ,?, words, a, day'),
+                    const CountPickerTile(
+                        titlePattern: 'Learn, new ,?, words, a, day'),
+                  ]),
+                  CupertinoFormSection(header: const Text('Theme'), children: [
+                    PlatformListTile(
+                      title: const Text('Dark mode'),
+                      trailing: PlatformSwitch(
+                        value: AppSettings.of(context).brightness ==
+                            Brightness.dark,
+                        onChanged: (value) =>
+                            AppSettings.of(context).brightness =
+                                value ? Brightness.dark : Brightness.light,
+                      ),
                     ),
-                  ),
-                  PlatformListTile(
-                    title: const Text('Application Color Theme'),
-                    trailing: const CupertinoListTileChevron(),
-                    onTap: () =>
-                        Navigator.of(context).push(CupertinoDialogRoute(
-                      builder: (context) => const ColorSelectPage(),
-                      barrierColor: Theme.of(context)
-                          .colorScheme
-                          .inverseSurface
-                          .withValues(alpha: .4),
-                      context: context,
-                    )),
-                  )
+                    PlatformListTile(
+                      title: const Text('Application Color Theme'),
+                      trailing: const CupertinoListTileChevron(),
+                      onTap: () =>
+                          Navigator.of(context).push(CupertinoDialogRoute(
+                        builder: (context) => const ColorSelectPage(),
+                        barrierColor: Theme.of(context)
+                            .colorScheme
+                            .inverseSurface
+                            .withValues(alpha: .4),
+                        context: context,
+                      )),
+                    )
+                  ]),
                 ],
               ),
             ),

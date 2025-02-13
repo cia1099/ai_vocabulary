@@ -56,4 +56,14 @@ class StudyCount {
         "new_count": newCount,
         "review_count": reviewCount,
       };
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! StudyCount) return false;
+    return newCount == other.newCount && reviewCount == other.reviewCount;
+  }
+
+  @override
+  int get hashCode => reviewCount.hashCode ^ newCount.hashCode;
 }

@@ -73,8 +73,9 @@ class _ChatRoomPageState extends State<ChatRoomPage> implements ChatInput {
     final screenWidth = MediaQuery.of(context).size.width;
     // print(messages.map((e) => e.runtimeType.toString()).join(' '));
     WidgetsBinding.instance.addPostFrameCallback((_) => scrollController
-        .animateTo(scrollController.position.maxScrollExtent * .85,
-            duration: Durations.short4, curve: Curves.ease));
+        .animateTo(scrollController.position.maxScrollExtent, //* .85,
+            duration: Durations.short4,
+            curve: Curves.ease));
     return MediaQuery.removeViewInsets(
       context: context,
       removeBottom: showBottomSheet,
