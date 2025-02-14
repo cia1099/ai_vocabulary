@@ -16,44 +16,35 @@ class CountPickerTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final picker = ValueNotifier(0); // AppSetting can update this
     final titles = titlePattern.split(',');
-    return StatefulBuilder(
-      builder: (context, setState) {
+    return PlatformListTile(
+      onTap: () {
         final box = context.findRenderObject() as RenderBox?;
         final anchor = box?.localToGlobal(Offset.zero);
-        Rect? rect;
-        if (anchor != null && box != null) {
-          final width = box.size.width / 2;
-          rect = Rect.fromLTWH(
-              box.size.width / 2 - width / 2, anchor.dy - 20, width, 56 * 1.5);
-        } else {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            setState(() {});
-          });
-        }
-        return PlatformListTile(
-          onTap: rect == null ? null : () => showPickUp(context, rect!, picker),
-          title: Text.rich(TextSpan(children: [
-            for (final text in titles)
-              text != '?'
-                  ? TextSpan(text: text)
-                  : WidgetSpan(
-                      child: ValueListenableBuilder(
-                        valueListenable: picker,
-                        builder: (context, value, _) => Text(
-                            '${5 * (value + 1)}',
-                            style: TextStyle(
-                                color: Theme.of(context).colorScheme.primary,
-                                fontWeight: FontWeight.w600)),
-                      ),
-                    )
-          ])),
-          trailing: Icon(
-            CupertinoIcons.chevron_down,
-            size: CupertinoTheme.of(context).textTheme.textStyle.fontSize,
-            color: CupertinoColors.systemGrey2.resolveFrom(context),
-          ),
-        );
+        if (anchor == null || box == null) return;
+        final width = box.size.width / 2;
+        final rect = Rect.fromLTWH(
+            box.size.width / 2 - width / 2, anchor.dy - 20, width, 56 * 1.5);
+        showPickUp(context, rect, picker);
       },
+      title: Text.rich(TextSpan(children: [
+        for (final text in titles)
+          text != '?'
+              ? TextSpan(text: text)
+              : WidgetSpan(
+                  child: ValueListenableBuilder(
+                    valueListenable: picker,
+                    builder: (context, value, _) => Text('${5 * (value + 1)}',
+                        style: TextStyle(
+                            color: Theme.of(context).colorScheme.primary,
+                            fontWeight: FontWeight.w600)),
+                  ),
+                )
+      ])),
+      trailing: Icon(
+        CupertinoIcons.chevron_down,
+        size: CupertinoTheme.of(context).textTheme.textStyle.fontSize,
+        color: CupertinoColors.systemGrey2.resolveFrom(context),
+      ),
     );
   }
 
@@ -86,6 +77,52 @@ class CountPickerTile extends StatelessWidget {
           ],
         );
       },
+    );
+  }
+}
+
+void main() {
+  runApp(MaterialApp(
+    theme: ThemeData.light(),
+    home: const Scaffold(body: Center(child: MyApp())),
+  ));
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      spacing: 20,
+      children: [
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16),
+          child: Text(
+            'This is a Stateless widget, we need use explicit StatefulBuilder to build twice and then get RenderBox information',
+            textScaler: TextScaler.linear(1.4),
+          ),
+        ),
+        StatefulBuilder(
+          builder: (context, setState) {
+            final box = context.findRenderObject() as RenderBox?;
+            final anchor = box?.localToGlobal(Offset.zero);
+            Rect? rect;
+            if (anchor != null && box != null) {
+              final width = box.size.width / 2;
+              rect = Rect.fromLTWH(box.size.width / 2 - width / 2,
+                  anchor.dy - 20, width, 56 * 1.5);
+            } else {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                setState(() {});
+              });
+            }
+            print('rect = $rect');
+            return Text(rect.toString());
+          },
+        )
+      ],
     );
   }
 }

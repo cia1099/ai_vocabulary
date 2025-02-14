@@ -38,6 +38,7 @@ class ChatListTile extends StatelessWidget {
                 borderRadius: BorderRadius.circular(kRadialReactionRadius),
               ),
               child: Text(message.content,
+                  maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(color: colorScheme.onTertiary)),
             ),

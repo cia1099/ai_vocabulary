@@ -137,7 +137,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> implements ChatInput {
                         messages.add(RequireMessage(
                           srcMsg: TextMessage(
                               content: tips[index],
-                              timeStamp: 0, //used to help
+                              userID: null, //used to help
                               wordID: widget.word.wordId,
                               patterns: [widget.word.word]),
                         ));

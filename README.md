@@ -19,6 +19,9 @@ Used sliver_tools package to implement alphabet list view. In addition, the list
 * [lib/utils/gesture_route_page.dart](lib/utils/gesture_route_page.dart)\
 Approached gesture navigation push a new page
 
+* [lib/widgets/count_picker_tile.dart](lib/widgets/count_picker_tile.dart)\
+Used build-in context to get RenderBox of the return widget's position and size, instead of GlobalKey.(include main example)
+
 
 ## Getting Started
 
