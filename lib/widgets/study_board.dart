@@ -17,6 +17,7 @@ class StudyBoard extends StatefulWidget {
 
 class _StudyBoardState extends State<StudyBoard> with WidgetsBindingObserver {
   final elapsedMinute = ValueNotifier(0);
+  late int midnight;
   Timer? timer;
 
   @override
@@ -24,6 +25,9 @@ class _StudyBoardState extends State<StudyBoard> with WidgetsBindingObserver {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     timer = _startTimer();
+    final now = DateTime.now();
+    midnight =
+        DateTime(now.year, now.month, now.day).millisecondsSinceEpoch ~/ 6e4;
   }
 
   @override
@@ -113,9 +117,12 @@ class _StudyBoardState extends State<StudyBoard> with WidgetsBindingObserver {
   }
 
   Timer _startTimer() => Timer.periodic(Durations.extralong4 * 60, (timer) {
-        if ((elapsedMinute.value + 1) >= 1440) {
+        final now = DateTime.now();
+        if (now.millisecondsSinceEpoch ~/ 6e4 - midnight >= 1440) {
           elapsedMinute.value = 0;
-          timer.cancel();
+          midnight =
+              DateTime(now.year, now.month, now.day).millisecondsSinceEpoch ~/
+                  6e4;
         } else {
           elapsedMinute.value++;
         }

@@ -98,7 +98,7 @@ class _CollectionPageState extends State<CollectionPage> {
                       left: hPadding, right: hPadding, bottom: 10),
                   focusNode: focusNode,
                   controller: textController,
-                  backgroundColor: kCupertinoSheetColor.resolveFrom(context),
+                  backgroundColor: colorScheme.surface,
                   hintText: 'find it',
                   onChanged: (p0) {
                     preventQuicklyChanged?.cancel();

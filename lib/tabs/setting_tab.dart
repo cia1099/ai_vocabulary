@@ -96,14 +96,14 @@ class SettingTab extends StatelessWidget {
                     CountPickerTile(
                       titlePattern: 'Review ,?, words, a, day',
                       initialCount: AppSettings.of(context).reviewCount,
-                      onClose: (count) {
+                      onPickDone: (count) {
                         AppSettings.of(context).reviewCount = count;
                       },
                     ),
                     CountPickerTile(
                       titlePattern: 'Learn, new ,?, words, a, day',
                       initialCount: AppSettings.of(context).learnCount,
-                      onClose: (count) {
+                      onPickDone: (count) {
                         AppSettings.of(context).learnCount = count;
                       },
                     ),

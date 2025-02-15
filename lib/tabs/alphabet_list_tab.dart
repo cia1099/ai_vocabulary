@@ -25,6 +25,7 @@ class AlphabetListTab extends StatefulWidget {
 class _AlphabetListTabState extends State<AlphabetListTab> {
   final _selectedId = <int>{};
   final textController = TextEditingController();
+  final scrollController = ScrollController();
   var editable = false;
 
   List<AlphabetModel> azContacts = [];
@@ -37,6 +38,8 @@ class _AlphabetListTabState extends State<AlphabetListTab> {
     final colorScheme = Theme.of(context).colorScheme;
     return PlatformScaffold(
       body: CustomScrollView(
+        physics: const NeverScrollableScrollPhysics(),
+        controller: scrollController,
         slivers: [
           PlatformSliverAppBar(
             title: const Text('Chats'),
@@ -57,7 +60,7 @@ class _AlphabetListTabState extends State<AlphabetListTab> {
               child: FilterInputBar(
                 enabled: snapshot.connectionState != ConnectionState.waiting,
                 padding: const EdgeInsets.only(bottom: 4, left: 8, right: 8),
-                backgroundColor: kCupertinoSheetColor.resolveFrom(context),
+                backgroundColor: colorScheme.surface,
                 hintText: 'Which word',
                 controller: textController,
                 onChanged: (name) => filterName(name),
@@ -65,39 +68,47 @@ class _AlphabetListTabState extends State<AlphabetListTab> {
             ),
           ),
           SliverFillRemaining(
-            child: LayoutBuilder(
-              builder: (context, constraints) => AzListView(
-                // physics: const BouncingScrollPhysics(),
-                data: azContacts,
-                itemCount: azContacts.length,
-                itemBuilder: (context, index) =>
-                    _buildAzListItem(azContacts[index]),
-                susItemHeight: 35,
-                susItemBuilder: (context, index) {
-                  final textTheme = Theme.of(context).textTheme;
-                  final tag = azContacts[index].getSuspensionTag();
-                  return Container(
-                      alignment: Alignment.centerLeft,
-                      height: 35,
-                      color: colorScheme.surfaceContainerHigh,
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 16),
-                        child: Text(tag, style: textTheme.titleLarge!
-                            // ..copyWith(fontWeight: FontWeight.bold),
-                            ),
-                      ));
-                },
-                indexBarItemHeight:
-                    (constraints.maxHeight - kBottomNavigationBarHeight) / 26,
-                indexBarData: azContacts
-                    .map((e) => e.getSuspensionTag())
-                    .toSet()
-                    .toList(),
-                // List.generate(26, (index) => String.fromCharCode(index + 65)),
-                indexBarOptions: IndexBarOptions(
-                    textStyle: TextStyle(
-                  color: colorScheme.primary,
-                )),
+            child: NotificationListener<ScrollNotification>(
+              onNotification: (notification) {
+                final pos = notification.metrics.pixels.clamp(
+                    double.negativeInfinity,
+                    scrollController.position.maxScrollExtent);
+                scrollController.position.moveTo(pos, clamp: false);
+                return true;
+              },
+              child: LayoutBuilder(
+                builder: (context, constraints) => AzListView(
+                  data: azContacts,
+                  itemCount: azContacts.length,
+                  itemBuilder: (context, index) =>
+                      _buildAzListItem(azContacts[index]),
+                  susItemHeight: 35,
+                  susItemBuilder: (context, index) {
+                    final textTheme = Theme.of(context).textTheme;
+                    final tag = azContacts[index].getSuspensionTag();
+                    return Container(
+                        alignment: Alignment.centerLeft,
+                        height: 35,
+                        color: colorScheme.surfaceContainerHigh,
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 16),
+                          child: Text(tag, style: textTheme.titleLarge!
+                              // ..copyWith(fontWeight: FontWeight.bold),
+                              ),
+                        ));
+                  },
+                  indexBarItemHeight:
+                      (constraints.maxHeight - kBottomNavigationBarHeight) / 26,
+                  indexBarData: azContacts
+                      .map((e) => e.getSuspensionTag())
+                      .toSet()
+                      .toList(),
+                  // List.generate(26, (index) => String.fromCharCode(index + 65)),
+                  indexBarOptions: IndexBarOptions(
+                      textStyle: TextStyle(
+                    color: colorScheme.primary,
+                  )),
+                ),
               ),
             ),
           ),

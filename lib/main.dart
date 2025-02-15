@@ -19,7 +19,9 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  var appTheme = ThemeData();
+  var appTheme = ThemeData(
+      appBarTheme:
+          const AppBarTheme(actionsIconTheme: IconThemeData(size: 32)));
 
   @override
   void initState() {
@@ -104,6 +106,7 @@ class _MyAppState extends State<MyApp> {
     final brightness = useDarkMode ? Brightness.dark : Brightness.light;
     setState(() {
       appTheme = ThemeData(
+        appBarTheme: appTheme.appBarTheme,
         colorScheme: ColorScheme.fromSeed(
             seedColor: appTheme.colorScheme.primary, brightness: brightness),
       );
@@ -138,7 +141,7 @@ class _MyAppState extends State<MyApp> {
       return;
     }
     setState(() {
-      appTheme = ThemeData.from(colorScheme: colorScheme);
+      appTheme = appTheme.copyWith(colorScheme: colorScheme);
     });
   }
 }

@@ -25,13 +25,15 @@ class EntryActions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Wrap(
-      spacing: 8,
+      spacing: 4,
       children: actions(skipIndexes, context),
     );
   }
 
   List<Widget> actions(List<int> skipIndexes, BuildContext context) {
-    final appBarIconSize = Theme.of(context).appBarTheme.actionsIconTheme?.size;
+    ///https://github.com/flutter/flutter/blob/master/packages/flutter/lib/src/cupertino/nav_bar.dart#L1977
+    final appBarIconSize =
+        Theme.of(context).appBarTheme.actionsIconTheme?.size ?? 32;
     final colorScheme = Theme.of(context).colorScheme;
     // final navColor =
     //     CupertinoTheme.of(context).textTheme.navActionTextStyle.color;
@@ -65,41 +67,48 @@ class EntryActions extends StatelessWidget {
       if (!skipIndexes.contains(1) && wordID != null)
         FavoriteStar(wordID: wordID!, size: appBarIconSize),
       if (!skipIndexes.contains(2) && wordID != null)
-        GestureDetector(
-            onTap: () {
-              final rBox = context.findRenderObject() as RenderBox?;
-              final anchor = rBox?.localToGlobal(Offset.zero);
-              if (anchor == null) return;
-              Navigator.of(context).push(PageRouteBuilder(
-                opaque: false,
-                barrierDismissible: true,
-                barrierColor: colorScheme.inverseSurface.withValues(alpha: .4),
-                pageBuilder: (context, animation, secondaryAnimation) =>
-                    ReportPopUpPage(wordID: wordID!, anchorPoint: anchor),
-                // transitionDuration: Durations.medium1,
-                settings: const RouteSettings(name: AppRoute.menuPopup),
-                transitionsBuilder:
-                    (context, animation, secondaryAnimation, child) {
-                  final matrix = Matrix4Tween(
-                    end: Matrix4.identity(),
-                    begin: Matrix4.diagonal3Values(1, .1, 1)
-                      ..translate(.0, 1e3),
-                  ).chain(CurveTween(curve: Curves.easeOut));
-                  return AnimatedBuilder(
-                    animation: animation,
-                    builder: (_, __) => Transform(
-                      alignment: Alignment.topCenter,
-                      transform: matrix.evaluate(animation),
-                      child: child,
-                    ),
-                  );
-                },
-              ));
-            },
-            child: Icon(
-              CupertinoIcons.ellipsis_vertical,
-              size: appBarIconSize,
-            )),
+        PlatformIconButton(
+          onPressed: () {
+            final rBox = context.findRenderObject() as RenderBox?;
+            final anchor = rBox?.localToGlobal(Offset.zero);
+            if (anchor == null) return;
+            Navigator.of(context).push(PageRouteBuilder(
+              opaque: false,
+              barrierDismissible: true,
+              barrierColor: colorScheme.inverseSurface.withValues(alpha: .4),
+              pageBuilder: (context, animation, secondaryAnimation) =>
+                  ReportPopUpPage(wordID: wordID!, anchorPoint: anchor),
+              // transitionDuration: Durations.medium1,
+              settings: const RouteSettings(name: AppRoute.menuPopup),
+              transitionsBuilder:
+                  (context, animation, secondaryAnimation, child) {
+                final matrix = Matrix4Tween(
+                  end: Matrix4.identity(),
+                  begin: Matrix4.diagonal3Values(1, .1, 1)..translate(.0, 1e3),
+                ).chain(CurveTween(curve: Curves.easeOut));
+                return AnimatedBuilder(
+                  animation: animation,
+                  builder: (_, __) => Transform(
+                    alignment: Alignment.topCenter,
+                    transform: matrix.evaluate(animation),
+                    child: child,
+                  ),
+                );
+              },
+            ));
+          },
+          padding: EdgeInsets.zero,
+          icon: Icon(
+            CupertinoIcons.ellipsis_vertical,
+            size: appBarIconSize / 1.414,
+          ),
+          cupertino: (_, __) =>
+              CupertinoIconButtonData(minSize: appBarIconSize),
+          material: (_, __) => MaterialIconButtonData(
+              style: IconButton.styleFrom(
+                  fixedSize: Size.square(appBarIconSize),
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap)),
+        ),
     ];
   }
 }
