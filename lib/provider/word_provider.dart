@@ -44,7 +44,7 @@ abstract class WordProvider {
   int indexWhere(bool Function(Vocabulary w) test, [int start = 0]) =>
       _studyWords.indexWhere(test, start);
   // reminder
-  final _remindWords = <Vocabulary>{};
+  static final _remindWords = <Vocabulary>{};
   bool shouldRemind() {
     if (currentWord != null) {
       _remindWords.add(currentWord!);

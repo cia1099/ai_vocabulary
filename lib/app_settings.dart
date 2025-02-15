@@ -1,3 +1,4 @@
+import 'package:ai_vocabulary/model/acquaintance.dart';
 import 'package:flutter/material.dart';
 
 import 'provider/word_provider.dart';
@@ -15,6 +16,7 @@ class MySettings extends ChangeNotifier {
   Brightness _brightness = Brightness.light;
   WordProvider? _wordProvider;
   bool _hideSliderTitle = false;
+  final targetStudy = ValueNotifier(StudyCount(newCount: 5, reviewCount: 5));
 
   int get color => _color;
   set color(int newColor) {
@@ -44,6 +46,16 @@ class MySettings extends ChangeNotifier {
       _hideSliderTitle = isHide;
       notifyListeners();
     }
+  }
+
+  int get reviewCount => targetStudy.value.reviewCount;
+  set reviewCount(int count) {
+    targetStudy.value = StudyCount(newCount: learnCount, reviewCount: count);
+  }
+
+  int get learnCount => targetStudy.value.newCount;
+  set learnCount(int count) {
+    targetStudy.value = StudyCount(newCount: count, reviewCount: reviewCount);
   }
 
   @override

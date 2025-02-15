@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:ai_vocabulary/app_settings.dart';
 import 'package:ai_vocabulary/database/my_db.dart';
 import 'package:flutter/material.dart';
 
@@ -44,52 +45,56 @@ class _StudyBoardState extends State<StudyBoard> with WidgetsBindingObserver {
         color: colorScheme.secondaryContainer.withValues(alpha: .8),
         borderRadius: BorderRadius.circular(16),
       ),
-      child: ListenableBuilder(
-        listenable: MyDB(),
-        builder: (context, child) => FutureBuilder(
-          future: MyDB().isReady,
-          builder: (context, snapshot) {
-            final studyCount = snapshot.data == true
-                ? MyDB().fetchStudyCounts()
-                : StudyCount();
-            return Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text("Review today"),
-                    Text('${studyCount.reviewCount}/20',
-                        style: textTheme.headlineSmall),
-                  ],
-                ),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text("New today"),
-                    Text('${studyCount.newCount}/20',
-                        style: textTheme.headlineSmall),
-                  ],
-                ),
-                child!
-              ],
-            );
-          },
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text("Learning today"),
-            ValueListenableBuilder(
-              valueListenable: elapsedMinute,
-              builder: (context, value, _) {
-                final hour = value ~/ 60;
-                final elapsedHour = hour > 0 ? '${hour}h' : '';
-                return Text('$elapsedHour${value % 60}min',
-                    style: textTheme.headlineSmall);
-              },
-            ),
-          ],
+      child: ValueListenableBuilder(
+        valueListenable: AppSettings.of(context).targetStudy,
+        builder: (context, targetStudy, _) => ListenableBuilder(
+          listenable: MyDB(),
+          builder: (context, child) => FutureBuilder(
+            future: MyDB().isReady,
+            builder: (context, snapshot) {
+              final studyCount = snapshot.data == true
+                  ? MyDB().fetchStudyCounts()
+                  : StudyCount();
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text("Review today"),
+                      Text(
+                          '${studyCount.reviewCount}/${targetStudy.reviewCount}',
+                          style: textTheme.headlineSmall),
+                    ],
+                  ),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text("New today"),
+                      Text('${studyCount.newCount}/${targetStudy.newCount}',
+                          style: textTheme.headlineSmall),
+                    ],
+                  ),
+                  child!
+                ],
+              );
+            },
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text("Learning today"),
+              ValueListenableBuilder(
+                valueListenable: elapsedMinute,
+                builder: (context, value, _) {
+                  final hour = value ~/ 60;
+                  final elapsedHour = hour > 0 ? '${hour}h' : '';
+                  return Text('$elapsedHour${value % 60}min',
+                      style: textTheme.headlineSmall);
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );

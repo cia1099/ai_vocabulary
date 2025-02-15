@@ -31,12 +31,6 @@ class _ChatRoomPageState extends State<ChatRoomPage> implements ChatInput {
   final showTips = ValueNotifier(false);
   var showBottomSheet = false;
   final myID = '1';
-  final tips = [
-    'Can you give me some tips to help me make a sentence using this word?',
-    'Can you explain to me the definition of this vocabulary?',
-    'Is there an extended phrase, slang, or idiom associated with this word? What are they?',
-    'Can you give me examples using this word?',
-  ];
 
   @override
   void initState() {
@@ -136,13 +130,13 @@ class _ChatRoomPageState extends State<ChatRoomPage> implements ChatInput {
                         showTips.value = false;
                         messages.add(RequireMessage(
                           srcMsg: TextMessage(
-                              content: tips[index],
+                              content: _tips[index],
                               userID: null, //used to help
                               wordID: widget.word.wordId,
                               patterns: [widget.word.word]),
                         ));
                       }),
-                  children: tips
+                  children: _tips
                       .map((e) => ColoredBox(
                             color: colorScheme.tertiaryContainer,
                             child: Container(
@@ -209,3 +203,10 @@ class _ChatRoomPageState extends State<ChatRoomPage> implements ChatInput {
     return false; //reset hasError
   }
 }
+
+const _tips = [
+  'Can you give me some tips to help me make a sentence using this word?',
+  'Can you explain to me the definition of this vocabulary?',
+  'Is there an extended phrase, slang, or idiom associated with this word? What are they?',
+  'Can you give me examples using this word?',
+];

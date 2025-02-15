@@ -9,12 +9,17 @@ class CountPickerTile extends StatelessWidget {
   const CountPickerTile({
     super.key,
     required this.titlePattern,
+    required this.initialCount,
+    this.onClose,
   });
   final String titlePattern;
+  final int initialCount;
+  final void Function(int count)? onClose;
 
   @override
   Widget build(BuildContext context) {
-    final picker = ValueNotifier(0); // AppSetting can update this
+    final picker =
+        ValueNotifier(initialCount ~/ 5 - 1); // AppSetting can update this
     final titles = titlePattern.split(',');
     return PlatformListTile(
       onTap: () {
@@ -77,7 +82,7 @@ class CountPickerTile extends StatelessWidget {
           ],
         );
       },
-    );
+    ).then((_) => onClose?.call((picker.value + 1) * 5));
   }
 }
 

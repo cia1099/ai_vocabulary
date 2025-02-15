@@ -93,10 +93,20 @@ class SettingTab extends StatelessWidget {
                             AppSettings.of(context).hideSliderTitle = value,
                       ),
                     ),
-                    const CountPickerTile(
-                        titlePattern: 'Review ,?, words, a, day'),
-                    const CountPickerTile(
-                        titlePattern: 'Learn, new ,?, words, a, day'),
+                    CountPickerTile(
+                      titlePattern: 'Review ,?, words, a, day',
+                      initialCount: AppSettings.of(context).reviewCount,
+                      onClose: (count) {
+                        AppSettings.of(context).reviewCount = count;
+                      },
+                    ),
+                    CountPickerTile(
+                      titlePattern: 'Learn, new ,?, words, a, day',
+                      initialCount: AppSettings.of(context).learnCount,
+                      onClose: (count) {
+                        AppSettings.of(context).learnCount = count;
+                      },
+                    ),
                   ]),
                   CupertinoFormSection(header: const Text('Theme'), children: [
                     PlatformListTile(

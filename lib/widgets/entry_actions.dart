@@ -66,32 +66,36 @@ class EntryActions extends StatelessWidget {
         FavoriteStar(wordID: wordID!, size: appBarIconSize),
       if (!skipIndexes.contains(2) && wordID != null)
         GestureDetector(
-            onTap: () => Navigator.of(context).push(PageRouteBuilder(
-                  opaque: false,
-                  barrierDismissible: true,
-                  barrierColor:
-                      colorScheme.inverseSurface.withValues(alpha: .4),
-                  pageBuilder: (context, animation, secondaryAnimation) =>
-                      ReportPopUpPage(wordID: wordID!),
-                  // transitionDuration: Durations.medium1,
-                  settings: const RouteSettings(name: AppRoute.menuPopup),
-                  transitionsBuilder:
-                      (context, animation, secondaryAnimation, child) {
-                    final matrix = Matrix4Tween(
-                      end: Matrix4.identity(),
-                      begin: Matrix4.diagonal3Values(1, .1, 1)
-                        ..translate(.0, 1e3),
-                    ).chain(CurveTween(curve: Curves.easeOut));
-                    return AnimatedBuilder(
-                      animation: animation,
-                      builder: (_, __) => Transform(
-                        alignment: Alignment.topCenter,
-                        transform: matrix.evaluate(animation),
-                        child: child,
-                      ),
-                    );
-                  },
-                )),
+            onTap: () {
+              final rBox = context.findRenderObject() as RenderBox?;
+              final anchor = rBox?.localToGlobal(Offset.zero);
+              if (anchor == null) return;
+              Navigator.of(context).push(PageRouteBuilder(
+                opaque: false,
+                barrierDismissible: true,
+                barrierColor: colorScheme.inverseSurface.withValues(alpha: .4),
+                pageBuilder: (context, animation, secondaryAnimation) =>
+                    ReportPopUpPage(wordID: wordID!, anchorPoint: anchor),
+                // transitionDuration: Durations.medium1,
+                settings: const RouteSettings(name: AppRoute.menuPopup),
+                transitionsBuilder:
+                    (context, animation, secondaryAnimation, child) {
+                  final matrix = Matrix4Tween(
+                    end: Matrix4.identity(),
+                    begin: Matrix4.diagonal3Values(1, .1, 1)
+                      ..translate(.0, 1e3),
+                  ).chain(CurveTween(curve: Curves.easeOut));
+                  return AnimatedBuilder(
+                    animation: animation,
+                    builder: (_, __) => Transform(
+                      alignment: Alignment.topCenter,
+                      transform: matrix.evaluate(animation),
+                      child: child,
+                    ),
+                  );
+                },
+              ));
+            },
             child: Icon(
               CupertinoIcons.ellipsis_vertical,
               size: appBarIconSize,
