@@ -14,7 +14,7 @@ extension AcquaintDB on MyDB {
     db.execute(expression,
         [acquaint, lastLearnedTime, wordId]..removeWhere((e) => e == null));
     db.dispose();
-    // Future.microtask(notifyListeners); //I don't know why it has to use Future
+    Future.microtask(notifyListeners); //I don't know why it has to use Future
   }
 
   Acquaintance getAcquaintance(int wordID) {

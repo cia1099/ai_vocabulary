@@ -36,6 +36,7 @@ class AppRoute<T> extends PageRoute<T> {
       builder: (context) {
         final provider = AppSettings.of(context).wordProvider;
         final currentWord = provider?.currentWord;
+        final overTarget = AppSettings.of(context).overTarget;
         final uri = Uri.tryParse(settings.name!);
         var path = uri?.path;
 
@@ -46,6 +47,7 @@ class AppRoute<T> extends PageRoute<T> {
             path = "'$path' not found";
           }
         }
+        // print('overTarget = $overTarget');
 
         switch (path) {
           case AppRoute.cloze:
@@ -58,9 +60,10 @@ class AppRoute<T> extends PageRoute<T> {
                 nextTap: provider == null
                     ? null
                     : () {
-                        if (provider.shouldRemind()) {
+                        if (provider.shouldRemind(overTarget == 1)) {
                           Navigator.popAndPushNamed(
-                              context, AppRoute.reviewWords);
+                              context, AppRoute.reviewWords,
+                              arguments: overTarget == 1);
                         } else {
                           provider.nextStudyWord();
                           Navigator.popUntil(context, (route) => route.isFirst);
@@ -75,6 +78,7 @@ class AppRoute<T> extends PageRoute<T> {
               nextTap: provider == null
                   ? null
                   : () {
+                      //TODO: when reach targe, navigate to share page
                       provider.nextStudyWord();
                       Navigator.popUntil(context, (route) => route.isFirst);
                     },

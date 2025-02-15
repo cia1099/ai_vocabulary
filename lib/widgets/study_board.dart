@@ -59,6 +59,14 @@ class _StudyBoardState extends State<StudyBoard> with WidgetsBindingObserver {
               final studyCount = snapshot.data == true
                   ? MyDB().fetchStudyCounts()
                   : StudyCount();
+              if (studyCount == targetStudy) {
+                AppSettings.of(context).overTarget = 1;
+              } else if (studyCount.reviewCount < targetStudy.reviewCount ||
+                  studyCount.newCount < targetStudy.newCount) {
+                AppSettings.of(context).overTarget = 0;
+              } else {
+                AppSettings.of(context).overTarget++;
+              }
               return Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [

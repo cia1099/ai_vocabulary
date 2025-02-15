@@ -17,7 +17,7 @@ class WordListPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hPadding = MediaQuery.of(context).size.width / 16;
+    final hPadding = MediaQuery.of(context).size.width / 32;
     final dividerTheme = Theme.of(context).dividerTheme;
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
@@ -25,6 +25,7 @@ class WordListPage extends StatelessWidget {
     final title = routeName != null && routeName.contains('entry')
         ? 'Review Words'
         : 'My table vocabulary';
+    final reachTarget = ModalRoute.of(context)?.settings.arguments as bool?;
     return PlatformScaffold(
       appBar: PlatformAppBar(
         leading: nextTap == null
@@ -46,8 +47,9 @@ class WordListPage extends StatelessWidget {
           children: [
             ListView.builder(
               itemExtentBuilder: (index, dimensions) {
-                if (words.length < 10 && words.isNotEmpty)
+                if (words.length < 10 && words.isNotEmpty) {
                   return dimensions.viewportMainAxisExtent / kRemindLength;
+                }
                 return dimensions.viewportMainAxisExtent / 10;
               },
               itemCount: words.length, //+ (words.length < 10 ? 1 : 0),
@@ -124,7 +126,7 @@ class WordListPage extends StatelessWidget {
                 offstage: nextTap == null,
                 child: PlatformElevatedButton(
                   onPressed: nextTap,
-                  child: const Text('Next set'),
+                  child: Text(reachTarget != true ? 'Next set' : 'Complete'),
                 ),
               ),
             )

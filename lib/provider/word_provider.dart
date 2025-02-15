@@ -45,13 +45,14 @@ abstract class WordProvider {
       _studyWords.indexWhere(test, start);
   // reminder
   static final _remindWords = <Vocabulary>{};
-  bool shouldRemind() {
+  bool shouldRemind([bool reachTarget = false]) {
     if (currentWord != null) {
       _remindWords.add(currentWord!);
     }
     return _remindWords.isNotEmpty &&
             _remindWords.length % kRemindLength == 0 ||
-        _remindWords.length >= length;
+        _remindWords.length >= length ||
+        reachTarget;
   }
 
   List<Vocabulary> remindWords() {
@@ -65,7 +66,6 @@ abstract class WordProvider {
       pageController.nextPage(
           duration: Durations.medium3, curve: Curves.easeInBack);
     });
-    MyDB().notifyListeners();
   }
 
   void _onAttach(ScrollPosition position) {
@@ -84,8 +84,9 @@ class RecommendProvider extends WordProvider {
     fetchStudyWords(0).whenComplete(() {
       currentWord = _studyWords.firstOrNull;
       _completer.complete(true);
-    }).onError(
-        (e, _) => _completer.completeError(TimeoutException(e.toString())));
+    });
+    // .onError(
+    //     (e, _) => _completer.completeError(TimeoutException(e.toString())));
   }
 
   static const kMaxLength = 10;
@@ -130,8 +131,8 @@ class RecommendProvider extends WordProvider {
 
 class ReviewProvider extends WordProvider {
   ReviewProvider() {
-    fetchReviewWords()
-        .onError((e, __) => _completer.completeError(e.toString()));
+    fetchReviewWords();
+    // .onError((e, __) => _completer.completeError(e.toString()));
   }
 
   Future<void> fetchReviewWords() async {

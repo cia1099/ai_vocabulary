@@ -17,6 +17,7 @@ class MySettings extends ChangeNotifier {
   WordProvider? _wordProvider;
   bool _hideSliderTitle = false;
   final targetStudy = ValueNotifier(StudyCount(newCount: 5, reviewCount: 5));
+  var overTarget = 0;
 
   int get color => _color;
   set color(int newColor) {
