@@ -9,6 +9,7 @@ import 'package:ai_vocabulary/pages/cloze_page.dart';
 import 'package:ai_vocabulary/pages/vocabulary_page.dart';
 
 import 'app_settings.dart';
+import 'database/my_db.dart';
 import 'pages/report_page.dart';
 
 class AppRoute<T> extends PageRoute<T> {
@@ -36,7 +37,6 @@ class AppRoute<T> extends PageRoute<T> {
       builder: (context) {
         final provider = AppSettings.of(context).wordProvider;
         final currentWord = provider?.currentWord;
-        final overTarget = AppSettings.of(context).overTarget;
         final uri = Uri.tryParse(settings.name!);
         var path = uri?.path;
 
@@ -60,10 +60,15 @@ class AppRoute<T> extends PageRoute<T> {
                 nextTap: provider == null
                     ? null
                     : () {
-                        if (provider.shouldRemind(overTarget == 1)) {
+                        final studyCount = MyDB().fetchStudyCounts();
+                        final mySetting = AppSettings.of(context);
+                        mySetting.studyState = mySetting.nextStatus(studyCount);
+                        final reachTarget =
+                            mySetting.studyState == StudyStatus.onTarget;
+                        if (provider.shouldRemind(reachTarget)) {
                           Navigator.popAndPushNamed(
                               context, AppRoute.reviewWords,
-                              arguments: overTarget == 1);
+                              arguments: reachTarget);
                         } else {
                           provider.nextStudyWord();
                           Navigator.popUntil(context, (route) => route.isFirst);

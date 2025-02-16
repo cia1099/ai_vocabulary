@@ -112,10 +112,14 @@ class RecommendProvider extends WordProvider {
     final candidateWords = (await Future.wait(
             [requestWords(requestIDs), fetchWords(reviewIDs, take: count * 2)]))
         .reduce((a, b) => a + b);
+    final isCompletedReview = context.mounted &&
+        AppSettings.of(context).studyState == StudyStatus.completedReview;
     final fib = Fibonacci();
     final selector = WeightedSelector(candidateWords,
         candidateWords.map((w) => 1 - calculateRetention(w, fib)));
-    final words = selector.sampleN(count);
+    final words = isCompletedReview
+        ? candidateWords.take(count)
+        : selector.sampleN(count);
     MyDB().insertWords(
         Stream.fromIterable(words.where((w) => requestIDs.contains(w.wordId))));
 

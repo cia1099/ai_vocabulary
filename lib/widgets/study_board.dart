@@ -59,13 +59,11 @@ class _StudyBoardState extends State<StudyBoard> with WidgetsBindingObserver {
               final studyCount = snapshot.data == true
                   ? MyDB().fetchStudyCounts()
                   : StudyCount();
-              if (studyCount == targetStudy) {
-                AppSettings.of(context).overTarget = 1;
-              } else if (studyCount.reviewCount < targetStudy.reviewCount ||
-                  studyCount.newCount < targetStudy.newCount) {
-                AppSettings.of(context).overTarget = 0;
-              } else {
-                AppSettings.of(context).overTarget++;
+              final mySetting = AppSettings.of(context);
+              //TODO: should avoid state update in UI rendering
+              if (!mySetting.hasInitStudyState && snapshot.data == true) {
+                mySetting.studyState = mySetting.nextStatus(studyCount);
+                mySetting.hasInitStudyState = true;
               }
               return Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,

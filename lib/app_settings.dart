@@ -17,7 +17,10 @@ class MySettings extends ChangeNotifier {
   WordProvider? _wordProvider;
   bool _hideSliderTitle = false;
   final targetStudy = ValueNotifier(StudyCount(newCount: 5, reviewCount: 5));
-  var overTarget = 0;
+
+  ///TODO: Have to find somewhere to initial this _studState when MyDB can fetch studyCount
+  var hasInitStudyState = false; //temporary put on lib/widgets/study_board.dart
+  var _studyState = StudyStatus.underTarget;
 
   int get color => _color;
   set color(int newColor) {
@@ -59,8 +62,54 @@ class MySettings extends ChangeNotifier {
     targetStudy.value = StudyCount(newCount: count, reviewCount: reviewCount);
   }
 
+  //StudyState FSM
+  StudyStatus get studyState => _studyState;
+  set studyState(StudyStatus newStatus) {
+    if (_canTransition(newStatus)) {
+      _studyState = newStatus;
+    } else if (studyState != newStatus) {
+      debugPrint("Invaild transition: $_studyState → $newStatus");
+    }
+  }
+
+  bool _canTransition(StudyStatus newStatus) => switch (studyState) {
+        StudyStatus.underTarget => newStatus == StudyStatus.onTarget ||
+            newStatus == StudyStatus.completedReview ||
+            newStatus == StudyStatus.completedLearn,
+        StudyStatus.completedLearn => newStatus == StudyStatus.onTarget ||
+            newStatus == StudyStatus.underTarget,
+        StudyStatus.completedReview => newStatus == StudyStatus.onTarget ||
+            newStatus == StudyStatus.underTarget,
+        StudyStatus.onTarget => newStatus == StudyStatus.overTarget ||
+            newStatus == StudyStatus.underTarget,
+        StudyStatus.overTarget => newStatus == StudyStatus.underTarget,
+      };
+  StudyStatus nextStatus(StudyCount count) {
+    final target = targetStudy.value;
+    if (count.reviewCount >= target.reviewCount &&
+        count.newCount >= target.newCount) {
+      return studyState.index < StudyStatus.onTarget.index
+          ? StudyStatus.onTarget
+          : StudyStatus.overTarget;
+    } else if (count.reviewCount >= target.reviewCount) {
+      return StudyStatus.completedReview;
+    } else if (count.newCount >= target.newCount) {
+      return StudyStatus.completedLearn;
+    } else {
+      return StudyStatus.underTarget;
+    }
+  }
+
   @override
   void notifyListeners() {
     super.notifyListeners();
   }
+}
+
+enum StudyStatus {
+  underTarget,
+  completedReview,
+  completedLearn,
+  onTarget,
+  overTarget;
 }
