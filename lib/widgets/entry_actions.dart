@@ -9,7 +9,7 @@ import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import '../effects/automated_pop_route.dart';
 import '../pages/add_collection_island.dart';
 import '../pages/report_popup.dart';
-import '../pages/search_popup.dart';
+import '../pages/search_page.dart';
 import '../utils/function.dart';
 import '../utils/shortcut.dart';
 
@@ -40,24 +40,11 @@ class EntryActions extends StatelessWidget {
     return [
       if (!skipIndexes.contains(0))
         GestureDetector(
-            onTap: () => Navigator.of(context).push(PageRouteBuilder(
-                  opaque: false,
-                  barrierDismissible: true,
-                  maintainState: true,
-                  barrierColor:
-                      colorScheme.inverseSurface.withValues(alpha: .4),
-                  pageBuilder: (context, _, __) => const SearchPopUpPage(),
+            onTap: () => Navigator.of(context).push(CupertinoDialogRoute(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (context) => const SearchPage(),
                   settings: const RouteSettings(name: AppRoute.searchWords),
-                  transitionsBuilder:
-                      (context, animation, secondaryAnimation, child) =>
-                          AnimatedBuilder(
-                              animation: animation,
-                              builder: (_, __) => Transform.scale(
-                                    alignment: Alignment.topCenter,
-                                    origin: const Offset(0, 32),
-                                    scaleY: animation.value,
-                                    child: child,
-                                  )),
                 )),
             child: Icon(
               CupertinoIcons.search,

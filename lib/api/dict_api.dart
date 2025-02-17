@@ -27,6 +27,20 @@ Future<List<Vocabulary>> retrievalWord(String word) async {
   }
 }
 
+Future<List<Vocabulary>> searchWord(
+    {required String word, int page = 0}) async {
+  final query = 'query=$word&page=$page';
+  const path = '/dict/search';
+  final url = Uri.parse('http://$baseURL$path?$query');
+  final res = await _httpGet(url);
+  if (res.status == 200) {
+    return List<Vocabulary>.from(
+        json.decode(res.content).map((json) => Vocabulary.fromJson(json)));
+  } else {
+    throw ApiException(res.content);
+  }
+}
+
 Future<int> getMaxId() async {
   final url = Uri.http(baseURL, '/dict/words/max_id');
   final res = await _httpGet(url);

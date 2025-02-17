@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:ai_vocabulary/database/my_db.dart';
 import 'package:ai_vocabulary/pages/slider_page.dart';
 import 'package:ai_vocabulary/provider/word_provider.dart';
-import 'package:ai_vocabulary/utils/shortcut.dart';
+import 'package:ai_vocabulary/widgets/entry_actions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -40,7 +40,7 @@ class _VocabularyTabState extends State<VocabularyTab>
             tabAlignment: TabAlignment.center,
             dividerColor: const Color(0x00000000),
             tabs: const [Tab(text: 'Review'), Tab(text: 'Recommend')]),
-        backgroundColor: kCupertinoSheetColor.resolveFrom(context),
+        trailingActions: const [EntryActions()],
         cupertino: (_, __) =>
             CupertinoNavigationBarData(transitionBetweenRoutes: false),
       ),

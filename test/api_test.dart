@@ -20,6 +20,12 @@ void main() {
     final word = await getWordById(wordId);
     expect(word.wordId, wordId);
   }, tags: 'direct_api');
+  test('search word API', () async {
+    final words = await searchWord(word: 'apple');
+    // printOnFailure(words.map((w) => w.word).join(', '));
+    expect(words.length, greaterThanOrEqualTo(1));
+    expect(words.map((w) => w.word), contains('apple'));
+  }, tags: 'direct_api');
   test('Test failure case by Id', () async {
     final maxId = await getMaxId();
     expect(maxId, greaterThan(0), reason: 'Guarantee max Id exist');
