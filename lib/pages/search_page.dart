@@ -25,7 +25,8 @@ class _SearchPageState extends State<SearchPage> {
     ),
   );
   final refreshKey = GlobalKey<RefreshIndicatorState>();
-  var isRefreshing = false;
+  var refreshIndex = -1, isRefreshing = false;
+  final items = List.filled(5, 0);
 
   @override
   Widget build(BuildContext context) {
@@ -82,17 +83,17 @@ class _SearchPageState extends State<SearchPage> {
           },
           onStatusChange: (status) {
             if (status == RefreshIndicatorStatus.done) {
-              final dExtent = scrollController.position.extentBefore -
-                  scrollController.position.extentAfter;
-              if (dExtent > 0) {
+              if (refreshIndex > 0) {
                 Future.delayed(Durations.extralong4, () {}).whenComplete(() {
                   setState(() {
                     isRefreshing = false;
+                    refreshIndex = -1;
                   });
                 });
               } else {
                 setState(() {
                   isRefreshing = false;
+                  refreshIndex = -1;
                 });
               }
             }
@@ -106,11 +107,13 @@ class _SearchPageState extends State<SearchPage> {
             slivers: [
               SliverList.builder(
                 // prototypeItem: itemBuilder(0, context, hPadding, colorScheme),
-                itemCount: 10 + 2,
+                itemCount: items.length + 2,
                 itemBuilder: (context, index) {
-                  if (index == 0 || index == 11) {
+                  if (index == 0 || index == items.length + 1) {
+                    final offstage = !(isRefreshing &&
+                        (index == 0 ? refreshIndex == 0 : refreshIndex > 0));
                     return Offstage(
-                        offstage: !isRefreshing,
+                        offstage: offstage,
                         child: FutureBuilder(
                           future: isRefreshing
                               ? refreshKey.currentState?.show()
@@ -185,11 +188,14 @@ class _SearchPageState extends State<SearchPage> {
   void scrollNotification() {
     final dExtent = scrollController.position.extentBefore -
         scrollController.position.extentAfter;
+    // print('dExtent: $dExtent');
     final maxExtent = scrollController.position.maxScrollExtent;
-    if (dExtent < -maxExtent - 100) {
+    if (dExtent < -maxExtent - 125) {
       refreshKey.currentState?.show();
-    } else if (dExtent > maxExtent + 100) {
+      refreshIndex = 0;
+    } else if (dExtent > maxExtent + 125) {
       refreshKey.currentState?.show(atTop: false);
+      refreshIndex = 1;
     }
   }
 }
