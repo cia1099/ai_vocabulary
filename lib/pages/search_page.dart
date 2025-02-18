@@ -1,3 +1,6 @@
+import 'dart:math';
+
+import 'package:ai_vocabulary/utils/load_more_listview.dart';
 import 'package:ai_vocabulary/utils/shortcut.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -15,8 +18,6 @@ class SearchPage extends StatefulWidget {
 
 class _SearchPageState extends State<SearchPage> {
   final textController = TextEditingController();
-  late final scrollController = ScrollController()
-    ..addListener(scrollNotification);
   late final suffixIcon = Padding(
     padding: const EdgeInsets.only(right: 8),
     child: GestureDetector(
@@ -24,9 +25,8 @@ class _SearchPageState extends State<SearchPage> {
       child: const Icon(CupertinoIcons.delete_left_fill),
     ),
   );
-  final refreshKey = GlobalKey<RefreshIndicatorState>();
-  var refreshIndex = -1, isRefreshing = false;
-  final items = List.filled(5, 0);
+  final rng = Random();
+  final items = List.filled(1, 0, growable: true);
 
   @override
   Widget build(BuildContext context) {
@@ -73,72 +73,30 @@ class _SearchPageState extends State<SearchPage> {
         ),
       ),
       body: SafeArea(
-        child: RefreshIndicator.noSpinner(
-          key: refreshKey,
-          onRefresh: () async {
-            setState(() {
-              isRefreshing = true;
-            });
-            return Future.delayed(Durations.extralong4 * 1.5);
-          },
-          onStatusChange: (status) {
-            if (status == RefreshIndicatorStatus.done) {
-              if (refreshIndex > 0) {
-                Future.delayed(Durations.extralong4, () {}).whenComplete(() {
-                  setState(() {
-                    isRefreshing = false;
-                    refreshIndex = -1;
-                  });
-                });
-              } else {
-                setState(() {
-                  isRefreshing = false;
-                  refreshIndex = -1;
-                });
-              }
-            }
-          },
-          notificationPredicate: (notification) => false,
-          child: CustomScrollView(
-            physics: const AlwaysScrollableScrollPhysics(
-              parent: BouncingScrollPhysics(),
-            ),
-            controller: scrollController,
-            slivers: [
-              SliverList.builder(
-                // prototypeItem: itemBuilder(0, context, hPadding, colorScheme),
-                itemCount: items.length + 2,
-                itemBuilder: (context, index) {
-                  if (index == 0 || index == items.length + 1) {
-                    final offstage = !(isRefreshing &&
-                        (index == 0 ? refreshIndex == 0 : refreshIndex > 0));
-                    return Offstage(
-                        offstage: offstage,
-                        child: FutureBuilder(
-                          future: isRefreshing
-                              ? refreshKey.currentState?.show()
-                              : null,
-                          builder: (context, snapshot) => Center(
-                            child: snapshot.connectionState ==
-                                    ConnectionState.done
-                                ? const Text('No more data')
-                                : const CircularProgressIndicator.adaptive(),
-                          ),
-                        ));
-                  }
-                  final i = index - 1;
-                  return Container(
-                    height: 100,
-                    alignment: const Alignment(0, 0),
-                    color: index.isEven ? Colors.black12 : null,
-                    child: Text('$i', textScaler: const TextScaler.linear(5)),
-                  );
-                },
-              ),
-            ],
-          ),
+          child: LoadMoreListView(
+        itemCount: items.length,
+        itemBuilder: (context, index) => Container(
+          height: 100,
+          alignment: const Alignment(0, 0),
+          color: index.isEven ? Colors.black12 : null,
+          child: Text('$index', textScaler: const TextScaler.linear(5)),
         ),
-      ),
+        onLoadMore: (atTop) async {
+          var hasMore = true; //rng.nextBool();
+          // print('has more? $hasMore');
+          await Future.delayed(Durations.extralong4 * 1.5);
+          if (!atTop && hasMore) {
+            hasMore = true;
+            Future.delayed(
+                Durations.long3,
+                () => setState(() {
+                      items.addAll(List.filled(1, 0));
+                    }));
+          }
+          return hasMore;
+        },
+        // onLoadDone: () => setState(() {}),
+      )),
     );
   }
 
@@ -183,19 +141,5 @@ class _SearchPageState extends State<SearchPage> {
         ],
       ),
     );
-  }
-
-  void scrollNotification() {
-    final dExtent = scrollController.position.extentBefore -
-        scrollController.position.extentAfter;
-    // print('dExtent: $dExtent');
-    final maxExtent = scrollController.position.maxScrollExtent;
-    if (dExtent < -maxExtent - 125) {
-      refreshKey.currentState?.show();
-      refreshIndex = 0;
-    } else if (dExtent > maxExtent + 125) {
-      refreshKey.currentState?.show(atTop: false);
-      refreshIndex = 1;
-    }
   }
 }
