@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'dart:math';
+
+import '../utils/shortcut.dart';
 part 'vocabulary_ext.dart';
 
 class Vocabulary {

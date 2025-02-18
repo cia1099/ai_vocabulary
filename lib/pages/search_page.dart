@@ -24,7 +24,11 @@ class _SearchPageState extends State<SearchPage> {
   late final suffixIcon = Padding(
     padding: const EdgeInsets.only(right: 8),
     child: GestureDetector(
-      onTap: textController.clear,
+      onTap: () {
+        textController.clear();
+        preventQuickChange?.cancel();
+        requireMoreWords('', 0);
+      },
       child: const Icon(CupertinoIcons.delete_left_fill),
     ),
   );
@@ -56,11 +60,8 @@ class _SearchPageState extends State<SearchPage> {
                 textInputAction: TextInputAction.search,
                 onChanged: (text) {
                   preventQuickChange?.cancel();
-                  preventQuickChange = Timer(
-                      Durations.medium4,
-                      () => setState(() {
-                            searchFuture = requireMoreWords(text, 0);
-                          }));
+                  preventQuickChange =
+                      Timer(Durations.medium4, () => requireMoreWords(text, 0));
                 },
                 onSubmitted: (p0) {
                   preventQuickChange?.cancel();
@@ -127,6 +128,7 @@ class _SearchPageState extends State<SearchPage> {
     final textTheme = Theme.of(context).textTheme;
     final word = searchWords[index];
     return Container(
+      key: Key(word.word),
       height: 40,
       padding: EdgeInsets.symmetric(horizontal: hPadding),
       decoration: BoxDecoration(
@@ -150,7 +152,7 @@ class _SearchPageState extends State<SearchPage> {
                     LimitedBox(
                       maxWidth: constraints.maxWidth,
                       child: Text(
-                        word.definitions.map((d) => d.translate).join(', '),
+                        word.getSpeechAndTranslation,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(color: colorScheme.outline),
@@ -169,6 +171,7 @@ class _SearchPageState extends State<SearchPage> {
   Future<bool> requireMoreWords(String text, int page) async {
     final words = await searchWord(word: text, page: page);
     final hasMore = words.isNotEmpty;
+    // print('text = $text, page = $page, words = ${words.length}');
     if (page == 0 || hasMore) {
       requiredPage = page;
     }
@@ -177,7 +180,8 @@ class _SearchPageState extends State<SearchPage> {
     } else {
       searchWords.addAll(words);
     }
-    if (hasMore && mounted) setState(() {});
+    //update data(searchWords) must setState every time
+    if (hasMore || page == 0 && mounted) setState(() {});
     return hasMore;
   }
 }

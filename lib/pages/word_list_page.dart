@@ -101,14 +101,18 @@ class WordListPage extends StatelessWidget {
                           ]))
                         ],
                       ),
-                      subtitle: Wrap(
-                          spacing: 8,
-                          children: word.definitions
-                              .map((d) => Text(
-                                    speechShortcut(d.partOfSpeech),
-                                    style: textTheme.bodyLarge,
-                                  ))
-                              .toList()),
+                      subtitle: Text(word.getSpeechAndTranslation,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: textTheme.bodyLarge),
+                      // Wrap(
+                      //     spacing: 8,
+                      //     children: word.definitions
+                      //         .map((d) => Text(
+                      //               speechShortcut(d.partOfSpeech),
+                      //               style: textTheme.bodyLarge,
+                      //             ))
+                      //         .toList()),
                       onTap: () => Navigator.of(context).push(platformPageRoute(
                         context: context,
                         builder: (context) => VocabularyPage(word: word),

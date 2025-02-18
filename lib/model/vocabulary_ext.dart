@@ -28,6 +28,10 @@ extension VocabularyExtension on Vocabulary {
       .map((e) => e.examples)
       .reduce((e1, e2) => e1 + e2);
 
+  String get getSpeechAndTranslation => definitions
+      .map((d) => speechShortcut(d.partOfSpeech) + (d.translate ?? ''))
+      .join('/ '); //(String.fromCharCode(0x2227));
+
   int differ(String queryWord) => word.diff(queryWord);
 
   Iterable<Phonetic> getPhonetics() => definitions.expand((d) sync* {

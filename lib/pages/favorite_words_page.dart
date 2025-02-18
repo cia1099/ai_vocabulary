@@ -210,15 +210,19 @@ class _FavoriteWordsPageState extends State<FavoriteWordsPage> {
                         maxLines: 2,
                         style: textTheme.titleMedium,
                       ),
-                      subtitle: Wrap(
-                        spacing: 8,
-                        children: word.definitions
-                            .map((d) => Text(
-                                  speechShortcut(d.partOfSpeech),
-                                  style: textTheme.bodyLarge,
-                                ))
-                            .toList(),
-                      ),
+                      subtitle: Text(word.getSpeechAndTranslation,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: textTheme.bodyLarge),
+                      // Wrap(
+                      //   spacing: 8,
+                      //   children: word.definitions
+                      //       .map((d) => Text(
+                      //             speechShortcut(d.partOfSpeech),
+                      //             style: textTheme.bodyLarge,
+                      //           ))
+                      //       .toList(),
+                      // ),
                       trailing: const CupertinoListTileChevron(),
                       onTap: () => Navigator.push(
                           context,

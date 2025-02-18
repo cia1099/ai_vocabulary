@@ -76,7 +76,10 @@ class _NavigationPageState extends State<NavigationPage> {
             context: context,
             removeBottom: true,
             child: VocabularyTab(onTabChanged: widget.onTabChanged)),
-        const AlphabetListTab(),
+        MediaQuery.removeViewInsets(
+            context: context,
+            removeBottom: true,
+            child: const AlphabetListTab()),
         ChartTab(key: _index == 2 ? ValueKey(_index) : null),
         const SettingTab(),
       ]),
