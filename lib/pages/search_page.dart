@@ -1,11 +1,14 @@
-import 'dart:math';
+import 'dart:async';
 
 import 'package:ai_vocabulary/utils/load_more_listview.dart';
 import 'package:ai_vocabulary/utils/shortcut.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
-import 'package:flutter_lorem/flutter_lorem.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+
+import '../api/dict_api.dart';
+import '../model/vocabulary.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({
@@ -25,13 +28,20 @@ class _SearchPageState extends State<SearchPage> {
       child: const Icon(CupertinoIcons.delete_left_fill),
     ),
   );
-  final rng = Random();
-  var items = List.filled(5, 0, growable: true);
+  var searchWords = <Vocabulary>[], requiredPage = 0;
+  var searchFuture = Future.value(false);
+  Timer? preventQuickChange;
+
+  @override
+  void dispose() {
+    preventQuickChange?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    // final hPadding = MediaQuery.sizeOf(context).width / 32;
+    final hPadding = MediaQuery.sizeOf(context).width / 32;
     return PlatformScaffold(
       appBar: PlatformAppBar(
         leading: const SizedBox.shrink(),
@@ -44,6 +54,20 @@ class _SearchPageState extends State<SearchPage> {
                 hintText: 'find it',
                 controller: textController,
                 textInputAction: TextInputAction.search,
+                onChanged: (text) {
+                  preventQuickChange?.cancel();
+                  preventQuickChange = Timer(
+                      Durations.medium4,
+                      () => setState(() {
+                            searchFuture = requireMoreWords(text, 0);
+                          }));
+                },
+                onSubmitted: (p0) {
+                  preventQuickChange?.cancel();
+                  setState(() {
+                    searchFuture = requireMoreWords(p0, 0);
+                  });
+                },
                 cupertino: (_, __) => CupertinoTextFieldData(
                   decoration: BoxDecoration(
                       border: Border.all(color: colorScheme.primary, width: 2),
@@ -73,35 +97,25 @@ class _SearchPageState extends State<SearchPage> {
         ),
       ),
       body: SafeArea(
-        child: LoadMoreListView.builder(
-          itemCount: items.length,
-          itemBuilder: (context, index) => Container(
-            height: 100,
-            alignment: const Alignment(0, 0),
-            color: index.isEven ? Colors.black12 : null,
-            child: Text('$index', textScaler: const TextScaler.linear(5)),
-          ),
-          onLoadMore: (atTop) async {
-            var hasMore = rng.nextBool();
-            // print('has more? $hasMore');
-            await Future.delayed(Durations.extralong4 * 1.5);
-            if (!atTop && hasMore) {
-              hasMore = true;
-              items.addAll(List.filled(5, 0));
-              // items.add(1);
-              // Future.delayed(
-              //     Durations.long3,
-              //     () => setState(() {
-              //           items.addAll(List.filled(5, 0));
-              //           // items.add(1);
-              //         }));
-            } else if (atTop) {
-              items = [1, 1, 1, 1, 1];
+        child: FutureBuilder(
+          future: searchFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(
+                child: SpinKitFadingCircle(color: colorScheme.secondary),
+              );
             }
-            return hasMore;
+            return LoadMoreListView.builder(
+              itemCount: searchWords.length,
+              itemBuilder: (context, index) =>
+                  itemBuilder(index, context, hPadding, colorScheme),
+              onLoadMore: (atTop) async {
+                preventQuickChange?.cancel();
+                final text = textController.text;
+                return requireMoreWords(text, atTop ? 0 : requiredPage + 1);
+              },
+            );
           },
-          onLoadDone: () => setState(() {}),
-          // thresholdExtent: 2e2,
         ),
       ),
     );
@@ -109,13 +123,15 @@ class _SearchPageState extends State<SearchPage> {
 
   Widget itemBuilder(int index, BuildContext context, double hPadding,
       ColorScheme colorScheme) {
+    if (index > searchWords.length) return const SizedBox.shrink();
     final textTheme = Theme.of(context).textTheme;
-    final i = index - 1;
+    final word = searchWords[index];
     return Container(
       height: 40,
+      padding: EdgeInsets.symmetric(horizontal: hPadding),
       decoration: BoxDecoration(
           border: Border(
-              top: i > 0
+              top: index > 0
                   ? BorderSide(
                       color: CupertinoColors.secondarySystemFill
                           .resolveFrom(context))
@@ -123,7 +139,7 @@ class _SearchPageState extends State<SearchPage> {
       child: Row(
         spacing: hPadding,
         children: [
-          Text(lorem(paragraphs: 1, words: 1), style: textTheme.titleSmall),
+          Text(word.word, style: textTheme.titleSmall),
           Expanded(
             child: LayoutBuilder(
               builder: (context, constraints) {
@@ -134,7 +150,7 @@ class _SearchPageState extends State<SearchPage> {
                     LimitedBox(
                       maxWidth: constraints.maxWidth,
                       child: Text(
-                        lorem(paragraphs: 1, words: 1),
+                        word.definitions.map((d) => d.translate).join(', '),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(color: colorScheme.outline),
@@ -148,5 +164,20 @@ class _SearchPageState extends State<SearchPage> {
         ],
       ),
     );
+  }
+
+  Future<bool> requireMoreWords(String text, int page) async {
+    final words = await searchWord(word: text, page: page);
+    final hasMore = words.isNotEmpty;
+    if (page == 0 || hasMore) {
+      requiredPage = page;
+    }
+    if (page == 0) {
+      searchWords = words;
+    } else {
+      searchWords.addAll(words);
+    }
+    if (hasMore && mounted) setState(() {});
+    return hasMore;
   }
 }

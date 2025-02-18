@@ -9,7 +9,6 @@ class LoadMoreListView<T> extends StatefulWidget {
     this.indicator,
     this.thresholdExtent = 125,
     this.onLoadMore,
-    this.onLoadDone,
   });
   final int itemCount;
   final Widget? Function(BuildContext context, int index) itemBuilder;
@@ -17,7 +16,6 @@ class LoadMoreListView<T> extends StatefulWidget {
   final Widget? indicator;
   final double thresholdExtent;
   final Future<T> Function(bool atTop)? onLoadMore;
-  final VoidCallback? onLoadDone;
 
   factory LoadMoreListView.builder({
     Key? key,
@@ -27,7 +25,6 @@ class LoadMoreListView<T> extends StatefulWidget {
     Widget? indicator,
     double thresholdExtent = 125,
     Future<T> Function(bool atTop)? onLoadMore,
-    VoidCallback? onLoadDone,
   }) =>
       LoadMoreListView(
         key: key,
@@ -37,7 +34,6 @@ class LoadMoreListView<T> extends StatefulWidget {
         indicator: indicator,
         thresholdExtent: thresholdExtent,
         onLoadMore: onLoadMore,
-        onLoadDone: onLoadDone,
       );
 
   @override
@@ -67,9 +63,8 @@ class _LoadMoreListViewState extends State<LoadMoreListView> {
           if (refreshIndex > 0) {
             loadFuture?.then((hasMore) {
               if (hasMore! || hasMore == false) {
-                return Future.delayed(Durations.extralong4, () => hasMore);
+                return Future.delayed(Durations.extralong4);
               }
-              return hasMore;
             }).whenComplete(() {
               setState(() {
                 isRefreshing = false;
@@ -83,7 +78,6 @@ class _LoadMoreListViewState extends State<LoadMoreListView> {
             });
           }
           loadFuture = null;
-          Future.delayed(Durations.extralong4, widget.onLoadDone);
         }
       },
       notificationPredicate: (notification) => false,
@@ -105,18 +99,13 @@ class _LoadMoreListViewState extends State<LoadMoreListView> {
                       initialData: false,
                       future: loadFuture,
                       builder: (context, snapshot) {
-                        // if (snapshot.data == true) {
-                        //   WidgetsBinding.instance.addPostFrameCallback((_) {
-                        //     widget.onLoadDone?.call();
-                        //   });
-                        // }
                         if (snapshot.connectionState ==
                             ConnectionState.waiting) {
                           return Center(
                               child: widget.indicator ??
                                   const CircularProgressIndicator.adaptive());
                         }
-                        // loadFuture = null;
+
                         return Center(
                             child: snapshot.connectionState ==
                                         ConnectionState.done &&
@@ -144,12 +133,12 @@ class _LoadMoreListViewState extends State<LoadMoreListView> {
     //     'pixel = ${scrollController.position.pixels}, max = ${scrollController.position.maxScrollExtent}');
     // print('Before = ${scrollController.position.extentBefore}');
     // print('After = ${scrollController.position.extentAfter}');
-    final maxExent = scrollController.position.maxScrollExtent;
+    final maxExtent = scrollController.position.maxScrollExtent;
     final pixel = scrollController.position.pixels;
     if (pixel < -widget.thresholdExtent) {
       refreshKey.currentState?.show();
       refreshIndex = 0;
-    } else if (pixel - maxExent > widget.thresholdExtent) {
+    } else if (pixel - maxExtent > widget.thresholdExtent) {
       refreshKey.currentState?.show(atTop: false);
       refreshIndex = 1;
     }
@@ -160,5 +149,62 @@ class _LoadMoreListViewState extends State<LoadMoreListView> {
     scrollController.removeListener(scrollNotification);
     refreshKey.currentState?.deactivate();
     super.dispose();
+  }
+}
+
+void main() {
+  runApp(MaterialApp(
+    theme: ThemeData(brightness: Brightness.light),
+    home: const Example(),
+  ));
+}
+
+class Example extends StatefulWidget {
+  const Example({super.key});
+
+  @override
+  State<Example> createState() => _ExampleState();
+}
+
+class _ExampleState extends State<Example> {
+  var items = List.filled(5, 0, growable: true);
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        // navigationBar: const CupertinoNavigationBar(
+        //   middle: Text('Load more Example'),
+        // ),
+        appBar: AppBar(
+          title: const Text('Load more Example'),
+        ),
+        body: LoadMoreListView.builder(
+          itemCount: items.length,
+          itemBuilder: (context, index) => Container(
+            height: 100,
+            alignment: const Alignment(0, 0),
+            color: index.isEven ? Colors.black12 : null,
+            child: Text('$index', textScaler: const TextScaler.linear(5)),
+          ),
+          onLoadMore: (atTop) async {
+            var hasMore = true; //rng.nextBool();
+            // print('has more? $hasMore');
+            await Future.delayed(Durations.extralong4 * 1.5);
+            if (!atTop && hasMore) {
+              hasMore = true;
+              items.addAll(List.filled(5, 0));
+              // items.add(1);
+              // Future.delayed(
+              //     Durations.long3,
+              //     () => setState(() {
+              //           items.addAll(List.filled(5, 0));
+              //           // items.add(1);
+              //         }));
+            } else if (atTop) {
+              items = [1, 1, 1, 1, 1];
+            }
+            setState(() {});
+            return hasMore;
+          },
+        ));
   }
 }
