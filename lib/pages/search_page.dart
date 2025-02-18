@@ -26,12 +26,12 @@ class _SearchPageState extends State<SearchPage> {
     ),
   );
   final rng = Random();
-  final items = List.filled(1, 0, growable: true);
+  var items = List.filled(5, 0, growable: true);
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final hPadding = MediaQuery.sizeOf(context).width / 32;
+    // final hPadding = MediaQuery.sizeOf(context).width / 32;
     return PlatformScaffold(
       appBar: PlatformAppBar(
         leading: const SizedBox.shrink(),
@@ -73,30 +73,37 @@ class _SearchPageState extends State<SearchPage> {
         ),
       ),
       body: SafeArea(
-          child: LoadMoreListView(
-        itemCount: items.length,
-        itemBuilder: (context, index) => Container(
-          height: 100,
-          alignment: const Alignment(0, 0),
-          color: index.isEven ? Colors.black12 : null,
-          child: Text('$index', textScaler: const TextScaler.linear(5)),
+        child: LoadMoreListView.builder(
+          itemCount: items.length,
+          itemBuilder: (context, index) => Container(
+            height: 100,
+            alignment: const Alignment(0, 0),
+            color: index.isEven ? Colors.black12 : null,
+            child: Text('$index', textScaler: const TextScaler.linear(5)),
+          ),
+          onLoadMore: (atTop) async {
+            var hasMore = rng.nextBool();
+            // print('has more? $hasMore');
+            await Future.delayed(Durations.extralong4 * 1.5);
+            if (!atTop && hasMore) {
+              hasMore = true;
+              items.addAll(List.filled(5, 0));
+              // items.add(1);
+              // Future.delayed(
+              //     Durations.long3,
+              //     () => setState(() {
+              //           items.addAll(List.filled(5, 0));
+              //           // items.add(1);
+              //         }));
+            } else if (atTop) {
+              items = [1, 1, 1, 1, 1];
+            }
+            return hasMore;
+          },
+          onLoadDone: () => setState(() {}),
+          // thresholdExtent: 2e2,
         ),
-        onLoadMore: (atTop) async {
-          var hasMore = true; //rng.nextBool();
-          // print('has more? $hasMore');
-          await Future.delayed(Durations.extralong4 * 1.5);
-          if (!atTop && hasMore) {
-            hasMore = true;
-            Future.delayed(
-                Durations.long3,
-                () => setState(() {
-                      items.addAll(List.filled(1, 0));
-                    }));
-          }
-          return hasMore;
-        },
-        // onLoadDone: () => setState(() {}),
-      )),
+      ),
     );
   }
 

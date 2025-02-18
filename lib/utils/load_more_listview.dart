@@ -19,6 +19,27 @@ class LoadMoreListView<T> extends StatefulWidget {
   final Future<T> Function(bool atTop)? onLoadMore;
   final VoidCallback? onLoadDone;
 
+  factory LoadMoreListView.builder({
+    Key? key,
+    required int itemCount,
+    required Widget Function(BuildContext context, int index) itemBuilder,
+    ScrollController? controller,
+    Widget? indicator,
+    double thresholdExtent = 125,
+    Future<T> Function(bool atTop)? onLoadMore,
+    VoidCallback? onLoadDone,
+  }) =>
+      LoadMoreListView(
+        key: key,
+        itemCount: itemCount,
+        itemBuilder: itemBuilder,
+        controller: controller,
+        indicator: indicator,
+        thresholdExtent: thresholdExtent,
+        onLoadMore: onLoadMore,
+        onLoadDone: onLoadDone,
+      );
+
   @override
   State<LoadMoreListView> createState() => _LoadMoreListViewState();
 }
@@ -117,18 +138,18 @@ class _LoadMoreListViewState extends State<LoadMoreListView> {
 
   void scrollNotification() {
     if (loadFuture != null) return;
-    final visibleH = scrollController.position.extentTotal -
-        scrollController.position.extentInside;
     // print(
     //     'total = ${scrollController.position.extentTotal}, inside = ${scrollController.position.extentInside}');
+    // print(
+    //     'pixel = ${scrollController.position.pixels}, max = ${scrollController.position.maxScrollExtent}');
     // print('Before = ${scrollController.position.extentBefore}');
     // print('After = ${scrollController.position.extentAfter}');
-    if (scrollController.position.extentAfter > 1e-2 &&
-        visibleH > widget.thresholdExtent) {
+    final maxExent = scrollController.position.maxScrollExtent;
+    final pixel = scrollController.position.pixels;
+    if (pixel < -widget.thresholdExtent) {
       refreshKey.currentState?.show();
       refreshIndex = 0;
-    } else if (scrollController.position.extentBefore > 1e-2 &&
-        visibleH > widget.thresholdExtent) {
+    } else if (pixel - maxExent > widget.thresholdExtent) {
       refreshKey.currentState?.show(atTop: false);
       refreshIndex = 1;
     }
@@ -137,6 +158,7 @@ class _LoadMoreListViewState extends State<LoadMoreListView> {
   @override
   void dispose() {
     scrollController.removeListener(scrollNotification);
+    refreshKey.currentState?.deactivate();
     super.dispose();
   }
 }
