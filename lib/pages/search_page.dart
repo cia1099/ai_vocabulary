@@ -25,7 +25,7 @@ class _SearchPageState extends State<SearchPage> {
     ),
   );
   final refreshKey = GlobalKey<RefreshIndicatorState>();
-  var refreshIndex = -1, isRefreshing = false;
+  var isRefreshing = false;
 
   @override
   Widget build(BuildContext context) {
@@ -82,33 +82,58 @@ class _SearchPageState extends State<SearchPage> {
           },
           onStatusChange: (status) {
             if (status == RefreshIndicatorStatus.done) {
-              if (refreshIndex > 0) {
+              final dExtent = scrollController.position.extentBefore -
+                  scrollController.position.extentAfter;
+              if (dExtent > 0) {
                 Future.delayed(Durations.extralong4, () {}).whenComplete(() {
                   setState(() {
                     isRefreshing = false;
-                    refreshIndex = -1;
                   });
                 });
               } else {
                 setState(() {
                   isRefreshing = false;
-                  refreshIndex = -1;
                 });
               }
             }
           },
           notificationPredicate: (notification) => false,
-          child: ListView.builder(
-              physics: const AlwaysScrollableScrollPhysics(
-                parent: BouncingScrollPhysics(),
+          child: CustomScrollView(
+            physics: const AlwaysScrollableScrollPhysics(
+              parent: BouncingScrollPhysics(),
+            ),
+            controller: scrollController,
+            slivers: [
+              SliverList.builder(
+                // prototypeItem: itemBuilder(0, context, hPadding, colorScheme),
+                itemCount: 10 + 2,
+                itemBuilder: (context, index) {
+                  if (index == 0 || index == 11) {
+                    return Offstage(
+                        offstage: !isRefreshing,
+                        child: FutureBuilder(
+                          future: isRefreshing
+                              ? refreshKey.currentState?.show()
+                              : null,
+                          builder: (context, snapshot) => Center(
+                            child: snapshot.connectionState ==
+                                    ConnectionState.done
+                                ? const Text('No more data')
+                                : const CircularProgressIndicator.adaptive(),
+                          ),
+                        ));
+                  }
+                  final i = index - 1;
+                  return Container(
+                    height: 100,
+                    alignment: const Alignment(0, 0),
+                    color: index.isEven ? Colors.black12 : null,
+                    child: Text('$i', textScaler: const TextScaler.linear(5)),
+                  );
+                },
               ),
-              padding: EdgeInsets.symmetric(horizontal: hPadding),
-              controller: scrollController,
-              // prototypeItem: itemBuilder(0, context, hPadding, colorScheme),
-              itemExtent: 40,
-              itemCount: 5 + (isRefreshing ? 1 : 0),
-              itemBuilder: (context, index) =>
-                  itemBuilder(index, context, hPadding, colorScheme)),
+            ],
+          ),
         ),
       ),
     );
@@ -117,21 +142,7 @@ class _SearchPageState extends State<SearchPage> {
   Widget itemBuilder(int index, BuildContext context, double hPadding,
       ColorScheme colorScheme) {
     final textTheme = Theme.of(context).textTheme;
-    if (index == refreshIndex) {
-      return Container(
-        height: 40,
-        alignment: const Alignment(0, 0),
-        child: FutureBuilder(
-            future: refreshKey.currentState?.show(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.done) {
-                return const Text('No more data');
-              }
-              return const CircularProgressIndicator.adaptive();
-            }),
-      );
-    }
-    final i = index - (refreshIndex == 0 ? 1 : 0);
+    final i = index - 1;
     return Container(
       height: 40,
       decoration: BoxDecoration(
@@ -172,14 +183,13 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   void scrollNotification() {
-    // print('excess top = ${scrollController.position.extentAfter}');
-    // print('excess bottom = ${scrollController.position.extentBefore}');
-    if (scrollController.position.extentAfter >= 100) {
+    final dExtent = scrollController.position.extentBefore -
+        scrollController.position.extentAfter;
+    final maxExtent = scrollController.position.maxScrollExtent;
+    if (dExtent < -maxExtent - 100) {
       refreshKey.currentState?.show();
-      refreshIndex = 0;
-    } else if (scrollController.position.extentBefore >= 100) {
+    } else if (dExtent > maxExtent + 100) {
       refreshKey.currentState?.show(atTop: false);
-      refreshIndex = 5;
     }
   }
 }
