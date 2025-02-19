@@ -128,7 +128,6 @@ class _SearchPageState extends State<SearchPage> {
     final textTheme = Theme.of(context).textTheme;
     final word = searchWords[index];
     return Container(
-      key: Key(word.word),
       height: 40,
       padding: EdgeInsets.symmetric(horizontal: hPadding),
       decoration: BoxDecoration(

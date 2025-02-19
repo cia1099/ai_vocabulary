@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:ai_vocabulary/utils/handle_except.dart';
 import 'package:flutter/material.dart';
 
 class LoadMoreListView<T> extends StatefulWidget {
@@ -9,12 +12,14 @@ class LoadMoreListView<T> extends StatefulWidget {
     this.indicator,
     this.thresholdExtent = 125,
     this.onLoadMore,
+    this.bottomPadding,
   });
   final int itemCount;
   final Widget? Function(BuildContext context, int index) itemBuilder;
   final ScrollController? controller;
   final Widget? indicator;
   final double thresholdExtent;
+  final double? bottomPadding;
   final Future<T> Function(bool atTop)? onLoadMore;
 
   factory LoadMoreListView.builder({
@@ -24,6 +29,7 @@ class LoadMoreListView<T> extends StatefulWidget {
     ScrollController? controller,
     Widget? indicator,
     double thresholdExtent = 125,
+    double? bottomPadding,
     Future<T> Function(bool atTop)? onLoadMore,
   }) =>
       LoadMoreListView(
@@ -33,6 +39,7 @@ class LoadMoreListView<T> extends StatefulWidget {
         controller: controller,
         indicator: indicator,
         thresholdExtent: thresholdExtent,
+        bottomPadding: bottomPadding,
         onLoadMore: onLoadMore,
       );
 
@@ -56,28 +63,22 @@ class _LoadMoreListViewState extends State<LoadMoreListView> {
           isRefreshing = true;
           loadFuture ??= widget.onLoadMore?.call(refreshIndex == 0);
         });
-        await loadFuture;
+        await loadFuture?.catchError((_) => false);
       },
       onStatusChange: (status) {
         if (status == RefreshIndicatorStatus.done) {
-          if (refreshIndex > 0) {
-            loadFuture?.then((hasMore) {
-              if (hasMore! || hasMore == false) {
-                return Future.delayed(Durations.extralong4);
-              }
-            }).whenComplete(() {
-              setState(() {
-                isRefreshing = false;
-                refreshIndex = -1;
-              });
-            });
-          } else {
+          loadFuture?.onError((e, _) => Exception(e)).then((hasMore) {
+            if (hasMore is Exception ||
+                refreshIndex > 0 && (hasMore! || hasMore == false)) {
+              return Future.delayed(Durations.extralong4);
+            }
+          }).whenComplete(() {
             setState(() {
               isRefreshing = false;
               refreshIndex = -1;
+              loadFuture = null;
             });
-          }
-          loadFuture = null;
+          });
         }
       },
       notificationPredicate: (notification) => false,
@@ -93,29 +94,34 @@ class _LoadMoreListViewState extends State<LoadMoreListView> {
               if (index == 0 || index == widget.itemCount + 1) {
                 final offstage = !(isRefreshing &&
                     (index == 0 ? refreshIndex == 0 : refreshIndex > 0));
-                return Offstage(
-                    offstage: offstage,
-                    child: FutureBuilder(
-                      initialData: false,
-                      future: loadFuture,
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return Center(
-                              child: widget.indicator ??
-                                  const CircularProgressIndicator.adaptive());
-                        }
+                return Container(
+                  height: index == 0 ? null : widget.bottomPadding,
+                  alignment: const Alignment(0, -.85),
+                  child: Offstage(
+                      offstage: offstage,
+                      child: FutureBuilder(
+                        initialData: false,
+                        future: loadFuture,
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return widget.indicator ??
+                                const CircularProgressIndicator.adaptive();
+                          }
+                          if (snapshot.hasError) {
+                            return Text(messageExceptions(snapshot.error),
+                                style: TextStyle(color: colorScheme.error));
+                          }
 
-                        return Center(
-                            child: snapshot.connectionState ==
-                                        ConnectionState.done &&
-                                    snapshot.data == false
-                                ? Text('No more data',
-                                    style:
-                                        TextStyle(color: colorScheme.outline))
-                                : null);
-                      },
-                    ));
+                          return snapshot.connectionState ==
+                                      ConnectionState.done &&
+                                  snapshot.data == false
+                              ? Text('No more data',
+                                  style: TextStyle(color: colorScheme.outline))
+                              : const SizedBox.shrink();
+                        },
+                      )),
+                );
               }
               return widget.itemBuilder(context, index - 1);
             },
@@ -185,10 +191,12 @@ class _ExampleState extends State<Example> {
             color: index.isEven ? Colors.black12 : null,
             child: Text('$index', textScaler: const TextScaler.linear(5)),
           ),
+          bottomPadding: 100,
           onLoadMore: (atTop) async {
             var hasMore = true; //rng.nextBool();
             // print('has more? $hasMore');
             await Future.delayed(Durations.extralong4 * 1.5);
+            // throw Exception('error happen');
             if (!atTop && hasMore) {
               hasMore = true;
               items.addAll(List.filled(5, 0));

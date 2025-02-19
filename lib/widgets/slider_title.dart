@@ -106,8 +106,15 @@ class SliderTitleState extends State<SliderTitle>
                   duration: Durations.medium1,
                   transitionBuilder: (child, animation) => FadeTransition(
                         opacity: CurvedAnimation(
-                            parent: animation, curve: Curves.easeInCirc),
-                        child: child,
+                            parent: animation,
+                            curve: Curves.easeInOut,
+                            reverseCurve: Curves.easeInOutBack),
+                        child: animation.status == AnimationStatus.reverse
+                            ? child
+                            : ScaleTransition(
+                                scale: Tween(begin: 1.3, end: 1.0)
+                                    .animate(animation),
+                                child: child),
                       ),
                   child: content);
             },
