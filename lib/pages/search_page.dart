@@ -1,7 +1,8 @@
 import 'dart:async';
+import 'dart:io';
 
+import 'package:ai_vocabulary/database/my_db.dart';
 import 'package:ai_vocabulary/effects/dot3indicator.dart';
-import 'package:ai_vocabulary/mock_data.dart';
 import 'package:ai_vocabulary/utils/handle_except.dart';
 import 'package:ai_vocabulary/utils/load_more_listview.dart';
 import 'package:ai_vocabulary/utils/shortcut.dart';
@@ -11,7 +12,9 @@ import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 import '../api/dict_api.dart';
+import '../app_route.dart';
 import '../model/vocabulary.dart';
+import 'vocabulary_page.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({
@@ -118,39 +121,13 @@ class _SearchPageState extends State<SearchPage> {
               ));
             }
             return AnimatedSwitcher(
-              duration: Durations.short4,
+              duration: Durations.short3,
               transitionBuilder: (child, animation) =>
-                  FadeTransition(opacity: animation, child: child),
+                  CupertinoDialogTransition(
+                      animation: animation, scale: .9, child: child),
               child: textController.text.isEmpty
                   ? fetchHistorySearch(colorScheme, textTheme, hPadding)
-                  : LoadMoreListView.builder(
-                      itemCount: searchWords.length,
-                      itemBuilder: (context, index) {
-                        if (index >= searchWords.length) {
-                          return const SizedBox.shrink();
-                        }
-                        return vocabularyItemBuilder(
-                          word: searchWords[index],
-                          context: context,
-                          isTop: index == 0,
-                          hPadding: hPadding,
-                          colorScheme: colorScheme,
-                          textTheme: textTheme,
-                        );
-                      },
-                      bottomPadding: 25,
-                      indicator: DotDotDotIndicator(
-                          size: 16,
-                          color: colorScheme.secondary,
-                          duration: Durations.long2),
-                      onLoadMore: (atTop) async {
-                        preventQuickChange?.cancel();
-                        final text = textController.text;
-                        return requireMoreWords(
-                            text, atTop ? 0 : requiredPage + 1);
-                      },
-                      onErrorDisplayText: messageExceptions,
-                    ),
+                  : searchResults(colorScheme, textTheme, hPadding),
             );
           },
         ),
@@ -161,6 +138,7 @@ class _SearchPageState extends State<SearchPage> {
   Widget vocabularyItemBuilder({
     required Vocabulary word,
     required BuildContext context,
+    required void Function(Vocabulary word) onTap,
     Widget? leading,
     bool isTop = false,
     double? hPadding,
@@ -170,8 +148,11 @@ class _SearchPageState extends State<SearchPage> {
     textTheme ??= Theme.of(context).textTheme;
     hPadding ??= MediaQuery.sizeOf(context).width / 32;
     colorScheme ??= Theme.of(context).colorScheme;
+    final minInteractiveDimension = Platform.isIOS || Platform.isMacOS
+        ? kMinInteractiveDimensionCupertino
+        : kMinInteractiveDimension;
     return Container(
-      height: 40,
+      height: minInteractiveDimension,
       margin: EdgeInsets.symmetric(horizontal: hPadding),
       decoration: BoxDecoration(
           border: Border(
@@ -180,34 +161,47 @@ class _SearchPageState extends State<SearchPage> {
                       color: CupertinoColors.secondarySystemFill
                           .resolveFrom(context))
                   : BorderSide.none)),
-      child: Row(
-        spacing: hPadding.scale(.5)!,
-        children: [
-          if (leading != null) LimitedBox(maxHeight: 40, child: leading),
-          Text(word.word, style: textTheme.titleSmall),
-          const SizedBox.shrink(),
-          Expanded(
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                // print('$index row has max width ${constraints.maxWidth}');
-                return Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    LimitedBox(
-                      maxWidth: constraints.maxWidth,
-                      child: Text(
-                        word.getSpeechAndTranslation,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(color: colorScheme?.outline),
+      child: InkWell(
+        onTap: () {
+          onTap(word);
+          Navigator.push(
+              context,
+              platformPageRoute(
+                context: context,
+                builder: (context) => VocabularyPage(word: word),
+                settings: const RouteSettings(name: AppRoute.vocabulary),
+              ));
+        },
+        child: Row(
+          spacing: hPadding.scale(.5)!,
+          children: [
+            if (leading != null)
+              LimitedBox(maxHeight: minInteractiveDimension, child: leading),
+            Text(word.word, style: textTheme.titleMedium),
+            const SizedBox.shrink(),
+            Expanded(
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  // print('$index row has max width ${constraints.maxWidth}');
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      LimitedBox(
+                        maxWidth: constraints.maxWidth,
+                        child: Text(
+                          word.getSpeechAndTranslation,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(color: colorScheme?.outline),
+                        ),
                       ),
-                    ),
-                  ],
-                );
-              },
+                    ],
+                  );
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -229,20 +223,61 @@ class _SearchPageState extends State<SearchPage> {
     return hasMore;
   }
 
+  Widget searchResults(
+      [ColorScheme? colorScheme, TextTheme? textTheme, double? hPadding]) {
+    if (searchWords.isEmpty) {
+      return const Text('Shit man');
+    }
+    return LoadMoreListView.builder(
+      itemCount: searchWords.length,
+      itemBuilder: (context, index) {
+        if (index >= searchWords.length) {
+          return const SizedBox.shrink();
+        }
+        return vocabularyItemBuilder(
+          word: searchWords[index],
+          context: context,
+          onTap: (word) => MyDB().insertWords(Stream.value(word)).then((_) {
+            MyDB().insertSearchHistory(word.wordId);
+          }),
+          isTop: index == 0,
+          hPadding: hPadding,
+          colorScheme: colorScheme,
+          textTheme: textTheme,
+        );
+      },
+      bottomPadding: 25,
+      indicator: DotDotDotIndicator(
+          size: 16, color: colorScheme?.secondary, duration: Durations.long2),
+      onLoadMore: (atTop) async {
+        preventQuickChange?.cancel();
+        final text = textController.text;
+        return requireMoreWords(text, atTop ? 0 : requiredPage + 1);
+      },
+      onErrorDisplayText: messageExceptions,
+    );
+  }
+
   Widget fetchHistorySearch(
       [ColorScheme? colorScheme, TextTheme? textTheme, double? hPadding]) {
-    final word = Vocabulary.fromRawJson(apple_json);
+    final prototype = Vocabulary.fromRawJson(
+        r'{"word_id": 830, "word": "apple", "asset": "http://www.cia1099.cloudns.ch/dict/dictionary/img/thumb/apple.jpg", "definitions": [{"part_of_speech": "noun", "explanations": [{"explain": "a hard, round fruit with a smooth green, red or yellow skin", "subscript": "countable, uncountable", "examples": ["apple juice"]}], "inflection": "apple, apples", "phonetic_uk": "/\\u02c8\\u00e6p.\\u0259l/", "phonetic_us": "/\\u02c8\\u00e6p.\\u0259l/", "audio_uk": "https://www.cia1099.cloudns.ch/dict/dictionary/audio/apple__gb_1.mp3", "audio_us": "https://www.cia1099.cloudns.ch/dict/dictionary/audio/apple__us_1.mp3", "translate": "\\u82f9\\u679c"}]}');
+    final historyWords = MyDB().fetchHistorySearches();
     return ListView.builder(
-      prototypeItem: vocabularyItemBuilder(word: word, context: context),
+      prototypeItem: vocabularyItemBuilder(
+          word: prototype, context: context, onTap: (word) {}),
+      itemCount: historyWords.length,
       itemBuilder: (context, index) => vocabularyItemBuilder(
-        word: word,
+        word: historyWords[index],
         context: context,
+        onTap: (word) => MyDB().updateHistory(word.wordId),
         isTop: index == 0,
-        leading: Icon(CupertinoIcons.time,
-            color: colorScheme?.outline,
-            size: textTheme?.titleSmall?.fontSize
-                .scale(textTheme.titleSmall?.height)
-                .scale(.85)),
+        leading: Icon(
+          CupertinoIcons.time,
+          color: colorScheme?.outline,
+          size: textTheme?.bodyMedium?.fontSize
+              .scale(textTheme.bodyMedium?.height),
+        ),
         colorScheme: colorScheme,
         textTheme: textTheme,
         hPadding: hPadding,

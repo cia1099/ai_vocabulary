@@ -18,6 +18,7 @@ import 'package:sqlite3/sqlite3.dart';
 part 'acquaint_db.dart';
 part 'chat_msg_db.dart';
 part 'collection_db.dart';
+part 'search_db.dart';
 
 class MyDB with ChangeNotifier {
   late final String _appDirectory;
@@ -69,17 +70,18 @@ class MyDB with ChangeNotifier {
     final stmts = db.prepareMultiple(insert.join(';'));
     await for (final word in words) {
       try {
-        insertVocabulary(word, stmts);
+        _insertVocabulary(word, stmts);
       } on SqliteException catch (e) {
         debugPrint(
             'SQL error(${e.resultCode}): ${e.message}=(${word.wordId})${word.word}');
         final rm = db.prepareMultiple(deleteVocabulary)
-          ..forEach((stmt) => stmt.execute([word.wordId]));
-        for (var stmt in rm) {
-          stmt.dispose();
+          ..forEach((rstmt) => rstmt.execute([word.wordId]));
+        for (var rstmt in rm) {
+          rstmt.dispose();
         }
-        stmts.removeLast().dispose();
-        insertVocabulary(word, stmts);
+        final acStmt = stmts.removeLast();
+        _insertVocabulary(word, stmts);
+        stmts.add(acStmt);
       }
     }
     for (var stmt in stmts) {
@@ -97,7 +99,7 @@ class MyDB with ChangeNotifier {
     return wordMaps.map((json) => Vocabulary.fromJson(json)).toList();
   }
 
-  void insertVocabulary(Vocabulary word, List<PreparedStatement> stmts) {
+  void _insertVocabulary(Vocabulary word, List<PreparedStatement> stmts) {
     stmts[0].execute([word.wordId, word.word]);
     for (final definition in word.definitions) {
       final definitionID = stmts[1].select([

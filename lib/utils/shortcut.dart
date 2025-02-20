@@ -37,9 +37,10 @@ extension ScaleDouble on double? {
 
 class CupertinoDialogTransition extends StatelessWidget {
   const CupertinoDialogTransition(
-      {super.key, required this.animation, this.child});
+      {super.key, required this.animation, this.scale = 1.3, this.child});
 
   final Animation<double> animation;
+  final double scale;
   final Widget? child;
 
   @override
@@ -52,7 +53,7 @@ class CupertinoDialogTransition extends StatelessWidget {
       child: animation.status == AnimationStatus.reverse
           ? child
           : ScaleTransition(
-              scale: Tween(begin: 1.3, end: 1.0).animate(animation),
+              scale: Tween(begin: scale, end: 1.0).animate(animation),
               child: child),
     );
   }

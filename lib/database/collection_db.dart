@@ -11,8 +11,9 @@ extension CollectionDB on MyDB {
   void insertCollection(String name, int index) {
     const expression = 'INSERT INTO collections (name, "index") VALUES (?, ?)';
     final db = open(OpenMode.readWrite);
-    db.execute(expression, [name, index]);
-    db.dispose();
+    db
+      ..execute(expression, [name, index])
+      ..dispose();
   }
 
   void removeMark({required String name}) {
@@ -20,8 +21,9 @@ extension CollectionDB on MyDB {
     final db = open(OpenMode.readWrite);
     db.execute(expression, [name]);
     const removeRelative = 'DELETE FROM collect_words WHERE mark=?';
-    db.execute(removeRelative, [name]);
-    db.dispose();
+    db
+      ..execute(removeRelative, [name])
+      ..dispose();
   }
 
   bool renameMark({required String name, required String newName}) {
@@ -42,8 +44,9 @@ extension CollectionDB on MyDB {
       {required String name, required int? icon, required int? color}) {
     final expression = _updateExpression(['icon', 'color']);
     final db = open(OpenMode.readWrite);
-    db.execute(expression, [icon, color, name]);
-    db.dispose();
+    db
+      ..execute(expression, [icon, color, name])
+      ..dispose();
   }
 
   void updateIndexes(Iterable<BookMark> marks) {
@@ -106,8 +109,9 @@ extension CollectionDB on MyDB {
     WHERE word_id=? AND mark IN (${marks.map((e) => '?').join(',')})
     ''';
     final db = open(OpenMode.readWrite);
-    db.execute(expression, [wordID, ...marks]);
-    db.dispose();
+    db
+      ..execute(expression, [wordID, ...marks])
+      ..dispose();
     notifyListeners();
   }
 

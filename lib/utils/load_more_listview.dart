@@ -70,12 +70,12 @@ class _LoadMoreListViewState extends State<LoadMoreListView> {
       },
       onStatusChange: (status) {
         if (status == RefreshIndicatorStatus.done) {
-          loadFuture?.onError((e, _) => Exception(e)).then((hasMore) {
-            if (hasMore is Exception ||
-                refreshIndex > 0 && (hasMore == null || hasMore == false)) {
+          loadFuture?.then((hasMore) {
+            if (refreshIndex > 0 && (hasMore == null || hasMore == false)) {
               return Future.delayed(Durations.extralong4);
             }
-          }).whenComplete(() {
+          }, onError: (_) => Future.delayed(Durations.extralong4)).whenComplete(
+              () {
             setState(() {
               isRefreshing = false;
               refreshIndex = -1;

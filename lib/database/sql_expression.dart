@@ -184,4 +184,10 @@ CREATE TABLE collect_words (
         FOREIGN KEY(word_id) REFERENCES words (id), 
         FOREIGN KEY(mark) REFERENCES collections (name)
 );
+CREATE TABLE history_searches (
+        word_id INTEGER NOT NULL,
+        time_stamp INTEGER NOT NULL,
+        PRIMARY KEY (word_id), 
+        FOREIGN KEY(word_id) REFERENCES words (id)
+);
 ''';

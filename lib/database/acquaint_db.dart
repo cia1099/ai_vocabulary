@@ -11,9 +11,10 @@ extension AcquaintDB on MyDB {
     final expression =
         'UPDATE acquaintances SET acquaint=?${isCorrect ? ',last_learned_time=?' : ''} WHERE acquaintances.word_id=?';
     final db = open(OpenMode.readWrite);
-    db.execute(expression,
-        [acquaint, lastLearnedTime, wordId]..removeWhere((e) => e == null));
-    db.dispose();
+    db
+      ..execute(expression,
+          [acquaint, lastLearnedTime, wordId]..removeWhere((e) => e == null))
+      ..dispose();
     Future.microtask(notifyListeners); //I don't know why it has to use Future
   }
 
