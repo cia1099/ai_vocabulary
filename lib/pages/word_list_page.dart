@@ -102,7 +102,7 @@ class WordListPage extends StatelessWidget {
                         ],
                       ),
                       subtitle: Text(word.getSpeechAndTranslation,
-                          maxLines: 1,
+                          // maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: textTheme.bodyLarge),
                       // Wrap(

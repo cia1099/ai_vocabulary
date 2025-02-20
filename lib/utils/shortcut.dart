@@ -30,3 +30,30 @@ String speechShortcut(String partOfSpeech, {int length = 0}) {
       ? ' ' * (length - shortcut.length) + shortcut
       : shortcut;
 }
+
+extension ScaleDouble on double? {
+  double? scale(double? x) => this == null || x == null ? null : this! * x;
+}
+
+class CupertinoDialogTransition extends StatelessWidget {
+  const CupertinoDialogTransition(
+      {super.key, required this.animation, this.child});
+
+  final Animation<double> animation;
+  final Widget? child;
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: CurvedAnimation(
+          parent: animation,
+          curve: Curves.easeInOut,
+          reverseCurve: Curves.easeInOutBack),
+      child: animation.status == AnimationStatus.reverse
+          ? child
+          : ScaleTransition(
+              scale: Tween(begin: 1.3, end: 1.0).animate(animation),
+              child: child),
+    );
+  }
+}

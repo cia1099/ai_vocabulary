@@ -4,7 +4,13 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 class DotDotDotIndicator extends StatelessWidget {
   final double size;
   final Color? color;
-  const DotDotDotIndicator({super.key, this.size = 50.0, this.color});
+  final Duration duration;
+  const DotDotDotIndicator({
+    super.key,
+    this.size = 50.0,
+    this.color,
+    this.duration = Durations.extralong4,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +29,7 @@ class DotDotDotIndicator extends StatelessWidget {
         );
       },
       size: size,
-      duration: const Duration(milliseconds: 1000),
+      duration: duration,
     );
   }
 }

@@ -76,7 +76,7 @@ class SliderTitleState extends State<SliderTitle>
           child: StreamBuilder(
             stream: (future) async* {
               yield await future;
-              await Future.delayed(Durations.extralong4);
+              await Future.delayed(Durations.extralong4 * 1.5);
               final empty = SpeechRecognition(text: '', recognize: true);
               futureRecognize = Future.value(empty);
               yield empty;
@@ -104,18 +104,9 @@ class SliderTitleState extends State<SliderTitle>
               }
               return AnimatedSwitcher(
                   duration: Durations.medium1,
-                  transitionBuilder: (child, animation) => FadeTransition(
-                        opacity: CurvedAnimation(
-                            parent: animation,
-                            curve: Curves.easeInOut,
-                            reverseCurve: Curves.easeInOutBack),
-                        child: animation.status == AnimationStatus.reverse
-                            ? child
-                            : ScaleTransition(
-                                scale: Tween(begin: 1.3, end: 1.0)
-                                    .animate(animation),
-                                child: child),
-                      ),
+                  transitionBuilder: (child, animation) =>
+                      CupertinoDialogTransition(
+                          animation: animation, child: child),
                   child: content);
             },
           ),
@@ -136,7 +127,12 @@ class SliderTitleState extends State<SliderTitle>
       return Text("Sorry we can't recognize your speech",
           key: const Key('failure'),
           style: textTheme.bodyLarge?.apply(
-              backgroundColor: kCupertinoSheetColor.resolveFrom(context)));
+            color: CupertinoDynamicColor.withBrightness(
+                    color: colorScheme.onErrorContainer,
+                    darkColor: colorScheme.onError)
+                .resolveFrom(context),
+            backgroundColor: kCupertinoSheetColor.resolveFrom(context),
+          ));
     }
     if (sr.text.isEmpty) return const Text('');
 

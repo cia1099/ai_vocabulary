@@ -1,6 +1,5 @@
 import 'dart:async';
-
-import 'package:ai_vocabulary/utils/handle_except.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class LoadMoreListView<T> extends StatefulWidget {
@@ -13,6 +12,7 @@ class LoadMoreListView<T> extends StatefulWidget {
     this.thresholdExtent = 125,
     this.onLoadMore,
     this.bottomPadding,
+    this.onErrorDisplayText,
   });
   final int itemCount;
   final Widget? Function(BuildContext context, int index) itemBuilder;
@@ -21,6 +21,7 @@ class LoadMoreListView<T> extends StatefulWidget {
   final double thresholdExtent;
   final double? bottomPadding;
   final Future<T> Function(bool atTop)? onLoadMore;
+  final String Function(Object? error)? onErrorDisplayText;
 
   factory LoadMoreListView.builder({
     Key? key,
@@ -31,6 +32,7 @@ class LoadMoreListView<T> extends StatefulWidget {
     double thresholdExtent = 125,
     double? bottomPadding,
     Future<T> Function(bool atTop)? onLoadMore,
+    String Function(Object? error)? onErrorDisplayText,
   }) =>
       LoadMoreListView(
         key: key,
@@ -41,6 +43,7 @@ class LoadMoreListView<T> extends StatefulWidget {
         thresholdExtent: thresholdExtent,
         bottomPadding: bottomPadding,
         onLoadMore: onLoadMore,
+        onErrorDisplayText: onErrorDisplayText,
       );
 
   @override
@@ -69,7 +72,7 @@ class _LoadMoreListViewState extends State<LoadMoreListView> {
         if (status == RefreshIndicatorStatus.done) {
           loadFuture?.onError((e, _) => Exception(e)).then((hasMore) {
             if (hasMore is Exception ||
-                refreshIndex > 0 && (hasMore! || hasMore == false)) {
+                refreshIndex > 0 && (hasMore == null || hasMore == false)) {
               return Future.delayed(Durations.extralong4);
             }
           }).whenComplete(() {
@@ -109,8 +112,12 @@ class _LoadMoreListViewState extends State<LoadMoreListView> {
                                 const CircularProgressIndicator.adaptive();
                           }
                           if (snapshot.hasError) {
-                            return Text(messageExceptions(snapshot.error),
-                                style: TextStyle(color: colorScheme.error));
+                            return Text(
+                              '${widget.onErrorDisplayText?.call(snapshot.error) ?? snapshot.error}',
+                              style: TextStyle(color: colorScheme.error),
+                              maxLines: widget.bottomPadding?.compareTo(-1),
+                              overflow: TextOverflow.fade,
+                            );
                           }
 
                           return snapshot.connectionState ==

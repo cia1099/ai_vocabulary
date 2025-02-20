@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 class TwoDotLoader extends StatefulWidget {
-  const TwoDotLoader({super.key});
+  const TwoDotLoader({super.key, this.size});
+  final double? size;
 
   @override
   State<TwoDotLoader> createState() => _TwoDotLoaderState();
@@ -22,14 +23,14 @@ class _TwoDotLoaderState extends State<TwoDotLoader>
                 .animate(CurvedAnimation(
                     parent: controller, curve: Curves.easeInOut)),
             child: CircleAvatar(
-                radius: 8,
+                radius: (widget.size ?? 16) / 2,
                 backgroundColor: colorScheme.secondary.withAlpha(0xc4))),
         SlideTransition(
             position: Tween(begin: Offset.zero, end: const Offset(-1, 0))
                 .animate(CurvedAnimation(
                     parent: controller, curve: Curves.easeInOut)),
             child: CircleAvatar(
-                radius: 8,
+                radius: (widget.size ?? 16) / 2,
                 backgroundColor: colorScheme.tertiary.withAlpha(0xc4))),
       ],
     );

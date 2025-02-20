@@ -133,17 +133,7 @@ class AppRoute<T> extends PageRoute<T> {
   Widget buildTransitions(BuildContext context, Animation<double> animation,
       Animation<double> secondaryAnimation, Widget child) {
     if (!validation(context)) {
-      return FadeTransition(
-        opacity: CurvedAnimation(
-            parent: animation,
-            curve: Curves.easeInOut,
-            reverseCurve: Curves.easeInOutBack),
-        child: animation.status == AnimationStatus.reverse
-            ? child
-            : ScaleTransition(
-                scale: Tween(begin: 1.3, end: 1.0).animate(animation),
-                child: child),
-      );
+      return CupertinoDialogTransition(animation: animation, child: child);
     }
     return SlideTransition(
       position: Tween(begin: Offset.fromDirection(0), end: Offset.zero)
