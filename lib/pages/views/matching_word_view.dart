@@ -92,8 +92,8 @@ class _ExplanationBoardState extends State<ExplanationBoard> {
   var selectedIndex = 1; //TODO: used User setting as default value
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-    final selection = ["translation", "explanation"];
+    final textTheme = CupertinoTheme.of(context).textTheme;
+    const selection = ["translation", "explanation"];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -109,8 +109,8 @@ class _ExplanationBoardState extends State<ExplanationBoard> {
                     }
                   },
                   child: selectedIndex == i
-                      ? HighlineText(text, style: textTheme.titleMedium)
-                      : Text(text, style: textTheme.titleMedium));
+                      ? HighlineText(text, style: textTheme.navTitleTextStyle)
+                      : Text(text, style: textTheme.navTitleTextStyle));
             })),
         SizedBox(height: widget.hPadding / 8),
         AnimatedSwitcher(
@@ -128,24 +128,26 @@ class _ExplanationBoardState extends State<ExplanationBoard> {
                   for (final definition in widget.word.definitions)
                     if (definition.translate != null)
                       AlignParagraph(
-                        markWidget: Text(
+                        mark: Text(
                           speechShortcut(definition.partOfSpeech, length: 4),
-                          style: textTheme.titleMedium!
+                          style: textTheme.textStyle
                               .copyWith(fontWeight: FontWeight.bold),
                         ),
-                        paragraph: Text(definition.translate!),
+                        paragraph: Text(definition.translate ?? ''),
                         xInterval: widget.hPadding / 4,
+                        paragraphStyle: textTheme.textStyle,
                       ),
                 if (selectedIndex == 1)
                   for (final definition in widget.word.definitions)
-                    AlignParagraph(
-                      markWidget: Text(
+                    AlignParagraph.text(
+                      mark: Text(
                         speechShortcut(definition.partOfSpeech, length: 4),
-                        style: textTheme.titleMedium!
+                        style: textTheme.textStyle
                             .copyWith(fontWeight: FontWeight.bold),
                       ),
-                      paragraph: Text(definition.index2Explanation()),
+                      paragraph: definition.index2Explanation(),
                       xInterval: widget.hPadding / 4,
+                      paragraphStyle: textTheme.textStyle,
                     ),
               ],
             )),

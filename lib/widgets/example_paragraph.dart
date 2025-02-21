@@ -1,6 +1,7 @@
 import 'dart:math' show sqrt2;
 
 import 'package:ai_vocabulary/api/dict_api.dart';
+import 'package:ai_vocabulary/utils/shortcut.dart';
 import 'package:ai_vocabulary/widgets/align_paragraph.dart';
 import 'package:ai_vocabulary/widgets/imagen_dialog.dart';
 import 'package:flutter/cupertino.dart';
@@ -28,8 +29,6 @@ class ExampleParagraph extends StatefulWidget {
 
 class _ExampleParagraphState extends State<ExampleParagraph>
     with ClickableTextStateMixin {
-  late final textTheme = Theme.of(context).textTheme;
-
   @override
   void initState() {
     super.initState();
@@ -46,9 +45,13 @@ class _ExampleParagraphState extends State<ExampleParagraph>
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    final style = textTheme.bodyMedium
+        ?.apply(color: colorScheme.onPrimaryContainer, fontSizeFactor: sqrt2);
     return AlignParagraph(
-        markWidget: Padding(
-            padding: const EdgeInsets.only(left: 8, right: 4),
+        xInterval: 4,
+        mark: Padding(
+            padding: const EdgeInsets.only(left: 8),
             child: GestureDetector(
               onTap: () => showPlatformDialog(
                   context: context,
@@ -56,7 +59,8 @@ class _ExampleParagraphState extends State<ExampleParagraph>
               child: widget.mark ??
                   Icon(
                     CupertinoIcons.circle_fill,
-                    size: textTheme.bodySmall?.fontSize,
+                    size: textTheme.bodySmall?.fontSize
+                        .scale(textTheme.bodySmall?.height),
                     color: colorScheme.primary,
                   ),
             )),
@@ -72,13 +76,15 @@ class _ExampleParagraphState extends State<ExampleParagraph>
                       onTap: () => soundAzure(widget.example), child: child),
                   cupertino: (_, child, __) => GestureDetector(
                       onTap: () => soundAzure(widget.example), child: child),
-                  child: Icon(CupertinoIcons.volume_up,
-                      size: textTheme.bodyLarge?.fontSize),
+                  child: Icon(
+                    CupertinoIcons.volume_up,
+                    size: textTheme.bodyLarge?.fontSize
+                        .scale(textTheme.bodyLarge?.height),
+                  ),
                 ),
               )
             ]),
-            style: textTheme.bodyMedium?.apply(
-                color: colorScheme.onPrimaryContainer, fontSizeFactor: sqrt2)),
-        xInterval: 0);
+            style: style),
+        paragraphStyle: style);
   }
 }

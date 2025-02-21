@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:ai_vocabulary/database/my_db.dart';
 import 'package:ai_vocabulary/effects/dot3indicator.dart';
@@ -229,48 +230,43 @@ class _SearchPageState extends State<SearchPage> {
     hPadding ??= MediaQuery.sizeOf(context).width / 32;
     textTheme ??= Theme.of(context).textTheme;
     if (searchWords.isEmpty) {
+      final cupertinoTextTheme = CupertinoTheme.of(context).textTheme;
       return Container(
         // color: Colors.red,
         margin:
             EdgeInsets.symmetric(horizontal: hPadding, vertical: hPadding * 2),
         child: MediaQuery(
-          data: const MediaQueryData(textScaler: TextScaler.linear(1.414)),
+          data: const MediaQueryData(textScaler: TextScaler.linear(sqrt2)),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text('Sorry no related results found',
-                  style: textTheme.headlineSmall),
+                  style: cupertinoTextTheme.navTitleTextStyle),
               Text(textController.text,
-                  style: textTheme.titleLarge
-                      ?.apply(color: colorScheme?.onTertiaryContainer)),
+                  style: cupertinoTextTheme.dateTimePickerTextStyle
+                      .apply(color: colorScheme?.onTertiaryContainer)),
               AlignParagraph(
-                  markWidget:
-                      Icon(CupertinoIcons.circle_fill, size: hPadding / 2),
+                  mark: Icon(CupertinoIcons.circle_fill, size: hPadding / 2),
                   paragraph: Text(
                       'Please verify the input text for any errors.',
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: textTheme.labelLarge),
+                      style: cupertinoTextTheme.textStyle),
                   xInterval: hPadding / 2,
-                  paragraphStyle: textTheme.labelLarge),
+                  paragraphStyle:
+                      textTheme.bodyMedium?.apply(heightFactor: sqrt2)),
               AlignParagraph(
-                  markWidget:
-                      Icon(CupertinoIcons.circle_fill, size: hPadding / 2),
+                  mark: Icon(CupertinoIcons.circle_fill, size: hPadding / 2),
                   paragraph: Text('Please attempt a different search term.',
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: textTheme.labelLarge),
+                      style: cupertinoTextTheme.textStyle),
                   xInterval: hPadding / 2,
-                  paragraphStyle: textTheme.labelLarge),
+                  paragraphStyle:
+                      textTheme.bodyMedium?.apply(heightFactor: sqrt2)),
               AlignParagraph(
-                  markWidget:
-                      Icon(CupertinoIcons.circle_fill, size: hPadding / 2),
+                  mark: Icon(CupertinoIcons.circle_fill, size: hPadding / 2),
                   paragraph: Text('Please consider a more common text.',
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: textTheme.labelLarge),
+                      style: cupertinoTextTheme.textStyle),
                   xInterval: hPadding / 2,
-                  paragraphStyle: textTheme.labelLarge),
+                  paragraphStyle:
+                      textTheme.bodyMedium?.apply(heightFactor: sqrt2)),
             ],
           ),
         ),
