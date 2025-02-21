@@ -6,6 +6,7 @@ import 'package:ai_vocabulary/effects/dot3indicator.dart';
 import 'package:ai_vocabulary/utils/handle_except.dart';
 import 'package:ai_vocabulary/utils/load_more_listview.dart';
 import 'package:ai_vocabulary/utils/shortcut.dart';
+import 'package:ai_vocabulary/widgets/align_paragraph.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
@@ -225,8 +226,55 @@ class _SearchPageState extends State<SearchPage> {
 
   Widget searchResults(
       [ColorScheme? colorScheme, TextTheme? textTheme, double? hPadding]) {
+    hPadding ??= MediaQuery.sizeOf(context).width / 32;
+    textTheme ??= Theme.of(context).textTheme;
     if (searchWords.isEmpty) {
-      return const Text('Shit man');
+      return Container(
+        // color: Colors.red,
+        margin:
+            EdgeInsets.symmetric(horizontal: hPadding, vertical: hPadding * 2),
+        child: MediaQuery(
+          data: const MediaQueryData(textScaler: TextScaler.linear(1.414)),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Sorry no related results found',
+                  style: textTheme.headlineSmall),
+              Text(textController.text,
+                  style: textTheme.titleLarge
+                      ?.apply(color: colorScheme?.onTertiaryContainer)),
+              AlignParagraph(
+                  markWidget:
+                      Icon(CupertinoIcons.circle_fill, size: hPadding / 2),
+                  paragraph: Text(
+                      'Please verify the input text for any errors.',
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: textTheme.labelLarge),
+                  xInterval: hPadding / 2,
+                  paragraphStyle: textTheme.labelLarge),
+              AlignParagraph(
+                  markWidget:
+                      Icon(CupertinoIcons.circle_fill, size: hPadding / 2),
+                  paragraph: Text('Please attempt a different search term.',
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: textTheme.labelLarge),
+                  xInterval: hPadding / 2,
+                  paragraphStyle: textTheme.labelLarge),
+              AlignParagraph(
+                  markWidget:
+                      Icon(CupertinoIcons.circle_fill, size: hPadding / 2),
+                  paragraph: Text('Please consider a more common text.',
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: textTheme.labelLarge),
+                  xInterval: hPadding / 2,
+                  paragraphStyle: textTheme.labelLarge),
+            ],
+          ),
+        ),
+      );
     }
     return LoadMoreListView.builder(
       itemCount: searchWords.length,
