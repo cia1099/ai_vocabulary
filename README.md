@@ -22,6 +22,13 @@ Approached gesture navigation push a new page
 * [lib/widgets/count_picker_tile.dart](lib/widgets/count_picker_tile.dart)\
 Used build-in context to get RenderBox of the return widget's position and size, instead of GlobalKey.(include main example)
 
+* [lib/utils/load_more_listview.dart](lib/utils/load_more_listview.dart)\
+Note RefreshIndicator need Material environment to work. The relative usage at [search page](lib/pages/search_page.dart).\
+This idea can write a package and publish to pub dev.(include main example)
+
+* [lib/widgets/align_paragraph.dart](lib/widgets/align_paragraph.dart)\
+Discovered that Cupertino TextTheme don't has height.(include main example)
+
 
 ## Getting Started
 

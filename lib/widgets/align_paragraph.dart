@@ -39,9 +39,9 @@ class AlignParagraph extends StatelessWidget {
         Container(
           // color: Colors.red,
           alignment: const Alignment(0, 0),
-          height: bodyText?.fontSize.scale(bodyText.height),
-          // constraints: BoxConstraints(
-          //     minHeight: bodyText?.fontSize.scale(bodyText.height) ?? .0),
+          // height: bodyText?.fontSize.scale(bodyText.height),
+          constraints: BoxConstraints(
+              minHeight: bodyText?.fontSize.scale(bodyText.height) ?? .0),
           margin: EdgeInsets.only(right: xInterval ?? .0),
           child: mark,
         ),
@@ -60,20 +60,25 @@ void main() {
       navigationBar: const CupertinoNavigationBar(
         middle: Text('Align Example'),
       ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        spacing: 16,
-        children: [
-          AlignParagraph(
-              mark: const Text('n.'),
-              //   const Icon(
-              // CupertinoIcons.circle_fill,
-              // size: 8,
-              // ),
-              paragraph: Text('11' * 100),
-              xInterval: 4),
-        ],
-      ),
+      child: Builder(builder: (context) {
+        final textTheme = CupertinoTheme.of(context).textTheme;
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          spacing: 16,
+          children: [
+            AlignParagraph(
+                mark: const Text('n.'),
+                //   const Icon(
+                // CupertinoIcons.circle_fill,
+                // size: 8,
+                // ),
+                paragraph: Text('11' * 100),
+                xInterval: 4),
+            Text(
+                'Cupertino text style: fontSize: ${textTheme.textStyle.fontSize}, height: ${textTheme.textStyle.height}')
+          ],
+        );
+      }),
     ),
   ));
 }

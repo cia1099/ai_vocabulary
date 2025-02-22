@@ -184,9 +184,6 @@ class _ExampleState extends State<Example> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        // navigationBar: const CupertinoNavigationBar(
-        //   middle: Text('Load more Example'),
-        // ),
         appBar: AppBar(
           title: const Text('Load more Example'),
         ),

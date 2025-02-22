@@ -88,13 +88,18 @@ class CountPickerTile extends StatelessWidget {
 void main() {
   runApp(MaterialApp(
     theme: ThemeData.light(),
-    home: const Scaffold(body: Center(child: MyApp())),
+    home: const Scaffold(body: MyApp()),
   ));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -104,28 +109,23 @@ class MyApp extends StatelessWidget {
         const Padding(
           padding: EdgeInsets.symmetric(horizontal: 16),
           child: Text(
-            'This is a Stateless widget, we need use explicit StatefulBuilder to build twice and then get RenderBox information',
+            'Look below Text Rect',
             textScaler: TextScaler.linear(1.4),
           ),
         ),
-        StatefulBuilder(
-          builder: (context, setState) {
-            final box = context.findRenderObject() as RenderBox?;
-            final anchor = box?.localToGlobal(Offset.zero);
-            Rect? rect;
-            if (anchor != null && box != null) {
-              final width = box.size.width / 2;
-              rect = Rect.fromLTWH(box.size.width / 2 - width / 2,
-                  anchor.dy - 20, width, 56 * 1.5);
-            } else {
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                setState(() {});
-              });
-            }
-            print('rect = $rect');
-            return Text(rect.toString());
-          },
-        )
+        Builder(builder: (context) {
+          final box = context.findRenderObject() as RenderBox?;
+          final anchor = box?.localToGlobal(Offset.zero);
+          Rect? rect;
+          if (anchor != null && box != null) {
+            rect = Rect.fromLTWH(
+                anchor.dx, anchor.dy, box.size.width, box.size.height);
+          }
+          return Text(
+              'Last renderBox = (${rect?.topLeft.dx}, ${rect?.topLeft.dy}, ${rect?.width}, ${rect?.height})');
+        }),
+        ElevatedButton(
+            onPressed: () => setState(() {}), child: const Text('setState'))
       ],
     );
   }
