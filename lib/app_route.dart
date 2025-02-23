@@ -91,41 +91,12 @@ class AppRoute<T> extends PageRoute<T> {
           case AppRoute.report:
             return ReportPage(wordId: currentWord!.wordId);
           default:
-            return dummyDialog(context, path);
+            return DummyDialog(msg: path);
         }
       },
       maximumSize: const Size(300, 812.0), // Maximum size
       enabled: kIsWeb,
       backgroundColor: CupertinoColors.systemGrey.resolveFrom(context),
-    );
-  }
-
-  Widget dummyDialog(BuildContext context, String? msg) {
-    return Center(
-      child: FractionallySizedBox(
-        widthFactor: .3333,
-        child: AspectRatio(
-          aspectRatio: 1,
-          child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: kCupertinoSheetColor.resolveFrom(context),
-                borderRadius: BorderRadius.circular(kRadialReactionRadius / 2),
-              ),
-              child: Stack(
-                children: [
-                  const Center(child: CircularProgressIndicator.adaptive()),
-                  Align(
-                    alignment: const Alignment(0, 1),
-                    child: Text(
-                      '$msg',
-                      style:
-                          TextStyle(color: Theme.of(context).colorScheme.error),
-                    ),
-                  )
-                ],
-              )),
-        ),
-      ),
     );
   }
 
@@ -170,6 +141,44 @@ class AppRoute<T> extends PageRoute<T> {
 
   @override
   bool get opaque => false;
+}
+
+class DummyDialog extends StatelessWidget {
+  const DummyDialog({
+    super.key,
+    this.msg,
+  });
+  final String? msg;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: FractionallySizedBox(
+        widthFactor: .3333,
+        child: AspectRatio(
+          aspectRatio: 1,
+          child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: kCupertinoSheetColor.resolveFrom(context),
+                borderRadius: BorderRadius.circular(kRadialReactionRadius / 2),
+              ),
+              child: Stack(
+                children: [
+                  const Center(child: CircularProgressIndicator.adaptive()),
+                  Align(
+                    alignment: const Alignment(0, 1),
+                    child: Text(
+                      '$msg',
+                      style:
+                          TextStyle(color: Theme.of(context).colorScheme.error),
+                    ),
+                  )
+                ],
+              )),
+        ),
+      ),
+    );
+  }
 }
 
 bool fromEntry(String? routeName) {

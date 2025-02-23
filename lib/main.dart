@@ -108,7 +108,9 @@ class _MyAppState extends State<MyApp> {
       appTheme = ThemeData(
         appBarTheme: appTheme.appBarTheme,
         colorScheme: ColorScheme.fromSeed(
-            seedColor: appTheme.colorScheme.primary, brightness: brightness),
+          seedColor: appTheme.primaryColor,
+          brightness: brightness,
+        ),
       );
       // ThemeData(
       //     colorScheme:
@@ -141,7 +143,10 @@ class _MyAppState extends State<MyApp> {
       return;
     }
     setState(() {
-      appTheme = appTheme.copyWith(colorScheme: colorScheme);
+      appTheme = ThemeData(
+        appBarTheme: appTheme.appBarTheme,
+        colorScheme: colorScheme,
+      );
     });
   }
 }
