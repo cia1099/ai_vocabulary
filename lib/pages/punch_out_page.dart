@@ -5,6 +5,7 @@ import 'package:ai_vocabulary/database/my_db.dart';
 import 'package:ai_vocabulary/model/collections.dart';
 import 'package:ai_vocabulary/utils/shortcut.dart';
 import 'package:ai_vocabulary/widgets/flashcard.dart';
+import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -97,9 +98,9 @@ class _PunchOutPageState extends State<PunchOutPage> {
                                       ),
                                     ),
                                   ),
-                                  child: const Align(
-                                    alignment: Alignment(0, .8),
-                                    child: Text('Shit man'),
+                                  child: Align(
+                                    alignment: const Alignment(0, 1),
+                                    child: cardPanel(colorScheme),
                                   ),
                                 ),
                               ),
@@ -112,6 +113,86 @@ class _PunchOutPageState extends State<PunchOutPage> {
             ),
           ),
           Flexible(flex: 1, child: buildBottomButtons(colorScheme)),
+        ],
+      ),
+    );
+  }
+
+  Widget cardPanel(ColorScheme colorScheme) {
+    final textTheme = Theme.of(context).textTheme;
+    return Container(
+      // color: colorScheme.surface,
+      height: 100,
+      // width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      decoration: BoxDecoration(
+        borderRadius: const BorderRadius.vertical(
+          bottom: Radius.circular(kRadialReactionRadius),
+        ),
+        color: colorScheme.surface,
+        //CupertinoColors.systemBackground.resolveFrom(context),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Wrap(
+            spacing: 8,
+            children: [
+              const Icon(CupertinoIcons.person),
+              Text.rich(
+                TextSpan(
+                  text: 'Keep punch ',
+                  children: [
+                    TextSpan(
+                      text: '198',
+                      style: TextStyle(
+                        fontSize: textTheme.titleMedium?.fontSize.scale(1.2),
+                        fontWeight: textTheme.titleMedium?.fontWeight,
+                        // color: colorScheme.primary,
+                      ),
+                    ),
+                    const TextSpan(text: ' days'),
+                  ],
+                ),
+              ),
+              Text.rich(
+                TextSpan(
+                  text: 'Study ',
+                  children: [
+                    TextSpan(
+                      text: '20',
+                      style: TextStyle(
+                        fontSize: textTheme.titleMedium?.fontSize.scale(1.2),
+                        fontWeight: textTheme.titleMedium?.fontWeight,
+                        // color: colorScheme.primary,
+                      ),
+                    ),
+                    const TextSpan(text: ' words'),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          DottedLine(dashColor: colorScheme.outlineVariant),
+          Row(
+            children: [
+              Expanded(
+                child: Wrap(
+                  children: [
+                    Text(
+                      'AI Vocabulary Punch Card',
+                      style: textTheme.titleMedium,
+                    ),
+                    const Text('Help you to memorize vocabulary'),
+                  ],
+                ),
+              ),
+              SizedBox.square(
+                dimension: kMinInteractiveDimensionCupertino,
+                child: ColoredBox(color: colorScheme.primaryContainer),
+              ),
+            ],
+          ),
         ],
       ),
     );
