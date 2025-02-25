@@ -1,45 +1,66 @@
 import 'dart:io';
+import 'dart:ui' as ui;
 
 import 'package:ai_vocabulary/database/my_db.dart';
+import 'package:ai_vocabulary/model/collections.dart';
+import 'package:ai_vocabulary/utils/shortcut.dart';
+import 'package:ai_vocabulary/widgets/flashcard.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
-import 'package:http/http.dart' as http;
+import 'package:lottie/lottie.dart';
 import 'package:path/path.dart' as p;
+import 'package:image/image.dart' as image;
 import 'package:share_plus/share_plus.dart';
 
-import '../mock_data.dart';
-
-class PunchOutPage extends StatelessWidget {
+class PunchOutPage extends StatefulWidget {
   const PunchOutPage({super.key});
 
+  @override
+  State<PunchOutPage> createState() => _PunchOutPageState();
+}
+
+class _PunchOutPageState extends State<PunchOutPage> {
+  final paintKey = ValueNotifier(const GlobalObjectKey(0));
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.sizeOf(context).width;
     final colorScheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
     const aspect = 16 / 9;
     return PlatformScaffold(
-      body: Stack(
-        alignment: const Alignment(0, 0),
+      appBar: PlatformAppBar(
+        backgroundColor: kCupertinoSheetColor.resolveFrom(context),
+      ),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          FractionallySizedBox(
-              heightFactor: 2 / 3,
-              child: ColoredBox(
-                color: colorScheme.surfaceContainer,
-                child: RotatedBox(
-                  quarterTurns: -1,
-                  child: ListWheelScrollView.useDelegate(
-                    // onSelectedItemChanged: (value) => print(value),
-                    physics: const FixedExtentScrollPhysics(),
-                    overAndUnderCenterOpacity: .9,
-                    itemExtent: screenWidth * .75,
-                    childDelegate: ListWheelChildBuilderDelegate(
-                        childCount: 4,
-                        builder: (context, index) => AspectRatio(
-                              aspectRatio: aspect,
-                              child: RotatedBox(
-                                quarterTurns: 1,
+          Flexible(
+            flex: 2,
+            child: FractionallySizedBox(
+                // heightFactor: 3 / 4,
+                child: ColoredBox(
+              color: colorScheme.surfaceContainer,
+              child: RotatedBox(
+                quarterTurns: -1,
+                child: ListWheelScrollView.useDelegate(
+                  onSelectedItemChanged: (index) =>
+                      paintKey.value = GlobalObjectKey(index),
+                  physics: const FixedExtentScrollPhysics(),
+                  overAndUnderCenterOpacity: .9,
+                  itemExtent: screenWidth * .75,
+                  childDelegate: ListWheelChildBuilderDelegate(
+                      childCount: 4,
+                      builder: (context, index) => AspectRatio(
+                            aspectRatio: aspect,
+                            child: RotatedBox(
+                              quarterTurns: 1,
+                              child: ValueListenableBuilder(
+                                valueListenable: paintKey,
+                                builder: (context, key, child) => index ==
+                                        key.value
+                                    ? RepaintBoundary(key: key, child: child)
+                                    : child!,
                                 child: DecoratedBox(
                                   decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(
@@ -55,61 +76,134 @@ class PunchOutPage extends StatelessWidget {
                                   ),
                                 ),
                               ),
-                            )),
-                  ),
+                            ),
+                          )),
                 ),
-              )),
-          Align(
-            alignment: const FractionalOffset(.5, .9),
-            child: FutureBuilder(
-              future: MyDB().isReady,
-              builder: (context, snapshot) => PlatformElevatedButton(
-                onPressed: snapshot.data != true ? null : punchOut,
-                child: Text.rich(
-                    TextSpan(
-                      text: 'Get 6 shells for sharing',
-                      children: [
-                        TextSpan(
-                          text:
-                              '\nGet shells only when returning to the app after sharing',
-                          style: TextStyle(
-                              fontSize: textTheme.labelSmall?.fontSize,
-                              height: textTheme.labelSmall?.height,
-                              color: CupertinoColors.systemGrey4
-                                  .resolveFrom(context)),
-                        )
-                      ],
-                    ),
-                    textAlign: TextAlign.center),
-                cupertino: (ctx, _) {
-                  final h = (ctx.findRenderObject() as RenderBox?)?.size.height;
-                  return CupertinoElevatedButtonData(
-                      borderRadius:
-                          h != null ? BorderRadius.circular(h / 2) : null);
-                },
-                material: (ctx, _) {
-                  final h = (ctx.findRenderObject() as RenderBox?)?.size.height;
-                  return MaterialElevatedButtonData(
-                    style: h != null
-                        ? ElevatedButton.styleFrom(
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(h / 2)))
-                        : null,
-                  );
-                },
               ),
-            ),
+            )),
+          ),
+          Flexible(
+            flex: 1,
+            child: buildBottomButtons(colorScheme),
           )
         ],
       ),
     );
   }
 
+  Widget buildBottomButtons(ColorScheme colorScheme) {
+    final textTheme = Theme.of(context).textTheme;
+    final cupertinoTextTheme = CupertinoTheme.of(context).textTheme;
+    return Wrap(
+      direction: Axis.vertical,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      spacing: 8,
+      children: [
+        FutureBuilder(
+            future: MyDB().isReady,
+            builder: (context, snapshot) => GestureDetector(
+                  onTap: snapshot.data != true ? null : punchOut,
+                  child: Container(
+                    width: 300,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    decoration: BoxDecoration(
+                        borderRadius:
+                            BorderRadius.circular(kRadialReactionRadius * 2),
+                        gradient: CollectionMark(
+                                name: '',
+                                index: -1,
+                                color: colorScheme.primary.value)
+                            .gradient(context)),
+                    child: Text.rich(
+                      TextSpan(
+                        text: 'Get 6 tokens for sharing',
+                        children: [
+                          TextSpan(
+                            text:
+                                '\nGet tokens only when returning to the app after sharing',
+                            style: cupertinoTextTheme.textStyle.copyWith(
+                                fontSize: textTheme.labelSmall?.fontSize,
+                                // height: textTheme.labelSmall?.height,
+                                color: CupertinoColors.systemGrey4
+                                    .resolveFrom(context)),
+                          )
+                        ],
+                      ),
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: colorScheme.onPrimary,
+                        fontSize: textTheme.titleMedium?.fontSize,
+                        height: textTheme.titleMedium?.height,
+                        fontWeight: textTheme.titleMedium?.fontWeight,
+                      ),
+                    ),
+                  ),
+                )),
+        Container(
+          height: 64,
+          width: 300,
+          decoration: BoxDecoration(
+            color: colorScheme.inverseSurface.withAlpha(0x80),
+            borderRadius: BorderRadius.circular(kRadialReactionRadius / 2),
+          ),
+          child: Row(
+            children: [
+              LottieBuilder.asset('assets/lottie/coin1.json'),
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('My token',
+                        style: TextStyle(color: colorScheme.onInverseSurface)),
+                    RichText(
+                        text: TextSpan(
+                      children: [
+                        TextSpan(
+                            text: '618',
+                            style: TextStyle(
+                              fontSize:
+                                  textTheme.titleMedium?.fontSize.scale(1.2),
+                              fontWeight: textTheme.titleMedium?.fontWeight,
+                            )),
+                        const TextSpan(text: ' = 6.08\$')
+                      ],
+                      style: TextStyle(color: colorScheme.onInverseSurface),
+                    ))
+                  ],
+                ),
+              ),
+              GestureDetector(
+                onTap: () {},
+                child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
+                    margin: const EdgeInsets.only(right: 8),
+                    decoration: BoxDecoration(
+                        color: colorScheme.onSurfaceVariant.withAlpha(0x80),
+                        borderRadius: BorderRadius.circular(16)),
+                    child: Text("What is token?",
+                        style: TextStyle(color: colorScheme.onInverseSurface))),
+              )
+            ],
+          ),
+        )
+      ],
+    );
+  }
+
   void punchOut() async {
-    final url = Uri.parse(apple.asset!);
-    final res = await http.get(url);
+    final boundary = paintKey.value.currentContext?.findRenderObject()
+        as RenderRepaintBoundary?;
+    final paintData = await boundary?.toImage(pixelRatio: 2).then((img) async {
+      final bytes = await img.toByteData(format: ui.ImageByteFormat.png);
+      final decode = image.decodePng(bytes!.buffer.asUint8List());
+      return image.encodeJpg(decode!, quality: 90);
+    });
+    if (paintData == null) return debugPrint("Can't paint boundary");
+
     final imgPath = p.join(MyDB().appDirectory, 'punch_out.jpg');
-    final img = await File(imgPath).writeAsBytes(res.bodyBytes);
+    final img = await File(imgPath).writeAsBytes(paintData.buffer.asInt8List());
     const text = '''
 #AI Vocabulary Punch Card# Day
 Memorize words ✅

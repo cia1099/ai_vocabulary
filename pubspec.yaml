@@ -29,6 +29,7 @@ dependencies:
   sliver_tools: ^0.2.12
   lottie: ^3.2.0
   share_plus: ^10.1.4
+  image: ^4.5.3
 
 dev_dependencies:
   flutter_test:
