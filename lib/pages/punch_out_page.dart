@@ -28,48 +28,75 @@ class _PunchOutPageState extends State<PunchOutPage> {
     final screenWidth = MediaQuery.sizeOf(context).width;
     final colorScheme = Theme.of(context).colorScheme;
     const aspect = 16 / 9;
-    return PlatformScaffold(
-      appBar: PlatformAppBar(
-        backgroundColor: kCupertinoSheetColor.resolveFrom(context),
-      ),
-      body: Column(
+    return ValueListenableBuilder(
+      valueListenable: paintKey,
+      builder: (context, key, child) {
+        final colorFuture = ColorScheme.fromImageProvider(
+          provider: AssetImage(
+            'assets/punch${key.value.toString().padLeft(2, '0')}.png',
+          ),
+          brightness: Theme.of(context).brightness,
+          dynamicSchemeVariant: DynamicSchemeVariant.content,
+        );
+        return FutureBuilder(
+          future: colorFuture,
+          builder:
+              (context, snapshot) => PlatformScaffold(
+                backgroundColor: snapshot.data?.surfaceContainer,
+                appBar: PlatformAppBar(
+                  backgroundColor: snapshot.data?.inversePrimary,
+                ),
+                body: child,
+              ),
+        );
+      },
+      child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
+        spacing: screenWidth / 32,
         children: [
           Flexible(
             flex: 2,
             child: FractionallySizedBox(
-                // heightFactor: 3 / 4,
-                child: ColoredBox(
-              color: colorScheme.surfaceContainer,
-              child: RotatedBox(
-                quarterTurns: -1,
-                child: ListWheelScrollView.useDelegate(
-                  onSelectedItemChanged: (index) =>
-                      paintKey.value = GlobalObjectKey(index),
-                  physics: const FixedExtentScrollPhysics(),
-                  overAndUnderCenterOpacity: .9,
-                  itemExtent: screenWidth * .75,
-                  childDelegate: ListWheelChildBuilderDelegate(
+              // heightFactor: 3 / 4,
+              child: ColoredBox(
+                color: const Color(0x00000000), //colorScheme.surfaceContainer,
+                child: RotatedBox(
+                  quarterTurns: -1,
+                  child: ListWheelScrollView.useDelegate(
+                    onSelectedItemChanged:
+                        (index) => paintKey.value = GlobalObjectKey(index),
+                    physics: const FixedExtentScrollPhysics(),
+                    overAndUnderCenterOpacity: .9,
+                    itemExtent: screenWidth * .75,
+                    childDelegate: ListWheelChildBuilderDelegate(
                       childCount: 4,
-                      builder: (context, index) => AspectRatio(
+                      builder:
+                          (context, index) => AspectRatio(
                             aspectRatio: aspect,
                             child: RotatedBox(
                               quarterTurns: 1,
                               child: ValueListenableBuilder(
                                 valueListenable: paintKey,
-                                builder: (context, key, child) => index ==
-                                        key.value
-                                    ? RepaintBoundary(key: key, child: child)
-                                    : child!,
+                                builder:
+                                    (context, key, child) =>
+                                        index == key.value
+                                            ? RepaintBoundary(
+                                              key: key,
+                                              child: child,
+                                            )
+                                            : child!,
                                 child: DecoratedBox(
                                   decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(
-                                          kRadialReactionRadius),
-                                      image: DecorationImage(
-                                        fit: BoxFit.fill,
-                                        image: AssetImage(
-                                            'assets/punch${index.toString().padLeft(2, '0')}.png'),
-                                      )),
+                                    borderRadius: BorderRadius.circular(
+                                      kRadialReactionRadius,
+                                    ),
+                                    image: DecorationImage(
+                                      fit: BoxFit.fill,
+                                      image: AssetImage(
+                                        'assets/punch${index.toString().padLeft(2, '0')}.png',
+                                      ),
+                                    ),
+                                  ),
                                   child: const Align(
                                     alignment: Alignment(0, .8),
                                     child: Text('Shit man'),
@@ -77,15 +104,14 @@ class _PunchOutPageState extends State<PunchOutPage> {
                                 ),
                               ),
                             ),
-                          )),
+                          ),
+                    ),
+                  ),
                 ),
               ),
-            )),
+            ),
           ),
-          Flexible(
-            flex: 1,
-            child: buildBottomButtons(colorScheme),
-          )
+          Flexible(flex: 1, child: buildBottomButtons(colorScheme)),
         ],
       ),
     );
@@ -100,45 +126,51 @@ class _PunchOutPageState extends State<PunchOutPage> {
       spacing: 8,
       children: [
         FutureBuilder(
-            future: MyDB().isReady,
-            builder: (context, snapshot) => GestureDetector(
-                  onTap: snapshot.data != true ? null : punchOut,
-                  child: Container(
-                    width: 300,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    decoration: BoxDecoration(
-                        borderRadius:
-                            BorderRadius.circular(kRadialReactionRadius * 2),
-                        gradient: CollectionMark(
-                                name: '',
-                                index: -1,
-                                color: colorScheme.primary.value)
-                            .gradient(context)),
-                    child: Text.rich(
-                      TextSpan(
-                        text: 'Get 6 tokens for sharing',
-                        children: [
-                          TextSpan(
-                            text:
-                                '\nGet tokens only when returning to the app after sharing',
-                            style: cupertinoTextTheme.textStyle.copyWith(
-                                fontSize: textTheme.labelSmall?.fontSize,
-                                // height: textTheme.labelSmall?.height,
-                                color: CupertinoColors.systemGrey4
-                                    .resolveFrom(context)),
-                          )
-                        ],
-                      ),
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: colorScheme.onPrimary,
-                        fontSize: textTheme.titleMedium?.fontSize,
-                        height: textTheme.titleMedium?.height,
-                        fontWeight: textTheme.titleMedium?.fontWeight,
-                      ),
+          future: MyDB().isReady,
+          builder:
+              (context, snapshot) => GestureDetector(
+                onTap: snapshot.data != true ? null : punchOut,
+                child: Container(
+                  width: 300,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(
+                      kRadialReactionRadius * 2,
+                    ),
+                    gradient: CollectionMark(
+                      name: '',
+                      index: -1,
+                      color: colorScheme.primary.toARGB32(),
+                    ).gradient(context),
+                  ),
+                  child: Text.rich(
+                    TextSpan(
+                      text: 'Get 6 tokens for sharing',
+                      children: [
+                        TextSpan(
+                          text:
+                              '\nGet tokens only when returning to the app after sharing',
+                          style: cupertinoTextTheme.textStyle.copyWith(
+                            fontSize: textTheme.labelSmall?.fontSize,
+                            // height: textTheme.labelSmall?.height,
+                            color: CupertinoColors.systemGrey4.resolveFrom(
+                              context,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: colorScheme.onPrimary,
+                      fontSize: textTheme.titleMedium?.fontSize,
+                      height: textTheme.titleMedium?.height,
+                      fontWeight: textTheme.titleMedium?.fontWeight,
                     ),
                   ),
-                )),
+                ),
+              ),
+        ),
         Container(
           height: 64,
           width: 300,
@@ -154,47 +186,59 @@ class _PunchOutPageState extends State<PunchOutPage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('My token',
-                        style: TextStyle(color: colorScheme.onInverseSurface)),
+                    Text(
+                      'My token',
+                      style: TextStyle(color: colorScheme.onInverseSurface),
+                    ),
                     RichText(
-                        text: TextSpan(
-                      children: [
-                        TextSpan(
+                      text: TextSpan(
+                        children: [
+                          TextSpan(
                             text: '618',
                             style: TextStyle(
-                              fontSize:
-                                  textTheme.titleMedium?.fontSize.scale(1.2),
+                              fontSize: textTheme.titleMedium?.fontSize.scale(
+                                1.2,
+                              ),
                               fontWeight: textTheme.titleMedium?.fontWeight,
-                            )),
-                        const TextSpan(text: ' = 6.08\$')
-                      ],
-                      style: TextStyle(color: colorScheme.onInverseSurface),
-                    ))
+                            ),
+                          ),
+                          const TextSpan(text: ' = 6.08\$'),
+                        ],
+                        style: TextStyle(color: colorScheme.onInverseSurface),
+                      ),
+                    ),
                   ],
                 ),
               ),
               GestureDetector(
                 onTap: () {},
                 child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
-                    margin: const EdgeInsets.only(right: 8),
-                    decoration: BoxDecoration(
-                        color: colorScheme.onSurfaceVariant.withAlpha(0x80),
-                        borderRadius: BorderRadius.circular(16)),
-                    child: Text("What is token?",
-                        style: TextStyle(color: colorScheme.onInverseSurface))),
-              )
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 4,
+                    horizontal: 12,
+                  ),
+                  margin: const EdgeInsets.only(right: 8),
+                  decoration: BoxDecoration(
+                    color: colorScheme.onSurfaceVariant.withAlpha(0x80),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Text(
+                    "What is token?",
+                    style: TextStyle(color: colorScheme.onInverseSurface),
+                  ),
+                ),
+              ),
             ],
           ),
-        )
+        ),
       ],
     );
   }
 
   void punchOut() async {
-    final boundary = paintKey.value.currentContext?.findRenderObject()
-        as RenderRepaintBoundary?;
+    final boundary =
+        paintKey.value.currentContext?.findRenderObject()
+            as RenderRepaintBoundary?;
     final paintData = await boundary?.toImage(pixelRatio: 2).then((img) async {
       final bytes = await img.toByteData(format: ui.ImageByteFormat.png);
       final decode = image.decodePng(bytes!.buffer.asUint8List());

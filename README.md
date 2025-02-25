@@ -27,6 +27,18 @@ Note RefreshIndicator need Material environment to work. The relative usage at [
 This idea can write a package and publish to pub dev.(include main example)
 
 
+## Flutter develop
+
+* Use `dart devtools` CLI to quickly open devtools in browser.
+You can press `v` in terminal to open, or use CLI to search current executions
+```shell
+# Not necessary
+flutter pub global activate devtools
+dart pub global activate devtools
+# Attach executions
+flutter attach
+```
+
 
 ## Getting Started
 

@@ -43,6 +43,7 @@ class _FavoriteWordsPageState extends State<FavoriteWordsPage> {
   @override
   void dispose() {
     MyDB().removeListener(filterListener);
+    capitalKeys.clear();
     super.dispose();
   }
 
@@ -54,8 +55,9 @@ class _FavoriteWordsPageState extends State<FavoriteWordsPage> {
     capitalKeys = capitals.map((e) => GlobalObjectKey(e)).toList();
     if (widget.mark.color != null) {
       markScheme = ColorScheme.fromSeed(
-          seedColor: Color(widget.mark.color!),
-          brightness: Theme.of(context).brightness);
+        seedColor: Color(widget.mark.color!),
+        brightness: Theme.of(context).brightness,
+      );
     }
     // markScheme = markScheme?.copyWith(brightness: Theme.of(context).brightness);
     return Scaffold(
@@ -73,54 +75,72 @@ class _FavoriteWordsPageState extends State<FavoriteWordsPage> {
                     title: Text(
                       widget.mark.name.replaceAll(RegExp(r'\n'), ' '),
                     ),
-                    backgroundColor: markScheme?.primaryContainer ??
+                    backgroundColor:
+                        markScheme?.primaryContainer ??
                         kCupertinoSheetColor.resolveFrom(context),
-                    material: (_, __) => MaterialSliverAppBarData(
-                        pinned: true,
-                        flexibleSpace: FlexibleSpaceBar(
-                          stretchModes: const [
-                            StretchMode.zoomBackground,
-                            StretchMode.blurBackground,
-                            StretchMode.fadeTitle,
-                          ],
-                          background: DecoratedBox(
-                            decoration: BoxDecoration(
-                                gradient: widget.mark.gradient(context)),
-                            child: FittedBox(
-                              fit: BoxFit.fill,
-                              child: Icon(widget.mark.icon == null
-                                  ? Icons.abc
-                                  : IconData(widget.mark.icon!,
-                                      fontFamily: 'CupertinoIcons',
-                                      fontPackage: 'cupertino_icons')),
+                    material:
+                        (_, __) => MaterialSliverAppBarData(
+                          pinned: true,
+                          flexibleSpace: FlexibleSpaceBar(
+                            stretchModes: const [
+                              StretchMode.zoomBackground,
+                              StretchMode.blurBackground,
+                              StretchMode.fadeTitle,
+                            ],
+                            background: DecoratedBox(
+                              decoration: BoxDecoration(
+                                gradient: widget.mark.gradient(context),
+                              ),
+                              child: FittedBox(
+                                fit: BoxFit.fill,
+                                child: Icon(
+                                  widget.mark.icon == null
+                                      ? Icons.abc
+                                      : IconData(
+                                        widget.mark.icon!,
+                                        fontFamily: 'CupertinoIcons',
+                                        fontPackage: 'cupertino_icons',
+                                      ),
+                                ),
+                              ),
                             ),
                           ),
-                        )),
-                    cupertino: (_, __) => CupertinoSliverAppBarData(
-                        previousPageTitle: 'Collections'),
+                        ),
+                    cupertino:
+                        (_, __) => CupertinoSliverAppBarData(
+                          previousPageTitle: 'Collections',
+                        ),
                   ),
                   SliverResizingHeader(
-                      minExtentPrototype: SizedBox.fromSize(
-                          size: const Size.fromHeight(kTextTabBarHeight + 10)),
-                      maxExtentPrototype: SizedBox.fromSize(
-                          size: const Size.fromHeight(kTextTabBarHeight + 10)),
-                      child: FilterInputBar(
-                        padding: EdgeInsets.only(
-                            bottom: 10, right: hPadding, left: hPadding),
-                        backgroundColor: markScheme?.primaryContainer ??
-                            kCupertinoSheetColor.resolveFrom(context),
-                        controller: textController,
-                        hintText: 'Filter word',
-                        onChanged: (p0) => filterWord(p0),
-                      )),
+                    minExtentPrototype: SizedBox.fromSize(
+                      size: const Size.fromHeight(kTextTabBarHeight + 10),
+                    ),
+                    maxExtentPrototype: SizedBox.fromSize(
+                      size: const Size.fromHeight(kTextTabBarHeight + 10),
+                    ),
+                    child: FilterInputBar(
+                      padding: EdgeInsets.only(
+                        bottom: 10,
+                        right: hPadding,
+                        left: hPadding,
+                      ),
+                      backgroundColor:
+                          markScheme?.primaryContainer ??
+                          kCupertinoSheetColor.resolveFrom(context),
+                      controller: textController,
+                      hintText: 'Filter word',
+                      onChanged: (p0) => filterWord(p0),
+                    ),
+                  ),
                   ...takeSections(),
                 ],
               ),
               Positioned(
-                  right: hPadding / 2,
-                  top: kToolbarHeight * 3.6,
-                  bottom: 0,
-                  child: indexBar()),
+                right: hPadding / 2,
+                top: kToolbarHeight * 3.6,
+                bottom: 0,
+                child: indexBar(),
+              ),
             ],
           ),
         ),
@@ -134,8 +154,9 @@ class _FavoriteWordsPageState extends State<FavoriteWordsPage> {
     final colorScheme = Theme.of(context).colorScheme;
     return Iterable.generate(capitalKeys.length, (i) {
       final capital = capitalKeys[i].value;
-      final sectionWords =
-          words.where((w) => w.word[0].toUpperCase() == capital);
+      final sectionWords = words.where(
+        (w) => w.word[0].toUpperCase() == capital,
+      );
       return MultiSliver(
         pushPinnedChildren: true,
         children: [
@@ -146,8 +167,11 @@ class _FavoriteWordsPageState extends State<FavoriteWordsPage> {
               padding: EdgeInsets.symmetric(horizontal: hPadding),
               decoration: BoxDecoration(
                 border: Border(
-                    bottom: BorderSide(
-                        strokeAlign: -1, color: colorScheme.outlineVariant)),
+                  bottom: BorderSide(
+                    strokeAlign: -1,
+                    color: colorScheme.outlineVariant,
+                  ),
+                ),
                 color: (markScheme?.primaryContainer ??
                         kCupertinoSheetColor.resolveFrom(context))
                     .withAlpha(0xf0),
@@ -161,23 +185,25 @@ class _FavoriteWordsPageState extends State<FavoriteWordsPage> {
             ),
           ),
           SliverPrototypeExtentList.builder(
-              itemBuilder: (context, index) {
-                final word = sectionWords.elementAt(index);
-                final phonetics = word.getPhonetics();
-                return Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Offstage(
-                      offstage: index == 0,
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 20),
-                        child: DottedLine(
-                            dashColor: Theme.of(context).dividerColor),
+            itemBuilder: (context, index) {
+              final word = sectionWords.elementAt(index);
+              final phonetics = word.getPhonetics();
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Offstage(
+                    offstage: index == 0,
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 20),
+                      child: DottedLine(
+                        dashColor: Theme.of(context).dividerColor,
                       ),
                     ),
-                    PlatformListTile(
-                      title: Text.rich(
-                        TextSpan(children: [
+                  ),
+                  PlatformListTile(
+                    title: Text.rich(
+                      TextSpan(
+                        children: [
                           ...matchFilterTextSpan(
                             text: word.word,
                             style: textTheme.titleMedium
@@ -186,66 +212,81 @@ class _FavoriteWordsPageState extends State<FavoriteWordsPage> {
                           ),
                           const TextSpan(text: '\n'),
                           TextSpan(
-                              text: phonetics.firstOrNull?.phonetic,
-                              style: TextStyle(
-                                color: colorScheme.onSurfaceVariant,
-                              )),
+                            text: phonetics.firstOrNull?.phonetic,
+                            style: TextStyle(
+                              color: colorScheme.onSurfaceVariant,
+                            ),
+                          ),
                           TextSpan(text: '\t' * 4),
                           WidgetSpan(
-                              child: PlatformIconButton(
-                            onPressed: playPhonetic(null, word: word.word),
-                            padding: EdgeInsets.zero,
-                            icon: const Icon(CupertinoIcons.volume_up),
-                            cupertino: (_, __) => CupertinoIconButtonData(
-                                minSize: textTheme.bodyMedium?.fontSize),
-                            material: (_, __) => MaterialIconButtonData(
-                                style: IconButton.styleFrom(
-                                    minimumSize: Size.square(
-                                        textTheme.bodyMedium!.fontSize!),
-                                    tapTargetSize:
-                                        MaterialTapTargetSize.shrinkWrap)),
-                          )),
-                        ]),
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 2,
-                        style: textTheme.titleMedium,
+                            child: PlatformIconButton(
+                              onPressed: playPhonetic(null, word: word.word),
+                              padding: EdgeInsets.zero,
+                              icon: const Icon(CupertinoIcons.volume_up),
+                              cupertino:
+                                  (_, __) => CupertinoIconButtonData(
+                                    minSize: textTheme.bodyMedium?.fontSize,
+                                  ),
+                              material:
+                                  (_, __) => MaterialIconButtonData(
+                                    style: IconButton.styleFrom(
+                                      minimumSize: Size.square(
+                                        textTheme.bodyMedium!.fontSize!,
+                                      ),
+                                      tapTargetSize:
+                                          MaterialTapTargetSize.shrinkWrap,
+                                    ),
+                                  ),
+                            ),
+                          ),
+                        ],
                       ),
-                      subtitle: Text(word.getSpeechAndTranslation,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: textTheme.bodyLarge),
-                      // Wrap(
-                      //   spacing: 8,
-                      //   children: word.definitions
-                      //       .map((d) => Text(
-                      //             speechShortcut(d.partOfSpeech),
-                      //             style: textTheme.bodyLarge,
-                      //           ))
-                      //       .toList(),
-                      // ),
-                      trailing: const CupertinoListTileChevron(),
-                      onTap: () => Navigator.push(
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 2,
+                      style: textTheme.titleMedium,
+                    ),
+                    subtitle: Text(
+                      word.getSpeechAndTranslation,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: textTheme.bodyLarge,
+                    ),
+                    // Wrap(
+                    //   spacing: 8,
+                    //   children: word.definitions
+                    //       .map((d) => Text(
+                    //             speechShortcut(d.partOfSpeech),
+                    //             style: textTheme.bodyLarge,
+                    //           ))
+                    //       .toList(),
+                    // ),
+                    trailing: const CupertinoListTileChevron(),
+                    onTap:
+                        () => Navigator.push(
                           context,
                           platformPageRoute(
                             context: context,
                             builder: (context) => VocabularyPage(word: word),
-                            settings:
-                                const RouteSettings(name: AppRoute.vocabulary),
-                          )),
-                      // cupertino: (_, __) => CupertinoListTileData(
-                      //     // backgroundColor:
-                      //     //     kCupertinoSheetColor.resolveFrom(context),
-                      //     ),
-                    )
-                  ],
-                );
-              },
-              prototypeItem: Column(
-                children: [
-                  const DottedLine(),
-                  PlatformListTile(
-                    title: Text.rich(
-                      TextSpan(children: [
+                            settings: const RouteSettings(
+                              name: AppRoute.vocabulary,
+                            ),
+                          ),
+                        ),
+                    // cupertino: (_, __) => CupertinoListTileData(
+                    //     // backgroundColor:
+                    //     //     kCupertinoSheetColor.resolveFrom(context),
+                    //     ),
+                  ),
+                ],
+              );
+            },
+            prototypeItem: Column(
+              children: [
+                const DottedLine(),
+                PlatformListTile(
+                  title: Text.rich(
+                    TextSpan(
+                      children: [
                         TextSpan(
                           text: ' ',
                           style: textTheme.titleMedium
@@ -253,23 +294,27 @@ class _FavoriteWordsPageState extends State<FavoriteWordsPage> {
                               .apply(fontSizeFactor: math.sqrt2),
                         ),
                         const TextSpan(text: '\n'),
-                        const TextSpan(text: ' ')
-                      ]),
-                      maxLines: 2,
-                      style: textTheme.titleMedium,
+                        const TextSpan(text: ' '),
+                      ],
                     ),
-                    subtitle: Text('', style: textTheme.bodyLarge),
+                    maxLines: 2,
+                    style: textTheme.titleMedium,
                   ),
-                ],
-              ),
-              itemCount: sectionWords.length),
+                  subtitle: Text('', style: textTheme.bodyLarge),
+                ),
+              ],
+            ),
+            itemCount: sectionWords.length,
+          ),
         ],
       );
     });
   }
 
-  Iterable<TextSpan> matchFilterTextSpan(
-      {required String text, TextStyle? style}) {
+  Iterable<TextSpan> matchFilterTextSpan({
+    required String text,
+    TextStyle? style,
+  }) {
     final pattern = textController.text;
     final matches = text.matchIndexes(pattern);
     if (matches.isEmpty) return [TextSpan(text: text, style: style)];
@@ -277,19 +322,22 @@ class _FavoriteWordsPageState extends State<FavoriteWordsPage> {
       text.length,
       (i) => TextSpan(
         text: text[i],
-        style: !matches.contains(i)
-            ? style
-            : style?.apply(
-                backgroundColor:
-                    Theme.of(context).colorScheme.tertiaryContainer,
-                color: Theme.of(context).colorScheme.onTertiaryContainer),
+        style:
+            !matches.contains(i)
+                ? style
+                : style?.apply(
+                  backgroundColor:
+                      Theme.of(context).colorScheme.tertiaryContainer,
+                  color: Theme.of(context).colorScheme.onTertiaryContainer,
+                ),
       ),
     );
   }
 
   void filterWord(String query) {
-    final queryWords =
-        fetchDB.where((word) => word.word.contains(query.toLowerCase()));
+    final queryWords = fetchDB.where(
+      (word) => word.word.contains(query.toLowerCase()),
+    );
     setState(() {
       words = queryWords.toList();
     });
@@ -301,24 +349,31 @@ class _FavoriteWordsPageState extends State<FavoriteWordsPage> {
       direction: Axis.vertical,
       alignment: WrapAlignment.center,
       spacing: textTheme.bodyMedium!.fontSize! / 4,
-      children: capitalKeys
-          .map((key) => PlatformTextButton(
-                onPressed: () {
-                  Scrollable.ensureVisible(key.currentContext!);
-                },
-                padding: EdgeInsets.zero,
-                material: (_, __) => MaterialTextButtonData(
-                    style: TextButton.styleFrom(
-                        minimumSize:
-                            Size.square(textTheme.bodyMedium!.fontSize!),
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap)),
-                cupertino: (_, __) => CupertinoTextButtonData(
-                    minSize: textTheme.bodyMedium?.fontSize),
-                child: Text(
-                  key.value.toString(),
+      children:
+          capitalKeys
+              .map(
+                (key) => PlatformTextButton(
+                  onPressed: () {
+                    Scrollable.ensureVisible(key.currentContext!);
+                  },
+                  padding: EdgeInsets.zero,
+                  material:
+                      (_, __) => MaterialTextButtonData(
+                        style: TextButton.styleFrom(
+                          minimumSize: Size.square(
+                            textTheme.bodyMedium!.fontSize!,
+                          ),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                      ),
+                  cupertino:
+                      (_, __) => CupertinoTextButtonData(
+                        minSize: textTheme.bodyMedium?.fontSize,
+                      ),
+                  child: Text(key.value.toString()),
                 ),
-              ))
-          .toList(),
+              )
+              .toList(),
     );
   }
 }
