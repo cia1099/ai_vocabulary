@@ -86,21 +86,25 @@ class _PunchOutPageState extends State<PunchOutPage> {
                                               child: child,
                                             )
                                             : child!,
-                                child: DecoratedBox(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(
-                                      kRadialReactionRadius,
-                                    ),
-                                    image: DecorationImage(
-                                      fit: BoxFit.fill,
-                                      image: AssetImage(
-                                        'assets/punch${index.toString().padLeft(2, '0')}.png',
-                                      ),
-                                    ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(
+                                    kRadialReactionRadius,
                                   ),
-                                  child: Align(
-                                    alignment: const Alignment(0, 1),
-                                    child: cardPanel(colorScheme),
+                                  child: Column(
+                                    children: [
+                                      Expanded(
+                                        flex: 3,
+                                        child: Image.asset(
+                                          width: double.infinity,
+                                          'assets/punch${index.toString().padLeft(2, '0')}.png',
+                                          fit: BoxFit.fill,
+                                        ),
+                                      ),
+                                      Expanded(
+                                        flex: 1,
+                                        child: cardPanel(colorScheme),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ),
@@ -121,19 +125,12 @@ class _PunchOutPageState extends State<PunchOutPage> {
   Widget cardPanel(ColorScheme colorScheme) {
     final textTheme = Theme.of(context).textTheme;
     return Container(
-      // color: colorScheme.surface,
-      height: 100,
-      // width: double.infinity,
+      color: CupertinoColors.tertiarySystemBackground.resolveFrom(context),
+      constraints: const BoxConstraints(minHeight: 100),
       padding: const EdgeInsets.symmetric(horizontal: 8),
-      decoration: BoxDecoration(
-        borderRadius: const BorderRadius.vertical(
-          bottom: Radius.circular(kRadialReactionRadius),
-        ),
-        color: colorScheme.surface,
-        //CupertinoColors.systemBackground.resolveFrom(context),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           Wrap(
             spacing: 8,
@@ -176,7 +173,7 @@ class _PunchOutPageState extends State<PunchOutPage> {
           DottedLine(dashColor: colorScheme.outlineVariant),
           Row(
             children: [
-              Expanded(
+              Flexible(
                 child: Wrap(
                   children: [
                     Text(
@@ -188,7 +185,7 @@ class _PunchOutPageState extends State<PunchOutPage> {
                 ),
               ),
               SizedBox.square(
-                dimension: kMinInteractiveDimensionCupertino,
+                dimension: kMinInteractiveDimension,
                 child: ColoredBox(color: colorScheme.primaryContainer),
               ),
             ],
