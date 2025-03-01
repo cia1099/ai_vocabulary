@@ -3,9 +3,10 @@ import 'dart:ui' as ui;
 
 import 'package:ai_vocabulary/api/dict_api.dart';
 import 'package:ai_vocabulary/database/my_db.dart';
+import 'package:ai_vocabulary/effects/transient.dart';
 import 'package:ai_vocabulary/model/acquaintance.dart';
 import 'package:ai_vocabulary/model/collections.dart';
-import 'package:ai_vocabulary/utils/shortcut.dart';
+import 'package:ai_vocabulary/utils/function.dart';
 import 'package:ai_vocabulary/widgets/flashcard.dart';
 import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/cupertino.dart';
@@ -26,7 +27,6 @@ class PunchOutPage extends StatefulWidget {
 
 class _PunchOutPageState extends State<PunchOutPage> {
   final paintKey = ValueNotifier(const GlobalObjectKey(0));
-  final cardUrl = "http://$baseURL/dict/imagen/punch/card";
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.sizeOf(context).width;
@@ -36,7 +36,7 @@ class _PunchOutPageState extends State<PunchOutPage> {
       valueListenable: paintKey,
       builder: (context, key, child) {
         final colorFuture = ColorScheme.fromImageProvider(
-          provider: NetworkImage('$cardUrl/${key.value}'),
+          provider: NetworkImage('$punchCardUrl/${key.value}'),
           brightness: Theme.of(context).brightness,
           dynamicSchemeVariant: DynamicSchemeVariant.content,
         );
@@ -95,30 +95,9 @@ class _PunchOutPageState extends State<PunchOutPage> {
                                       flex: 3,
                                       child: Image.network(
                                         width: double.infinity,
-                                        '$cardUrl/$index',
+                                        '$punchCardUrl/$index',
                                         fit: BoxFit.fill,
-                                        loadingBuilder: (
-                                          context,
-                                          child,
-                                          loadingProgress,
-                                        ) {
-                                          if (loadingProgress == null)
-                                            return child;
-                                          final progress =
-                                              loadingProgress
-                                                  .cumulativeBytesLoaded /
-                                              loadingProgress
-                                                  .expectedTotalBytes!;
-                                          if (Platform.isIOS ||
-                                              Platform.isMacOS) {
-                                            return CupertinoActivityIndicator.partiallyRevealed(
-                                              progress: progress,
-                                            );
-                                          }
-                                          return CircularProgressIndicator(
-                                            value: progress,
-                                          );
-                                        },
+                                        loadingBuilder: loadingBuilder,
                                       ),
                                     ),
                                     Expanded(
@@ -204,9 +183,11 @@ class _PunchOutPageState extends State<PunchOutPage> {
                   ],
                 ),
               ),
-              SizedBox.square(
-                dimension: kMinInteractiveDimension,
-                child: ColoredBox(color: colorScheme.primaryContainer),
+              Image.network(
+                height: kMinInteractiveDimension,
+                '$punchCardUrl/qr_code',
+                fit: BoxFit.contain,
+                loadingBuilder: loadingBuilder,
               ),
             ],
           ),

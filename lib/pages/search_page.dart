@@ -7,6 +7,7 @@ import 'package:ai_vocabulary/effects/dot3indicator.dart';
 import 'package:ai_vocabulary/utils/handle_except.dart';
 import 'package:ai_vocabulary/utils/load_more_listview.dart';
 import 'package:ai_vocabulary/utils/shortcut.dart';
+import 'package:ai_vocabulary/utils/function.dart';
 import 'package:ai_vocabulary/widgets/align_paragraph.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -15,13 +16,12 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 import '../api/dict_api.dart';
 import '../app_route.dart';
+import '../effects/transient.dart';
 import '../model/vocabulary.dart';
 import 'vocabulary_page.dart';
 
 class SearchPage extends StatefulWidget {
-  const SearchPage({
-    super.key,
-  });
+  const SearchPage({super.key});
 
   @override
   State<SearchPage> createState() => _SearchPageState();
@@ -67,13 +67,14 @@ class _SearchPageState extends State<SearchPage> {
           onChanged: (text) {
             preventQuickChange?.cancel();
             preventQuickChange = Timer(
-                Durations.medium4,
-                () => requireMoreWords(text, 0).catchError((e) {
-                      setState(() {
-                        searchFuture = Future.error(e);
-                      });
-                      return false;
-                    }));
+              Durations.medium4,
+              () => requireMoreWords(text, 0).catchError((e) {
+                setState(() {
+                  searchFuture = Future.error(e);
+                });
+                return false;
+              }),
+            );
           },
           onSubmitted: (p0) {
             preventQuickChange?.cancel();
@@ -81,28 +82,36 @@ class _SearchPageState extends State<SearchPage> {
               searchFuture = requireMoreWords(p0, 0);
             });
           },
-          cupertino: (_, __) => CupertinoTextFieldData(
-            decoration: BoxDecoration(
-                border: Border.all(color: colorScheme.primary, width: 2),
-                borderRadius: BorderRadius.circular(kRadialReactionRadius)),
-            prefix: const SizedBox.square(dimension: 4),
-            suffix: suffixIcon,
-          ),
-          material: (_, __) => MaterialTextFieldData(
-            decoration: InputDecoration(
-              border: OutlineInputBorder(
+          cupertino:
+              (_, __) => CupertinoTextFieldData(
+                decoration: BoxDecoration(
+                  border: Border.all(color: colorScheme.primary, width: 2),
                   borderRadius: BorderRadius.circular(kRadialReactionRadius),
-                  borderSide: BorderSide(color: colorScheme.primary, width: 2)),
-              prefix: const SizedBox.square(dimension: 4),
-              suffixIcon: suffixIcon,
-            ),
-          ),
+                ),
+                prefix: const SizedBox.square(dimension: 4),
+                suffix: suffixIcon,
+              ),
+          material:
+              (_, __) => MaterialTextFieldData(
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(kRadialReactionRadius),
+                    borderSide: BorderSide(
+                      color: colorScheme.primary,
+                      width: 2,
+                    ),
+                  ),
+                  prefix: const SizedBox.square(dimension: 4),
+                  suffixIcon: suffixIcon,
+                ),
+              ),
         ),
         trailingActions: [
           PlatformTextButton(
-              onPressed: Navigator.of(context).pop,
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              child: const Text('Cancel'))
+            onPressed: Navigator.of(context).pop,
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: const Text('Cancel'),
+          ),
         ],
       ),
       body: SafeArea(
@@ -116,20 +125,26 @@ class _SearchPageState extends State<SearchPage> {
             }
             if (snapshot.hasError) {
               return Center(
-                  child: Text(
-                messageExceptions(snapshot.error),
-                style: TextStyle(
-                    color: CupertinoColors.destructiveRed.resolveFrom(context)),
-              ));
+                child: Text(
+                  messageExceptions(snapshot.error),
+                  style: TextStyle(
+                    color: CupertinoColors.destructiveRed.resolveFrom(context),
+                  ),
+                ),
+              );
             }
             return AnimatedSwitcher(
               duration: Durations.short3,
-              transitionBuilder: (child, animation) =>
-                  CupertinoDialogTransition(
-                      animation: animation, scale: .9, child: child),
-              child: textController.text.isEmpty
-                  ? fetchHistorySearch(colorScheme, textTheme, hPadding)
-                  : searchResults(colorScheme, textTheme, hPadding),
+              transitionBuilder:
+                  (child, animation) => CupertinoDialogTransition(
+                    animation: animation,
+                    scale: .9,
+                    child: child,
+                  ),
+              child:
+                  textController.text.isEmpty
+                      ? fetchHistorySearch(colorScheme, textTheme, hPadding)
+                      : searchResults(colorScheme, textTheme, hPadding),
             );
           },
         ),
@@ -150,29 +165,36 @@ class _SearchPageState extends State<SearchPage> {
     textTheme ??= Theme.of(context).textTheme;
     hPadding ??= MediaQuery.sizeOf(context).width / 32;
     colorScheme ??= Theme.of(context).colorScheme;
-    final minInteractiveDimension = Platform.isIOS || Platform.isMacOS
-        ? kMinInteractiveDimensionCupertino
-        : kMinInteractiveDimension;
+    final minInteractiveDimension =
+        Platform.isIOS || Platform.isMacOS
+            ? kMinInteractiveDimensionCupertino
+            : kMinInteractiveDimension;
     return Container(
       height: minInteractiveDimension,
       margin: EdgeInsets.symmetric(horizontal: hPadding),
       decoration: BoxDecoration(
-          border: Border(
-              top: !isTop
+        border: Border(
+          top:
+              !isTop
                   ? BorderSide(
-                      color: CupertinoColors.secondarySystemFill
-                          .resolveFrom(context))
-                  : BorderSide.none)),
+                    color: CupertinoColors.secondarySystemFill.resolveFrom(
+                      context,
+                    ),
+                  )
+                  : BorderSide.none,
+        ),
+      ),
       child: InkWell(
         onTap: () {
           onTap(word);
           Navigator.push(
-              context,
-              platformPageRoute(
-                context: context,
-                builder: (context) => VocabularyPage(word: word),
-                settings: const RouteSettings(name: AppRoute.vocabulary),
-              ));
+            context,
+            platformPageRoute(
+              context: context,
+              builder: (context) => VocabularyPage(word: word),
+              settings: const RouteSettings(name: AppRoute.vocabulary),
+            ),
+          );
         },
         child: Row(
           spacing: hPadding.scale(.5)!,
@@ -225,8 +247,11 @@ class _SearchPageState extends State<SearchPage> {
     return hasMore;
   }
 
-  Widget searchResults(
-      [ColorScheme? colorScheme, TextTheme? textTheme, double? hPadding]) {
+  Widget searchResults([
+    ColorScheme? colorScheme,
+    TextTheme? textTheme,
+    double? hPadding,
+  ]) {
     hPadding ??= MediaQuery.sizeOf(context).width / 32;
     textTheme ??= Theme.of(context).textTheme;
     if (searchWords.isEmpty) {
@@ -241,9 +266,10 @@ class _SearchPageState extends State<SearchPage> {
         return vocabularyItemBuilder(
           word: searchWords[index],
           context: context,
-          onTap: (word) => MyDB().insertWords(Stream.value(word)).then((_) {
-            MyDB().insertSearchHistory(word.wordId);
-          }),
+          onTap:
+              (word) => MyDB().insertWords(Stream.value(word)).then((_) {
+                MyDB().insertSearchHistory(word.wordId);
+              }),
           isTop: index == 0,
           hPadding: hPadding,
           colorScheme: colorScheme,
@@ -252,7 +278,10 @@ class _SearchPageState extends State<SearchPage> {
       },
       bottomPadding: 25,
       indicator: DotDotDotIndicator(
-          size: 16, color: colorScheme?.secondary, duration: Durations.long2),
+        size: 16,
+        color: colorScheme?.secondary,
+        duration: Durations.long2,
+      ),
       onLoadMore: (atTop) async {
         preventQuickChange?.cancel();
         final text = textController.text;
@@ -262,30 +291,39 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 
-  Widget fetchHistorySearch(
-      [ColorScheme? colorScheme, TextTheme? textTheme, double? hPadding]) {
+  Widget fetchHistorySearch([
+    ColorScheme? colorScheme,
+    TextTheme? textTheme,
+    double? hPadding,
+  ]) {
     final prototype = Vocabulary.fromRawJson(
-        r'{"word_id": 830, "word": "apple", "asset": "http://www.cia1099.cloudns.ch/dict/dictionary/img/thumb/apple.jpg", "definitions": [{"part_of_speech": "noun", "explanations": [{"explain": "a hard, round fruit with a smooth green, red or yellow skin", "subscript": "countable, uncountable", "examples": ["apple juice"]}], "inflection": "apple, apples", "phonetic_uk": "/\\u02c8\\u00e6p.\\u0259l/", "phonetic_us": "/\\u02c8\\u00e6p.\\u0259l/", "audio_uk": "https://www.cia1099.cloudns.ch/dict/dictionary/audio/apple__gb_1.mp3", "audio_us": "https://www.cia1099.cloudns.ch/dict/dictionary/audio/apple__us_1.mp3", "translate": "\\u82f9\\u679c"}]}');
+      r'{"word_id": 830, "word": "apple", "asset": "http://www.cia1099.cloudns.ch/dict/dictionary/img/thumb/apple.jpg", "definitions": [{"part_of_speech": "noun", "explanations": [{"explain": "a hard, round fruit with a smooth green, red or yellow skin", "subscript": "countable, uncountable", "examples": ["apple juice"]}], "inflection": "apple, apples", "phonetic_uk": "/\\u02c8\\u00e6p.\\u0259l/", "phonetic_us": "/\\u02c8\\u00e6p.\\u0259l/", "audio_uk": "https://www.cia1099.cloudns.ch/dict/dictionary/audio/apple__gb_1.mp3", "audio_us": "https://www.cia1099.cloudns.ch/dict/dictionary/audio/apple__us_1.mp3", "translate": "\\u82f9\\u679c"}]}',
+    );
     final historyWords = MyDB().fetchHistorySearches();
     return ListView.builder(
       prototypeItem: vocabularyItemBuilder(
-          word: prototype, context: context, onTap: (word) {}),
-      itemCount: historyWords.length,
-      itemBuilder: (context, index) => vocabularyItemBuilder(
-        word: historyWords[index],
+        word: prototype,
         context: context,
-        onTap: (word) => MyDB().updateHistory(word.wordId),
-        isTop: index == 0,
-        leading: Icon(
-          CupertinoIcons.time,
-          color: colorScheme?.outline,
-          size: textTheme?.bodyMedium?.fontSize
-              .scale(textTheme.bodyMedium?.height),
-        ),
-        colorScheme: colorScheme,
-        textTheme: textTheme,
-        hPadding: hPadding,
+        onTap: (word) {},
       ),
+      itemCount: historyWords.length,
+      itemBuilder:
+          (context, index) => vocabularyItemBuilder(
+            word: historyWords[index],
+            context: context,
+            onTap: (word) => MyDB().updateHistory(word.wordId),
+            isTop: index == 0,
+            leading: Icon(
+              CupertinoIcons.time,
+              color: colorScheme?.outline,
+              size: textTheme?.bodyMedium?.fontSize.scale(
+                textTheme.bodyMedium?.height,
+              ),
+            ),
+            colorScheme: colorScheme,
+            textTheme: textTheme,
+            hPadding: hPadding,
+          ),
     );
   }
 }
@@ -305,39 +343,52 @@ class _SearchNotFound extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     return Container(
       // color: Colors.red,
-      margin:
-          EdgeInsets.symmetric(horizontal: hPadding, vertical: hPadding * 2),
+      margin: EdgeInsets.symmetric(
+        horizontal: hPadding,
+        vertical: hPadding * 2,
+      ),
       child: MediaQuery(
         data: const MediaQueryData(textScaler: TextScaler.linear(sqrt2)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Sorry no related results found',
-                style: cupertinoTextTheme.navTitleTextStyle),
-            Text(typing,
-                style: cupertinoTextTheme.dateTimePickerTextStyle
-                    .apply(color: colorScheme.onTertiaryContainer)),
+            Text(
+              'Sorry no related results found',
+              style: cupertinoTextTheme.navTitleTextStyle,
+            ),
+            Text(
+              typing,
+              style: cupertinoTextTheme.dateTimePickerTextStyle.apply(
+                color: colorScheme.onTertiaryContainer,
+              ),
+            ),
             AlignParagraph(
-                mark: Icon(CupertinoIcons.circle_fill, size: hPadding / 2),
-                paragraph: Text('Please verify the input text for any errors.',
-                    style: cupertinoTextTheme.textStyle),
-                xInterval: hPadding / 2,
-                paragraphStyle:
-                    textTheme.bodyMedium?.apply(heightFactor: sqrt2)),
+              mark: Icon(CupertinoIcons.circle_fill, size: hPadding / 2),
+              paragraph: Text(
+                'Please verify the input text for any errors.',
+                style: cupertinoTextTheme.textStyle,
+              ),
+              xInterval: hPadding / 2,
+              paragraphStyle: textTheme.bodyMedium?.apply(heightFactor: sqrt2),
+            ),
             AlignParagraph(
-                mark: Icon(CupertinoIcons.circle_fill, size: hPadding / 2),
-                paragraph: Text('Please attempt a different search term.',
-                    style: cupertinoTextTheme.textStyle),
-                xInterval: hPadding / 2,
-                paragraphStyle:
-                    textTheme.bodyMedium?.apply(heightFactor: sqrt2)),
+              mark: Icon(CupertinoIcons.circle_fill, size: hPadding / 2),
+              paragraph: Text(
+                'Please attempt a different search term.',
+                style: cupertinoTextTheme.textStyle,
+              ),
+              xInterval: hPadding / 2,
+              paragraphStyle: textTheme.bodyMedium?.apply(heightFactor: sqrt2),
+            ),
             AlignParagraph(
-                mark: Icon(CupertinoIcons.circle_fill, size: hPadding / 2),
-                paragraph: Text('Please consider a more common text.',
-                    style: cupertinoTextTheme.textStyle),
-                xInterval: hPadding / 2,
-                paragraphStyle:
-                    textTheme.bodyMedium?.apply(heightFactor: sqrt2)),
+              mark: Icon(CupertinoIcons.circle_fill, size: hPadding / 2),
+              paragraph: Text(
+                'Please consider a more common text.',
+                style: cupertinoTextTheme.textStyle,
+              ),
+              xInterval: hPadding / 2,
+              paragraphStyle: textTheme.bodyMedium?.apply(heightFactor: sqrt2),
+            ),
           ],
         ),
       ),

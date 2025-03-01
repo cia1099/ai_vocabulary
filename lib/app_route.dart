@@ -10,6 +10,7 @@ import 'package:ai_vocabulary/pages/vocabulary_page.dart';
 
 import 'app_settings.dart';
 import 'database/my_db.dart';
+import 'effects/transient.dart';
 import 'pages/report_page.dart';
 
 class AppRoute<T> extends PageRoute<T> {
@@ -31,8 +32,11 @@ class AppRoute<T> extends PageRoute<T> {
   AppRoute({this.barrierColor, super.settings});
 
   @override
-  Widget buildPage(BuildContext context, Animation<double> animation,
-      Animation<double> secondaryAnimation) {
+  Widget buildPage(
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+  ) {
     return FlutterWebFrame(
       builder: (context) {
         final provider = AppSettings.of(context).wordProvider;
@@ -56,10 +60,11 @@ class AppRoute<T> extends PageRoute<T> {
             return VocabularyPage(word: currentWord!);
           case AppRoute.entryVocabulary:
             return VocabularyPage(
-                word: currentWord!,
-                nextTap: provider == null
-                    ? null
-                    : () {
+              word: currentWord!,
+              nextTap:
+                  provider == null
+                      ? null
+                      : () {
                         final studyCount = MyDB().fetchStudyCounts();
                         final mySetting = AppSettings.of(context);
                         mySetting.studyState = mySetting.nextStatus(studyCount);
@@ -67,26 +72,30 @@ class AppRoute<T> extends PageRoute<T> {
                             mySetting.studyState == StudyStatus.onTarget;
                         if (provider.shouldRemind(reachTarget)) {
                           Navigator.popAndPushNamed(
-                              context, AppRoute.reviewWords,
-                              arguments: reachTarget);
+                            context,
+                            AppRoute.reviewWords,
+                            arguments: reachTarget,
+                          );
                         } else {
                           provider.nextStudyWord();
                           Navigator.popUntil(context, (route) => route.isFirst);
                         }
-                      });
+                      },
+            );
           case AppRoute.todayWords:
           // return WordListPage(words: WordProvider().subList());
           case AppRoute.reviewWords:
             final reviews = provider?.remindWords() ?? [];
             return WordListPage(
               words: reviews,
-              nextTap: provider == null
-                  ? null
-                  : () {
-                      //TODO: when reach targe, navigate to share page
-                      provider.nextStudyWord();
-                      Navigator.popUntil(context, (route) => route.isFirst);
-                    },
+              nextTap:
+                  provider == null
+                      ? null
+                      : () {
+                        //TODO: when reach targe, navigate to share page
+                        provider.nextStudyWord();
+                        Navigator.popUntil(context, (route) => route.isFirst);
+                      },
             );
           case AppRoute.report:
             return ReportPage(wordId: currentWord!.wordId);
@@ -101,18 +110,23 @@ class AppRoute<T> extends PageRoute<T> {
   }
 
   @override
-  Widget buildTransitions(BuildContext context, Animation<double> animation,
-      Animation<double> secondaryAnimation, Widget child) {
+  Widget buildTransitions(
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) {
     if (!validation(context)) {
       return CupertinoDialogTransition(animation: animation, child: child);
     }
     return SlideTransition(
-      position: Tween(begin: Offset.fromDirection(0), end: Offset.zero)
-          .animate(CurvedAnimation(
-        parent: animation,
-        curve: Curves.linearToEaseOut,
-        reverseCurve: Curves.easeInToLinear,
-      )),
+      position: Tween(begin: Offset.fromDirection(0), end: Offset.zero).animate(
+        CurvedAnimation(
+          parent: animation,
+          curve: Curves.linearToEaseOut,
+          reverseCurve: Curves.easeInToLinear,
+        ),
+      ),
       textDirection: Directionality.of(context),
       transformHitTests: false,
       child: child,
@@ -144,10 +158,7 @@ class AppRoute<T> extends PageRoute<T> {
 }
 
 class DummyDialog extends StatelessWidget {
-  const DummyDialog({
-    super.key,
-    this.msg,
-  });
+  const DummyDialog({super.key, this.msg});
   final String? msg;
 
   @override
@@ -158,23 +169,25 @@ class DummyDialog extends StatelessWidget {
         child: AspectRatio(
           aspectRatio: 1,
           child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: kCupertinoSheetColor.resolveFrom(context),
-                borderRadius: BorderRadius.circular(kRadialReactionRadius / 2),
-              ),
-              child: Stack(
-                children: [
-                  const Center(child: CircularProgressIndicator.adaptive()),
-                  Align(
-                    alignment: const Alignment(0, 1),
-                    child: Text(
-                      '$msg',
-                      style:
-                          TextStyle(color: Theme.of(context).colorScheme.error),
+            decoration: BoxDecoration(
+              color: kCupertinoSheetColor.resolveFrom(context),
+              borderRadius: BorderRadius.circular(kRadialReactionRadius / 2),
+            ),
+            child: Stack(
+              children: [
+                const Center(child: CircularProgressIndicator.adaptive()),
+                Align(
+                  alignment: const Alignment(0, 1),
+                  child: Text(
+                    '$msg',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
                     ),
-                  )
-                ],
-              )),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -199,9 +212,7 @@ enum AppRouters implements Comparable<String> {
   searchWords('/search/words');
 
   static Map<String, String> asMap() {
-    return {
-      for (final e in AppRouters.values) e.name: e.path,
-    };
+    return {for (final e in AppRouters.values) e.name: e.path};
   }
 
   final String path;

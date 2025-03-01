@@ -36,7 +36,7 @@ class WeightedSelector<T> {
   List<double> _remainingWeights = [];
 
   WeightedSelector(Iterable<T> elements, Iterable<double> weights)
-      : assert(elements.length == weights.length) {
+    : assert(elements.length == weights.length) {
     _remainingElements = List.from(elements);
     _remainingWeights = List.from(weights);
   }
@@ -91,3 +91,7 @@ class WeightedSelector<T> {
 //   final r = log(factor);
 //   return 1.84 / (r * r + 1.84);
 // }
+
+extension ScaleDouble on double? {
+  double? scale(double? x) => this == null || x == null ? null : this! * x;
+}

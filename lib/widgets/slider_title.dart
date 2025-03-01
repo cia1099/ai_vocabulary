@@ -10,6 +10,7 @@ import 'package:flutter/scheduler.dart';
 
 import '../api/dict_api.dart';
 import '../effects/dot2loader.dart';
+import '../effects/transient.dart';
 import '../model/chat_answer.dart';
 import '../model/vocabulary.dart';
 
@@ -23,8 +24,9 @@ class SliderTitle extends StatefulWidget {
 
 class SliderTitleState extends State<SliderTitle>
     with AutomaticKeepAliveClientMixin {
-  var futureRecognize =
-      Future.value(SpeechRecognition(text: '', recognize: true));
+  var futureRecognize = Future.value(
+    SpeechRecognition(text: '', recognize: true),
+  );
   var isCorrect = false;
 
   @override
@@ -47,19 +49,29 @@ class SliderTitleState extends State<SliderTitle>
             Wrap(
               spacing: 8,
               runSpacing: 4,
-              children: widget.word.getInflection
-                  .map((e) => Container(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 4, horizontal: 8),
-                        decoration: BoxDecoration(
+              children:
+                  widget.word.getInflection
+                      .map(
+                        (e) => Container(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 4,
+                            horizontal: 8,
+                          ),
+                          decoration: BoxDecoration(
                             color: colorScheme.primaryContainer,
                             borderRadius: BorderRadius.circular(
-                                textTheme.bodyMedium!.fontSize!)),
-                        child: Text(e,
+                              textTheme.bodyMedium!.fontSize!,
+                            ),
+                          ),
+                          child: Text(
+                            e,
                             style: TextStyle(
-                                color: colorScheme.onPrimaryContainer)),
-                      ))
-                  .toList(),
+                              color: colorScheme.onPrimaryContainer,
+                            ),
+                          ),
+                        ),
+                      )
+                      .toList(),
             ),
           ],
         ),
@@ -91,23 +103,30 @@ class SliderTitleState extends State<SliderTitle>
                   children: [TwoDotLoader(), Text('Speech Recognizing...')],
                 );
               } else if (snapshot.hasError) {
-                content = Text(messageExceptions(snapshot.error),
-                    key: const Key('error'),
-                    style: TextStyle(
-                      color: colorScheme.error,
-                      backgroundColor:
-                          kCupertinoSheetColor.resolveFrom(context),
-                    ));
+                content = Text(
+                  messageExceptions(snapshot.error),
+                  key: const Key('error'),
+                  style: TextStyle(
+                    color: colorScheme.error,
+                    backgroundColor: kCupertinoSheetColor.resolveFrom(context),
+                  ),
+                );
               } else {
-                content =
-                    _tackleRecognition(snapshot.data, textTheme, colorScheme);
+                content = _tackleRecognition(
+                  snapshot.data,
+                  textTheme,
+                  colorScheme,
+                );
               }
               return AnimatedSwitcher(
-                  duration: Durations.medium1,
-                  transitionBuilder: (child, animation) =>
-                      CupertinoDialogTransition(
-                          animation: animation, child: child),
-                  child: content);
+                duration: Durations.medium1,
+                transitionBuilder:
+                    (child, animation) => CupertinoDialogTransition(
+                      animation: animation,
+                      child: child,
+                    ),
+                child: content,
+              );
             },
           ),
         ),
@@ -122,23 +141,29 @@ class SliderTitleState extends State<SliderTitle>
   }
 
   Widget _tackleRecognition(
-      SpeechRecognition? sr, TextTheme textTheme, ColorScheme colorScheme) {
+    SpeechRecognition? sr,
+    TextTheme textTheme,
+    ColorScheme colorScheme,
+  ) {
     if (sr == null || !sr.recognize) {
-      return Text("Sorry we can't recognize your speech",
-          key: const Key('failure'),
-          style: textTheme.bodyLarge?.apply(
-            color: CupertinoDynamicColor.withBrightness(
-                    color: colorScheme.onErrorContainer,
-                    darkColor: colorScheme.onError)
-                .resolveFrom(context),
-            backgroundColor: kCupertinoSheetColor.resolveFrom(context),
-          ));
+      return Text(
+        "Sorry we can't recognize your speech",
+        key: const Key('failure'),
+        style: textTheme.bodyLarge?.apply(
+          color: CupertinoDynamicColor.withBrightness(
+            color: colorScheme.onErrorContainer,
+            darkColor: colorScheme.onError,
+          ).resolveFrom(context),
+          backgroundColor: kCupertinoSheetColor.resolveFrom(context),
+        ),
+      );
     }
     if (sr.text.isEmpty) return const Text('');
 
     final recognition = sr.text.toLowerCase().replaceAll(RegExp(r'[.,]'), '');
-    final correct =
-        widget.word.getMatchingPatterns.where((w) => recognition.contains(w));
+    final correct = widget.word.getMatchingPatterns.where(
+      (w) => recognition.contains(w),
+    );
     final correctColor = CupertinoColors.systemGreen.resolveFrom(context);
     if (correct.isNotEmpty) {
       if (!isCorrect && AppSettings.of(context).hideSliderTitle) {
@@ -151,29 +176,30 @@ class SliderTitleState extends State<SliderTitle>
           }
         }, Priority.idle);
       }
-      return Text(correct.first,
-          key: const Key('correct'),
-          style: textTheme.displayMedium?.apply(color: correctColor));
+      return Text(
+        correct.first,
+        key: const Key('correct'),
+        style: textTheme.displayMedium?.apply(color: correctColor),
+      );
     }
 
     final recognitions = recognition.split(' ');
     final differences = recognitions.map((w) => widget.word.differ(w));
     final bestMatch = recognitions.elementAt(
-        differences.toList().indexWhere((d) => d == differences.reduce(min)));
+      differences.toList().indexWhere((d) => d == differences.reduce(min)),
+    );
     return Text.rich(
       TextSpan(
-        children: List.generate(
-          widget.word.word.length,
-          (i) {
-            final word = widget.word.word;
-            final char = i < bestMatch.length ? bestMatch[i] : '•';
-            return TextSpan(
-              text: char,
-              style: TextStyle(
-                  color: word[i] == char ? correctColor : colorScheme.error),
-            );
-          },
-        ),
+        children: List.generate(widget.word.word.length, (i) {
+          final word = widget.word.word;
+          final char = i < bestMatch.length ? bestMatch[i] : '•';
+          return TextSpan(
+            text: char,
+            style: TextStyle(
+              color: word[i] == char ? correctColor : colorScheme.error,
+            ),
+          );
+        }),
       ),
       key: const Key('wrong'),
       style: textTheme.displayMedium,

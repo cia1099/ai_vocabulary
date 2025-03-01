@@ -1,4 +1,4 @@
-import 'package:ai_vocabulary/utils/shortcut.dart';
+import 'package:ai_vocabulary/utils/function.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -16,13 +16,12 @@ class AlignParagraph extends StatelessWidget {
     required Widget mark,
     required double xInterval,
     TextStyle? paragraphStyle,
-  }) =>
-      AlignParagraph(
-        mark: mark,
-        paragraph: Text(paragraph, style: paragraphStyle),
-        xInterval: xInterval,
-        paragraphStyle: paragraphStyle,
-      );
+  }) => AlignParagraph(
+    mark: mark,
+    paragraph: Text(paragraph, style: paragraphStyle),
+    xInterval: xInterval,
+    paragraphStyle: paragraphStyle,
+  );
 
   final Widget? mark;
   final Widget paragraph;
@@ -41,44 +40,49 @@ class AlignParagraph extends StatelessWidget {
           alignment: const Alignment(0, 0),
           // height: bodyText?.fontSize.scale(bodyText.height),
           constraints: BoxConstraints(
-              minHeight: bodyText?.fontSize.scale(bodyText.height) ?? .0),
+            minHeight: bodyText?.fontSize.scale(bodyText.height) ?? .0,
+          ),
           margin: EdgeInsets.only(right: xInterval ?? .0),
           child: mark,
         ),
-        Expanded(
-          child: paragraph,
-        )
+        Expanded(child: paragraph),
       ],
     );
   }
 }
 
 void main() {
-  runApp(CupertinoApp(
-    theme: const CupertinoThemeData(brightness: Brightness.light),
-    home: CupertinoPageScaffold(
-      navigationBar: const CupertinoNavigationBar(
-        middle: Text('Align Example'),
+  runApp(
+    CupertinoApp(
+      theme: const CupertinoThemeData(brightness: Brightness.light),
+      home: CupertinoPageScaffold(
+        navigationBar: const CupertinoNavigationBar(
+          middle: Text('Align Example'),
+        ),
+        child: Builder(
+          builder: (context) {
+            final textTheme = CupertinoTheme.of(context).textTheme;
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              spacing: 16,
+              children: [
+                AlignParagraph(
+                  mark: const Text('n.'),
+                  //   const Icon(
+                  // CupertinoIcons.circle_fill,
+                  // size: 8,
+                  // ),
+                  paragraph: Text('11' * 100),
+                  xInterval: 4,
+                ),
+                Text(
+                  'Cupertino text style: fontSize: ${textTheme.textStyle.fontSize}, height: ${textTheme.textStyle.height}',
+                ),
+              ],
+            );
+          },
+        ),
       ),
-      child: Builder(builder: (context) {
-        final textTheme = CupertinoTheme.of(context).textTheme;
-        return Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          spacing: 16,
-          children: [
-            AlignParagraph(
-                mark: const Text('n.'),
-                //   const Icon(
-                // CupertinoIcons.circle_fill,
-                // size: 8,
-                // ),
-                paragraph: Text('11' * 100),
-                xInterval: 4),
-            Text(
-                'Cupertino text style: fontSize: ${textTheme.textStyle.fontSize}, height: ${textTheme.textStyle.height}')
-          ],
-        );
-      }),
     ),
-  ));
+  );
 }

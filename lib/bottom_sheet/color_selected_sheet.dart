@@ -1,5 +1,4 @@
-import 'dart:io';
-
+import 'package:ai_vocabulary/effects/transient.dart';
 import 'package:ai_vocabulary/theme.dart';
 import 'package:ai_vocabulary/utils/shortcut.dart';
 import 'package:flutter/cupertino.dart';
@@ -8,9 +7,7 @@ import 'package:flutter/material.dart';
 import '../app_settings.dart';
 
 class ColorSelectedSheet extends StatefulWidget {
-  const ColorSelectedSheet({
-    super.key,
-  });
+  const ColorSelectedSheet({super.key});
 
   @override
   State<ColorSelectedSheet> createState() => _ColorSelectedSheetState();
@@ -35,10 +32,11 @@ class _ColorSelectedSheetState extends State<ColorSelectedSheet> {
         return Container(
           padding: EdgeInsets.only(top: maxHeight * 16 / 220),
           decoration: BoxDecoration(
-              borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(kRadialReactionRadius)),
-              color:
-                  CupertinoDynamicColor.resolve(kCupertinoSheetColor, context)),
+            borderRadius: const BorderRadius.vertical(
+              top: Radius.circular(kRadialReactionRadius),
+            ),
+            color: CupertinoDynamicColor.resolve(kCupertinoSheetColor, context),
+          ),
           width: double.maxFinite,
           height: maxHeight, //220,
           child: Column(
@@ -46,9 +44,12 @@ class _ColorSelectedSheetState extends State<ColorSelectedSheet> {
             children: [
               Padding(
                 padding: const EdgeInsets.only(left: 8.0),
-                child: Text('Color',
-                    style: textTheme.titleMedium
-                        ?.copyWith(fontWeight: FontWeight.bold)),
+                child: Text(
+                  'Color',
+                  style: textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
               SizedBox(
                 height: maxHeight * 50 / 220,
@@ -56,36 +57,45 @@ class _ColorSelectedSheetState extends State<ColorSelectedSheet> {
                   itemCount: ColorSeed.values.length,
                   scrollDirection: Axis.horizontal,
                   padding: const EdgeInsets.symmetric(horizontal: 8),
-                  itemBuilder: (context, index) => GestureDetector(
-                    onTap: () {
-                      AppSettings.of(context).color = index;
-                      setState(updateColorIndex);
-                    },
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 8),
-                      width: maxHeight * 40 / 220,
-                      decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: ColorSeed.values[index].color,
-                          border: Border.all(
-                            color: colorSeed != index
-                                ? CupertinoColors.inactiveGray
-                                    .resolveFrom(context)
-                                : colorScheme.onPrimary,
-                          )),
-                      child: colorSeed != index
-                          ? null
-                          : Icon(CupertinoIcons.checkmark_alt,
-                              color: colorScheme.onPrimary),
-                    ),
-                  ),
+                  itemBuilder:
+                      (context, index) => GestureDetector(
+                        onTap: () {
+                          AppSettings.of(context).color = index;
+                          setState(updateColorIndex);
+                        },
+                        child: Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 8),
+                          width: maxHeight * 40 / 220,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: ColorSeed.values[index].color,
+                            border: Border.all(
+                              color:
+                                  colorSeed != index
+                                      ? CupertinoColors.inactiveGray
+                                          .resolveFrom(context)
+                                      : colorScheme.onPrimary,
+                            ),
+                          ),
+                          child:
+                              colorSeed != index
+                                  ? null
+                                  : Icon(
+                                    CupertinoIcons.checkmark_alt,
+                                    color: colorScheme.onPrimary,
+                                  ),
+                        ),
+                      ),
                 ),
               ),
               Padding(
                 padding: const EdgeInsets.only(left: 8),
-                child: Text('Color Image',
-                    style: textTheme.titleMedium
-                        ?.copyWith(fontWeight: FontWeight.bold)),
+                child: Text(
+                  'Color Image',
+                  style: textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
               Container(
                 height: maxHeight * 100 / 220,
@@ -112,41 +122,31 @@ class _ColorSelectedSheetState extends State<ColorSelectedSheet> {
                               foregroundDecoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(16),
                                 border: Border.all(
-                                    color: colorImage != index
-                                        ? CupertinoColors.inactiveGray
-                                            .resolveFrom(context)
-                                        : colorScheme.primary,
-                                    width: 2),
+                                  color:
+                                      colorImage != index
+                                          ? CupertinoColors.inactiveGray
+                                              .resolveFrom(context)
+                                          : colorScheme.primary,
+                                  width: 2,
+                                ),
                               ),
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(16),
                                 child: Image.network(
                                   ColorImageProvider.values[index].url,
-                                  loadingBuilder:
-                                      (context, child, loadingProgress) {
-                                    if (loadingProgress == null) return child;
-                                    final progress =
-                                        loadingProgress.cumulativeBytesLoaded /
-                                            loadingProgress.expectedTotalBytes!;
-                                    if (Platform.isIOS || Platform.isMacOS) {
-                                      return CupertinoActivityIndicator
-                                          .partiallyRevealed(
-                                              progress: progress);
-                                    }
-                                    return CircularProgressIndicator(
-                                        value: progress);
-                                  },
+                                  loadingBuilder: loadingBuilder,
                                 ),
                               ),
                             ),
                             if (colorImage == index)
                               Positioned(
-                                  top: 0,
-                                  right: 0,
-                                  child: Icon(
-                                    CupertinoIcons.check_mark_circled_solid,
-                                    color: colorScheme.primary,
-                                  ))
+                                top: 0,
+                                right: 0,
+                                child: Icon(
+                                  CupertinoIcons.check_mark_circled_solid,
+                                  color: colorScheme.primary,
+                                ),
+                              ),
                           ],
                         ),
                       ),

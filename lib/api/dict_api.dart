@@ -14,6 +14,7 @@ part 'audio_api.dart';
 
 const baseURL = 'www.cia1099.cloudns.ch';
 // const baseURL = '127.0.0.1:8000';
+const punchCardUrl = "http://$baseURL/dict/imagen/punch/card";
 const kHttpTimeOut = Duration(seconds: 5);
 
 Future<List<Vocabulary>> retrievalWord(String word) async {
@@ -21,21 +22,25 @@ Future<List<Vocabulary>> retrievalWord(String word) async {
   final res = await _httpGet(url);
   if (res.status == 200) {
     return List<Vocabulary>.from(
-        json.decode(res.content).map((json) => Vocabulary.fromJson(json)));
+      json.decode(res.content).map((json) => Vocabulary.fromJson(json)),
+    );
   } else {
     throw ApiException(res.content);
   }
 }
 
-Future<List<Vocabulary>> searchWord(
-    {required String word, int page = 0}) async {
-  final query = 'query=$word&page=$page';
+Future<List<Vocabulary>> searchWord({
+  required String word,
+  int page = 0,
+}) async {
+  final query = 'word=$word&page=$page';
   const path = '/dict/search';
   final url = Uri.parse('http://$baseURL$path?$query');
   final res = await _httpGet(url);
   if (res.status == 200) {
     return List<Vocabulary>.from(
-        json.decode(res.content).map((json) => Vocabulary.fromJson(json)));
+      json.decode(res.content).map((json) => Vocabulary.fromJson(json)),
+    );
   } else {
     throw ApiException(res.content);
   }
@@ -59,7 +64,8 @@ Future<List<Vocabulary>> getWords(Iterable<int> ids) async {
   final res = await _httpGet(url);
   if (res.status == 200) {
     return List<Vocabulary>.from(
-        json.decode(res.content).map((json) => Vocabulary.fromJson(json)));
+      json.decode(res.content).map((json) => Vocabulary.fromJson(json)),
+    );
   } else {
     throw ApiException(res.content);
   }
@@ -75,13 +81,17 @@ Future<Vocabulary> getWordById(int id) async {
   }
 }
 
-Future<ChatAnswer> chatVocabulary(String vocabulary, String text,
-    [bool isHelp = false]) async {
+Future<ChatAnswer> chatVocabulary(
+  String vocabulary,
+  String text, [
+  bool isHelp = false,
+]) async {
   final url = Uri.http(baseURL, '/dict/chat/$vocabulary');
   final headers = {'Content-Type': 'application/json'};
   final body = jsonEncode({'text': text, 'is_help': isHelp});
-  final res =
-      await http.post(url, headers: headers, body: body).timeout(kHttpTimeOut);
+  final res = await http
+      .post(url, headers: headers, body: body)
+      .timeout(kHttpTimeOut);
   if (res.statusCode == 200) {
     return ChatAnswer.fromRawJson(res.body);
   } else {
@@ -111,25 +121,17 @@ class ApiResponse {
   final int status;
   final String content;
 
-  ApiResponse({
-    required this.status,
-    required this.content,
-  });
+  ApiResponse({required this.status, required this.content});
 
   factory ApiResponse.fromRawJson(String str) =>
       ApiResponse.fromJson(json.decode(str));
 
   String toRawJson() => json.encode(toJson());
 
-  factory ApiResponse.fromJson(Map<String, dynamic> json) => ApiResponse(
-        status: json["status"],
-        content: json["content"],
-      );
+  factory ApiResponse.fromJson(Map<String, dynamic> json) =>
+      ApiResponse(status: json["status"], content: json["content"]);
 
-  Map<String, dynamic> toJson() => {
-        "status": status,
-        "content": content,
-      };
+  Map<String, dynamic> toJson() => {"status": status, "content": content};
 }
 
 class ApiException implements Exception {
