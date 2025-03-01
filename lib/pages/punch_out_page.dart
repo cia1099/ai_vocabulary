@@ -1,7 +1,9 @@
 import 'dart:io';
 import 'dart:ui' as ui;
 
+import 'package:ai_vocabulary/api/dict_api.dart';
 import 'package:ai_vocabulary/database/my_db.dart';
+import 'package:ai_vocabulary/model/acquaintance.dart';
 import 'package:ai_vocabulary/model/collections.dart';
 import 'package:ai_vocabulary/utils/shortcut.dart';
 import 'package:ai_vocabulary/widgets/flashcard.dart';
@@ -24,6 +26,7 @@ class PunchOutPage extends StatefulWidget {
 
 class _PunchOutPageState extends State<PunchOutPage> {
   final paintKey = ValueNotifier(const GlobalObjectKey(0));
+  final cardUrl = "http://$baseURL/dict/imagen/punch/card";
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.sizeOf(context).width;
@@ -33,9 +36,7 @@ class _PunchOutPageState extends State<PunchOutPage> {
       valueListenable: paintKey,
       builder: (context, key, child) {
         final colorFuture = ColorScheme.fromImageProvider(
-          provider: AssetImage(
-            'assets/punch${key.value.toString().padLeft(2, '0')}.png',
-          ),
+          provider: NetworkImage('$cardUrl/${key.value}'),
           brightness: Theme.of(context).brightness,
           dynamicSchemeVariant: DynamicSchemeVariant.content,
         );
@@ -57,60 +58,79 @@ class _PunchOutPageState extends State<PunchOutPage> {
         children: [
           Flexible(
             flex: 2,
-            child: FractionallySizedBox(
-              // heightFactor: 3 / 4,
-              child: ColoredBox(
-                color: const Color(0x00000000), //colorScheme.surfaceContainer,
-                child: RotatedBox(
-                  quarterTurns: -1,
-                  child: ListWheelScrollView.useDelegate(
-                    onSelectedItemChanged:
-                        (index) => paintKey.value = GlobalObjectKey(index),
-                    physics: const FixedExtentScrollPhysics(),
-                    overAndUnderCenterOpacity: .9,
-                    itemExtent: screenWidth * .75,
-                    childDelegate: ListWheelChildBuilderDelegate(
-                      childCount: 4,
-                      builder:
-                          (context, index) => AspectRatio(
-                            aspectRatio: aspect,
-                            child: RotatedBox(
-                              quarterTurns: 1,
-                              child: ValueListenableBuilder(
-                                valueListenable: paintKey,
-                                builder:
-                                    (context, key, child) =>
-                                        index == key.value
-                                            ? RepaintBoundary(
-                                              key: key,
-                                              child: child,
-                                            )
-                                            : child!,
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(
-                                    kRadialReactionRadius,
-                                  ),
-                                  child: Column(
-                                    children: [
-                                      Expanded(
-                                        flex: 3,
-                                        child: Image.asset(
-                                          width: double.infinity,
-                                          'assets/punch${index.toString().padLeft(2, '0')}.png',
-                                          fit: BoxFit.fill,
-                                        ),
+            child: ColoredBox(
+              color: const Color(0x00000000), //colorScheme.surfaceContainer,
+              child: RotatedBox(
+                quarterTurns: -1,
+                child: ListWheelScrollView.useDelegate(
+                  onSelectedItemChanged:
+                      (index) => paintKey.value = GlobalObjectKey(index),
+                  physics: const FixedExtentScrollPhysics(),
+                  overAndUnderCenterOpacity: .9,
+                  itemExtent: screenWidth * .75,
+                  childDelegate: ListWheelChildBuilderDelegate(
+                    childCount: 4,
+                    builder:
+                        (context, index) => AspectRatio(
+                          aspectRatio: aspect,
+                          child: RotatedBox(
+                            quarterTurns: 1,
+                            child: ValueListenableBuilder(
+                              valueListenable: paintKey,
+                              builder:
+                                  (context, key, child) =>
+                                      index == key.value
+                                          ? RepaintBoundary(
+                                            key: key,
+                                            child: child,
+                                          )
+                                          : child!,
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(
+                                  kRadialReactionRadius,
+                                ),
+                                child: Column(
+                                  children: [
+                                    Expanded(
+                                      flex: 3,
+                                      child: Image.network(
+                                        width: double.infinity,
+                                        '$cardUrl/$index',
+                                        fit: BoxFit.fill,
+                                        loadingBuilder: (
+                                          context,
+                                          child,
+                                          loadingProgress,
+                                        ) {
+                                          if (loadingProgress == null)
+                                            return child;
+                                          final progress =
+                                              loadingProgress
+                                                  .cumulativeBytesLoaded /
+                                              loadingProgress
+                                                  .expectedTotalBytes!;
+                                          if (Platform.isIOS ||
+                                              Platform.isMacOS) {
+                                            return CupertinoActivityIndicator.partiallyRevealed(
+                                              progress: progress,
+                                            );
+                                          }
+                                          return CircularProgressIndicator(
+                                            value: progress,
+                                          );
+                                        },
                                       ),
-                                      Expanded(
-                                        flex: 1,
-                                        child: cardPanel(colorScheme),
-                                      ),
-                                    ],
-                                  ),
+                                    ),
+                                    Expanded(
+                                      flex: 1,
+                                      child: cardPanel(colorScheme),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
                           ),
-                    ),
+                        ),
                   ),
                 ),
               ),
@@ -157,7 +177,7 @@ class _PunchOutPageState extends State<PunchOutPage> {
                   text: 'Study ',
                   children: [
                     TextSpan(
-                      text: '20',
+                      text: MyDB().fetchStudyCounts().totalStudy,
                       style: TextStyle(
                         fontSize: textTheme.titleMedium?.fontSize.scale(1.2),
                         fontWeight: textTheme.titleMedium?.fontWeight,
@@ -170,7 +190,7 @@ class _PunchOutPageState extends State<PunchOutPage> {
               ),
             ],
           ),
-          DottedLine(dashColor: colorScheme.outlineVariant),
+          DottedLine(dashColor: colorScheme.outline),
           Row(
             children: [
               Flexible(
@@ -203,51 +223,43 @@ class _PunchOutPageState extends State<PunchOutPage> {
       crossAxisAlignment: WrapCrossAlignment.center,
       spacing: 8,
       children: [
-        FutureBuilder(
-          future: MyDB().isReady,
-          builder:
-              (context, snapshot) => GestureDetector(
-                onTap: snapshot.data != true ? null : punchOut,
-                child: Container(
-                  width: 300,
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(
-                      kRadialReactionRadius * 2,
-                    ),
-                    gradient: CollectionMark(
-                      name: '',
-                      index: -1,
-                      color: colorScheme.primary.toARGB32(),
-                    ).gradient(context),
-                  ),
-                  child: Text.rich(
-                    TextSpan(
-                      text: 'Get 6 tokens for sharing',
-                      children: [
-                        TextSpan(
-                          text:
-                              '\nGet tokens only when returning to the app after sharing',
-                          style: cupertinoTextTheme.textStyle.copyWith(
-                            fontSize: textTheme.labelSmall?.fontSize,
-                            // height: textTheme.labelSmall?.height,
-                            color: CupertinoColors.systemGrey4.resolveFrom(
-                              context,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: colorScheme.onPrimary,
-                      fontSize: textTheme.titleMedium?.fontSize,
-                      height: textTheme.titleMedium?.height,
-                      fontWeight: textTheme.titleMedium?.fontWeight,
+        GestureDetector(
+          onTap: punchOut,
+          child: Container(
+            width: 300,
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(kRadialReactionRadius * 2),
+              gradient: CollectionMark(
+                name: '',
+                index: -1,
+                color: colorScheme.primary.toARGB32(),
+              ).gradient(context),
+            ),
+            child: Text.rich(
+              TextSpan(
+                text: 'Get 6 tokens for sharing',
+                children: [
+                  TextSpan(
+                    text:
+                        '\nGet tokens only when returning to the app after sharing',
+                    style: cupertinoTextTheme.textStyle.copyWith(
+                      fontSize: textTheme.labelSmall?.fontSize,
+                      // height: textTheme.labelSmall?.height,
+                      color: CupertinoColors.systemGrey4.resolveFrom(context),
                     ),
                   ),
-                ),
+                ],
               ),
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: colorScheme.onPrimary,
+                fontSize: textTheme.titleMedium?.fontSize,
+                height: textTheme.titleMedium?.height,
+                fontWeight: textTheme.titleMedium?.fontWeight,
+              ),
+            ),
+          ),
         ),
         Container(
           height: 64,
@@ -317,7 +329,7 @@ class _PunchOutPageState extends State<PunchOutPage> {
     final boundary =
         paintKey.value.currentContext?.findRenderObject()
             as RenderRepaintBoundary?;
-    final paintData = await boundary?.toImage(pixelRatio: 2).then((img) async {
+    final paintData = await boundary?.toImage(pixelRatio: .5).then((img) async {
       final bytes = await img.toByteData(format: ui.ImageByteFormat.png);
       final decode = image.decodePng(bytes!.buffer.asUint8List());
       return image.encodeJpg(decode!, quality: 90);
@@ -346,4 +358,8 @@ I'm memorizing words with AI Vocabulary, punch with me! https://www.cia1099.clou
     }
     img.delete();
   }
+}
+
+extension on StudyCount {
+  String get totalStudy => '${newCount + reviewCount}';
 }
