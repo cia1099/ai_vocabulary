@@ -98,6 +98,7 @@ class _PunchOutPageState extends State<PunchOutPage> {
                                         '$punchCardUrl/$index',
                                         fit: BoxFit.fill,
                                         loadingBuilder: loadingBuilder,
+                                        frameBuilder: generateImageLoader,
                                       ),
                                     ),
                                     Expanded(

@@ -48,3 +48,34 @@ Widget loadingBuilder(
   }
   return CircularProgressIndicator(value: progress);
 }
+
+Widget generateImageLoader(
+  BuildContext context,
+  Widget child,
+  int? frame,
+  bool wasSynchronouslyLoaded,
+) {
+  if (wasSynchronouslyLoaded) return child;
+  return AnimatedSwitcher(
+    duration: Durations.extralong1,
+    switchInCurve: Curves.easeInOut,
+    switchOutCurve: Curves.easeIn,
+    transitionBuilder:
+        (child, animation) => FadeTransition(opacity: animation, child: child),
+    child:
+        frame == null
+            ? const Center(
+              child: Wrap(
+                direction: Axis.vertical,
+                alignment: WrapAlignment.center,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: 8,
+                children: [
+                  CircularProgressIndicator.adaptive(),
+                  Text('Image is generating, please wait...'),
+                ],
+              ),
+            )
+            : child,
+  );
+}
