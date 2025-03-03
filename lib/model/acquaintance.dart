@@ -19,28 +19,25 @@ class Acquaintance {
   String toRawJson() => json.encode(toJson());
 
   factory Acquaintance.fromJson(Map<String, dynamic> json) => Acquaintance(
-        wordId: json["word_id"],
-        userId: json["user_id"],
-        acquaint: json["acquaint"],
-        lastLearnedTime: json["last_learned_time"],
-      );
+    wordId: json["word_id"],
+    userId: json["user_id"],
+    acquaint: json["acquaint"],
+    lastLearnedTime: json["last_learned_time"],
+  );
 
   Map<String, dynamic> toJson() => {
-        "word_id": wordId,
-        "user_id": userId,
-        "acquaint": acquaint,
-        "last_learned_time": lastLearnedTime,
-      };
+    "word_id": wordId,
+    "user_id": userId,
+    "acquaint": acquaint,
+    "last_learned_time": lastLearnedTime,
+  };
 }
 
 class StudyCount {
   int newCount;
   int reviewCount;
 
-  StudyCount({
-    this.newCount = 0,
-    this.reviewCount = 0,
-  });
+  StudyCount({this.newCount = 0, this.reviewCount = 0});
 
   factory StudyCount.fromRawJson(String str) =>
       StudyCount.fromJson(json.decode(str));
@@ -48,14 +45,14 @@ class StudyCount {
   String toRawJson() => json.encode(toJson());
 
   factory StudyCount.fromJson(Map<String, dynamic> json) => StudyCount(
-        newCount: json["new_count"],
-        reviewCount: json["review_count"],
-      );
+    newCount: json["new_count"] ?? 0,
+    reviewCount: json["review_count"] ?? 0,
+  );
 
   Map<String, dynamic> toJson() => {
-        "new_count": newCount,
-        "review_count": reviewCount,
-      };
+    "new_count": newCount,
+    "review_count": reviewCount,
+  };
 
   @override
   bool operator ==(Object other) {

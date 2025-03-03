@@ -13,10 +13,7 @@ import '../widgets/study_board.dart';
 
 class VocabularyTab extends StatefulWidget {
   final void Function(int index)? onTabChanged;
-  const VocabularyTab({
-    super.key,
-    this.onTabChanged,
-  });
+  const VocabularyTab({super.key, this.onTabChanged});
 
   @override
   State<VocabularyTab> createState() => _VocabularyTabState();
@@ -25,8 +22,11 @@ class VocabularyTab extends StatefulWidget {
 class _VocabularyTabState extends State<VocabularyTab>
     with SingleTickerProviderStateMixin {
   final pageController = PageController(initialPage: 1);
-  late final tabController =
-      TabController(initialIndex: 1, length: 2, vsync: this);
+  late final tabController = TabController(
+    initialIndex: 1,
+    length: 2,
+    vsync: this,
+  );
   late final recommend = RecommendProvider(context: context);
   final review = ReviewProvider();
   final rng = Random();
@@ -36,13 +36,16 @@ class _VocabularyTabState extends State<VocabularyTab>
     return PlatformScaffold(
       appBar: PlatformAppBar(
         title: TabBar(
-            controller: tabController,
-            tabAlignment: TabAlignment.center,
-            dividerColor: const Color(0x00000000),
-            tabs: const [Tab(text: 'Review'), Tab(text: 'Recommend')]),
+          controller: tabController,
+          tabAlignment: TabAlignment.center,
+          dividerColor: const Color(0x00000000),
+          tabs: const [Tab(text: 'Review'), Tab(text: 'Recommend')],
+        ),
         trailingActions: const [EntryActions()],
-        cupertino: (_, __) =>
-            CupertinoNavigationBarData(transitionBetweenRoutes: false),
+        cupertino:
+            (_, __) =>
+                CupertinoNavigationBarData(transitionBetweenRoutes: false),
+        material: (_, _) => MaterialAppBarData(centerTitle: true),
       ),
       body: SafeArea(
         bottom: false,
@@ -74,10 +77,7 @@ class _VocabularyTabState extends State<VocabularyTab>
                   ],
                 ),
               ),
-              const Align(
-                alignment: Alignment(0, -1),
-                child: StudyBoard(),
-              ),
+              const Align(alignment: Alignment(0, -1), child: StudyBoard()),
             ],
           ),
         ),
@@ -107,43 +107,46 @@ class _VocabularyTabState extends State<VocabularyTab>
         }
         return ListenableBuilder(
           listenable: MyDB(),
-          builder: (context, child) => PageView.builder(
-            // key: PageStorageKey(provider),
-            findChildIndexCallback: (key) =>
-                provider.indexWhere((w) => w.wordId == (key as ValueKey).value),
-            scrollDirection: Axis.vertical,
-            controller: provider.pageController,
-            onPageChanged: (index) {
-              provider.currentWord = provider[index % provider.length];
-              provider.clozeSeed = rng.nextInt(256);
-              if (provider is RecommendProvider) {
-                provider.fetchStudyWords(index);
-                //TODO onError handle http failure
-                //     .whenComplete(() {
-                //   print('provider = ${provider.map((e) => e.wordId).join(', ')}');
-                //   //   print('words = ${provider.map((e) => e.word).join(', ')}');
-                // });
-                if (index == RecommendProvider.kMaxLength) {
-                  Future.delayed(Durations.extralong4, () {
-                    setState(() {
-                      provider.pageController.jumpToPage(0);
-                    });
-                  });
-                } else if (index > 0 &&
-                    provider.pageController.position.atEdge) {
-                  //TODO: fetch http request error
-                  print('at max page');
-                }
-              }
-            },
-            itemBuilder: (context, index) {
-              final i = index % provider.length;
-              final word = provider[i];
-              return SliderPage(key: ValueKey(word.wordId), word: word);
-            },
-            itemCount:
-                provider.length + (provider is RecommendProvider ? 1 : 0),
-          ),
+          builder:
+              (context, child) => PageView.builder(
+                // key: PageStorageKey(provider),
+                findChildIndexCallback:
+                    (key) => provider.indexWhere(
+                      (w) => w.wordId == (key as ValueKey).value,
+                    ),
+                scrollDirection: Axis.vertical,
+                controller: provider.pageController,
+                onPageChanged: (index) {
+                  provider.currentWord = provider[index % provider.length];
+                  provider.clozeSeed = rng.nextInt(256);
+                  if (provider is RecommendProvider) {
+                    provider.fetchStudyWords(index);
+                    //TODO onError handle http failure
+                    //     .whenComplete(() {
+                    //   print('provider = ${provider.map((e) => e.wordId).join(', ')}');
+                    //   //   print('words = ${provider.map((e) => e.word).join(', ')}');
+                    // });
+                    if (index == RecommendProvider.kMaxLength) {
+                      Future.delayed(Durations.extralong4, () {
+                        setState(() {
+                          provider.pageController.jumpToPage(0);
+                        });
+                      });
+                    } else if (index > 0 &&
+                        provider.pageController.position.atEdge) {
+                      //TODO: fetch http request error
+                      print('at max page');
+                    }
+                  }
+                },
+                itemBuilder: (context, index) {
+                  final i = index % provider.length;
+                  final word = provider[i];
+                  return SliderPage(key: ValueKey(word.wordId), word: word);
+                },
+                itemCount:
+                    provider.length + (provider is RecommendProvider ? 1 : 0),
+              ),
         );
       },
     );
@@ -153,8 +156,11 @@ class _VocabularyTabState extends State<VocabularyTab>
   void initState() {
     super.initState();
     tabController.addListener(() {
-      pageController.animateToPage(tabController.index,
-          duration: Durations.short4, curve: Curves.ease);
+      pageController.animateToPage(
+        tabController.index,
+        duration: Durations.short4,
+        curve: Curves.ease,
+      );
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       AppSettings.of(context).wordProvider ??= recommend;

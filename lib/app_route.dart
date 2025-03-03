@@ -1,3 +1,4 @@
+import 'package:ai_vocabulary/pages/punch_out_page.dart';
 import 'package:ai_vocabulary/pages/word_list_page.dart';
 import 'package:ai_vocabulary/utils/shortcut.dart';
 import 'package:flutter/cupertino.dart';
@@ -92,7 +93,17 @@ class AppRoute<T> extends PageRoute<T> {
                   provider == null
                       ? null
                       : () {
-                        //TODO: when reach targe, navigate to share page
+                        if (AppSettings.of(context).studyState ==
+                            StudyStatus.onTarget) {
+                          Navigator.push(
+                            context,
+                            CupertinoPageRoute(
+                              title: 'Punch Out!',
+                              builder: (context) => const PunchOutPage(),
+                              fullscreenDialog: true,
+                            ),
+                          );
+                        }
                         provider.nextStudyWord();
                         Navigator.popUntil(context, (route) => route.isFirst);
                       },

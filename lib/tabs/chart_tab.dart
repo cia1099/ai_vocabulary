@@ -1,4 +1,5 @@
 import 'package:ai_vocabulary/database/my_db.dart';
+import 'package:ai_vocabulary/utils/shortcut.dart';
 import 'package:ai_vocabulary/widgets/calendar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -17,27 +18,46 @@ class ChartTab extends StatelessWidget {
     return PlatformScaffold(
       body: CustomScrollView(
         physics: const AlwaysScrollableScrollPhysics(
-            parent: BouncingScrollPhysics()),
+          parent: BouncingScrollPhysics(),
+        ),
         slivers: [
           PlatformSliverAppBar(
             stretch: true,
-            title: const Text('Charts'),
-            cupertino: (_, __) =>
-                CupertinoSliverAppBarData(transitionBetweenRoutes: false),
+            cupertino:
+                (_, __) => CupertinoSliverAppBarData(
+                  transitionBetweenRoutes: false,
+                  title: const Text('Charts'),
+                ),
+            material:
+                (_, _) => MaterialSliverAppBarData(
+                  pinned: true,
+                  expandedHeight: kExpandedSliverAppBarHeight,
+                  flexibleSpace: const FlexibleSpaceBar(
+                    title: Text('Charts'),
+                    titlePadding: EdgeInsets.only(left: 16, bottom: 16),
+                    stretchModes: [
+                      StretchMode.zoomBackground,
+                      StretchMode.blurBackground,
+                      StretchMode.fadeTitle,
+                    ],
+                  ),
+                ),
           ),
           const SliverToBoxAdapter(child: Calendar()),
           SliverToBoxAdapter(
-              child: FutureBuilder(
-                  future: MyDB().averageFibonacci,
-                  builder: (context, snapshot) => Stack(
-                        alignment: const Alignment(0, -.25),
-                        children: [
-                          RememberChart(trainingRate: snapshot.data),
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting)
-                            const CircularProgressIndicator.adaptive()
-                        ],
-                      ))),
+            child: FutureBuilder(
+              future: MyDB().averageFibonacci,
+              builder:
+                  (context, snapshot) => Stack(
+                    alignment: const Alignment(0, -.25),
+                    children: [
+                      RememberChart(trainingRate: snapshot.data),
+                      if (snapshot.connectionState == ConnectionState.waiting)
+                        const CircularProgressIndicator.adaptive(),
+                    ],
+                  ),
+            ),
+          ),
           // SliverToBoxAdapter(
           //   child: AspectRatio(
           //     aspectRatio: 1.5,
@@ -61,9 +81,7 @@ class ChartTab extends StatelessWidget {
           const SliverToBoxAdapter(
             child: AspectRatio(
               aspectRatio: 3,
-              child: ImPieChart(
-                percentage: .7,
-              ),
+              child: ImPieChart(percentage: .7),
             ),
           ),
           SliverToBoxAdapter(

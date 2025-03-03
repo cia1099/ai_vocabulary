@@ -20,8 +20,9 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   var appTheme = ThemeData(
-      appBarTheme:
-          const AppBarTheme(actionsIconTheme: IconThemeData(size: 32)));
+    appBarTheme: const AppBarTheme(actionsIconTheme: IconThemeData(size: 32)),
+    brightness: Brightness.dark,
+  );
 
   @override
   void initState() {
@@ -40,65 +41,72 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return PlatformProvider(
-      settings: PlatformSettingsData(
-        iosUsesMaterialWidgets: true,
-      ),
-      builder: (context) => PlatformTheme(
-        materialLightTheme: appTheme,
-        //TODO: apply global fontsize scale
-        // .copyWith(textTheme: Theme.of(context).textTheme.apply(fontSizeFactor: 1.2)),
-        builder: (context) => PlatformApp(
-          cupertino: (context, platform) => CupertinoAppData(
-            theme: MaterialBasedCupertinoThemeData(
-              materialTheme: Theme.of(context).copyWith(
-                  cupertinoOverrideTheme: CupertinoThemeData(
-                applyThemeToAll: true,
-                textTheme: CupertinoTextThemeData(
-                  navActionTextStyle: CupertinoTheme.of(context)
-                      .textTheme
-                      .actionTextStyle
-                      .apply(color: appTheme.colorScheme.onPrimaryContainer),
+      settings: PlatformSettingsData(iosUsesMaterialWidgets: true),
+      builder:
+          (context) => PlatformTheme(
+            materialLightTheme: appTheme,
+            //TODO: apply global fontsize scale
+            // .copyWith(textTheme: Theme.of(context).textTheme.apply(fontSizeFactor: 1.2)),
+            builder:
+                (context) => PlatformApp(
+                  cupertino:
+                      (context, platform) => CupertinoAppData(
+                        theme: MaterialBasedCupertinoThemeData(
+                          materialTheme: Theme.of(context).copyWith(
+                            cupertinoOverrideTheme: CupertinoThemeData(
+                              applyThemeToAll: true,
+                              textTheme: CupertinoTextThemeData(
+                                navActionTextStyle: CupertinoTheme.of(
+                                  context,
+                                ).textTheme.actionTextStyle.apply(
+                                  color:
+                                      appTheme.colorScheme.onPrimaryContainer,
+                                ),
+                              ),
+                              // primaryColor: appTheme.colorScheme.primary,
+                              barBackgroundColor:
+                                  appTheme.colorScheme.primaryContainer,
+                            ),
+                          ),
+                        ),
+                      ),
+                  title: 'AI Vocabulary App',
+                  localizationsDelegates: const [
+                    DefaultMaterialLocalizations.delegate,
+                    DefaultWidgetsLocalizations.delegate,
+                    DefaultCupertinoLocalizations.delegate,
+                  ],
+                  onGenerateRoute:
+                      (settings) => AppRoute(
+                        settings: settings,
+                        barrierColor: (kCupertinoModalBarrierColor
+                                as CupertinoDynamicColor)
+                            .resolveFrom(context),
+                      ),
+                  initialRoute: AppRoute.home,
+                  home: const HomePage(),
+                  // home: Builder(builder: (context) {
+                  //   return PlatformScaffold(
+                  //     body: Center(
+                  //       child: Column(
+                  //         mainAxisAlignment: MainAxisAlignment.center,
+                  //         children: [
+                  //           const Calendar(),
+                  //           CupertinoButton.filled(
+                  //               onPressed: () => appearAward(context, 'apple'),
+                  //               // showPlatformModalSheet(
+                  //               //       context: context,
+                  //               //       builder: (context) =>
+                  //               //           const ManageCollectionSheet(wordID: 830),
+                  //               //     ),
+                  //               child: const Text('Go Route!')),
+                  //         ],
+                  //       ),
+                  //     ),
+                  //   );
+                  // }),
                 ),
-                // primaryColor: appTheme.colorScheme.primary,
-                barBackgroundColor: appTheme.colorScheme.primaryContainer,
-              )),
-            ),
           ),
-          title: 'AI Vocabulary App',
-          localizationsDelegates: const [
-            DefaultMaterialLocalizations.delegate,
-            DefaultWidgetsLocalizations.delegate,
-            DefaultCupertinoLocalizations.delegate,
-          ],
-          onGenerateRoute: (settings) => AppRoute(
-            settings: settings,
-            barrierColor: (kCupertinoModalBarrierColor as CupertinoDynamicColor)
-                .resolveFrom(context),
-          ),
-          initialRoute: AppRoute.home,
-          home: const HomePage(),
-          // home: Builder(builder: (context) {
-          //   return PlatformScaffold(
-          //     body: Center(
-          //       child: Column(
-          //         mainAxisAlignment: MainAxisAlignment.center,
-          //         children: [
-          //           const Calendar(),
-          //           CupertinoButton.filled(
-          //               onPressed: () => appearAward(context, 'apple'),
-          //               // showPlatformModalSheet(
-          //               //       context: context,
-          //               //       builder: (context) =>
-          //               //           const ManageCollectionSheet(wordID: 830),
-          //               //     ),
-          //               child: const Text('Go Route!')),
-          //         ],
-          //       ),
-          //     ),
-          //   );
-          // }),
-        ),
-      ),
     );
   }
 
@@ -136,7 +144,9 @@ class _MyAppState extends State<MyApp> {
       final url =
           ColorImageProvider.values[index - ColorSeed.values.length].url;
       colorScheme = await ColorScheme.fromImageProvider(
-          provider: NetworkImage(url), brightness: mySettings.brightness);
+        provider: NetworkImage(url),
+        brightness: mySettings.brightness,
+      );
     }
     if (colorScheme == appTheme.colorScheme) {
       // print('without stateState');

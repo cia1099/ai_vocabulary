@@ -58,7 +58,6 @@ class _SearchPageState extends State<SearchPage> {
     return PlatformScaffold(
       appBar: PlatformAppBar(
         leading: const SizedBox.shrink(),
-        backgroundColor: kCupertinoSheetColor.resolveFrom(context),
         title: PlatformTextField(
           autofocus: true,
           hintText: 'find it',
@@ -113,6 +112,13 @@ class _SearchPageState extends State<SearchPage> {
             child: const Text('Cancel'),
           ),
         ],
+        cupertino:
+            (_, _) => CupertinoNavigationBarData(
+              backgroundColor: kCupertinoSheetColor.resolveFrom(context),
+            ),
+        material:
+            (_, _) =>
+                MaterialAppBarData(titleSpacing: 0, leadingWidth: hPadding),
       ),
       body: SafeArea(
         child: FutureBuilder(

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:ai_vocabulary/database/my_db.dart';
 import 'package:ai_vocabulary/pages/chat_room_page.dart';
 import 'package:ai_vocabulary/pages/vocabulary_page.dart';
@@ -42,73 +44,103 @@ class _AlphabetListTabState extends State<AlphabetListTab> {
         controller: scrollController,
         slivers: [
           PlatformSliverAppBar(
-            title: const Text('Chats'),
-            backgroundColor: kCupertinoSheetColor.resolveFrom(context),
             stretch: true,
-            cupertino: (_, __) => CupertinoSliverAppBarData(
-                trailing: buildTrail(), transitionBetweenRoutes: false),
-            material: (_, __) => MaterialSliverAppBarData(
-              actions: [buildTrail()],
-            ),
+            backgroundColor: kCupertinoSheetColor.resolveFrom(context),
+            cupertino:
+                (_, __) => CupertinoSliverAppBarData(
+                  title: const Text('Chats'),
+                  trailing: buildTrail(),
+                  transitionBetweenRoutes: false,
+                ),
+            material:
+                (_, __) => MaterialSliverAppBarData(
+                  pinned: true,
+                  actions: [buildTrail()],
+                  expandedHeight: kExpandedSliverAppBarHeight,
+                  flexibleSpace: const FlexibleSpaceBar(
+                    title: Text('Chats'),
+                    titlePadding: EdgeInsets.only(left: 16, bottom: 16),
+                  ),
+                ),
           ),
           FutureBuilder(
             future: futureContacts,
-            builder: (context, snapshot) => SliverResizingHeader(
-              minExtentPrototype: const SizedBox.shrink(),
-              maxExtentPrototype: SizedBox.fromSize(
-                  size: const Size.fromHeight(kTextTabBarHeight + 4)),
-              child: FilterInputBar(
-                enabled: snapshot.connectionState != ConnectionState.waiting,
-                padding: const EdgeInsets.only(bottom: 4, left: 8, right: 8),
-                backgroundColor: colorScheme.surface,
-                hintText: 'Which word',
-                controller: textController,
-                onChanged: (name) => filterName(name),
-              ),
-            ),
+            builder:
+                (context, snapshot) => SliverResizingHeader(
+                  minExtentPrototype: const SizedBox.shrink(),
+                  maxExtentPrototype: SizedBox.fromSize(
+                    size: const Size.fromHeight(kTextTabBarHeight + 4),
+                  ),
+                  child: FilterInputBar(
+                    enabled:
+                        snapshot.connectionState != ConnectionState.waiting,
+                    padding: const EdgeInsets.only(
+                      bottom: 4,
+                      left: 8,
+                      right: 8,
+                    ),
+                    backgroundColor:
+                        Platform.isIOS || Platform.isMacOS
+                            ? colorScheme.surface
+                            : kCupertinoSheetColor.resolveFrom(context),
+                    hintText: 'Which word',
+                    controller: textController,
+                    onChanged: (name) => filterName(name),
+                  ),
+                ),
           ),
           SliverFillRemaining(
             child: NotificationListener<ScrollNotification>(
               onNotification: (notification) {
                 final pos = notification.metrics.pixels.clamp(
-                    double.negativeInfinity,
-                    scrollController.position.maxScrollExtent);
+                  double.negativeInfinity,
+                  scrollController.position.maxScrollExtent,
+                );
                 scrollController.position.moveTo(pos, clamp: false);
                 return true;
               },
               child: LayoutBuilder(
-                builder: (context, constraints) => AzListView(
-                  data: azContacts,
-                  itemCount: azContacts.length,
-                  itemBuilder: (context, index) =>
-                      _buildAzListItem(azContacts[index]),
-                  susItemHeight: 35,
-                  susItemBuilder: (context, index) {
-                    final textTheme = Theme.of(context).textTheme;
-                    final tag = azContacts[index].getSuspensionTag();
-                    return Container(
-                        alignment: Alignment.centerLeft,
-                        height: 35,
-                        color: colorScheme.surfaceContainerHigh,
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 16),
-                          child: Text(tag, style: textTheme.titleLarge!
+                builder:
+                    (context, constraints) => AzListView(
+                      physics: const AlwaysScrollableScrollPhysics(
+                        parent: BouncingScrollPhysics(),
+                      ),
+                      data: azContacts,
+                      itemCount: azContacts.length,
+                      itemBuilder:
+                          (context, index) =>
+                              _buildAzListItem(azContacts[index]),
+                      susItemHeight: 35,
+                      susItemBuilder: (context, index) {
+                        final textTheme = Theme.of(context).textTheme;
+                        final tag = azContacts[index].getSuspensionTag();
+                        return Container(
+                          alignment: Alignment.centerLeft,
+                          height: 35,
+                          color: colorScheme.surfaceContainerHigh,
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 16),
+                            child: Text(
+                              tag,
+                              style: textTheme.titleLarge!,
                               // ..copyWith(fontWeight: FontWeight.bold),
-                              ),
-                        ));
-                  },
-                  indexBarItemHeight:
-                      (constraints.maxHeight - kBottomNavigationBarHeight) / 26,
-                  indexBarData: azContacts
-                      .map((e) => e.getSuspensionTag())
-                      .toSet()
-                      .toList(),
-                  // List.generate(26, (index) => String.fromCharCode(index + 65)),
-                  indexBarOptions: IndexBarOptions(
-                      textStyle: TextStyle(
-                    color: colorScheme.primary,
-                  )),
-                ),
+                            ),
+                          ),
+                        );
+                      },
+                      indexBarItemHeight:
+                          (constraints.maxHeight - kBottomNavigationBarHeight) /
+                          26,
+                      indexBarData:
+                          azContacts
+                              .map((e) => e.getSuspensionTag())
+                              .toSet()
+                              .toList(),
+                      // List.generate(26, (index) => String.fromCharCode(index + 65)),
+                      indexBarOptions: IndexBarOptions(
+                        textStyle: TextStyle(color: colorScheme.primary),
+                      ),
+                    ),
               ),
             ),
           ),
@@ -119,15 +151,18 @@ class _AlphabetListTabState extends State<AlphabetListTab> {
 
   Widget buildTrail() {
     return PlatformTextButton(
-      onPressed: () => setState(() {
-        if (editable && _selectedId.isNotEmpty) removeContacts();
-        editable ^= true;
-      }),
+      onPressed:
+          () => setState(() {
+            if (editable && _selectedId.isNotEmpty) removeContacts();
+            editable ^= true;
+          }),
       padding: EdgeInsets.zero,
-      material: (_, __) => MaterialTextButtonData(
-          style: TextButton.styleFrom(
-        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-      )),
+      material:
+          (_, __) => MaterialTextButtonData(
+            style: TextButton.styleFrom(
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+          ),
       child: Text(editable ? 'Done' : 'Edit'),
     );
   }
@@ -150,21 +185,25 @@ class _AlphabetListTabState extends State<AlphabetListTab> {
           children: [
             if (editable || _selectedId.isNotEmpty)
               _CheckButton(
-                  key: ValueKey(item.id),
-                  isCheck: _selectedId.contains(item.id),
-                  onClick: () {
-                    if (!_selectedId.add(item.id)) {
-                      _selectedId.remove(item.id);
-                    }
-                  }),
+                key: ValueKey(item.id),
+                isCheck: _selectedId.contains(item.id),
+                onClick: () {
+                  if (!_selectedId.add(item.id)) {
+                    _selectedId.remove(item.id);
+                  }
+                },
+              ),
             GestureDetector(
               onTap: () {
                 final word = MyDB().fetchWords([item.id]).firstOrNull;
                 if (word != null) {
-                  Navigator.of(context).push(platformPageRoute(
+                  Navigator.of(context).push(
+                    platformPageRoute(
                       context: context,
                       settings: const RouteSettings(name: AppRoute.vocabulary),
-                      builder: (context) => VocabularyPage(word: word)));
+                      builder: (context) => VocabularyPage(word: word),
+                    ),
+                  );
                 }
               },
               child: CapitalAvatar(
@@ -179,68 +218,85 @@ class _AlphabetListTabState extends State<AlphabetListTab> {
       onTap: () {
         final word = MyDB().fetchWords([item.id]).firstOrNull;
         if (word != null) {
-          Navigator.of(context).push(platformPageRoute(
+          Navigator.of(context).push(
+            platformPageRoute(
               context: context,
               // settings: const RouteSettings(name: AppRoute.chatRoom),
-              builder: (context) => ChatRoomPage(word: word)));
+              builder: (context) => ChatRoomPage(word: word),
+            ),
+          );
         }
       },
       trailing: const CupertinoListTileChevron(),
-      cupertino: (_, __) => CupertinoListTileData(
-          leadingSize: 68, padding: const EdgeInsets.only(left: 8, right: 25)),
+      cupertino:
+          (_, __) => CupertinoListTileData(
+            leadingSize: 68,
+            padding: const EdgeInsets.only(left: 8, right: 25),
+          ),
     );
   }
 
   void removeContacts() {
     showPlatformDialog(
-        context: context,
-        builder: (context) => PlatformAlertDialog(
-              title:
-                  const Text('Are you sure to delete these chats permanently?'),
-              actions: [
-                PlatformDialogAction(
-                  onPressed: () {
-                    for (final wordID in _selectedId) {
-                      MyDB.instance.removeMessagesByWordID(wordID);
-                    }
-                    azContacts.clear();
-                    futureContacts = fetchContacts();
-                    Navigator.of(context).pop();
-                  },
-                  child: Wrap(
-                    spacing: 8,
-                    crossAxisAlignment: WrapCrossAlignment.center,
-                    children: [
-                      const Text('Delete'),
-                      Builder(builder: (context) {
-                        return Icon(CupertinoIcons.minus_circle,
-                            color: DefaultTextStyle.of(context).style.color);
-                      }),
-                    ],
-                  ),
-                  cupertino: (_, __) =>
-                      CupertinoDialogActionData(isDestructiveAction: true),
+      context: context,
+      builder:
+          (context) => PlatformAlertDialog(
+            title: const Text(
+              'Are you sure to delete these chats permanently?',
+            ),
+            actions: [
+              PlatformDialogAction(
+                onPressed: () {
+                  for (final wordID in _selectedId) {
+                    MyDB.instance.removeMessagesByWordID(wordID);
+                  }
+                  azContacts.clear();
+                  futureContacts = fetchContacts();
+                  Navigator.of(context).pop();
+                },
+                child: Wrap(
+                  spacing: 8,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    const Text('Delete'),
+                    Builder(
+                      builder: (context) {
+                        return Icon(
+                          CupertinoIcons.minus_circle,
+                          color: DefaultTextStyle.of(context).style.color,
+                        );
+                      },
+                    ),
+                  ],
                 ),
-                PlatformDialogAction(
-                  onPressed: Navigator.of(context).pop,
-                  child: const Wrap(
-                    spacing: 8,
-                    crossAxisAlignment: WrapCrossAlignment.center,
-                    children: [
-                      Text('Retain'),
-                      Icon(CupertinoIcons.chevron_left_circle)
-                    ],
-                  ),
+                cupertino:
+                    (_, __) =>
+                        CupertinoDialogActionData(isDestructiveAction: true),
+              ),
+              PlatformDialogAction(
+                onPressed: Navigator.of(context).pop,
+                child: const Wrap(
+                  spacing: 8,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    Text('Retain'),
+                    Icon(CupertinoIcons.chevron_left_circle),
+                  ],
                 ),
-              ],
-            )).then((_) => setState(() {
-          _selectedId.clear();
-        }));
+              ),
+            ],
+          ),
+    ).then(
+      (_) => setState(() {
+        _selectedId.clear();
+      }),
+    );
   }
 
   void filterName(String query) async {
     final queryContacts = (await futureContacts).where(
-        (contact) => contact.name.toLowerCase().contains(query.toLowerCase()));
+      (contact) => contact.name.toLowerCase().contains(query.toLowerCase()),
+    );
     setState(() {
       azContacts = queryContacts.toList();
     });
@@ -258,8 +314,10 @@ class _AlphabetListTabState extends State<AlphabetListTab> {
   void updateFutureContacts() {
     azContacts.clear();
     futureContacts = fetchContacts();
-    SchedulerBinding.instance
-        .scheduleTask(() => setState(() {}), Priority.idle);
+    SchedulerBinding.instance.scheduleTask(
+      () => setState(() {}),
+      Priority.idle,
+    );
   }
 
   @override
@@ -278,28 +336,29 @@ class _AlphabetListTabState extends State<AlphabetListTab> {
     final pattern = textController.text;
     final matches = text.matchIndexes(pattern);
     if (matches.isEmpty) return Text(text);
-    return Text.rich(TextSpan(
+    return Text.rich(
+      TextSpan(
         children: List.generate(
-      text.length,
-      (i) => TextSpan(
-        text: text[i],
-        style: !matches.contains(i)
-            ? null
-            : TextStyle(
-                backgroundColor:
-                    Theme.of(context).colorScheme.tertiaryContainer,
-                color: Theme.of(context).colorScheme.onTertiaryContainer),
+          text.length,
+          (i) => TextSpan(
+            text: text[i],
+            style:
+                !matches.contains(i)
+                    ? null
+                    : TextStyle(
+                      backgroundColor:
+                          Theme.of(context).colorScheme.tertiaryContainer,
+                      color: Theme.of(context).colorScheme.onTertiaryContainer,
+                    ),
+          ),
+        ),
       ),
-    )));
+    );
   }
 }
 
 class _CheckButton extends StatefulWidget {
-  const _CheckButton({
-    required super.key,
-    required this.isCheck,
-    this.onClick,
-  });
+  const _CheckButton({required super.key, required this.isCheck, this.onClick});
 
   final bool isCheck;
   final VoidCallback? onClick;
@@ -320,12 +379,13 @@ class _CheckButtonState extends State<_CheckButton> {
           _isCheck ^= true;
         });
       },
-      child: _isCheck
-          ? Icon(
-              CupertinoIcons.minus_circle_fill,
-              color: CupertinoColors.destructiveRed.resolveFrom(context),
-            )
-          : const Icon(CupertinoIcons.circle),
+      child:
+          _isCheck
+              ? Icon(
+                CupertinoIcons.minus_circle_fill,
+                color: CupertinoColors.destructiveRed.resolveFrom(context),
+              )
+              : const Icon(CupertinoIcons.circle),
     );
   }
 }

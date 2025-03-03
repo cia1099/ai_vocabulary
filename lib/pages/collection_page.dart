@@ -35,17 +35,20 @@ class _CollectionPageState extends State<CollectionPage> {
   SliverAnimatedGridState? get gridState => gridKey.currentState;
   Iterable<BookMark> get fetchDB => MyDB().fetchMarks();
   List<BookMark> get systemMark => [
-        SystemMark(name: 'add', index: kMaxInt64),
-        SystemMark(name: 'Uncategorized', index: -1)
-      ];
+    SystemMark(name: 'add', index: kMaxInt64),
+    SystemMark(name: 'Uncategorized', index: -1),
+  ];
 
   @override
   void initState() {
     super.initState();
     marks.addAll(systemMark);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      gridState?.insertAllItems(0, marks.length,
-          duration: Durations.extralong4);
+      gridState?.insertAllItems(
+        0,
+        marks.length,
+        duration: Durations.extralong4,
+      );
     });
     MyDB().addListener(updateOrderListener);
   }
@@ -65,28 +68,37 @@ class _CollectionPageState extends State<CollectionPage> {
       body: SafeArea(
         top: false,
         child: CustomScrollView(
+          physics: const AlwaysScrollableScrollPhysics(
+            parent: BouncingScrollPhysics(),
+          ),
           slivers: [
             PlatformSliverAppBar(
               stretch: true,
-              title: const Text("My Collections"),
-              backgroundColor: kCupertinoSheetColor.resolveFrom(context),
-              material: (_, __) => MaterialSliverAppBarData(
-                  pinned: true,
-                  actions: actions(),
-                  flexibleSpace: const FlexibleSpaceBar(
-                    stretchModes: [
-                      StretchMode.zoomBackground,
-                      StretchMode.blurBackground,
-                      StretchMode.fadeTitle,
-                    ],
-                    // background: FlutterLogo(),
-                  )),
-              cupertino: (_, __) => CupertinoSliverAppBarData(
-                  trailing: Wrap(
-                spacing: 4,
-                children: actions(),
-              )),
+              material:
+                  (_, __) => MaterialSliverAppBarData(
+                    pinned: true,
+                    actions: actions(),
+                    expandedHeight: kExpandedSliverAppBarHeight,
+                    automaticallyImplyLeading: true,
+                    flexibleSpace: const FlexibleSpaceBar(
+                      title: Text("My Collections"),
+                      titlePadding: EdgeInsets.only(left: 54, bottom: 16),
+                      stretchModes: [
+                        StretchMode.zoomBackground,
+                        StretchMode.blurBackground,
+                        StretchMode.fadeTitle,
+                      ],
+                      // background: FlutterLogo(),
+                    ),
+                  ),
+              cupertino:
+                  (_, __) => CupertinoSliverAppBarData(
+                    title: const Text("My Collections"),
+                    backgroundColor: kCupertinoSheetColor.resolveFrom(context),
+                    trailing: Wrap(spacing: 4, children: actions()),
+                  ),
             ),
+            // const SliverAppBar.medium(title: Text("My Collections")),
             SliverPersistentHeader(
               pinned: true,
               delegate: InputRowDelegate(
@@ -95,15 +107,20 @@ class _CollectionPageState extends State<CollectionPage> {
                 focusNode: focusNode,
                 child: FilterInputBar(
                   padding: EdgeInsets.only(
-                      left: hPadding, right: hPadding, bottom: 10),
+                    left: hPadding,
+                    right: hPadding,
+                    bottom: 10,
+                  ),
                   focusNode: focusNode,
                   controller: textController,
                   backgroundColor: colorScheme.surface,
                   hintText: 'find it',
                   onChanged: (p0) {
                     preventQuicklyChanged?.cancel();
-                    preventQuicklyChanged =
-                        Timer(Durations.medium4, () => filterMark(p0));
+                    preventQuicklyChanged = Timer(
+                      Durations.medium4,
+                      () => filterMark(p0),
+                    );
                   },
                 ),
               ),
@@ -111,42 +128,57 @@ class _CollectionPageState extends State<CollectionPage> {
             SliverPadding(
               padding: EdgeInsets.symmetric(horizontal: hPadding),
               sliver: ReorderableWrapperWidget(
-                  dragEnabled: dragEnabled,
-                  onReorder: (oldIndex, newIndex) {
-                    if (marks.whereType<SystemMark>().isNotEmpty)
-                      setState(() {
-                        onReorder(oldIndex, newIndex);
-                      });
-                  },
-                  isSliver: true,
-                  dragWidgetBuilder:
-                      DragWidgetBuilderV2(builder: (index, child, screenshot) {
+                dragEnabled: dragEnabled,
+                onReorder: (oldIndex, newIndex) {
+                  if (marks.whereType<SystemMark>().isNotEmpty)
+                    setState(() {
+                      onReorder(oldIndex, newIndex);
+                    });
+                },
+                isSliver: true,
+                dragWidgetBuilder: DragWidgetBuilderV2(
+                  builder: (index, child, screenshot) {
                     return PhysicalModel(
-                        color: colorScheme.primary,
-                        elevation: 8,
-                        borderRadius:
-                            BorderRadius.circular(kRadialReactionRadius),
-                        child: child);
-                  }),
-                  child: SliverAnimatedGrid(
-                    key: gridKey,
-                    gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                      maxCrossAxisExtent: 200,
-                      mainAxisSpacing: hPadding,
-                      crossAxisSpacing: hPadding,
-                    ),
-                    itemBuilder: (context, index, animation) => onFlip
-                        ? MatrixTransition(
-                            animation: SineTween().animate(animation),
-                            onTransform: (angle) => Matrix4.rotationY(angle),
-                            child: buildBookmark(
-                                marks[index], textController.text))
-                        : ScaleTransition(
-                            scale: CurvedAnimation(
-                                parent: animation, curve: Curves.bounceOut),
-                            child: buildBookmark(
-                                marks[index], textController.text)),
-                  )),
+                      color: colorScheme.primary,
+                      elevation: 8,
+                      borderRadius: BorderRadius.circular(
+                        kRadialReactionRadius,
+                      ),
+                      child: child,
+                    );
+                  },
+                ),
+                child: SliverAnimatedGrid(
+                  key: gridKey,
+                  gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                    maxCrossAxisExtent: 200,
+                    mainAxisSpacing: hPadding,
+                    crossAxisSpacing: hPadding,
+                  ),
+                  itemBuilder:
+                      (context, index, animation) =>
+                          onFlip
+                              ? MatrixTransition(
+                                animation: SineTween().animate(animation),
+                                onTransform:
+                                    (angle) => Matrix4.rotationY(angle),
+                                child: buildBookmark(
+                                  marks[index],
+                                  textController.text,
+                                ),
+                              )
+                              : ScaleTransition(
+                                scale: CurvedAnimation(
+                                  parent: animation,
+                                  curve: Curves.bounceOut,
+                                ),
+                                child: buildBookmark(
+                                  marks[index],
+                                  textController.text,
+                                ),
+                              ),
+                ),
+              ),
             ),
           ],
         ),
@@ -164,13 +196,16 @@ class _CollectionPageState extends State<CollectionPage> {
         continue;
       }
       gridState?.removeItem(
-          i,
-          (context, animation) => ScaleTransition(
-                scale: CurvedAnimation(
-                    parent: animation, curve: Curves.easeInOutBack),
-                child: buildBookmark(removedMark),
-              ),
-          duration: Durations.short4);
+        i,
+        (context, animation) => ScaleTransition(
+          scale: CurvedAnimation(
+            parent: animation,
+            curve: Curves.easeInOutBack,
+          ),
+          child: buildBookmark(removedMark),
+        ),
+        duration: Durations.short4,
+      );
     }
     marks.retainWhere((m) => queryMarks.contains(m));
     final retainMark = List.from(marks);
@@ -202,17 +237,19 @@ class _CollectionPageState extends State<CollectionPage> {
     reverse *= -1;
     for (final removedMark in marks) {
       gridState?.removeItem(
-          0,
-          (context, animation) => ValueListenableBuilder(
-                valueListenable: SineTween().animate(animation),
-                builder: (context, value, child) => Transform(
-                  transform: Matrix4.rotationY(value),
-                  alignment: const Alignment(0, 0),
-                  child: child,
-                ),
-                child: buildBookmark(removedMark),
+        0,
+        (context, animation) => ValueListenableBuilder(
+          valueListenable: SineTween().animate(animation),
+          builder:
+              (context, value, child) => Transform(
+                transform: Matrix4.rotationY(value),
+                alignment: const Alignment(0, 0),
+                child: child,
               ),
-          duration: Durations.short4);
+          child: buildBookmark(removedMark),
+        ),
+        duration: Durations.short4,
+      );
     }
     Timer(Durations.short4, () {
       marks.sort((a, b) => a.index.compareTo(b.index) * reverse);
@@ -228,59 +265,70 @@ class _CollectionPageState extends State<CollectionPage> {
   Widget buildBookmark(BookMark bookmark, [String filter = '']) {
     return switch (bookmark) {
       CollectionMark _ => ReorderableItemView(
-          key: Key(bookmark.name),
-          index: marks.indexOf(bookmark),
-          child: Flashcard(
-            mark: bookmark,
-            filter: filter,
-            onRemove: onRemove,
-            dragEnabled: dragEnabled,
-          )),
-      SystemMark _ => bookmark.index > 0
-          ? Card.filled(
+        key: Key(bookmark.name),
+        index: marks.indexOf(bookmark),
+        child: Flashcard(
+          mark: bookmark,
+          filter: filter,
+          onRemove: onRemove,
+          dragEnabled: dragEnabled,
+        ),
+      ),
+      SystemMark _ =>
+        bookmark.index > 0
+            ? Card.filled(
               child: Center(
-                  child: FloatingActionButton.large(
-                onPressed: () {
-                  final insertIndex = reverse < 0 ? 1 : marks.length - 1;
-                  var count = 0;
-                  final repoNames = marks
-                      .where((m) => m.name.contains('Repository'))
-                      .map((m) => m.name);
-                  if (repoNames.isNotEmpty) {
-                    final nameNumbers = repoNames
-                        .map(
-                            (name) => RegExp(r'\d+').firstMatch(name)?.group(0))
-                        .map((digit) => int.tryParse(digit ?? '') ?? 0);
-                    for (; nameNumbers.contains(count); count++) {}
-                  }
-                  final newMark = CollectionMark(
+                child: FloatingActionButton.large(
+                  onPressed: () {
+                    final insertIndex = reverse < 0 ? 1 : marks.length - 1;
+                    var count = 0;
+                    final repoNames = marks
+                        .where((m) => m.name.contains('Repository'))
+                        .map((m) => m.name);
+                    if (repoNames.isNotEmpty) {
+                      final nameNumbers = repoNames
+                          .map(
+                            (name) => RegExp(r'\d+').firstMatch(name)?.group(0),
+                          )
+                          .map((digit) => int.tryParse(digit ?? '') ?? 0);
+                      for (; nameNumbers.contains(count); count++) {}
+                    }
+                    final newMark = CollectionMark(
                       name:
                           'Repository${count > 0 ? '$count'.padLeft(2, '0') : ''}',
-                      index: marks.whereType<CollectionMark>().length);
-                  marks.insert(insertIndex, newMark);
-                  gridState?.insertItem(insertIndex,
-                      duration: Durations.extralong1);
-                  MyDB().insertCollection(newMark.name, newMark.index);
-                },
-                elevation: 2,
-                shape: const CircleBorder(),
-                child: const Icon(CupertinoIcons.add),
-              )),
+                      index: marks.whereType<CollectionMark>().length,
+                    );
+                    marks.insert(insertIndex, newMark);
+                    gridState?.insertItem(
+                      insertIndex,
+                      duration: Durations.extralong1,
+                    );
+                    MyDB().insertCollection(newMark.name, newMark.index);
+                  },
+                  elevation: 2,
+                  shape: const CircleBorder(),
+                  child: const Icon(CupertinoIcons.add),
+                ),
+              ),
             )
-          : OnPointerDownPhysic(
+            : OnPointerDownPhysic(
               child: Card.filled(
                 child: InkWell(
-                  onTap: () => Navigator.push(
-                      context,
-                      platformPageRoute(
+                  onTap:
+                      () => Navigator.push(
+                        context,
+                        platformPageRoute(
                           context: context,
-                          builder: (context) => FavoriteWordsPage(
+                          builder:
+                              (context) => FavoriteWordsPage(
                                 mark: CollectionMark(
                                   name: kUncategorizedName,
                                   index: bookmark.index,
                                   icon: CupertinoIcons.star.codePoint,
                                 ),
-                              ))),
+                              ),
+                        ),
+                      ),
                   child: Column(
                     children: [
                       Expanded(
@@ -292,16 +340,17 @@ class _CollectionPageState extends State<CollectionPage> {
                       const Text(
                         'Uncategorized',
                         style: TextStyle(
-                            // backgroundColor: Colors.green,
-                            fontWeight: FontWeight.w600),
+                          // backgroundColor: Colors.green,
+                          fontWeight: FontWeight.w600,
+                        ),
                         textScaler: TextScaler.linear(1.6),
-                      )
+                      ),
                     ],
                   ),
                 ),
               ),
             ),
-      _ => const Placeholder()
+      _ => const Placeholder(),
     };
   }
 
@@ -311,24 +360,27 @@ class _CollectionPageState extends State<CollectionPage> {
         onPressed: dragEnabled ? null : flipReverseOrder,
         icon: const Icon(CupertinoIcons.arrow_2_squarepath),
         padding: EdgeInsets.zero,
-        material: (_, __) => MaterialIconButtonData(
-          style: IconButton.styleFrom(
-            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          ),
-        ),
+        material:
+            (_, __) => MaterialIconButtonData(
+              style: IconButton.styleFrom(
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+            ),
       ),
       PlatformTextButton(
-        onPressed: () => setState(() {
-          dragEnabled ^= true;
-        }),
+        onPressed:
+            () => setState(() {
+              dragEnabled ^= true;
+            }),
         padding: EdgeInsets.zero,
-        material: (_, __) => MaterialTextButtonData(
-          style: TextButton.styleFrom(
-            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          ),
-        ),
+        material:
+            (_, __) => MaterialTextButtonData(
+              style: TextButton.styleFrom(
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+            ),
         child: Text(dragEnabled ? 'Done' : 'Revise'),
-      )
+      ),
     ];
   }
 
@@ -336,9 +388,10 @@ class _CollectionPageState extends State<CollectionPage> {
     final updatedMarks = fetchDB;
     var hasUpdated = false;
     for (var i = 0; i < marks.length; i++) {
-      final updatedMark = updatedMarks
-          .where((m) => m == marks[i] && m.index != marks[i].index)
-          .firstOrNull;
+      final updatedMark =
+          updatedMarks
+              .where((m) => m == marks[i] && m.index != marks[i].index)
+              .firstOrNull;
       if (updatedMark != null) {
         marks[i].index = updatedMark.index;
         hasUpdated = true;
@@ -352,8 +405,10 @@ class _CollectionPageState extends State<CollectionPage> {
     final removedMark = marks.removeAt(rmIndex) as CollectionMark;
     //TODO: current solution, bad implement because side effect
     final backup = List.of(marks);
-    marks = fetchDB.toList() //guarantee marks are CollectionMark type
-      ..sort((a, b) => a.index.compareTo(b.index) * reverse);
+    marks =
+        fetchDB
+            .toList() //guarantee marks are CollectionMark type
+          ..sort((a, b) => a.index.compareTo(b.index) * reverse);
     //onReoder() changes the member marks,
     if (reverse > 0) {
       onReorder(marks.indexOf(removedMark), marks.length - 1);
@@ -362,13 +417,13 @@ class _CollectionPageState extends State<CollectionPage> {
     }
     marks = backup;
     gridState?.removeItem(
-        rmIndex,
-        (context, animation) => FadeTransition(
-              opacity:
-                  CurvedAnimation(parent: animation, curve: Curves.easeOut),
-              child: Flashcard(mark: removedMark),
-            ),
-        duration: Durations.extralong4);
+      rmIndex,
+      (context, animation) => FadeTransition(
+        opacity: CurvedAnimation(parent: animation, curve: Curves.easeOut),
+        child: Flashcard(mark: removedMark),
+      ),
+      duration: Durations.extralong4,
+    );
     MyDB().removeMark(name: removedMark.name);
   }
 
@@ -406,7 +461,10 @@ class InputRowDelegate extends SliverPersistentHeaderDelegate {
 
   @override
   Widget build(
-      BuildContext context, double shrinkOffset, bool overlapsContent) {
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
     // print('shirnk = $shrinkOffset, overlap = $overlapsContent');
     if (overlapsContent && !focusNode.hasFocus)
       return SizedBox.fromSize(size: Size.fromHeight(maxExtent - shrinkOffset));

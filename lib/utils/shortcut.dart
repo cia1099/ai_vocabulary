@@ -17,6 +17,8 @@ const kRemindLength = 7;
 const kMenuDividerHeight = 8.0;
 const kMaxInt64 = 9223372036854775807;
 const kUncategorizedName = 'uncategorized';
+// const kcollapsedSliverHeight = 64.0;
+const kExpandedSliverAppBarHeight = 112.0;
 
 const kCupertinoSheetColor = CupertinoDynamicColor.withBrightness(
   color: Color(0xCCF2F2F2),
