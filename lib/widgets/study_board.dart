@@ -7,9 +7,7 @@ import 'package:flutter/material.dart';
 import '../model/acquaintance.dart';
 
 class StudyBoard extends StatefulWidget {
-  const StudyBoard({
-    super.key,
-  });
+  const StudyBoard({super.key});
 
   @override
   State<StudyBoard> createState() => _StudyBoardState();
@@ -28,12 +26,14 @@ class _StudyBoardState extends State<StudyBoard> with WidgetsBindingObserver {
     final now = DateTime.now();
     midnight =
         DateTime(now.year, now.month, now.day).millisecondsSinceEpoch ~/ 6e4;
+    elapsedMinute.addListener(recordElapsed);
   }
 
   @override
   void dispose() {
     timer?.cancel();
     WidgetsBinding.instance.removeObserver(this);
+    elapsedMinute.removeListener(recordElapsed);
     super.dispose();
   }
 
@@ -51,61 +51,70 @@ class _StudyBoardState extends State<StudyBoard> with WidgetsBindingObserver {
       ),
       child: ValueListenableBuilder(
         valueListenable: AppSettings.of(context).targetStudy,
-        builder: (context, targetStudy, _) => ListenableBuilder(
-          listenable: MyDB(),
-          builder: (context, child) => FutureBuilder(
-            future: MyDB().isReady,
-            builder: (context, snapshot) {
-              final studyCount = snapshot.data == true
-                  ? MyDB().fetchStudyCounts()
-                  : StudyCount();
-              final mySetting = AppSettings.of(context);
-              //TODO: should avoid state update in UI rendering
-              if (!mySetting.hasInitStudyState && snapshot.data == true) {
-                mySetting.studyState = mySetting.nextStatus(studyCount);
-                mySetting.hasInitStudyState = true;
-              }
-              return Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
+        builder:
+            (context, targetStudy, _) => ListenableBuilder(
+              listenable: MyDB(),
+              builder:
+                  (context, child) => FutureBuilder(
+                    future: MyDB().isReady,
+                    builder: (context, snapshot) {
+                      final studyCount =
+                          snapshot.data == true
+                              ? MyDB().fetchStudyCounts()
+                              : StudyCount();
+                      final mySetting = AppSettings.of(context);
+                      //TODO: should avoid state update in UI rendering
+                      if (!mySetting.hasInitStudyState &&
+                          snapshot.data == true) {
+                        mySetting.studyState = mySetting.nextStatus(studyCount);
+                        mySetting.hasInitStudyState = true;
+                      }
+                      return Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Text("Review today"),
+                              Text(
+                                '${studyCount.reviewCount}/${targetStudy.reviewCount}',
+                                style: textTheme.headlineSmall,
+                              ),
+                            ],
+                          ),
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Text("New today"),
+                              Text(
+                                '${studyCount.newCount}/${targetStudy.newCount}',
+                                style: textTheme.headlineSmall,
+                              ),
+                            ],
+                          ),
+                          child!,
+                        ],
+                      );
+                    },
+                  ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text("Review today"),
-                      Text(
-                          '${studyCount.reviewCount}/${targetStudy.reviewCount}',
-                          style: textTheme.headlineSmall),
-                    ],
+                  const Text("Learning today"),
+                  ValueListenableBuilder(
+                    valueListenable: elapsedMinute,
+                    builder: (context, value, _) {
+                      final hour = value ~/ 60;
+                      final elapsedHour = hour > 0 ? '${hour}h' : '';
+                      return Text(
+                        '$elapsedHour${value % 60}min',
+                        style: textTheme.headlineSmall,
+                      );
+                    },
                   ),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text("New today"),
-                      Text('${studyCount.newCount}/${targetStudy.newCount}',
-                          style: textTheme.headlineSmall),
-                    ],
-                  ),
-                  child!
                 ],
-              );
-            },
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text("Learning today"),
-              ValueListenableBuilder(
-                valueListenable: elapsedMinute,
-                builder: (context, value, _) {
-                  final hour = value ~/ 60;
-                  final elapsedHour = hour > 0 ? '${hour}h' : '';
-                  return Text('$elapsedHour${value % 60}min',
-                      style: textTheme.headlineSmall);
-                },
               ),
-            ],
-          ),
-        ),
+            ),
       ),
     );
   }
@@ -123,14 +132,17 @@ class _StudyBoardState extends State<StudyBoard> with WidgetsBindingObserver {
   }
 
   Timer _startTimer() => Timer.periodic(Durations.extralong4 * 60, (timer) {
-        final now = DateTime.now();
-        if (now.millisecondsSinceEpoch ~/ 6e4 - midnight >= 1440) {
-          elapsedMinute.value = 0;
-          midnight =
-              DateTime(now.year, now.month, now.day).millisecondsSinceEpoch ~/
-                  6e4;
-        } else {
-          elapsedMinute.value++;
-        }
-      });
+    final now = DateTime.now();
+    if (now.millisecondsSinceEpoch ~/ 6e4 - midnight >= 1440) {
+      elapsedMinute.value = 0;
+      midnight =
+          DateTime(now.year, now.month, now.day).millisecondsSinceEpoch ~/ 6e4;
+    } else {
+      elapsedMinute.value++;
+    }
+  });
+
+  void recordElapsed() {
+    AppSettings.of(context).studyMinute = elapsedMinute.value;
+  }
 }

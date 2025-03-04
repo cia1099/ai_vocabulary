@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'package:ai_vocabulary/database/my_db.dart';
+import 'package:ai_vocabulary/pages/punch_out_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
@@ -13,7 +15,8 @@ class SettingTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final maxHeight = MediaQuery.of(context).size.height -
+    final maxHeight =
+        MediaQuery.of(context).size.height -
         kToolbarHeight -
         kBottomNavigationBarHeight -
         34;
@@ -21,11 +24,13 @@ class SettingTab extends StatelessWidget {
     return PlatformScaffold(
       appBar: PlatformAppBar(
         title: const Text('Settings'),
-        material: (_, __) => MaterialAppBarData(
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        ),
-        cupertino: (_, __) =>
-            CupertinoNavigationBarData(transitionBetweenRoutes: false),
+        material:
+            (_, __) => MaterialAppBarData(
+              backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+            ),
+        cupertino:
+            (_, __) =>
+                CupertinoNavigationBarData(transitionBetweenRoutes: false),
       ),
       body: StatefulBuilder(
         builder: (_, setState) {
@@ -34,106 +39,162 @@ class SettingTab extends StatelessWidget {
             height: maxHeight,
             child: SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(
-                  parent: BouncingScrollPhysics()),
-              child: Column(
-                children: [
-                  const Padding(padding: EdgeInsets.only(top: 24)),
-                  PlatformListTile(
-                    title: const Text('Send me marketing emails'),
-                    // The Material switch has a platform adaptive constructor.
-                    trailing: PlatformSwitch(
-                      value: switches[0],
-                      onChanged: (value) => setState(() => switches[0] = value),
-                    ),
-                  ),
-                  PlatformListTile(
-                    title: const Text('Enable notifications'),
-                    trailing: PlatformSwitch(
-                      value: switches[1],
-                      onChanged: (value) => setState(() => switches[1] = value),
-                    ),
-                  ),
-                  PlatformListTile(
-                    title: const Text('Remind me to rate this app'),
-                    trailing: PlatformSwitch(
-                      value: switches[2],
-                      onChanged: (value) => setState(() => switches[2] = value),
-                    ),
-                  ),
-                  PlatformListTile(
-                    title: const Text('Background song refresh'),
-                    trailing: PlatformSwitch(
-                      value: switches[3],
-                      onChanged: (value) => setState(() => switches[3] = value),
-                    ),
-                  ),
-                  PlatformListTile(
-                    title:
-                        const Text('Recommend me songs based on my location'),
-                    trailing: PlatformSwitch(
-                      value: switches[4],
-                      onChanged: (value) => setState(() => switches[4] = value),
-                    ),
-                  ),
-                  PlatformListTile(
-                    title:
-                        const Text('Auto-transition playback to cast devices'),
-                    trailing: PlatformSwitch(
-                      value: switches[5],
-                      onChanged: (value) => setState(() => switches[5] = value),
-                    ),
-                  ),
-                  CupertinoFormSection(header: const Text('Study'), children: [
+                parent: BouncingScrollPhysics(),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 24),
+                child: Column(
+                  children: [
                     PlatformListTile(
-                      title:
-                          const Text('Does hide vocabulary title in sliders?'),
+                      title: const Text('Send me marketing emails'),
+                      // The Material switch has a platform adaptive constructor.
                       trailing: PlatformSwitch(
-                        value: AppSettings.of(context).hideSliderTitle,
-                        onChanged: (value) =>
-                            AppSettings.of(context).hideSliderTitle = value,
-                      ),
-                    ),
-                    CountPickerTile(
-                      titlePattern: 'Review ,?, words, a, day',
-                      initialCount: AppSettings.of(context).reviewCount,
-                      onPickDone: (count) {
-                        AppSettings.of(context).reviewCount = count;
-                      },
-                    ),
-                    CountPickerTile(
-                      titlePattern: 'Learn, new ,?, words, a, day',
-                      initialCount: AppSettings.of(context).learnCount,
-                      onPickDone: (count) {
-                        AppSettings.of(context).learnCount = count;
-                      },
-                    ),
-                  ]),
-                  CupertinoFormSection(header: const Text('Theme'), children: [
-                    PlatformListTile(
-                      title: const Text('Dark mode'),
-                      trailing: PlatformSwitch(
-                        value: AppSettings.of(context).brightness ==
-                            Brightness.dark,
-                        onChanged: (value) =>
-                            AppSettings.of(context).brightness =
-                                value ? Brightness.dark : Brightness.light,
+                        value: switches[0],
+                        onChanged:
+                            (value) => setState(() => switches[0] = value),
                       ),
                     ),
                     PlatformListTile(
-                      title: const Text('Application Color Theme'),
-                      trailing: const CupertinoListTileChevron(),
-                      onTap: () =>
-                          Navigator.of(context).push(CupertinoDialogRoute(
-                        builder: (context) => const ColorSelectPage(),
-                        barrierColor: Theme.of(context)
-                            .colorScheme
-                            .inverseSurface
-                            .withValues(alpha: .4),
-                        context: context,
-                      )),
-                    )
-                  ]),
-                ],
+                      title: const Text('Enable notifications'),
+                      trailing: PlatformSwitch(
+                        value: switches[1],
+                        onChanged:
+                            (value) => setState(() => switches[1] = value),
+                      ),
+                    ),
+                    PlatformListTile(
+                      title: const Text('Remind me to rate this app'),
+                      trailing: PlatformSwitch(
+                        value: switches[2],
+                        onChanged:
+                            (value) => setState(() => switches[2] = value),
+                      ),
+                    ),
+                    PlatformListTile(
+                      title: const Text('Background song refresh'),
+                      trailing: PlatformSwitch(
+                        value: switches[3],
+                        onChanged:
+                            (value) => setState(() => switches[3] = value),
+                      ),
+                    ),
+                    PlatformListTile(
+                      title: const Text(
+                        'Recommend me songs based on my location',
+                      ),
+                      trailing: PlatformSwitch(
+                        value: switches[4],
+                        onChanged:
+                            (value) => setState(() => switches[4] = value),
+                      ),
+                    ),
+                    PlatformListTile(
+                      title: const Text(
+                        'Auto-transition playback to cast devices',
+                      ),
+                      trailing: PlatformSwitch(
+                        value: switches[5],
+                        onChanged:
+                            (value) => setState(() => switches[5] = value),
+                      ),
+                    ),
+                    CupertinoFormSection(
+                      header: const Text('Study'),
+                      children: [
+                        PlatformListTile(
+                          title: const Text(
+                            'Does hide vocabulary title in sliders?',
+                          ),
+                          trailing: PlatformSwitch(
+                            value: AppSettings.of(context).hideSliderTitle,
+                            onChanged:
+                                (value) =>
+                                    AppSettings.of(context).hideSliderTitle =
+                                        value,
+                          ),
+                        ),
+                        CountPickerTile(
+                          titlePattern: 'Review ,?, words, a, day',
+                          initialCount: AppSettings.of(context).reviewCount,
+                          onPickDone: (count) {
+                            AppSettings.of(context).reviewCount = count;
+                          },
+                        ),
+                        CountPickerTile(
+                          titlePattern: 'Learn, new ,?, words, a, day',
+                          initialCount: AppSettings.of(context).learnCount,
+                          onPickDone: (count) {
+                            AppSettings.of(context).learnCount = count;
+                          },
+                        ),
+                      ],
+                    ),
+                    CupertinoFormSection(
+                      header: const Text('Theme'),
+                      children: [
+                        PlatformListTile(
+                          title: const Text('Dark mode'),
+                          trailing: PlatformSwitch(
+                            value:
+                                AppSettings.of(context).brightness ==
+                                Brightness.dark,
+                            onChanged:
+                                (value) =>
+                                    AppSettings.of(context).brightness =
+                                        value
+                                            ? Brightness.dark
+                                            : Brightness.light,
+                          ),
+                        ),
+                        PlatformListTile(
+                          title: const Text('Application Color Theme'),
+                          trailing: const CupertinoListTileChevron(),
+                          onTap:
+                              () => Navigator.of(context).push(
+                                CupertinoDialogRoute(
+                                  builder: (context) => const ColorSelectPage(),
+                                  barrierColor: Theme.of(context)
+                                      .colorScheme
+                                      .inverseSurface
+                                      .withValues(alpha: .4),
+                                  context: context,
+                                ),
+                              ),
+                        ),
+                      ],
+                    ),
+                    ListenableBuilder(
+                      listenable: MyDB(),
+                      builder:
+                          (context, child) => FutureBuilder(
+                            future: MyDB().isReady,
+                            builder: (context, snapshot) {
+                              final canPunchOut =
+                                  snapshot.data == true &&
+                                  AppSettings.of(context).studyState.index >=
+                                      StudyStatus.onTarget.index;
+                              return PlatformTextButton(
+                                onPressed:
+                                    !canPunchOut
+                                        ? null
+                                        : () => Navigator.push(
+                                          context,
+                                          platformPageRoute(
+                                            context: context,
+                                            fullscreenDialog: true,
+                                            builder:
+                                                (context) =>
+                                                    const PunchOutPage(),
+                                          ),
+                                        ),
+                                child: child,
+                              );
+                            },
+                          ),
+                      child: const Text('Make up Punch Out'),
+                    ),
+                  ],
+                ),
               ),
             ),
           );

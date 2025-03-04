@@ -22,25 +22,27 @@ class WordListPage extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
     final routeName = ModalRoute.of(context)?.settings.name;
-    final title = routeName != null && routeName.contains('entry')
-        ? 'Review Words'
-        : 'My table vocabulary';
+    final title =
+        routeName != null && routeName.contains('entry')
+            ? 'Review Words'
+            : 'My table vocabulary';
     final reachTarget = ModalRoute.of(context)?.settings.arguments as bool?;
     return PlatformScaffold(
       appBar: PlatformAppBar(
-        leading: nextTap == null
-            ? null
-            : CupertinoNavigationBarBackButton(
-                onPressed: nextTap,
-              ),
+        leading:
+            nextTap == null
+                ? null
+                : CupertinoNavigationBarBackButton(onPressed: nextTap),
         title: Text(title),
         backgroundColor: colorScheme.primaryContainer,
-        cupertino: (_, __) =>
-            CupertinoNavigationBarData(trailing: const EntryActions()),
-        material: (_, __) => MaterialAppBarData(
-          backgroundColor: colorScheme.inversePrimary,
-          actions: [const EntryActions()],
-        ),
+        cupertino:
+            (_, __) =>
+                CupertinoNavigationBarData(trailing: const EntryActions()),
+        material:
+            (_, __) => MaterialAppBarData(
+              backgroundColor: colorScheme.inversePrimary,
+              actions: [const EntryActions()],
+            ),
       ),
       body: SafeArea(
         child: Stack(
@@ -60,51 +62,62 @@ class WordListPage extends StatelessWidget {
                 return Column(
                   children: [
                     Offstage(
-                        offstage: index == 0,
-                        child: Padding(
-                          padding:
-                              EdgeInsets.symmetric(horizontal: hPadding / 2),
-                          child: DottedLine(
-                              dashColor: dividerTheme.color ??
-                                  Theme.of(context).dividerColor),
-                        )),
+                      offstage: index == 0,
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: hPadding / 2),
+                        child: DottedLine(
+                          dashColor:
+                              dividerTheme.color ??
+                              Theme.of(context).dividerColor,
+                        ),
+                      ),
+                    ),
                     PlatformListTile(
                       title: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text.rich(
-                            TextSpan(children: [
-                              TextSpan(
-                                text: word.word,
-                                // style: textTheme.headlineSmall,
-                                style: textTheme.titleMedium
-                                    ?.copyWith(fontWeight: FontWeight.w600)
-                                    .apply(fontSizeFactor: 1.414),
-                              ),
-                              TextSpan(text: '\t' * 2),
-                              TextSpan(
+                            TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: word.word,
+                                  // style: textTheme.headlineSmall,
+                                  style: textTheme.titleMedium
+                                      ?.copyWith(fontWeight: FontWeight.w600)
+                                      .apply(fontSizeFactor: 1.414),
+                                ),
+                                TextSpan(text: '\t' * 2),
+                                TextSpan(
                                   text: phonetics.firstOrNull?.phonetic,
                                   style: TextStyle(
                                     color: colorScheme.onSurfaceVariant,
-                                  )),
-                            ]),
+                                  ),
+                                ),
+                              ],
+                            ),
                             overflow: TextOverflow.ellipsis,
                             style: textTheme.titleMedium,
                           ),
                           RichText(
-                              text: TextSpan(children: [
-                            WidgetSpan(
-                                child: GestureDetector(
+                            text: TextSpan(
+                              children: [
+                                WidgetSpan(
+                                  child: GestureDetector(
                                     onTap: playPhonetic(null, word: word.word),
-                                    child:
-                                        const Icon(CupertinoIcons.volume_up)))
-                          ]))
+                                    child: const Icon(CupertinoIcons.volume_up),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ],
                       ),
-                      subtitle: Text(word.getSpeechAndTranslation,
-                          // maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: textTheme.bodyLarge),
+                      subtitle: Text(
+                        word.getSpeechAndTranslation,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: textTheme.bodyLarge,
+                      ),
                       // Wrap(
                       //     spacing: 8,
                       //     children: word.definitions
@@ -113,12 +126,16 @@ class WordListPage extends StatelessWidget {
                       //               style: textTheme.bodyLarge,
                       //             ))
                       //         .toList()),
-                      onTap: () => Navigator.of(context).push(platformPageRoute(
-                        context: context,
-                        builder: (context) => VocabularyPage(word: word),
-                        settings:
-                            const RouteSettings(name: AppRoute.vocabulary),
-                      )),
+                      onTap:
+                          () => Navigator.of(context).push(
+                            platformPageRoute(
+                              context: context,
+                              builder: (context) => VocabularyPage(word: word),
+                              settings: const RouteSettings(
+                                name: AppRoute.vocabulary,
+                              ),
+                            ),
+                          ),
                     ),
                   ],
                 );
@@ -133,7 +150,7 @@ class WordListPage extends StatelessWidget {
                   child: Text(reachTarget != true ? 'Next set' : 'Complete'),
                 ),
               ),
-            )
+            ),
           ],
         ),
       ),

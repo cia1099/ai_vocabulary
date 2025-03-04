@@ -190,4 +190,11 @@ CREATE TABLE history_searches (
         PRIMARY KEY (word_id), 
         FOREIGN KEY(word_id) REFERENCES words (id)
 );
+CREATE TABLE punch_days (
+        date INTEGER NOT NULL,
+        study_minute INTEGER NOT NULL DEFAULT 0,
+        study_word_ids VARCHAR NOT NULL DEFAULT '',
+        punch_time INTEGER,
+        PRIMARY KEY (date)
+);
 ''';

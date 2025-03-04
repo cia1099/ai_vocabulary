@@ -5,7 +5,7 @@ import 'provider/word_provider.dart';
 
 class AppSettings extends InheritedNotifier<MySettings> {
   const AppSettings({super.key, required super.notifier, required super.child})
-      : assert(notifier != null, 'MySettings is not nullable');
+    : assert(notifier != null, 'MySettings is not nullable');
 
   static MySettings of(BuildContext context) =>
       context.dependOnInheritedWidgetOfExactType<AppSettings>()!.notifier!;
@@ -21,6 +21,7 @@ class MySettings extends ChangeNotifier {
   ///TODO: Have to find somewhere to initial this _studState when MyDB can fetch studyCount
   var hasInitStudyState = false; //temporary put on lib/widgets/study_board.dart
   var _studyState = StudyStatus.underTarget;
+  int studyMinute = 0;
 
   int get color => _color;
   set color(int newColor) {
@@ -73,17 +74,19 @@ class MySettings extends ChangeNotifier {
   }
 
   bool _canTransition(StudyStatus newStatus) => switch (studyState) {
-        StudyStatus.underTarget => newStatus == StudyStatus.onTarget ||
-            newStatus == StudyStatus.completedReview ||
-            newStatus == StudyStatus.completedLearn,
-        StudyStatus.completedLearn => newStatus == StudyStatus.onTarget ||
-            newStatus == StudyStatus.underTarget,
-        StudyStatus.completedReview => newStatus == StudyStatus.onTarget ||
-            newStatus == StudyStatus.underTarget,
-        StudyStatus.onTarget => newStatus == StudyStatus.overTarget ||
-            newStatus == StudyStatus.underTarget,
-        StudyStatus.overTarget => newStatus == StudyStatus.underTarget,
-      };
+    StudyStatus.underTarget =>
+      newStatus == StudyStatus.onTarget ||
+          newStatus == StudyStatus.completedReview ||
+          newStatus == StudyStatus.completedLearn,
+    StudyStatus.completedLearn =>
+      newStatus == StudyStatus.onTarget || newStatus == StudyStatus.underTarget,
+    StudyStatus.completedReview =>
+      newStatus == StudyStatus.onTarget || newStatus == StudyStatus.underTarget,
+    StudyStatus.onTarget =>
+      newStatus == StudyStatus.overTarget ||
+          newStatus == StudyStatus.underTarget,
+    StudyStatus.overTarget => newStatus == StudyStatus.underTarget,
+  };
   StudyStatus nextStatus(StudyCount count) {
     final target = targetStudy.value;
     if (count.reviewCount >= target.reviewCount &&
@@ -111,5 +114,5 @@ enum StudyStatus {
   completedReview,
   completedLearn,
   onTarget,
-  overTarget;
+  overTarget,
 }

@@ -2,7 +2,9 @@ import 'dart:io';
 import 'dart:ui' as ui;
 
 import 'package:ai_vocabulary/api/dict_api.dart';
+import 'package:ai_vocabulary/app_settings.dart';
 import 'package:ai_vocabulary/database/my_db.dart';
+import 'package:ai_vocabulary/effects/show_toast.dart';
 import 'package:ai_vocabulary/effects/transient.dart';
 import 'package:ai_vocabulary/model/acquaintance.dart';
 import 'package:ai_vocabulary/model/collections.dart';
@@ -333,7 +335,15 @@ I'm memorizing words with AI Vocabulary, punch with me! https://www.cia1099.clou
     );
     switch (share.status) {
       case ShareResultStatus.success:
-        print('Thanks your sharing');
+        if (mounted) {
+          MyDB().insertPunch(AppSettings.of(context).studyMinute);
+          showToast(
+            context: context,
+            alignment: const Alignment(0, .5),
+            stay: Durations.extralong4 * 1.5,
+            child: const Text('Successfully daily Punch Out!'),
+          );
+        }
       case ShareResultStatus.unavailable:
         print('There is something wrong');
       default:

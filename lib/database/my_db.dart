@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:ai_vocabulary/model/collections.dart';
 import 'package:ai_vocabulary/model/message.dart';
+import 'package:ai_vocabulary/model/punch_day.dart';
 import 'package:ai_vocabulary/model/vocabulary.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
@@ -19,6 +20,7 @@ part 'acquaint_db.dart';
 part 'chat_msg_db.dart';
 part 'collection_db.dart';
 part 'search_db.dart';
+part 'punch_db.dart';
 
 class MyDB with ChangeNotifier {
   late final String _appDirectory;
@@ -27,11 +29,13 @@ class MyDB with ChangeNotifier {
   static const _dbName = 'my.db';
   static MyDB? _instance;
   MyDB._internal() {
-    _init().whenComplete(() {
-      _completer.complete(true);
-    }).onError((_, __) {
-      _completer.completeError(false);
-    });
+    _init()
+        .whenComplete(() {
+          _completer.complete(true);
+        })
+        .onError((_, __) {
+          _completer.completeError(false);
+        });
   }
   static MyDB get instance => _instance ??= MyDB._internal();
   factory MyDB() => instance;
@@ -65,7 +69,7 @@ class MyDB with ChangeNotifier {
       insertExplanation,
       insertExample,
       insertAsset,
-      insertAcquaintance
+      insertAcquaintance,
     ];
     final stmts = db.prepareMultiple(insert.join(';'));
     await for (final word in words) {
@@ -73,7 +77,8 @@ class MyDB with ChangeNotifier {
         _insertVocabulary(word, stmts);
       } on SqliteException catch (e) {
         debugPrint(
-            'SQL error(${e.resultCode}): ${e.message}=(${word.wordId})${word.word}');
+          'SQL error(${e.resultCode}): ${e.message}=(${word.wordId})${word.word}',
+        );
         final rm = db.prepareMultiple(deleteVocabulary)
           ..forEach((rstmt) => rstmt.execute([word.wordId]));
         for (var rstmt in rm) {
@@ -102,23 +107,27 @@ class MyDB with ChangeNotifier {
   void _insertVocabulary(Vocabulary word, List<PreparedStatement> stmts) {
     stmts[0].execute([word.wordId, word.word]);
     for (final definition in word.definitions) {
-      final definitionID = stmts[1].select([
-        word.wordId,
-        definition.partOfSpeech,
-        definition.inflection,
-        definition.phoneticUs,
-        definition.phoneticUk,
-        definition.audioUs,
-        definition.audioUk,
-        definition.translate
-      ]).first['id'] as int;
+      final definitionID =
+          stmts[1].select([
+                word.wordId,
+                definition.partOfSpeech,
+                definition.inflection,
+                definition.phoneticUs,
+                definition.phoneticUk,
+                definition.audioUs,
+                definition.audioUk,
+                definition.translate,
+              ]).first['id']
+              as int;
       for (final explanation in definition.explanations) {
-        final explanationID = stmts[2].select([
-          word.wordId,
-          definitionID,
-          explanation.explain,
-          explanation.subscript
-        ]).first['id'] as int;
+        final explanationID =
+            stmts[2].select([
+                  word.wordId,
+                  definitionID,
+                  explanation.explain,
+                  explanation.subscript,
+                ]).first['id']
+                as int;
         for (final example in explanation.examples) {
           stmts[3].execute([word.wordId, explanationID, example]);
         } //for example
@@ -145,36 +154,37 @@ List<Map<String, dynamic>> buildWordMaps(ResultSet resultSet) {
   final wordMaps = <Map<String, dynamic>>[];
   for (final row in resultSet) {
     final wordMap = traceWord(
-        Queue.of([
-          {
-            'word_id': row['id'],
-            'word': row['word'],
-            'asset': row['filename'],
-            'acquaint': row['acquaint'],
-            'last_learned_time': row['last_learned_time']
-          },
-          {'part_of_speech': row['part_of_speech']},
-          {
-            "part_of_speech": row['part_of_speech'],
-            "inflection": row['inflection'],
-            "phonetic_uk": row['alphabet_uk'],
-            "phonetic_us": row['alphabet_us'],
-            "audio_uk": row['audio_uk'],
-            "audio_us": row['audio_us'],
-            "translate": row['translate'],
-          },
-          {
-            "part_of_speech": row['part_of_speech'],
-            "explain": row['explain'],
-            "subscript": row['subscript'],
-          },
-          {
-            "part_of_speech": row['part_of_speech'],
-            "explain": row['explain'],
-            "example": row['example'],
-          },
-        ]),
-        wordMaps);
+      Queue.of([
+        {
+          'word_id': row['id'],
+          'word': row['word'],
+          'asset': row['filename'],
+          'acquaint': row['acquaint'],
+          'last_learned_time': row['last_learned_time'],
+        },
+        {'part_of_speech': row['part_of_speech']},
+        {
+          "part_of_speech": row['part_of_speech'],
+          "inflection": row['inflection'],
+          "phonetic_uk": row['alphabet_uk'],
+          "phonetic_us": row['alphabet_us'],
+          "audio_uk": row['audio_uk'],
+          "audio_us": row['audio_us'],
+          "translate": row['translate'],
+        },
+        {
+          "part_of_speech": row['part_of_speech'],
+          "explain": row['explain'],
+          "subscript": row['subscript'],
+        },
+        {
+          "part_of_speech": row['part_of_speech'],
+          "explain": row['explain'],
+          "example": row['example'],
+        },
+      ]),
+      wordMaps,
+    );
     if (!wordMaps.any(((w) => w['word_id'] == row['id']))) {
       wordMaps.add(wordMap);
     }
@@ -183,25 +193,31 @@ List<Map<String, dynamic>> buildWordMaps(ResultSet resultSet) {
 }
 
 Map<String, dynamic> traceWord(
-    Queue<Map<String, dynamic>> nodes, List<Map<String, dynamic>> cache) {
+  Queue<Map<String, dynamic>> nodes,
+  List<Map<String, dynamic>> cache,
+) {
   final node = nodes.removeLast();
   if (nodes.isEmpty) {
-    return cache.firstWhere((row) => row["word_id"] == node['word_id'],
-        orElse: () => node..addAll({'definitions': <Map<String, dynamic>>[]}));
+    return cache.firstWhere(
+      (row) => row["word_id"] == node['word_id'],
+      orElse: () => node..addAll({'definitions': <Map<String, dynamic>>[]}),
+    );
   }
 
   final obj = traceWord(nodes, cache);
   final definitions = obj['definitions'] as List<Map<String, dynamic>>;
   if (node.length == 1) {
-    if (definitions
-            .indexWhere((d) => d['part_of_speech'] == node['part_of_speech']) <
+    if (definitions.indexWhere(
+          (d) => d['part_of_speech'] == node['part_of_speech'],
+        ) <
         0) {
       definitions.add(node..addAll({"explanations": <Map<String, dynamic>>[]}));
     }
   } else {
     final partOfSpeech = node.remove('part_of_speech') as String;
-    final definition =
-        definitions.firstWhere((d) => d['part_of_speech'] == partOfSpeech);
+    final definition = definitions.firstWhere(
+      (d) => d['part_of_speech'] == partOfSpeech,
+    );
     if (node.containsKey('inflection')) {
       if (definition.keys.every((key) => !node.containsKey(key))) {
         definition.addAll(node);
