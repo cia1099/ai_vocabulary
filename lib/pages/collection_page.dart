@@ -74,31 +74,30 @@ class _CollectionPageState extends State<CollectionPage> {
           slivers: [
             PlatformSliverAppBar(
               stretch: true,
+              backgroundColor: kCupertinoSheetColor.resolveFrom(context),
               material:
                   (_, __) => MaterialSliverAppBarData(
                     pinned: true,
                     actions: actions(),
                     expandedHeight: kExpandedSliverAppBarHeight,
                     automaticallyImplyLeading: true,
-                    flexibleSpace: const FlexibleSpaceBar(
-                      title: Text("My Collections"),
-                      titlePadding: EdgeInsets.only(left: 54, bottom: 16),
-                      stretchModes: [
+                    flexibleSpace: FlexibleSpaceBar(
+                      title: const Text("My Collections"),
+                      titlePadding: const EdgeInsets.only(left: 54, bottom: 16),
+                      stretchModes: const [
                         StretchMode.zoomBackground,
                         StretchMode.blurBackground,
                         StretchMode.fadeTitle,
                       ],
-                      // background: FlutterLogo(),
+                      background: ColoredBox(color: colorScheme.surface),
                     ),
                   ),
               cupertino:
                   (_, __) => CupertinoSliverAppBarData(
                     title: const Text("My Collections"),
-                    backgroundColor: kCupertinoSheetColor.resolveFrom(context),
                     trailing: Wrap(spacing: 4, children: actions()),
                   ),
             ),
-            // const SliverAppBar.medium(title: Text("My Collections")),
             SliverPersistentHeader(
               pinned: true,
               delegate: InputRowDelegate(

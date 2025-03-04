@@ -32,14 +32,20 @@ class ChartTab extends StatelessWidget {
                 (_, _) => MaterialSliverAppBarData(
                   pinned: true,
                   expandedHeight: kExpandedSliverAppBarHeight,
-                  flexibleSpace: const FlexibleSpaceBar(
-                    title: Text('Charts'),
-                    titlePadding: EdgeInsets.only(left: 16, bottom: 16),
-                    stretchModes: [
+                  backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+                  flexibleSpace: FlexibleSpaceBar(
+                    title: const Text('Charts'),
+                    titlePadding: const EdgeInsets.only(left: 16, bottom: 16),
+                    stretchModes: const [
                       StretchMode.zoomBackground,
                       StretchMode.blurBackground,
                       StretchMode.fadeTitle,
                     ],
+                    background: DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.surface,
+                      ),
+                    ),
                   ),
                 ),
           ),

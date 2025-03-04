@@ -184,19 +184,22 @@ class DummyDialog extends StatelessWidget {
               color: kCupertinoSheetColor.resolveFrom(context),
               borderRadius: BorderRadius.circular(kRadialReactionRadius / 2),
             ),
-            child: Stack(
-              children: [
-                const Center(child: CircularProgressIndicator.adaptive()),
-                Align(
-                  alignment: const Alignment(0, 1),
-                  child: Text(
-                    '$msg',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.error,
+            child: Material(
+              type: MaterialType.transparency,
+              child: Stack(
+                children: [
+                  const Center(child: CircularProgressIndicator.adaptive()),
+                  Align(
+                    alignment: const Alignment(0, 1),
+                    child: Text(
+                      '$msg',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

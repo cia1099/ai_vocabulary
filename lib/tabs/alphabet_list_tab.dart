@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:ai_vocabulary/database/my_db.dart';
 import 'package:ai_vocabulary/pages/chat_room_page.dart';
 import 'package:ai_vocabulary/pages/vocabulary_page.dart';
@@ -57,9 +55,12 @@ class _AlphabetListTabState extends State<AlphabetListTab> {
                   pinned: true,
                   actions: [buildTrail()],
                   expandedHeight: kExpandedSliverAppBarHeight,
-                  flexibleSpace: const FlexibleSpaceBar(
-                    title: Text('Chats'),
-                    titlePadding: EdgeInsets.only(left: 16, bottom: 16),
+                  flexibleSpace: FlexibleSpaceBar(
+                    title: const Text('Chats'),
+                    titlePadding: const EdgeInsets.only(left: 16, bottom: 16),
+                    background: DecoratedBox(
+                      decoration: BoxDecoration(color: colorScheme.surface),
+                    ),
                   ),
                 ),
           ),
@@ -79,10 +80,7 @@ class _AlphabetListTabState extends State<AlphabetListTab> {
                       left: 8,
                       right: 8,
                     ),
-                    backgroundColor:
-                        Platform.isIOS || Platform.isMacOS
-                            ? colorScheme.surface
-                            : kCupertinoSheetColor.resolveFrom(context),
+                    backgroundColor: colorScheme.surface,
                     hintText: 'Which word',
                     controller: textController,
                     onChanged: (name) => filterName(name),

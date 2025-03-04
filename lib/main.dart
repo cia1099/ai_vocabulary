@@ -1,4 +1,6 @@
 import 'package:ai_vocabulary/app_route.dart';
+import 'package:ai_vocabulary/database/my_db.dart';
+import 'package:ai_vocabulary/pages/punch_out_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
@@ -85,6 +87,14 @@ class _MyAppState extends State<MyApp> {
                       ),
                   initialRoute: AppRoute.home,
                   home: const HomePage(),
+                  // home: FutureBuilder(
+                  //   future: MyDB().isReady,
+                  //   builder:
+                  //       (context, snapshot) =>
+                  //           snapshot.data == true
+                  //               ? const PunchOutPage()
+                  //               : const CircularProgressIndicator.adaptive(),
+                  // ),
                   // home: Builder(builder: (context) {
                   //   return PlatformScaffold(
                   //     body: Center(

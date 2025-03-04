@@ -19,10 +19,7 @@ import '../widgets/definition_tile.dart';
 import '../widgets/remember_retention.dart';
 
 class SliderPage extends StatefulWidget {
-  const SliderPage({
-    required Key key,
-    required this.word,
-  }) : super(key: key);
+  const SliderPage({required Key key, required this.word}) : super(key: key);
 
   final Vocabulary word;
 
@@ -38,15 +35,16 @@ class _SliderPageState extends State<SliderPage> {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
-    final screenWidth = MediaQuery.of(context).size.width;
+    final screenWidth = MediaQuery.sizeOf(context).width;
     final hPadding = screenWidth / 32;
     final phonetics = widget.word.getPhonetics();
     var defSliderHeight = DefinitionSliders.kDefaultHeight;
     if (acquaintance == null) {
       acquaintance = Acquaintance(
-          wordId: widget.word.wordId,
-          acquaint: widget.word.acquaint,
-          lastLearnedTime: widget.word.lastLearnedTime);
+        wordId: widget.word.wordId,
+        acquaint: widget.word.acquaint,
+        lastLearnedTime: widget.word.lastLearnedTime,
+      );
     } else {
       acquaintance = MyDB().getAcquaintance(widget.word.wordId);
       widget.word.acquaint = acquaintance!.acquaint;
@@ -73,13 +71,14 @@ class _SliderPageState extends State<SliderPage> {
       children: [
         Padding(
           padding: EdgeInsets.only(
-              top: 100 + hPadding + 16, left: hPadding, right: hPadding),
+            top: 100 + hPadding + 16,
+            left: hPadding,
+            right: hPadding,
+          ),
           child: Column(
             children: [
               //#begin height=250
-              LearnedLabel(
-                lastLearnedTime: acquaintance?.lastLearnedTime,
-              ),
+              LearnedLabel(lastLearnedTime: acquaintance?.lastLearnedTime),
               Container(
                 // color: Colors.green,
                 constraints: BoxConstraints.tightFor(height: 250 - 80 - dH),
@@ -90,23 +89,32 @@ class _SliderPageState extends State<SliderPage> {
                 height: 80,
                 alignment: const Alignment(0, 0),
                 child: Wrap(
-                  children: phonetics
-                      .map(
-                        (p) => RichText(
-                          text: TextSpan(children: [
-                            TextSpan(text: '\t' * 4),
-                            TextSpan(text: p.phonetic),
-                            TextSpan(text: '\t' * 2),
-                            WidgetSpan(
-                                child: GestureDetector(
-                                    onTap: playPhonetic(p.audioUrl,
-                                        word: widget.word.word),
-                                    child:
-                                        const Icon(CupertinoIcons.volume_up)))
-                          ], style: textTheme.titleLarge),
-                        ),
-                      )
-                      .toList(),
+                  children:
+                      phonetics
+                          .map(
+                            (p) => RichText(
+                              text: TextSpan(
+                                children: [
+                                  TextSpan(text: '\t' * 4),
+                                  TextSpan(text: p.phonetic),
+                                  TextSpan(text: '\t' * 2),
+                                  WidgetSpan(
+                                    child: GestureDetector(
+                                      onTap: playPhonetic(
+                                        p.audioUrl,
+                                        word: widget.word.word,
+                                      ),
+                                      child: const Icon(
+                                        CupertinoIcons.volume_up,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                                style: textTheme.titleLarge,
+                              ),
+                            ),
+                          )
+                          .toList(),
                 ),
               ),
               //#end height=250
@@ -116,22 +124,35 @@ class _SliderPageState extends State<SliderPage> {
                   backgroundColor: colorScheme.surfaceContainer,
                 ),
                 onPressed: () => Navigator.pushNamed(context, AppRoute.cloze),
-                icon: Icon(CupertinoIcons.square_arrow_right_fill,
-                    color: colorScheme.onSurfaceVariant),
-                label: Text('Go to quiz',
-                    style: TextStyle(color: colorScheme.onSurfaceVariant)),
+                icon: Icon(
+                  CupertinoIcons.square_arrow_right_fill,
+                  color: colorScheme.onSurfaceVariant,
+                ),
+                label: Text(
+                  'Go to quiz',
+                  style: TextStyle(color: colorScheme.onSurfaceVariant),
+                ),
               ),
-              PhoneticButton(
-                height: 105,
-                startRecordHint: () => immediatelyPlay(
-                    'assets/sounds/speech_to_text_listening.m4r'),
-                doneRecord: (bytes) {
-                  bytesPlay(Uint8List.fromList(bytes), 'audio/wav');
-                  titleKey.currentState?.inputSpeech(bytes);
-                },
-              ),
-              const Expanded(child: SizedBox()),
+              // const Expanded(child: SizedBox()),
             ],
+          ),
+        ),
+        Positioned(
+          bottom:
+              DefinitionSliders.kDefaultHeight +
+              kFloatingActionButtonMargin * 1.6,
+          left: (screenWidth - 105 * 1.82) / 2,
+          right: (screenWidth - 105 * 1.82) / 2,
+          child: PhoneticButton(
+            height: 105,
+            startRecordHint:
+                () => immediatelyPlay(
+                  'assets/sounds/speech_to_text_listening.m4r',
+                ),
+            doneRecord: (bytes) {
+              bytesPlay(Uint8List.fromList(bytes), 'audio/wav');
+              titleKey.currentState?.inputSpeech(bytes);
+            },
           ),
         ),
         StatefulBuilder(
@@ -143,9 +164,10 @@ class _SliderPageState extends State<SliderPage> {
               width: screenWidth * .85,
               child: DefinitionSliders(
                 definitions: widget.word.definitions,
-                getMore: (h) => setState(() {
-                  defSliderHeight = h;
-                }),
+                getMore:
+                    (h) => setState(() {
+                      defSliderHeight = h;
+                    }),
               ),
             );
           },
@@ -170,7 +192,7 @@ class _SliderPageState extends State<SliderPage> {
             // heightFactor: .36,
             child: wordActions(),
           ),
-        )
+        ),
       ],
     );
   }
@@ -194,26 +216,30 @@ class _SliderPageState extends State<SliderPage> {
                 padding: EdgeInsets.zero,
                 icon: Transform.flip(
                   flipX: true,
-                  child: Icon(
-                    CupertinoIcons.captions_bubble,
-                    size: iconSize,
-                  ),
+                  child: Icon(CupertinoIcons.captions_bubble, size: iconSize),
                 ),
-                material: (_, __) => MaterialIconButtonData(
-                    style: IconButton.styleFrom(
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap)),
+                material:
+                    (_, __) => MaterialIconButtonData(
+                      style: IconButton.styleFrom(
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                    ),
               ),
               FavoriteStar(wordID: widget.word.wordId, size: iconSize),
               PlatformIconButton(
                 onPressed: () => Navigator.pushNamed(context, AppRoute.report),
                 padding: EdgeInsets.zero,
                 icon: Transform(
-                    alignment: const Alignment(0, 0),
-                    transform: Matrix4.rotationY(pi),
-                    child: Icon(CupertinoIcons.reply, size: iconSize)),
-                material: (_, __) => MaterialIconButtonData(
-                    style: IconButton.styleFrom(
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap)),
+                  alignment: const Alignment(0, 0),
+                  transform: Matrix4.rotationY(pi),
+                  child: Icon(CupertinoIcons.reply, size: iconSize),
+                ),
+                material:
+                    (_, __) => MaterialIconButtonData(
+                      style: IconButton.styleFrom(
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                    ),
               ),
               GestureDetector(
                 onTap: () => Navigator.pushNamed(context, AppRoute.vocabulary),
@@ -223,7 +249,7 @@ class _SliderPageState extends State<SliderPage> {
                   url: widget.word.asset,
                   size: iconSize,
                 ),
-              )
+              ),
             ],
           ),
         );

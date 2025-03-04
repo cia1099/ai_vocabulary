@@ -172,6 +172,7 @@ class _PunchOutPageState extends State<PunchOutPage> {
           ),
           DottedLine(dashColor: colorScheme.outline),
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Flexible(
                 child: Wrap(
