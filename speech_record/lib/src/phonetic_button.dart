@@ -106,7 +106,7 @@ class _PhoneticButtonState extends State<PhoneticButton> {
                 listenerAmplitude(shadowColor, height, colorScheme),
                 if (!isPress)
                   const Positioned(
-                      bottom: 0, child: Text('Press to speak out word')),
+                      bottom: 0, child: Text('Press to speak up word')),
               ],
             ),
           ),

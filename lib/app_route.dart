@@ -95,17 +95,19 @@ class AppRoute<T> extends PageRoute<T> {
                       : () {
                         if (AppSettings.of(context).studyState ==
                             StudyStatus.onTarget) {
-                          Navigator.push(
+                          Navigator.pushAndRemoveUntil(
                             context,
                             CupertinoPageRoute(
                               title: 'Punch Out!',
                               builder: (context) => const PunchOutPage(),
                               fullscreenDialog: true,
                             ),
+                            (route) => route.isFirst,
                           );
+                        } else {
+                          provider.nextStudyWord();
+                          Navigator.popUntil(context, (route) => route.isFirst);
                         }
-                        provider.nextStudyWord();
-                        Navigator.popUntil(context, (route) => route.isFirst);
                       },
             );
           case AppRoute.report:

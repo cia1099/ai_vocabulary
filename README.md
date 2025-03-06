@@ -1,6 +1,6 @@
 # ai_vocabulary
 
-A new Flutter project.
+An AI application in flutter.
 
 # Good Codes
 * [lib/pages/speech_confirm_dialog.dart](lib/pages/speech_confirm_dialog.dart)\
@@ -77,6 +77,50 @@ android {
 }
 ```
 
+# adb command line
+* Find packages name
+```sh
+adb shell pm list packages # List /data/data dir
+adb shell pm list packages |grep example
+adb shell pm list packages -f # List /data/app dir
+```
+* List the directory of application
+```sh
+adb shell run-as <App package name> "sh -c 'ls -hl <App directory path>'"
+#e.g.
+adb shell run-as com.example.ai_vocabulary "sh -c 'ls app_flutter'"
+adb shell run-as com.example.ai_vocabulary "sh -c 'ls -hl /data/data/com.example.ai_vocabulary/app_flutter/'"
+```
+
+* #### Push local device file to emulator
+You can only access /data/local/tmp in emulator and to access application directory you need to use `run-as <App package name>`.\
+When you used `run-as`, you were in the application directory in default.
+```sh
+adb push <local/device/file/path> /data/local/tmp &&\
+adb shell run-as <App package name> "sh -c 'cp /data/local/tmp/<file name> <destination path>'" &&\
+adb shell rm /data/local/tmp/<file name>
+#e.g.
+adb push ~/Desktop/IMG_4610.PNG /data/local/tmp &&\
+adb shell run-as com.example.ai_vocabulary "sh -c 'cp /data/local/tmp/IMG_4610.PNG /data/data/com.example.ai_vocabulary/app_flutter'" &&\
+adb shell rm /data/local/tmp/IMG_4610.PNG
+```
+* #### Pull emulator file to local device
+You have to touch a new empty file which has write access then overwrite it by copy the same name.
+```sh
+adb shell touch /data/local/tmp/<file name> &&\
+adb shell run-as <App package name> "sh -c 'cp app_flutter/<file name> /data/local/tmp/<file name>'" &&\
+adb pull /data/local/tmp/<file name> <local/device/destination/path> &&\
+adb shell rm /data/local/tmp/<file name>
+#e.g.
+adb shell touch /data/local/tmp/my.db &&\
+adb shell run-as com.example.ai_vocabulary "sh -c 'cp app_flutter/my.db /data/local/tmp/my.db'" &&\
+adb pull /data/local/tmp/my.db ~/Desktop &&\
+adb shell rm /data/local/tmp/my.db
+```
+
+
+[reference](https://medium.com/@liwp.stephen/how-does-android-studio-device-file-explorer-works-62685330e8c8)
+
 * #### Copy `libsqlite3.so`
 ```sh
 curl -L -o android/libsqlite3.so https://raw.githubusercontent.com/LightBuzz/Azure-Unity/master/Assets/LightBuzz_Azure/Plugins/SQLite/Android/libs/arm64-v8a/libsqlite3.so
@@ -105,7 +149,6 @@ void copyLibToAppDir() async {
 ```
 
 ## Getting Started
-
 
 This project is a starting point for a Flutter application.
 

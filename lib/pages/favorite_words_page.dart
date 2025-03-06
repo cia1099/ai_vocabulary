@@ -69,19 +69,27 @@ class _FavoriteWordsPageState extends State<FavoriteWordsPage> {
           child: Stack(
             children: [
               CustomScrollView(
+                physics: const AlwaysScrollableScrollPhysics(
+                  parent: BouncingScrollPhysics(),
+                ),
                 slivers: [
                   PlatformSliverAppBar(
                     stretch: true,
-                    title: Text(
-                      widget.mark.name.replaceAll(RegExp(r'\n'), ' '),
-                    ),
                     backgroundColor:
                         markScheme?.primaryContainer ??
                         kCupertinoSheetColor.resolveFrom(context),
                     material:
                         (_, __) => MaterialSliverAppBarData(
                           pinned: true,
+                          expandedHeight: kExpandedSliverAppBarHeight,
                           flexibleSpace: FlexibleSpaceBar(
+                            title: Text(
+                              widget.mark.name.replaceAll(RegExp(r'\n'), ' '),
+                            ),
+                            titlePadding: const EdgeInsets.only(
+                              left: 54,
+                              bottom: 16,
+                            ),
                             stretchModes: const [
                               StretchMode.zoomBackground,
                               StretchMode.blurBackground,
@@ -92,15 +100,18 @@ class _FavoriteWordsPageState extends State<FavoriteWordsPage> {
                                 gradient: widget.mark.gradient(context),
                               ),
                               child: FittedBox(
-                                fit: BoxFit.fill,
-                                child: Icon(
-                                  widget.mark.icon == null
-                                      ? Icons.abc
-                                      : IconData(
-                                        widget.mark.icon!,
-                                        fontFamily: 'CupertinoIcons',
-                                        fontPackage: 'cupertino_icons',
-                                      ),
+                                fit: BoxFit.contain,
+                                child: Opacity(
+                                  opacity: .33,
+                                  child: Icon(
+                                    widget.mark.icon == null
+                                        ? Icons.abc
+                                        : IconData(
+                                          widget.mark.icon!,
+                                          fontFamily: 'CupertinoIcons',
+                                          fontPackage: 'cupertino_icons',
+                                        ),
+                                  ),
                                 ),
                               ),
                             ),
@@ -109,6 +120,9 @@ class _FavoriteWordsPageState extends State<FavoriteWordsPage> {
                     cupertino:
                         (_, __) => CupertinoSliverAppBarData(
                           previousPageTitle: 'Collections',
+                          title: Text(
+                            widget.mark.name.replaceAll(RegExp(r'\n'), ' '),
+                          ),
                         ),
                   ),
                   SliverResizingHeader(
@@ -184,7 +198,7 @@ class _FavoriteWordsPageState extends State<FavoriteWordsPage> {
               ),
             ),
           ),
-          SliverPrototypeExtentList.builder(
+          SliverList.builder(
             itemBuilder: (context, index) {
               final word = sectionWords.elementAt(index);
               final phonetics = word.getPhonetics();
@@ -280,30 +294,30 @@ class _FavoriteWordsPageState extends State<FavoriteWordsPage> {
                 ],
               );
             },
-            prototypeItem: Column(
-              children: [
-                const DottedLine(),
-                PlatformListTile(
-                  title: Text.rich(
-                    TextSpan(
-                      children: [
-                        TextSpan(
-                          text: ' ',
-                          style: textTheme.titleMedium
-                              ?.copyWith(fontWeight: FontWeight.w600)
-                              .apply(fontSizeFactor: math.sqrt2),
-                        ),
-                        const TextSpan(text: '\n'),
-                        const TextSpan(text: ' '),
-                      ],
-                    ),
-                    maxLines: 2,
-                    style: textTheme.titleMedium,
-                  ),
-                  subtitle: Text('', style: textTheme.bodyLarge),
-                ),
-              ],
-            ),
+            // prototypeItem: Column(
+            //   children: [
+            //     const DottedLine(),
+            //     PlatformListTile(
+            //       title: Text.rich(
+            //         TextSpan(
+            //           children: [
+            //             TextSpan(
+            //               text: ' ',
+            //               style: textTheme.titleMedium
+            //                   ?.copyWith(fontWeight: FontWeight.w600)
+            //                   .apply(fontSizeFactor: math.sqrt2),
+            //             ),
+            //             const TextSpan(text: '\n'),
+            //             const TextSpan(text: ' '),
+            //           ],
+            //         ),
+            //         maxLines: 2,
+            //         style: textTheme.titleMedium,
+            //       ),
+            //       subtitle: Text('', style: textTheme.bodyLarge),
+            //     ),
+            //   ],
+            // ),
             itemCount: sectionWords.length,
           ),
         ],
