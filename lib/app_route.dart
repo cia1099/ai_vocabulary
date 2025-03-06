@@ -4,6 +4,7 @@ import 'package:ai_vocabulary/utils/shortcut.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:flutter_web_frame/flutter_web_frame.dart';
 
 import 'package:ai_vocabulary/pages/cloze_page.dart';
@@ -89,6 +90,7 @@ class AppRoute<T> extends PageRoute<T> {
             final reviews = provider?.remindWords() ?? [];
             return WordListPage(
               words: reviews,
+              title: 'Review Words',
               nextTap:
                   provider == null
                       ? null
@@ -97,10 +99,10 @@ class AppRoute<T> extends PageRoute<T> {
                             StudyStatus.onTarget) {
                           Navigator.pushAndRemoveUntil(
                             context,
-                            CupertinoPageRoute(
-                              title: 'Punch Out!',
-                              builder: (context) => const PunchOutPage(),
+                            platformPageRoute(
+                              context: context,
                               fullscreenDialog: true,
+                              builder: (context) => const PunchOutPage(),
                             ),
                             (route) => route.isFirst,
                           );

@@ -1,4 +1,5 @@
 import 'package:ai_vocabulary/app_route.dart';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
@@ -85,26 +86,29 @@ class _MyAppState extends State<MyApp> {
                       ),
                   initialRoute: AppRoute.home,
                   home: const HomePage(),
-                  // home: Builder(builder: (context) {
-                  //   return PlatformScaffold(
-                  //     body: Center(
-                  //       child: Column(
-                  //         mainAxisAlignment: MainAxisAlignment.center,
-                  //         children: [
-                  //           const Calendar(),
-                  //           CupertinoButton.filled(
+                  // home: Builder(
+                  //   builder: (context) {
+                  //     return PlatformScaffold(
+                  //       body: Center(
+                  //         child: Column(
+                  //           mainAxisAlignment: MainAxisAlignment.center,
+                  //           children: [
+                  //             const PunchCalendar(),
+                  //             CupertinoButton.filled(
                   //               onPressed: () => appearAward(context, 'apple'),
                   //               // showPlatformModalSheet(
                   //               //       context: context,
                   //               //       builder: (context) =>
                   //               //           const ManageCollectionSheet(wordID: 830),
                   //               //     ),
-                  //               child: const Text('Go Route!')),
-                  //         ],
+                  //               child: const Text('Go Route!'),
+                  //             ),
+                  //           ],
+                  //         ),
                   //       ),
-                  //     ),
-                  //   );
-                  // }),
+                  //     );
+                  // },
+                  // ),
                 ),
           ),
     );

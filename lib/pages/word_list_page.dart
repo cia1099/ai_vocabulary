@@ -10,10 +10,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
 class WordListPage extends StatelessWidget {
-  const WordListPage({super.key, required this.words, this.nextTap});
+  const WordListPage({
+    super.key,
+    required this.words,
+    this.nextTap,
+    required this.title,
+  });
 
   final List<Vocabulary> words;
   final VoidCallback? nextTap;
+  final String title;
 
   @override
   Widget build(BuildContext context) {
@@ -21,11 +27,6 @@ class WordListPage extends StatelessWidget {
     final dividerTheme = Theme.of(context).dividerTheme;
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
-    final routeName = ModalRoute.of(context)?.settings.name;
-    final title =
-        routeName != null && routeName.contains('entry')
-            ? 'Review Words'
-            : 'My table vocabulary';
     final reachTarget = ModalRoute.of(context)?.settings.arguments as bool?;
     return PlatformScaffold(
       appBar: PlatformAppBar(
@@ -114,7 +115,7 @@ class WordListPage extends StatelessWidget {
                       ),
                       subtitle: Text(
                         word.getSpeechAndTranslation,
-                        maxLines: 2,
+                        maxLines: words.length < 10 ? 2 : 1,
                         overflow: TextOverflow.ellipsis,
                         style: textTheme.bodyLarge,
                       ),

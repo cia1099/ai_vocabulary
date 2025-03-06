@@ -1,6 +1,6 @@
 import 'package:ai_vocabulary/database/my_db.dart';
 import 'package:ai_vocabulary/utils/shortcut.dart';
-import 'package:ai_vocabulary/widgets/calendar.dart';
+import 'package:ai_vocabulary/widgets/punch_calendar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
@@ -49,7 +49,7 @@ class ChartTab extends StatelessWidget {
                   ),
                 ),
           ),
-          const SliverToBoxAdapter(child: Calendar()),
+          const SliverToBoxAdapter(child: PunchCalendar()),
           SliverToBoxAdapter(
             child: FutureBuilder(
               future: MyDB().averageFibonacci,

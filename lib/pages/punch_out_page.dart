@@ -143,7 +143,7 @@ class _PunchOutPageState extends State<PunchOutPage> {
                   text: 'Keep punch ',
                   children: [
                     TextSpan(
-                      text: '198',
+                      text: '${MyDB().getPastPunchDays() + 1}',
                       style: TextStyle(
                         fontSize: textTheme.titleMedium?.fontSize.scale(1.2),
                         fontWeight: textTheme.titleMedium?.fontWeight,

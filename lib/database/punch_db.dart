@@ -14,6 +14,16 @@ extension PunchDB on MyDB {
     return resultSets.map((json) => PunchDay.fromJson(json)).toList();
   }
 
+  int getPastPunchDays() {
+    const query = "SELECT COUNT(date) AS days FROM punch_days WHERE date < ?";
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final db = open(OpenMode.readOnly);
+    final resultSet = db.select(query, [today.millisecondsSinceEpoch ~/ 1e3]);
+    db.dispose();
+    return resultSet.firstOrNull?['days'] ?? 0;
+  }
+
   void insertPunch([int studyMinute = 0]) {
     const insert =
         'INSERT INTO punch_days (date, study_word_ids, study_minute, punch_time) VALUES (?, ?, ?, ?)';
