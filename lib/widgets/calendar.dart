@@ -6,7 +6,6 @@ import 'package:intl/intl.dart';
 abstract interface class CalendarDelegate {
   Widget dateItemBuilder(int day, int inSecondStamp, double maxHeight);
   void onMonthChanged(DateTime date);
-  // VoidCallback? onTap(DateTime date);
 }
 
 class Calendar extends StatefulWidget {

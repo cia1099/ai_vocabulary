@@ -73,78 +73,106 @@ class _FavoriteWordsPageState extends State<FavoriteWordsPage> {
                   parent: BouncingScrollPhysics(),
                 ),
                 slivers: [
-                  PlatformSliverAppBar(
-                    stretch: true,
-                    backgroundColor:
-                        markScheme?.primaryContainer ??
-                        kCupertinoSheetColor.resolveFrom(context),
-                    material:
-                        (_, __) => MaterialSliverAppBarData(
-                          pinned: true,
-                          expandedHeight: kExpandedSliverAppBarHeight,
-                          flexibleSpace: FlexibleSpaceBar(
-                            title: Text(
-                              widget.mark.name.replaceAll(RegExp(r'\n'), ' '),
-                            ),
-                            titlePadding: const EdgeInsets.only(
-                              left: 54,
-                              bottom: 16,
-                            ),
-                            stretchModes: const [
-                              StretchMode.zoomBackground,
-                              StretchMode.blurBackground,
-                              StretchMode.fadeTitle,
-                            ],
-                            background: DecoratedBox(
-                              decoration: BoxDecoration(
-                                gradient: widget.mark.gradient(context),
-                              ),
-                              child: FittedBox(
-                                fit: BoxFit.contain,
-                                child: Opacity(
-                                  opacity: .33,
-                                  child: Icon(
-                                    widget.mark.icon == null
-                                        ? Icons.abc
-                                        : IconData(
-                                          widget.mark.icon!,
-                                          fontFamily: 'CupertinoIcons',
-                                          fontPackage: 'cupertino_icons',
+                  SliverStack(
+                    insetOnOverlap: true,
+                    children: [
+                      SliverPositioned.fill(
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            color:
+                                markScheme?.primaryContainer ??
+                                kCupertinoSheetColor.resolveFrom(context),
+                            gradient: widget.mark.gradient(context),
+                          ),
+                        ),
+                      ),
+                      MultiSliver(
+                        children: [
+                          PlatformSliverAppBar(
+                            stretch: true,
+                            backgroundColor:
+                                markScheme?.primaryContainer != null
+                                    ? const Color(0x00000000)
+                                    : kCupertinoSheetColor.resolveFrom(context),
+                            material:
+                                (_, __) => MaterialSliverAppBarData(
+                                  pinned: true,
+                                  expandedHeight: kExpandedSliverAppBarHeight,
+                                  flexibleSpace: FlexibleSpaceBar(
+                                    title: Text(
+                                      widget.mark.name.replaceAll(
+                                        RegExp(r'\n'),
+                                        ' ',
+                                      ),
+                                    ),
+                                    titlePadding: const EdgeInsets.only(
+                                      left: 54,
+                                      bottom: 16,
+                                    ),
+                                    stretchModes: const [
+                                      StretchMode.zoomBackground,
+                                      StretchMode.blurBackground,
+                                      StretchMode.fadeTitle,
+                                    ],
+                                    background: DecoratedBox(
+                                      decoration: BoxDecoration(
+                                        gradient: widget.mark.gradient(context),
+                                      ),
+                                      child: FittedBox(
+                                        fit: BoxFit.contain,
+                                        child: Opacity(
+                                          opacity: .33,
+                                          child: Icon(
+                                            widget.mark.icon == null
+                                                ? Icons.abc
+                                                : IconData(
+                                                  widget.mark.icon!,
+                                                  fontFamily: 'CupertinoIcons',
+                                                  fontPackage:
+                                                      'cupertino_icons',
+                                                ),
+                                          ),
                                         ),
+                                      ),
+                                    ),
                                   ),
                                 ),
+                            cupertino:
+                                (_, __) => CupertinoSliverAppBarData(
+                                  previousPageTitle: 'Collections',
+                                  title: Text(
+                                    widget.mark.name.replaceAll(
+                                      RegExp(r'\n'),
+                                      ' ',
+                                    ),
+                                  ),
+                                ),
+                          ),
+                          SliverResizingHeader(
+                            minExtentPrototype: SizedBox.fromSize(
+                              size: const Size.fromHeight(
+                                kTextTabBarHeight + 10,
                               ),
                             ),
+                            maxExtentPrototype: SizedBox.fromSize(
+                              size: const Size.fromHeight(
+                                kTextTabBarHeight + 10,
+                              ),
+                            ),
+                            child: FilterInputBar(
+                              padding: EdgeInsets.only(
+                                bottom: 10,
+                                right: hPadding,
+                                left: hPadding,
+                              ),
+                              controller: textController,
+                              hintText: 'Filter word',
+                              onChanged: (p0) => filterWord(p0),
+                            ),
                           ),
-                        ),
-                    cupertino:
-                        (_, __) => CupertinoSliverAppBarData(
-                          previousPageTitle: 'Collections',
-                          title: Text(
-                            widget.mark.name.replaceAll(RegExp(r'\n'), ' '),
-                          ),
-                        ),
-                  ),
-                  SliverResizingHeader(
-                    minExtentPrototype: SizedBox.fromSize(
-                      size: const Size.fromHeight(kTextTabBarHeight + 10),
-                    ),
-                    maxExtentPrototype: SizedBox.fromSize(
-                      size: const Size.fromHeight(kTextTabBarHeight + 10),
-                    ),
-                    child: FilterInputBar(
-                      padding: EdgeInsets.only(
-                        bottom: 10,
-                        right: hPadding,
-                        left: hPadding,
+                        ],
                       ),
-                      backgroundColor:
-                          markScheme?.primaryContainer ??
-                          kCupertinoSheetColor.resolveFrom(context),
-                      controller: textController,
-                      hintText: 'Filter word',
-                      onChanged: (p0) => filterWord(p0),
-                    ),
+                    ],
                   ),
                   ...takeSections(),
                 ],

@@ -19,12 +19,13 @@ class Flashcard extends StatefulWidget {
   final bool dragEnabled;
   final void Function(CollectionMark)? onRemove;
 
-  const Flashcard(
-      {super.key,
-      required this.mark,
-      this.filter = '',
-      this.dragEnabled = false,
-      this.onRemove});
+  const Flashcard({
+    super.key,
+    required this.mark,
+    this.filter = '',
+    this.dragEnabled = false,
+    this.onRemove,
+  });
 
   @override
   State<Flashcard> createState() => _FlashcardState();
@@ -32,8 +33,11 @@ class Flashcard extends StatefulWidget {
 
 class _FlashcardState extends State<Flashcard>
     with SingleTickerProviderStateMixin {
-  late final controller =
-      AnimationController(vsync: this, duration: Durations.short3, value: .5);
+  late final controller = AnimationController(
+    vsync: this,
+    duration: Durations.short3,
+    value: .5,
+  );
   @override
   void dispose() {
     controller.stop();
@@ -55,8 +59,10 @@ class _FlashcardState extends State<Flashcard>
         child: ConstrainedBox(
           constraints: const BoxConstraints(minWidth: 200, minHeight: 200),
           child: RotationTransition(
-            turns: Tween<double>(begin: -pi / 512, end: pi / 512)
-                .animate(controller),
+            turns: Tween<double>(
+              begin: -pi / 512,
+              end: pi / 512,
+            ).animate(controller),
             child: OnPointerDownPhysic(
               child: Card(
                 child: DecoratedBox(
@@ -64,15 +70,18 @@ class _FlashcardState extends State<Flashcard>
                     gradient: widget.mark.gradient(context),
                   ),
                   child: InkWell(
-                    onTap: widget.dragEnabled
-                        ? null
-                        : () => Navigator.push(
-                            context,
-                            platformPageRoute(
+                    onTap:
+                        widget.dragEnabled
+                            ? null
+                            : () => Navigator.push(
+                              context,
+                              platformPageRoute(
                                 context: context,
-                                builder: (context) => FavoriteWordsPage(
-                                      mark: widget.mark,
-                                    ))),
+                                builder:
+                                    (context) =>
+                                        FavoriteWordsPage(mark: widget.mark),
+                              ),
+                            ),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8.0),
                       child: Stack(
@@ -83,9 +92,11 @@ class _FlashcardState extends State<Flashcard>
                             child: FittedBox(
                               child: Icon(
                                 widget.mark.icon != null
-                                    ? IconData(widget.mark.icon!,
-                                        fontFamily: 'CupertinoIcons',
-                                        fontPackage: 'cupertino_icons')
+                                    ? IconData(
+                                      widget.mark.icon!,
+                                      fontFamily: 'CupertinoIcons',
+                                      fontPackage: 'cupertino_icons',
+                                    )
                                     : Icons.abc,
                                 size: 24 * 3,
                                 color: DefaultTextStyle.of(context).style.color,
@@ -95,7 +106,7 @@ class _FlashcardState extends State<Flashcard>
                           Align(
                             alignment: Alignment.bottomLeft,
                             child: matchFilterText(widget.mark.name),
-                          )
+                          ),
                         ],
                       ),
                     ),
@@ -113,13 +124,14 @@ class _FlashcardState extends State<Flashcard>
     final colorScheme = Theme.of(context).colorScheme;
     return [
       CupertinoContextMenuAction(
-          onPressed: () {
-            final editName = TextEditingController(text: widget.mark.name);
-            showCupertinoModalPopup(
-              context: context,
-              builder: (context) => PlatformAlertDialog(
-                title: const Text('Rename the mark'),
-                content: Form(
+        onPressed: () {
+          final editName = TextEditingController(text: widget.mark.name);
+          showCupertinoModalPopup(
+            context: context,
+            builder:
+                (context) => PlatformAlertDialog(
+                  title: const Text('Rename the mark'),
+                  content: Form(
                     autovalidateMode: AutovalidateMode.onUserInteraction,
                     // onChanged: () {
                     //   if (!Form.of(primaryFocus!.context!).validate())
@@ -137,99 +149,119 @@ class _FlashcardState extends State<Flashcard>
                       maxLines: 3,
                       decoration: BoxDecoration(
                         color: colorScheme.surfaceDim,
-                        borderRadius:
-                            BorderRadius.circular(kRadialReactionRadius / 2),
+                        borderRadius: BorderRadius.circular(
+                          kRadialReactionRadius / 2,
+                        ),
                         border: Border.all(color: colorScheme.outlineVariant),
                       ),
-                    )),
-                actions: [
-                  PlatformDialogAction(
-                    onPressed: Navigator.of(context).pop,
-                    child: const Text('Cancel'),
-                  ),
-                  ListenableBuilder(
-                    listenable: editName,
-                    builder: (context, child) => PlatformDialogAction(
-                      onPressed: editName.text.isEmpty
-                          ? null
-                          : () {
-                              Navigator.of(context).pop();
-                              if (MyDB().renameMark(
-                                  name: widget.mark.name,
-                                  newName: editName.text)) {
-                                setState(() {
-                                  widget.mark.name = editName.text;
-                                });
-                              }
-                            },
-                      child: child,
                     ),
-                    child: const Text('Done'),
                   ),
-                ],
-              ),
-            ).then((_) {
+                  actions: [
+                    PlatformDialogAction(
+                      onPressed: Navigator.of(context).pop,
+                      child: const Text('Cancel'),
+                    ),
+                    ListenableBuilder(
+                      listenable: editName,
+                      builder:
+                          (context, child) => PlatformDialogAction(
+                            onPressed:
+                                editName.text.isEmpty
+                                    ? null
+                                    : () {
+                                      Navigator.of(context).pop();
+                                      if (MyDB().renameMark(
+                                        name: widget.mark.name,
+                                        newName: editName.text,
+                                      )) {
+                                        setState(() {
+                                          widget.mark.name = editName.text;
+                                        });
+                                      }
+                                    },
+                            child: child,
+                          ),
+                      child: const Text('Done'),
+                    ),
+                  ],
+                ),
+          ).then((_) {
+            if (mounted) Navigator.of(context).pop();
+          });
+        },
+        trailingIcon: CupertinoIcons.pen,
+        child: const Text('Rename'),
+      ),
+      CupertinoContextMenuAction(
+        onPressed:
+            () => showCupertinoModalPopup<CollectionMark?>(
+              context: context,
+              builder: (context) {
+                return SlideAppear(
+                  child: EditFlashcardSheet(mark: widget.mark),
+                );
+              },
+            ).then((mark) {
+              if (mark != null) {
+                setState(() {
+                  widget.mark.color = mark.color;
+                  widget.mark.icon = mark.icon;
+                });
+                MyDB().editMark(
+                  name: mark.name,
+                  icon: mark.icon,
+                  color: mark.color,
+                );
+              }
               if (mounted) Navigator.of(context).pop();
-            });
-          },
-          trailingIcon: CupertinoIcons.pen,
-          child: const Text('Rename')),
-      CupertinoContextMenuAction(
-          onPressed: () => showCupertinoModalPopup<CollectionMark?>(
-                  context: context,
-                  builder: (context) {
-                    return SlideAppear(
-                        child: EditFlashcardSheet(mark: widget.mark));
-                  }).then((mark) {
-                if (mark != null) {
-                  setState(() {
-                    widget.mark.color = mark.color;
-                    widget.mark.icon = mark.icon;
-                  });
-                  MyDB().editMark(
-                      name: mark.name, icon: mark.icon, color: mark.color);
-                }
-                if (mounted) Navigator.of(context).pop();
-              }),
-          trailingIcon: CupertinoIcons.ellipsis_circle,
-          child: const Text('Edit')),
+            }),
+        trailingIcon: CupertinoIcons.ellipsis_circle,
+        child: const Text('Edit'),
+      ),
       ColoredBox(
-          color: colorScheme.surfaceDim,
-          child: const PopupMenuDivider(height: kMenuDividerHeight)),
+        color: colorScheme.surfaceDim,
+        child: const PopupMenuDivider(height: kMenuDividerHeight),
+      ),
       CupertinoContextMenuAction(
-          onPressed: () {
-            Navigator.of(context).pop();
-            widget.onRemove?.call(widget.mark);
-          },
-          isDestructiveAction: true,
-          trailingIcon: CupertinoIcons.xmark_octagon,
-          child: const Text('Delete')),
+        onPressed: () {
+          Navigator.of(context).pop();
+          widget.onRemove?.call(widget.mark);
+        },
+        isDestructiveAction: true,
+        trailingIcon: CupertinoIcons.xmark_octagon,
+        child: const Text('Delete'),
+      ),
     ];
   }
 
   Text matchFilterText(String text) {
     final matches = text.matchIndexes(widget.filter);
     if (matches.isEmpty) {
-      return Text(text,
-          overflow: TextOverflow.ellipsis,
-          maxLines: 3,
-          textScaler: const TextScaler.linear(2),
-          style: const TextStyle(fontWeight: FontWeight.w600));
+      return Text(
+        text,
+        overflow: TextOverflow.ellipsis,
+        maxLines: 3,
+        textScaler: const TextScaler.linear(2),
+        style: const TextStyle(fontWeight: FontWeight.w600),
+      );
     }
     return Text.rich(
       TextSpan(
-          children: List.generate(
-        text.length,
-        (i) => TextSpan(
-          text: text[i],
-          style: !matches.contains(i)
-              ? null
-              : TextStyle(
-                  backgroundColor:
-                      Theme.of(context).colorScheme.tertiaryContainer,
-                  color: Theme.of(context).colorScheme.onTertiaryContainer),
+        children: List.generate(
+          text.length,
+          (i) => TextSpan(
+            text: text[i],
+            style:
+                !matches.contains(i)
+                    ? null
+                    : TextStyle(
+                      backgroundColor:
+                          Theme.of(context).colorScheme.tertiaryContainer,
+                      color: Theme.of(context).colorScheme.onTertiaryContainer,
+                    ),
+          ),
         ),
-      )),
+      ),
       overflow: TextOverflow.ellipsis,
       maxLines: 3,
       textScaler: const TextScaler.linear(2),
@@ -249,26 +281,26 @@ class _FlashcardState extends State<Flashcard>
 }
 
 extension CardColors on CollectionMark {
-  Gradient? gradient(BuildContext context) {
+  Gradient? gradient(BuildContext context, {double rotate = pi / 2}) {
     final brightness = Theme.of(context).brightness;
     return color == null
         ? null
         : LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: brightness == Brightness.light
-                ? [
+          transform: GradientRotation(rotate),
+          colors:
+              brightness == Brightness.light
+                  ? [
                     HSVColor.fromColor(Color(color!)).withValue(1).toColor(),
                     HSVColor.fromColor(Color(color!)).withValue(.75).toColor(),
                   ]
-                : [
-                    HSVColor.fromColor(Color(color!))
-                        .withSaturation(.5)
-                        .toColor(),
-                    HSVColor.fromColor(Color(color!))
-                        .withSaturation(.75)
-                        .toColor(),
+                  : [
+                    HSVColor.fromColor(
+                      Color(color!),
+                    ).withSaturation(.5).toColor(),
+                    HSVColor.fromColor(
+                      Color(color!),
+                    ).withSaturation(.75).toColor(),
                   ],
-          );
+        );
   }
 }

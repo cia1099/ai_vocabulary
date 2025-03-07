@@ -63,11 +63,17 @@ class _PunchCalendarState extends State<PunchCalendar>
           if (index > -1)
             PlatformWidget(
               cupertino:
-                  (_, __) =>
-                      Icon(CupertinoIcons.checkmark_alt, size: maxHeight / 2.1),
+                  (_, __) => Icon(
+                    CupertinoIcons.checkmark_alt,
+                    size: maxHeight / 2.1,
+                    color: CupertinoColors.systemGreen.resolveFrom(context),
+                  ),
               material:
-                  (_, __) =>
-                      Icon(Icons.file_download_done, size: maxHeight / 2.1),
+                  (_, __) => Icon(
+                    Icons.file_download_done,
+                    size: maxHeight / 2.1,
+                    color: Colors.green,
+                  ),
             ),
         ],
       ),
