@@ -59,6 +59,10 @@ class _FavoriteWordsPageState extends State<FavoriteWordsPage> {
         brightness: Theme.of(context).brightness,
       );
     }
+    final title = widget.mark.name.replaceAll(RegExp(r'\n'), ' ');
+    final appBarColor =
+        markScheme?.primaryContainer.withAlpha(0) ??
+        kCupertinoSheetColor.resolveFrom(context);
     // markScheme = markScheme?.copyWith(brightness: Theme.of(context).brightness);
     return Scaffold(
       body: SafeArea(
@@ -82,29 +86,24 @@ class _FavoriteWordsPageState extends State<FavoriteWordsPage> {
                             color:
                                 markScheme?.primaryContainer ??
                                 kCupertinoSheetColor.resolveFrom(context),
-                            gradient: widget.mark.gradient(context),
+                            gradient: widget.mark.gradient(
+                              context,
+                              rotate: -math.pi / 4,
+                            ),
                           ),
                         ),
                       ),
                       MultiSliver(
                         children: [
-                          PlatformSliverAppBar(
-                            stretch: true,
-                            backgroundColor:
-                                markScheme?.primaryContainer != null
-                                    ? const Color(0x00000000)
-                                    : kCupertinoSheetColor.resolveFrom(context),
+                          PlatformWidget(
                             material:
-                                (_, __) => MaterialSliverAppBarData(
+                                (_, _) => SliverAppBar(
+                                  stretch: true,
                                   pinned: true,
                                   expandedHeight: kExpandedSliverAppBarHeight,
+                                  backgroundColor: appBarColor,
                                   flexibleSpace: FlexibleSpaceBar(
-                                    title: Text(
-                                      widget.mark.name.replaceAll(
-                                        RegExp(r'\n'),
-                                        ' ',
-                                      ),
-                                    ),
+                                    title: Text(title),
                                     titlePadding: const EdgeInsets.only(
                                       left: 54,
                                       bottom: 16,
@@ -114,38 +113,31 @@ class _FavoriteWordsPageState extends State<FavoriteWordsPage> {
                                       StretchMode.blurBackground,
                                       StretchMode.fadeTitle,
                                     ],
-                                    background: DecoratedBox(
-                                      decoration: BoxDecoration(
-                                        gradient: widget.mark.gradient(context),
-                                      ),
-                                      child: FittedBox(
-                                        fit: BoxFit.contain,
-                                        child: Opacity(
-                                          opacity: .33,
-                                          child: Icon(
-                                            widget.mark.icon == null
-                                                ? Icons.abc
-                                                : IconData(
-                                                  widget.mark.icon!,
-                                                  fontFamily: 'CupertinoIcons',
-                                                  fontPackage:
-                                                      'cupertino_icons',
-                                                ),
-                                          ),
+                                    background: FittedBox(
+                                      fit: BoxFit.contain,
+                                      child: Opacity(
+                                        opacity: .33,
+                                        child: Icon(
+                                          widget.mark.icon == null
+                                              ? Icons.abc
+                                              : IconData(
+                                                widget.mark.icon!,
+                                                fontFamily: 'CupertinoIcons',
+                                                fontPackage: 'cupertino_icons',
+                                              ),
                                         ),
                                       ),
                                     ),
                                   ),
                                 ),
                             cupertino:
-                                (_, __) => CupertinoSliverAppBarData(
+                                (_, _) => CupertinoSliverNavigationBar(
+                                  largeTitle: Text(title),
                                   previousPageTitle: 'Collections',
-                                  title: Text(
-                                    widget.mark.name.replaceAll(
-                                      RegExp(r'\n'),
-                                      ' ',
-                                    ),
-                                  ),
+                                  backgroundColor: appBarColor,
+                                  stretch: true,
+                                  border: null,
+                                  enableBackgroundFilterBlur: false,
                                 ),
                           ),
                           SliverResizingHeader(

@@ -36,7 +36,7 @@ void showToast({
   required BuildContext context,
   required Widget child,
   Alignment alignment = Alignment.center,
-  Duration stay = Durations.extralong4,
+  Duration stay = const Duration(milliseconds: 1500),
 }) {
   final colorScheme = Theme.of(context).colorScheme;
   _showToast(

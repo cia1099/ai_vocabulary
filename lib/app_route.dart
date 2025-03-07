@@ -1,9 +1,8 @@
 import 'package:ai_vocabulary/pages/punch_out_page.dart';
 import 'package:ai_vocabulary/pages/word_list_page.dart';
-import 'package:ai_vocabulary/utils/shortcut.dart';
+import 'package:ai_vocabulary/utils/handle_except.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:flutter_web_frame/flutter_web_frame.dart';
 
@@ -170,46 +169,6 @@ class AppRoute<T> extends PageRoute<T> {
 
   @override
   bool get opaque => false;
-}
-
-class DummyDialog extends StatelessWidget {
-  const DummyDialog({super.key, this.msg});
-  final String? msg;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: FractionallySizedBox(
-        widthFactor: .3333,
-        child: AspectRatio(
-          aspectRatio: 1,
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              color: kCupertinoSheetColor.resolveFrom(context),
-              borderRadius: BorderRadius.circular(kRadialReactionRadius / 2),
-            ),
-            child: Material(
-              type: MaterialType.transparency,
-              child: Stack(
-                children: [
-                  const Center(child: CircularProgressIndicator.adaptive()),
-                  Align(
-                    alignment: const Alignment(0, 1),
-                    child: Text(
-                      '$msg',
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.error,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
 }
 
 bool fromEntry(String? routeName) {

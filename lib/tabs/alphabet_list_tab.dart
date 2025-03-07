@@ -13,6 +13,7 @@ import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
 import '../app_route.dart';
 import '../model/alphabet.dart';
+import '../utils/handle_except.dart' show DummyDialog;
 import '../utils/regex.dart';
 
 class AlphabetListTab extends StatefulWidget {
@@ -202,6 +203,13 @@ class _AlphabetListTabState extends State<AlphabetListTab> {
                       builder: (context) => VocabularyPage(word: word),
                     ),
                   );
+                } else {
+                  final msg = "${item.name}(${item.id}) not found";
+                  showPlatformDialog(
+                    context: context,
+                    barrierDismissible: true,
+                    builder: (context) => DummyDialog(msg: msg),
+                  );
                 }
               },
               child: CapitalAvatar(
@@ -222,6 +230,13 @@ class _AlphabetListTabState extends State<AlphabetListTab> {
               // settings: const RouteSettings(name: AppRoute.chatRoom),
               builder: (context) => ChatRoomPage(word: word),
             ),
+          );
+        } else {
+          final msg = "${item.name}(${item.id}) not found";
+          showPlatformDialog(
+            context: context,
+            barrierDismissible: true,
+            builder: (context) => DummyDialog(msg: msg),
           );
         }
       },
