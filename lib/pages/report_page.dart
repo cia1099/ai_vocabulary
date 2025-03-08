@@ -21,9 +21,7 @@ class ReportPage extends StatelessWidget {
     final hPadding = MediaQuery.of(context).size.width / 16;
     final word = MyDB.instance.fetchWords([wordId]).first;
     return PlatformScaffold(
-      appBar: PlatformAppBar(
-        title: const Text('Report Issue'),
-      ),
+      appBar: PlatformAppBar(title: const Text('Report Issue')),
       body: SafeArea(
         child: Stack(
           children: [
@@ -32,15 +30,23 @@ class ReportPage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(word.word,
-                      style: textTheme.headlineMedium
-                          ?.copyWith(fontWeight: FontWeight.bold)),
-                  Text('select which issue case',
-                      style: textTheme.titleLarge
-                          ?.apply(color: colorScheme.error)),
+                  Text(
+                    word.word,
+                    style: textTheme.headlineMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    'select which issue case',
+                    style: textTheme.titleLarge?.apply(
+                      color: colorScheme.error,
+                    ),
+                  ),
                   CupertinoListSection(
-                    header:
-                        Text("Definition issue", style: textTheme.titleMedium),
+                    header: Text(
+                      "Definition issue",
+                      style: textTheme.titleMedium,
+                    ),
                     children: [
                       PlatformListTile(
                         title: const Text('Wrong part of speech'),
@@ -84,18 +90,20 @@ class ReportPage extends StatelessWidget {
               alignment: Alignment.bottomCenter,
               child: ValueListenableBuilder(
                 valueListenable: enableSubmit,
-                builder: (context, value, child) => PlatformElevatedButton(
-                  onPressed: value
-                      ? () {
-                          Navigator.of(context)
-                            ..pop()
-                            ..pop();
-                        }
-                      : null,
-                  child: const Text("Submit"),
-                ),
+                builder:
+                    (context, value, child) => PlatformElevatedButton(
+                      onPressed:
+                          value
+                              ? () {
+                                Navigator.of(context)
+                                  ..pop()
+                                  ..maybePop();
+                              }
+                              : null,
+                      child: const Text("Submit"),
+                    ),
               ),
-            )
+            ),
           ],
         ),
       ),
@@ -117,14 +125,18 @@ class _RadioButtonState extends State<RadioButton> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => setState(() {
-        selected ^= true;
-        widget.onTap?.call(widget.value);
-      }),
-      child: selected
-          ? const Icon(CupertinoIcons.smallcircle_fill_circle_fill,
-              size: kRadialReactionRadius)
-          : const Icon(CupertinoIcons.circle, size: kRadialReactionRadius),
+      onTap:
+          () => setState(() {
+            selected ^= true;
+            widget.onTap?.call(widget.value);
+          }),
+      child:
+          selected
+              ? const Icon(
+                CupertinoIcons.smallcircle_fill_circle_fill,
+                size: kRadialReactionRadius,
+              )
+              : const Icon(CupertinoIcons.circle, size: kRadialReactionRadius),
     );
   }
 }

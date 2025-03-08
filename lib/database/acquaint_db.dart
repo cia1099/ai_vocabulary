@@ -8,15 +8,21 @@ extension AcquaintDB on MyDB {
   }) {
     final lastLearnedTime =
         !isCorrect ? null : DateTime.now().millisecondsSinceEpoch ~/ 6e4;
-    final expression =
-        'UPDATE acquaintances SET acquaint=?${isCorrect ? ',last_learned_time=?' : ''} WHERE acquaintances.word_id=?';
+    final update =
+        'UPDATE acquaintances SET acquaint=?${isCorrect ? ',last_learned_time=?' : ''} WHERE word_id=? RETURNING word_id';
     final db = open(OpenMode.readWrite);
-    db
-      ..execute(
-        expression,
-        [acquaint, lastLearnedTime, wordId]..removeWhere((e) => e == null),
-      )
-      ..dispose();
+    final values = <dynamic>[acquaint, lastLearnedTime, wordId]
+      ..removeWhere((e) => e == null);
+
+    final resultSet = db.select(update, values);
+    if (resultSet.isEmpty) {
+      values.add(null); //TODO: add user_id
+      final insert = """INSERT INTO acquaintances 
+          (acquaint,${lastLearnedTime != null ? 'last_learned_time,' : ''}word_id, user_id) 
+          VALUE (${values.map((_) => '?').join(',')})""";
+      db.execute(insert, values);
+    }
+    db.dispose();
     Future.microtask(notifyListeners); //I don't know why it has to use Future
   }
 

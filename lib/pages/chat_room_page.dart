@@ -16,10 +16,7 @@ part 'chat_room_page2.dart';
 
 class ChatRoomPage extends StatefulWidget {
   final Vocabulary word;
-  const ChatRoomPage({
-    super.key,
-    required this.word,
-  });
+  const ChatRoomPage({super.key, required this.word});
 
   @override
   State<ChatRoomPage> createState() => _ChatRoomPageState();
@@ -39,11 +36,14 @@ class _ChatRoomPageState extends State<ChatRoomPage> implements ChatInput {
       messages.addAll(widget.getMessages());
       WidgetsBinding.instance.addPostFrameCallback((_) {
         setState(() {
-          messages.add(TextMessage(
+          messages.add(
+            TextMessage(
               content:
                   'Hello,\nLet\'s practice how to do a sentence with ${widget.word.word}',
               timeStamp: DateTime.now().millisecondsSinceEpoch,
-              wordID: widget.word.wordId));
+              wordID: widget.word.wordId,
+            ),
+          );
         });
       });
     });
@@ -54,8 +54,11 @@ class _ChatRoomPageState extends State<ChatRoomPage> implements ChatInput {
     showTips.dispose();
     scrollController.dispose();
     MyDB()
-        .insertMessages(Stream.fromIterable(messages.whereType<TextMessage>())
-            .where((msg) => msg.userID != null && !msg.hasError))
+        .insertMessages(
+          Stream.fromIterable(
+            messages.whereType<TextMessage>(),
+          ).where((msg) => msg.userID != null && !msg.hasError),
+        )
         .then((_) => messages.clear());
     super.dispose();
   }
@@ -66,10 +69,13 @@ class _ChatRoomPageState extends State<ChatRoomPage> implements ChatInput {
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
     // print(messages.map((e) => e.runtimeType.toString()).join(' '));
-    WidgetsBinding.instance.addPostFrameCallback((_) => scrollController
-        .animateTo(scrollController.position.maxScrollExtent, //* .85,
-            duration: Durations.short4,
-            curve: Curves.ease));
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => scrollController.animateTo(
+        scrollController.position.maxScrollExtent, //* .85,
+        duration: Durations.short4,
+        curve: Curves.ease,
+      ),
+    );
     return MediaQuery.removeViewInsets(
       context: context,
       removeBottom: showBottomSheet,
@@ -79,77 +85,101 @@ class _ChatRoomPageState extends State<ChatRoomPage> implements ChatInput {
           trailingActions: [
             ValueListenableBuilder(
               valueListenable: ChatBubble.showContents,
-              builder: (context, value, child) => Switch.adaptive(
-                thumbIcon: WidgetStateProperty.resolveWith((states) => Icon(
-                    states.contains(WidgetState.selected)
-                        ? CupertinoIcons.eye
-                        : CupertinoIcons.eye_slash)),
-                value: value,
-                onChanged: (value) => ChatBubble.showContents.value = value,
-                applyCupertinoTheme: true,
-              ),
-            )
+              builder:
+                  (context, value, child) => Switch.adaptive(
+                    thumbIcon: WidgetStateProperty.resolveWith(
+                      (states) => Icon(
+                        states.contains(WidgetState.selected)
+                            ? CupertinoIcons.eye
+                            : CupertinoIcons.eye_slash,
+                      ),
+                    ),
+                    value: value,
+                    onChanged: (value) => ChatBubble.showContents.value = value,
+                    applyCupertinoTheme: true,
+                  ),
+            ),
           ],
-          material: (_, __) => MaterialAppBarData(
-            backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-          ),
+          material:
+              (_, __) => MaterialAppBarData(
+                backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+              ),
         ),
         body: Column(
           children: [
             Expanded(
               child: ListView.builder(
+                physics: const AlwaysScrollableScrollPhysics(
+                  parent: ClampingScrollPhysics(),
+                ),
                 controller: scrollController,
                 itemCount: messages.length,
-                itemBuilder: (context, index) => ChatListTile(
-                  message: messages[index],
-                  leading: messages[index].userID != myID
-                      ? CapitalAvatar(
-                          id: widget.word.wordId,
-                          name: widget.word.word,
-                          url: widget.word.asset,
-                        )
-                      : null,
-                  upgradeMessage: (msg) => messages[index] = msg,
-                  sendMessage: (msg) => mounted && sendMessage(msg),
-                ),
+                itemBuilder:
+                    (context, index) => ChatListTile(
+                      message: messages[index],
+                      leading:
+                          messages[index].userID != myID
+                              ? CapitalAvatar(
+                                id: widget.word.wordId,
+                                name: widget.word.word,
+                                url: widget.word.asset,
+                              )
+                              : null,
+                      upgradeMessage: (msg) => messages[index] = msg,
+                      sendMessage: (msg) => mounted && sendMessage(msg),
+                    ),
               ),
             ),
             ValueListenableBuilder(
               valueListenable: showTips,
-              builder: (context, value, child) => AnimatedContainer(
-                duration: Durations.medium1,
-                height: value ? null : 0.0,
-                color: colorScheme.onInverseSurface,
-                constraints: BoxConstraints(
-                    maxHeight: screenHeight / 10, minWidth: double.infinity),
-                child: child,
-              ),
+              builder:
+                  (context, value, child) => AnimatedContainer(
+                    duration: Durations.medium1,
+                    height: value ? null : 0.0,
+                    color: colorScheme.onInverseSurface,
+                    constraints: BoxConstraints(
+                      maxHeight: screenHeight / 10,
+                      minWidth: double.infinity,
+                    ),
+                    child: child,
+                  ),
               child: CarouselView(
-                  itemExtent: screenWidth / 2,
-                  onTap: (index) => setState(() {
-                        showTips.value = false;
-                        messages.add(RequireMessage(
+                itemExtent: screenWidth / 2,
+                onTap:
+                    (index) => setState(() {
+                      showTips.value = false;
+                      messages.add(
+                        RequireMessage(
                           srcMsg: TextMessage(
-                              content: _tips[index],
-                              userID: null, //used to help
-                              wordID: widget.word.wordId,
-                              patterns: [widget.word.word]),
-                        ));
-                      }),
-                  children: _tips
-                      .map((e) => ColoredBox(
+                            content: _tips[index],
+                            userID: null, //used to help
+                            wordID: widget.word.wordId,
+                            patterns: [widget.word.word],
+                          ),
+                        ),
+                      );
+                    }),
+                children:
+                    _tips
+                        .map(
+                          (e) => ColoredBox(
                             color: colorScheme.tertiaryContainer,
                             child: Container(
-                                alignment: Alignment.center,
-                                padding: const EdgeInsets.only(left: 16),
-                                child: Text(e,
-                                    maxLines: 4,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                      color: colorScheme.onTertiaryContainer,
-                                    ))),
-                          ))
-                      .toList()),
+                              alignment: Alignment.center,
+                              padding: const EdgeInsets.only(left: 16),
+                              child: Text(
+                                e,
+                                maxLines: 4,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  color: colorScheme.onTertiaryContainer,
+                                ),
+                              ),
+                            ),
+                          ),
+                        )
+                        .toList(),
+              ),
             ),
             ChatInputPanel(delegate: this, minHeight: screenHeight / 10),
           ],
@@ -183,11 +213,12 @@ class _ChatRoomPageState extends State<ChatRoomPage> implements ChatInput {
   void onSubmit(Message? msg) {
     if (msg == null) return;
     final newMessage = TextMessage(
-        content: msg.content,
-        timeStamp: msg.timeStamp,
-        wordID: widget.word.wordId,
-        patterns: widget.word.getMatchingPatterns,
-        userID: myID);
+      content: msg.content,
+      timeStamp: msg.timeStamp,
+      wordID: widget.word.wordId,
+      patterns: widget.word.getMatchingPatterns,
+      userID: myID,
+    );
     Future.delayed(Durations.long3, () => mounted && sendMessage(newMessage));
     setState(() {
       messages.add(newMessage);
@@ -197,7 +228,8 @@ class _ChatRoomPageState extends State<ChatRoomPage> implements ChatInput {
   bool sendMessage(TextMessage message) {
     setState(() {
       messages.removeWhere(
-          (msg) => msg is RequireMessage && identical(msg.srcMsg, message));
+        (msg) => msg is RequireMessage && identical(msg.srcMsg, message),
+      );
       messages.add(RequireMessage(srcMsg: message));
     });
     return false; //reset hasError

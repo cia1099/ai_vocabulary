@@ -104,6 +104,9 @@ class _AlphabetListTabState extends State<AlphabetListTab> {
                       physics: const AlwaysScrollableScrollPhysics(
                         parent: BouncingScrollPhysics(),
                       ),
+                      padding: const EdgeInsets.only(
+                        bottom: kBottomNavigationBarHeight,
+                      ),
                       data: azContacts,
                       itemCount: azContacts.length,
                       itemBuilder:
