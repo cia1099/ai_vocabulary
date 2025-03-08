@@ -29,7 +29,7 @@ definitions.part_of_speech, definitions.inflection, definitions.alphabet_uk, def
 definitions.audio_uk, definitions.audio_us, definitions.translate, 
 explanations.subscript, explanations.explain, examples.example 
 FROM words LEFT OUTER JOIN assets ON assets.word_id = words.id 
-JOIN acquaintances ON words.id = acquaintances.word_id 
+LEFT OUTER JOIN acquaintances ON words.id = acquaintances.word_id 
 JOIN definitions ON words.id = definitions.word_id 
 JOIN explanations ON explanations.definition_id = definitions.id 
 LEFT OUTER JOIN examples ON examples.explanation_id = explanations.id 

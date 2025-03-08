@@ -79,11 +79,14 @@ class MyDB with ChangeNotifier {
         debugPrint(
           'SQL error(${e.resultCode}): ${e.message}=(${word.wordId})${word.word}',
         );
-        final rm = db.prepareMultiple(deleteVocabulary)
-          ..forEach((rstmt) => rstmt.execute([word.wordId]));
-        for (var rstmt in rm) {
-          rstmt.dispose();
-        }
+        db
+            .prepareMultiple(deleteVocabulary)
+            .forEach(
+              (rm) =>
+                  rm
+                    ..execute([word.wordId])
+                    ..dispose(),
+            );
         final acStmt = stmts.removeLast();
         _insertVocabulary(word, stmts);
         stmts.add(acStmt);

@@ -192,7 +192,6 @@ class _SearchPageState extends State<SearchPage> {
       ),
       child: InkWell(
         onTap: () {
-          onTap(word);
           Navigator.push(
             context,
             platformPageRoute(
@@ -201,6 +200,7 @@ class _SearchPageState extends State<SearchPage> {
               settings: const RouteSettings(name: AppRoute.vocabulary),
             ),
           );
+          onTap(word);
         },
         child: Row(
           spacing: hPadding.scale(.5)!,
