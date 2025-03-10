@@ -1,15 +1,22 @@
 import 'package:ai_vocabulary/app_route.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
 import 'app_settings.dart';
+import 'firebase_options.dart';
 import 'pages/home_page.dart';
 import 'theme.dart';
 
 void main() {
-  runApp(AppSettings(notifier: MySettings(), child: const MyApp()));
+  WidgetsFlutterBinding.ensureInitialized();
+  Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  ).whenComplete(() {
+    runApp(AppSettings(notifier: MySettings(), child: const MyApp()));
+  });
 }
 
 class MyApp extends StatefulWidget {
