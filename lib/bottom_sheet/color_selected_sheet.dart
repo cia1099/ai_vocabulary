@@ -60,7 +60,7 @@ class _ColorSelectedSheetState extends State<ColorSelectedSheet> {
                   itemBuilder:
                       (context, index) => GestureDetector(
                         onTap: () {
-                          AppSettings.of(context).color = index;
+                          AppSettings.of(context).colorIndex = index;
                           setState(updateColorIndex);
                         },
                         child: Container(
@@ -109,7 +109,7 @@ class _ColorSelectedSheetState extends State<ColorSelectedSheet> {
                       ColorImageProvider.values.length,
                       (index) => GestureDetector(
                         onTap: () {
-                          AppSettings.of(context).color =
+                          AppSettings.of(context).colorIndex =
                               index + ColorSeed.values.length;
                           setState(updateColorIndex);
                         },
@@ -162,7 +162,7 @@ class _ColorSelectedSheetState extends State<ColorSelectedSheet> {
   }
 
   void updateColorIndex() {
-    final colorIndex = AppSettings.of(context).color;
+    final colorIndex = AppSettings.of(context).colorIndex;
     if (colorIndex < ColorSeed.values.length) {
       colorSeed = colorIndex;
       colorImage = null;

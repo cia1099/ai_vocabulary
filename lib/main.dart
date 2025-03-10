@@ -29,7 +29,9 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      AppSettings.of(context).addListener(handleSettings);
+      AppSettings.of(context)
+        ..addListener(handleSettings)
+        ..loadSetting();
     });
   }
 
@@ -136,7 +138,7 @@ class _MyAppState extends State<MyApp> {
     if (mySettings.brightness != appTheme.brightness) {
       return handleBrightnessChange(mySettings.brightness == Brightness.dark);
     }
-    final index = mySettings.color;
+    final index = mySettings.colorIndex;
     var colorScheme = appTheme.colorScheme;
     if (index < ColorSeed.values.length) {
       colorScheme = ColorScheme.fromSeed(

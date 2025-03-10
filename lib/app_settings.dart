@@ -1,5 +1,10 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:ai_vocabulary/database/my_db.dart';
 import 'package:ai_vocabulary/model/acquaintance.dart';
 import 'package:flutter/material.dart';
+import 'package:path/path.dart' as p;
 
 import 'provider/word_provider.dart';
 
@@ -12,21 +17,37 @@ class AppSettings extends InheritedNotifier<MySettings> {
 }
 
 class MySettings extends ChangeNotifier {
-  int _color = 0;
+  int _colorIndex = 0;
   Brightness _brightness = Brightness.light;
-  WordProvider? _wordProvider;
   bool _hideSliderTitle = false;
   final targetStudy = ValueNotifier(StudyCount(newCount: 5, reviewCount: 5));
 
-  ///TODO: Have to find somewhere to initial this _studState when MyDB can fetch studyCount
-  var hasInitStudyState = false; //temporary put on lib/widgets/study_board.dart
+  WordProvider? _wordProvider;
   var _studyState = StudyStatus.underTarget;
   int studyMinute = 0;
 
-  int get color => _color;
-  set color(int newColor) {
-    if (_color == newColor) return;
-    _color = newColor;
+  Future<void> loadSetting() async {
+    final isReady = await MyDB().isReady;
+    if (isReady != true) return;
+    final file = File(p.join(MyDB().appDirectory, 'my_settings.json'));
+    if (file.existsSync()) {
+      final settings =
+          json.decode(await file.readAsString()) as Map<String, dynamic>;
+      readFromJson(settings);
+      final studyCount = MyDB().fetchStudyCounts();
+      _studyState = nextStatus(studyCount);
+      notifyListeners(); //wordProvider will notify but it has latency
+    }
+    addListener(() {
+      final encoder = JsonEncoder.withIndent(' ' * 4);
+      file.writeAsString(encoder.convert(toJson()));
+    });
+  }
+
+  int get colorIndex => _colorIndex;
+  set colorIndex(int newColor) {
+    if (_colorIndex == newColor) return;
+    _colorIndex = newColor;
     notifyListeners();
   }
 
@@ -101,6 +122,23 @@ class MySettings extends ChangeNotifier {
     } else {
       return StudyStatus.underTarget;
     }
+  }
+
+  Map<String, dynamic> toJson() => {
+    "color_index": colorIndex,
+    "brightness": brightness.index,
+    "hide_slider_title": hideSliderTitle,
+    "target_study": targetStudy.value.toJson(),
+  };
+
+  void readFromJson(Map<String, dynamic> json) {
+    _colorIndex = json["color_index"];
+    _brightness = switch (json["brightness"] as int?) {
+      0 => Brightness.dark,
+      _ => Brightness.light,
+    };
+    _hideSliderTitle = json["hide_slider_title"];
+    targetStudy.value = StudyCount.fromJson(json["target_study"]);
   }
 
   @override
