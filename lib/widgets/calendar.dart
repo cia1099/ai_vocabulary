@@ -4,7 +4,7 @@ import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:intl/intl.dart';
 
 abstract interface class CalendarDelegate {
-  Widget dateItemBuilder(int day, int inSecondStamp, double maxHeight);
+  Widget dateItemBuilder(DateTime date, double maxHeight);
   void onMonthChanged(DateTime date);
 }
 
@@ -183,13 +183,11 @@ class _CalendarState extends State<Calendar> {
                                   widget.delegate == null
                                       ? Text('${anchor - offset + 1}')
                                       : widget.delegate!.dateItemBuilder(
-                                        anchor - offset + 1,
                                         DateTime(
-                                              year,
-                                              month,
-                                              anchor - offset + 1,
-                                            ).millisecondsSinceEpoch ~/
-                                            1e3,
+                                          year,
+                                          month,
+                                          anchor - offset + 1,
+                                        ),
                                         cellHeight,
                                       ),
                             ),

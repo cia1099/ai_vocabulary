@@ -40,7 +40,8 @@ class _PunchCalendarState extends State<PunchCalendar>
   }
 
   @override
-  Widget dateItemBuilder(int day, int inSecondStamp, double maxHeight) {
+  Widget dateItemBuilder(DateTime date, double maxHeight) {
+    final inSecondStamp = date.millisecondsSinceEpoch ~/ 1e3;
     final index = punchDays.indexWhere((punch) => punch.date == inSecondStamp);
     final colorScheme = Theme.of(context).colorScheme;
     final style =
@@ -50,16 +51,19 @@ class _PunchCalendarState extends State<PunchCalendar>
               color: colorScheme.onPrimaryContainer,
               fontWeight: FontWeight.w500,
             );
+    final now = DateTime.now();
     final isToday =
-        DateTime.now().millisecondsSinceEpoch ~/ (3600e3 * 24) ==
-        inSecondStamp ~/ (3600 * 24);
+        now.year == date.year && now.month == date.month && now.day == date.day;
     return GestureDetector(
       onTap: onTapCallBack(index),
       child: Column(
         children: [
           isToday
-              ? CircleAvatar(maxRadius: maxHeight / 3.2, child: Text('$day'))
-              : Text(day.toString(), style: style),
+              ? CircleAvatar(
+                maxRadius: maxHeight / 3.2,
+                child: Text('${date.day}'),
+              )
+              : Text(date.day.toString(), style: style),
           if (index > -1)
             PlatformWidget(
               cupertino:

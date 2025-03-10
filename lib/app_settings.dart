@@ -17,11 +17,12 @@ class AppSettings extends InheritedNotifier<MySettings> {
 }
 
 class MySettings extends ChangeNotifier {
+  //disk variables, will load from setting
   int _colorIndex = 0;
   Brightness _brightness = Brightness.light;
   bool _hideSliderTitle = false;
   final targetStudy = ValueNotifier(StudyCount(newCount: 5, reviewCount: 5));
-
+  //cache variables
   WordProvider? _wordProvider;
   var _studyState = StudyStatus.underTarget;
   int studyMinute = 0;
@@ -39,6 +40,10 @@ class MySettings extends ChangeNotifier {
       notifyListeners(); //wordProvider will notify but it has latency
     }
     addListener(() {
+      final encoder = JsonEncoder.withIndent(' ' * 4);
+      file.writeAsString(encoder.convert(toJson()));
+    });
+    targetStudy.addListener(() {
       final encoder = JsonEncoder.withIndent(' ' * 4);
       file.writeAsString(encoder.convert(toJson()));
     });
