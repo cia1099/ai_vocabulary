@@ -1,4 +1,5 @@
 import 'package:ai_vocabulary/app_route.dart';
+import 'package:ai_vocabulary/firebase/login_page.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 import 'package:flutter/cupertino.dart';
@@ -29,16 +30,15 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   var appTheme = ThemeData(
     appBarTheme: const AppBarTheme(actionsIconTheme: IconThemeData(size: 32)),
-    brightness: Brightness.dark,
+    // brightness: Brightness.dark,
   );
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      AppSettings.of(context)
-        ..addListener(handleSettings)
-        ..loadSetting();
+      AppSettings.of(context).addListener(handleSettings);
+      // ..loadSetting();
     });
   }
 
@@ -94,11 +94,12 @@ class _MyAppState extends State<MyApp> {
                             .resolveFrom(context),
                       ),
                   initialRoute: AppRoute.home,
-                  home: const HomePage(),
+                  // home: const HomePage(),
+                  home: LoginPage(),
                   // home: Builder(
                   //   builder: (context) {
                   //     return PlatformScaffold(
-                  //       body: Center(
+                  //       body: const Center(
                   //         child: Column(
                   //           mainAxisAlignment: MainAxisAlignment.center,
                   //           children: [
@@ -116,7 +117,7 @@ class _MyAppState extends State<MyApp> {
                   //         ),
                   //       ),
                   //     );
-                  // },
+                  //   },
                   // ),
                 ),
           ),
