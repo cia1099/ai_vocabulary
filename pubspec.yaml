@@ -16,7 +16,7 @@ dependencies:
   speech_record:
     path: speech_record
   cupertino_icons: ^1.0.8
-  flutter_platform_widgets: ^7.0.1
+  flutter_platform_widgets: ^8.0.0
   http: ^1.2.2
   azlistview: ^2.0.0
   path_provider: ^2.1.5
@@ -33,7 +33,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^4.0.0
+  flutter_lints: ^5.0.0
   flutter_web_frame: ^1.0.0
   flutter_lorem: ^2.0.0
 

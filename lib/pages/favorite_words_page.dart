@@ -95,13 +95,13 @@ class _FavoriteWordsPageState extends State<FavoriteWordsPage> {
                       ),
                       MultiSliver(
                         children: [
-                          PlatformWidget(
+                          PlatformSliverAppBar(
+                            stretch: true,
+                            backgroundColor: appBarColor,
                             material:
-                                (_, _) => SliverAppBar(
-                                  stretch: true,
+                                (_, __) => MaterialSliverAppBarData(
                                   pinned: true,
                                   expandedHeight: kExpandedSliverAppBarHeight,
-                                  backgroundColor: appBarColor,
                                   flexibleSpace: FlexibleSpaceBar(
                                     title: Text(title),
                                     titlePadding: const EdgeInsets.only(
@@ -131,11 +131,9 @@ class _FavoriteWordsPageState extends State<FavoriteWordsPage> {
                                   ),
                                 ),
                             cupertino:
-                                (_, _) => CupertinoSliverNavigationBar(
-                                  largeTitle: Text(title),
+                                (_, __) => CupertinoSliverAppBarData(
+                                  title: Text(title),
                                   previousPageTitle: 'Collections',
-                                  backgroundColor: appBarColor,
-                                  stretch: true,
                                   border: null,
                                   enableBackgroundFilterBlur: false,
                                 ),
