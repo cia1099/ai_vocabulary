@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart' show CircularProgressIndicator;
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
+import 'package:http/http.dart' as http;
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -13,45 +14,85 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  var displayText = '';
   @override
   Widget build(BuildContext context) {
     return PlatformScaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            StreamBuilder(
-              stream: FirebaseAuth.instance.authStateChanges(),
-              builder: (context, snapshot) {
-                if (snapshot.data == null) {
-                  return Text('There is no User');
-                }
-                final user = snapshot.data;
-                return FutureBuilder(
-                  future: user!.getIdTokenResult(),
+      body: SingleChildScrollView(
+        child: SafeArea(
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                StreamBuilder(
+                  stream: FirebaseAuth.instance.authStateChanges(),
                   builder: (context, snapshot) {
                     if (snapshot.data == null) {
-                      return const CircularProgressIndicator.adaptive();
+                      return Text('There is no User');
                     }
-                    final encoder = JsonEncoder.withIndent(' ' * 4);
-                    return Text(encoder.convert(snapshot.data!.claims));
+                    final user = snapshot.data;
+                    return FutureBuilder(
+                      future: user!.getIdTokenResult(),
+                      builder: (context, snapshot) {
+                        if (snapshot.data == null) {
+                          return const CircularProgressIndicator.adaptive();
+                        }
+                        final encoder = JsonEncoder.withIndent(' ' * 4);
+                        return Text(encoder.convert(snapshot.data!.claims));
+                      },
+                    );
                   },
-                );
-              },
+                ),
+                SizedBox(height: 100),
+                PlatformElevatedButton(
+                  onPressed: () => signInWithEmailAndPassword(),
+                  child: Text('Sing In'),
+                ),
+                SizedBox(height: 10),
+                PlatformElevatedButton(
+                  onPressed: () => sighInAnonymous(),
+                  child: Text('Guest'),
+                ),
+                SizedBox(height: 10),
+                PlatformElevatedButton(
+                  onPressed:
+                      () => setState(() {
+                        FirebaseAuth.instance.signOut();
+                        displayText = '';
+                      }),
+                  child: Text('Sing Out'),
+                ),
+                SizedBox(height: 10),
+                StreamBuilder(
+                  stream: FirebaseAuth.instance.authStateChanges(),
+                  builder:
+                      (context, snapshot) => PlatformElevatedButton(
+                        onPressed: snapshot.data == null ? null : validToken,
+                        child: Text('Valid Token'),
+                      ),
+                ),
+                SizedBox(height: 10),
+                Text(displayText),
+              ],
             ),
-            SizedBox(height: 100),
-            PlatformElevatedButton(
-              onPressed: () => signInWithEmailAndPassword(),
-              child: Text('Sing In'),
-            ),
-            SizedBox(height: 10),
-            PlatformElevatedButton(
-              onPressed: () => FirebaseAuth.instance.signOut(),
-              child: Text('Sing Out'),
-            ),
-          ],
+          ),
         ),
       ),
+    );
+  }
+
+  void validToken() async {
+    final url = Uri.http('localhost:8000', 'firebase/login');
+    final token = await FirebaseAuth.instance.currentUser!.getIdToken(true);
+    final res = http.get(url, headers: {'Authorization': 'Bearer $token'});
+    res.then(
+      (res) => setState(() {
+        displayText = res.body;
+      }),
+      onError:
+          (e) => setState(() {
+            displayText = e.toString();
+          }),
     );
   }
 
@@ -65,7 +106,7 @@ class _LoginPageState extends State<LoginPage> {
           (credential) {
             final user = credential.user;
             user?.getIdToken().then((token) {
-              print("token = $token");
+              // print("token = $token");
             });
             return credential;
           },
@@ -73,5 +114,20 @@ class _LoginPageState extends State<LoginPage> {
             print(err);
           },
         );
+  }
+
+  Future<UserCredential> sighInAnonymous() {
+    return FirebaseAuth.instance.signInAnonymously().then(
+      (credential) {
+        final user = credential.user;
+        user?.getIdToken().then((token) {
+          // print("token = $token");
+        });
+        return credential;
+      },
+      onError: (err) {
+        print(err);
+      },
+    );
   }
 }
