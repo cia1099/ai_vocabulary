@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
 class GestureRoutePage extends StatefulWidget {
-  const GestureRoutePage(
-      {super.key,
-      required this.child,
-      required this.pushPage,
-      this.routeName,
-      this.draggable = true});
+  const GestureRoutePage({
+    super.key,
+    required this.child,
+    required this.pushPage,
+    this.routeName,
+    this.draggable = true,
+  });
 
   final Widget child;
   final Widget pushPage;
@@ -39,22 +40,34 @@ class _GestureRoutePageState extends State<GestureRoutePage>
             builder: (context, child) {
               final opacity = 4 * _controller.value.clamp(.0, .25);
               return FractionalTranslation(
-                  translation: offsetTween.evaluate(_controller),
-                  child: Stack(
-                    children: [
-                      Opacity(
-                        opacity: opacity,
-                        child: widget.pushPage,
+                translation: offsetTween.evaluate(_controller),
+                child: Stack(
+                  children: [
+                    ColorFiltered(
+                      colorFilter: ColorFilter.mode(
+                        Color.fromRGBO(255, 255, 255, opacity),
+                        BlendMode.modulate,
                       ),
-                      Opacity(opacity: 1 - opacity, child: child),
-                    ],
-                  ));
+                      child: widget.pushPage,
+                    ),
+                    ColorFiltered(
+                      colorFilter: ColorFilter.mode(
+                        Color.fromRGBO(255, 255, 255, 1 - opacity),
+                        BlendMode.modulate,
+                      ),
+                      child: child,
+                    ),
+                  ],
+                ),
+              );
             },
             child: PlatformScaffold(
               appBar: PlatformAppBar(
                 title: const Text('Cloze Quiz'),
-                cupertino: (_, __) =>
-                    CupertinoNavigationBarData(transitionBetweenRoutes: false),
+                cupertino:
+                    (_, __) => CupertinoNavigationBarData(
+                      transitionBetweenRoutes: false,
+                    ),
               ),
               body: const Center(
                 child: Text(
@@ -94,13 +107,11 @@ class _GestureRoutePageState extends State<GestureRoutePage>
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         final tween = offsetTween.chain(CurveTween(curve: Curves.ease));
 
-        final offsetAnimation = !animation.isForwardOrCompleted
-            ? animation.drive(tween)
-            : (_controller..forward()).drive(tween);
-        return SlideTransition(
-          position: offsetAnimation,
-          child: child,
-        );
+        final offsetAnimation =
+            !animation.isForwardOrCompleted
+                ? animation.drive(tween)
+                : (_controller..forward()).drive(tween);
+        return SlideTransition(position: offsetAnimation, child: child);
       },
       settings: RouteSettings(name: widget.routeName),
     );

@@ -115,8 +115,13 @@ class _FavoriteWordsPageState extends State<FavoriteWordsPage> {
                                     ],
                                     background: FittedBox(
                                       fit: BoxFit.contain,
-                                      child: Opacity(
-                                        opacity: .33,
+                                      child: ColorFiltered(
+                                        colorFilter: ColorFilter.mode(
+                                          Theme.of(
+                                            context,
+                                          ).iconTheme.color!.withAlpha(85),
+                                          BlendMode.modulate,
+                                        ),
                                         child: Icon(
                                           widget.mark.icon == null
                                               ? Icons.abc
