@@ -1,5 +1,6 @@
 import 'package:ai_vocabulary/app_route.dart';
 import 'package:ai_vocabulary/firebase/login_page.dart';
+import 'package:ai_vocabulary/pages/auth_page.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 import 'package:flutter/cupertino.dart';
@@ -37,8 +38,9 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      AppSettings.of(context).addListener(handleSettings);
-      // ..loadSetting();
+      AppSettings.of(context)
+        ..addListener(handleSettings)
+        ..loadSetting();
     });
   }
 
@@ -95,7 +97,7 @@ class _MyAppState extends State<MyApp> {
                       ),
                   initialRoute: AppRoute.home,
                   // home: const HomePage(),
-                  home: LoginPage(),
+                  home: AuthPage(),
                   // home: Builder(
                   //   builder: (context) {
                   //     return PlatformScaffold(

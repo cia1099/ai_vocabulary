@@ -14,6 +14,8 @@ class LoginForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    String email = '', password = '';
+    final errorNotifier = ValueNotifier('');
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: SingleChildScrollView(
@@ -32,6 +34,7 @@ class LoginForm extends StatelessWidget {
                   textInputAction: TextInputAction.next,
                   keyboardType: TextInputType.emailAddress,
                   autofillHints: [AutofillHints.email],
+                  onChanged: (value) => email = value,
                 ),
                 TextInputBox(
                   icon: PlatformIcons(context).padlockOutline,
@@ -40,14 +43,50 @@ class LoginForm extends StatelessWidget {
                   keyboardType: TextInputType.visiblePassword,
                   autofillHints: [AutofillHints.password],
                   onFieldSubmitted: (value) {
+                    login(email, value, context, errorNotifier);
                     TextInput.finishAutofillContext();
                   },
+                  onChanged: (value) => password = value,
                   obscureText: true,
                 ),
-                PlatformElevatedButton(
-                  onPressed: onLoginPressed,
-                  color: headerLoginColor,
-                  child: Text('Login', style: TextStyle(color: Colors.white)),
+                DetermineVisibility(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: ValueListenableBuilder(
+                            valueListenable: errorNotifier,
+                            builder:
+                                (context, error, child) => Text(
+                                  error,
+                                  style: TextStyle(color: Colors.red),
+                                ),
+                          ),
+                        ),
+                        PlatformTextButton(
+                          onPressed: () {},
+                          padding: EdgeInsets.zero,
+                          child: Text(
+                            'Forgot password?',
+                            style: TextStyle(
+                              color: Colors.white70,
+                              decoration: TextDecoration.underline,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                AuthButton(
+                  onPressed: (_) {
+                    login(email, password, context, errorNotifier);
+                  },
+                  brand: Method.custom,
+                  text: "Login",
+                  textColor: Colors.white,
+                  backgroundColor: headerLoginColor,
                 ),
                 DetermineVisibility(
                   child: Row(
@@ -55,7 +94,7 @@ class LoginForm extends StatelessWidget {
                       Expanded(
                         child: Divider(color: Colors.white54, endIndent: 8),
                       ),
-                      Text('or', style: TextStyle(color: Colors.white54)),
+                      Text('OR', style: TextStyle(color: Colors.white54)),
                       Expanded(
                         child: Divider(color: Colors.white54, indent: 8),
                       ),
@@ -87,6 +126,34 @@ class LoginForm extends StatelessWidget {
       ),
     );
   }
+
+  Future<void> login(
+    String email,
+    String password,
+    BuildContext context,
+    ValueNotifier errorNotifier,
+  ) async {
+    errorNotifier.value = '';
+    showPlatformDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => DummyDialog(msg: ''),
+    );
+    debugPrint('email: $email, password: $password');
+    final token = await loginByFirebase(email, password).onError((e, _) {
+      errorNotifier.value = 'Login failed, please check your email or password';
+      return null;
+    });
+    if (token != null) {
+      try {
+        final user = await loginFirebaseToken(token);
+        // errorNotifier.value = "Successfully login";
+      } catch (e) {
+        errorNotifier.value = messageExceptions(e);
+      }
+    }
+    Navigator.popUntil(context, (route) => route.isFirst);
+  }
 }
 
 class SignUpForm extends StatelessWidget {
@@ -116,7 +183,7 @@ class SignUpForm extends StatelessWidget {
               ),
               TextInputBox(
                 icon:
-                    platform(context).index >> 1 & 1 > 0
+                    isCupertino(context)
                         ? CupertinoIcons.person_crop_square
                         : Icons.portrait,
                 hintText: 'Name',
@@ -135,10 +202,12 @@ class SignUpForm extends StatelessWidget {
                 hintText: 'Password',
                 obscureText: true,
               ),
-              PlatformElevatedButton(
-                onPressed: onSignUpPressed,
-                color: headerSignUpColor,
-                child: Text('Sign Up', style: TextStyle(color: Colors.white)),
+              AuthButton(
+                onPressed: (_) => onSignUpPressed(),
+                brand: Method.custom,
+                text: "Sign Up",
+                textColor: Colors.white,
+                backgroundColor: headerSignUpColor,
               ),
               DetermineVisibility(
                 child: Row(
@@ -196,6 +265,7 @@ class TextInputBox extends StatelessWidget {
     this.keyboardType,
     this.autofillHints,
     this.onFieldSubmitted,
+    this.onChanged,
     this.textCapitalization = TextCapitalization.none,
   });
 
@@ -206,33 +276,59 @@ class TextInputBox extends StatelessWidget {
   final TextInputType? keyboardType;
   final Iterable<String>? autofillHints;
   final TextCapitalization textCapitalization;
+  final void Function(String value)? onChanged;
   final void Function(String value)? onFieldSubmitted;
 
   @override
   Widget build(BuildContext context) {
+    var isObscure = obscureText;
     return Container(
       margin: const EdgeInsets.all(8.0),
-      child: TextFormField(
-        obscureText: obscureText,
-        textInputAction: textInputAction,
-        keyboardType: keyboardType,
-        autofillHints: autofillHints,
-        textCapitalization: textCapitalization,
-        onFieldSubmitted: onFieldSubmitted,
-        style: const TextStyle(color: Colors.white),
-        decoration: InputDecoration(
-          prefixIcon: Icon(icon, color: Colors.white54),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(30),
-            borderSide: const BorderSide(color: Colors.white, width: 2.0),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(30),
-            borderSide: const BorderSide(color: Colors.white54, width: 2.0),
-          ),
-          hintText: hintText,
-          hintStyle: const TextStyle(color: Colors.white70),
-        ),
+      child: StatefulBuilder(
+        builder:
+            (context, setState) => TextFormField(
+              obscureText: isObscure,
+              textInputAction: textInputAction,
+              keyboardType: keyboardType,
+              autofillHints: autofillHints,
+              textCapitalization: textCapitalization,
+              onFieldSubmitted: onFieldSubmitted,
+              onChanged: onChanged,
+              style: const TextStyle(color: Colors.white),
+              decoration: InputDecoration(
+                prefixIcon: Icon(icon, color: Colors.white54),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(30),
+                  borderSide: const BorderSide(color: Colors.white, width: 2.0),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(30),
+                  borderSide: const BorderSide(
+                    color: Colors.white54,
+                    width: 2.0,
+                  ),
+                ),
+                hintText: hintText,
+                hintStyle: const TextStyle(color: Colors.white70),
+                suffixIcon:
+                    obscureText
+                        ? IconButton(
+                          onPressed:
+                              () => setState(() {
+                                isObscure ^= true;
+                              }),
+                          icon: Icon(
+                            isObscure
+                                ? PlatformIcons(context).eyeSlash
+                                : isCupertino(context)
+                                ? CupertinoIcons.eye
+                                : Icons.visibility_outlined,
+                            color: Colors.white54,
+                          ),
+                        )
+                        : null,
+              ),
+            ),
       ),
     );
   }

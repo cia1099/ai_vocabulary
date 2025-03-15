@@ -82,7 +82,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void validToken() async {
-    final url = Uri.http('localhost:8000', 'firebase/login');
+    final url = Uri.http('www.cia1099.cloudns.ch', 'dict/firebase/login');
     final token = await FirebaseAuth.instance.currentUser!.getIdToken(true);
     final res = http.get(url, headers: {'Authorization': 'Bearer $token'});
     res.then(

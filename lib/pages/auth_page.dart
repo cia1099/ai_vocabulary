@@ -1,6 +1,9 @@
 import 'dart:math' show pi;
 import 'dart:ui';
 
+import 'package:ai_vocabulary/api/dict_api.dart';
+import 'package:ai_vocabulary/firebase/authorization.dart';
+import 'package:ai_vocabulary/utils/handle_except.dart';
 import 'package:auth_button_kit/auth_button_kit.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -80,8 +83,8 @@ class _AuthPageState extends State<AuthPage>
 
   void _setHomeState() {
     setState(() {
-      _expandingHeight = MediaQuery.of(context).size.height;
-      _expandingWidth = MediaQuery.of(context).size.width;
+      _expandingHeight = MediaQuery.sizeOf(context).height;
+      _expandingWidth = MediaQuery.sizeOf(context).width;
       _expandingBorderRadius = 0;
       _routeTransition();
     });
@@ -190,6 +193,16 @@ class _AuthPageState extends State<AuthPage>
             ConstrainedBox(
               constraints: const BoxConstraints.expand(),
               child: const FlutterLogo(style: FlutterLogoStyle.markOnly),
+            ),
+            Align(
+              alignment: FractionalOffset(
+                .5,
+                .265 + _panelHeight / MediaQuery.sizeOf(context).height,
+              ),
+              child: PlatformTextButton(
+                onPressed: () {},
+                child: Text("Visitor", style: TextStyle(color: Colors.white)),
+              ),
             ),
             Center(
               child: AnimatedBuilder(

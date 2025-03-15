@@ -16,6 +16,7 @@ import 'pages/report_page.dart';
 
 class AppRoute<T> extends PageRoute<T> {
   static const home = '/';
+  static const login = '/login';
   static const entry = '/entry';
   static const entryVocabulary = '/entry/vocabulary';
   static const cloze = '/entry/cloze';

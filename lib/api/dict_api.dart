@@ -3,6 +3,7 @@ import 'dart:core';
 import 'dart:io';
 
 import 'package:ai_vocabulary/model/chat_answer.dart';
+import 'package:ai_vocabulary/model/user.dart';
 import 'package:ai_vocabulary/model/vocabulary.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart' show MediaType;
@@ -10,6 +11,7 @@ import 'package:path/path.dart' as p;
 import 'package:text2speech/text2speech.dart';
 
 part 'audio_api.dart';
+part 'auth_api.dart';
 
 const baseURL = 'www.cia1099.cloudns.ch';
 // const baseURL = '127.0.0.1:8000';
@@ -98,9 +100,9 @@ Future<ChatAnswer> chatVocabulary(
   }
 }
 
-Future<ApiResponse> _httpGet(Uri url) async {
+Future<ApiResponse> _httpGet(Uri url, {Map<String, String>? headers}) async {
   try {
-    final res = await http.get(url).timeout(kHttpTimeOut);
+    final res = await http.get(url, headers: headers).timeout(kHttpTimeOut);
     if (res.statusCode != 200) {
       throw HttpException(res.body, uri: url);
     }
