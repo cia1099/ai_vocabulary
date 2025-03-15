@@ -140,17 +140,14 @@ class LoginForm extends StatelessWidget {
       builder: (context) => DummyDialog(msg: ''),
     );
     debugPrint('email: $email, password: $password');
-    final token = await loginByFirebase(email, password).onError((e, _) {
-      errorNotifier.value = 'Login failed, please check your email or password';
-      return null;
-    });
-    if (token != null) {
-      try {
-        final user = await loginFirebaseToken(token);
-        // errorNotifier.value = "Successfully login";
-      } catch (e) {
-        errorNotifier.value = messageExceptions(e);
-      }
+    final res = await loginByFirebase(email, password);
+    if (res.status == 200) {
+      await loginFirebaseToken(res.content).then(
+        (user) {},
+        onError: (e) => errorNotifier.value = messageExceptions(e),
+      );
+    } else {
+      errorNotifier.value = res.content;
     }
     Navigator.popUntil(context, (route) => route.isFirst);
   }
