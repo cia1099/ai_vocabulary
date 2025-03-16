@@ -1,4 +1,5 @@
 import 'package:ai_vocabulary/api/dict_api.dart';
+import 'package:ai_vocabulary/utils/handle_except.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 Future<ApiResponse> loginByFirebase(String email, String password) {
@@ -13,27 +14,26 @@ Future<ApiResponse> loginByFirebase(String email, String password) {
               content: token ?? 'User not found',
             );
           },
-          onError: (err) {
-            final e = err as FirebaseAuthException;
-            final message = switch (e.code) {
-              'invalid-credential' =>
-                'Login failed, please check your email or password',
-              _ => e.message,
-            };
-            return ApiResponse(
-              status: 401,
-              content: message ?? 'Firebase exception',
-            );
+          onError: (e) {
+            if (e is FirebaseAuthException) {
+              final message = switch (e.code) {
+                'invalid-credential' =>
+                  'Login failed, please check your email or password',
+                _ => e.message,
+              };
+              return ApiResponse(
+                status: 401,
+                content: message ?? 'Firebase exception',
+              );
+            } else {
+              return ApiResponse(status: 501, content: messageExceptions(e));
+            }
           },
         ),
   );
 }
 
-Future<ApiResponse> signUpInFirebase(
-  String email,
-  String password,
-  String name,
-) {
+Future<ApiResponse> signUpInFirebase(String email, String password) {
   return FirebaseAuth.instance
       .createUserWithEmailAndPassword(email: email, password: password)
       .then(
@@ -45,16 +45,19 @@ Future<ApiResponse> signUpInFirebase(
             content: token ?? 'User not found',
           );
         },
-        onError: (err) {
-          final e = err as FirebaseAuthException;
+        onError: (e) {
           return ApiResponse(
-            status: 401,
+            status: 501,
             content: e.message ?? 'Firebase exception',
           );
         },
       );
 }
 
-void resetFirebasePassword(String email) {
-  FirebaseAuth.instance.sendPasswordResetEmail(email: email);
-}
+Future<void> resetFirebasePassword(
+  String email, [
+  ActionCodeSettings? actionCodeSettings,
+]) => FirebaseAuth.instance.sendPasswordResetEmail(
+  email: email,
+  actionCodeSettings: actionCodeSettings,
+);

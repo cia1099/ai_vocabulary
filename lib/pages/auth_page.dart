@@ -3,6 +3,8 @@ import 'dart:ui';
 
 import 'package:ai_vocabulary/api/dict_api.dart';
 import 'package:ai_vocabulary/firebase/authorization.dart';
+import 'package:ai_vocabulary/firebase/firebase_auth_mixin.dart';
+import 'package:ai_vocabulary/model/user.dart';
 import 'package:ai_vocabulary/utils/handle_except.dart';
 import 'package:auth_button_kit/auth_button_kit.dart';
 import 'package:flutter/cupertino.dart';
@@ -18,14 +20,18 @@ class AuthPage extends StatefulWidget {
   const AuthPage({super.key});
 
   @override
-  _AuthPageState createState() => _AuthPageState();
+  State<AuthPage> createState() => _AuthPageState();
 }
 
 class _AuthPageState extends State<AuthPage>
     with SingleTickerProviderStateMixin {
   // animation variables
-  late AnimationController _controller;
-  late Map<String, Animation<double>> _sequenceAnimation;
+  late final _controller = AnimationController(
+    value: 1,
+    vsync: this,
+    duration: const Duration(milliseconds: 600),
+  )..addStatusListener(_animationStatusListener);
+  late final _sequenceAnimation = _createSequenceAnimation();
 
   // variables to control the transition effect to the home page
   double _expandingWidth = 0;
@@ -40,27 +46,6 @@ class _AuthPageState extends State<AuthPage>
   // variables controlling authentication state
   bool _isLogin = true;
   AuthState _authState = AuthState.login;
-
-  @override
-  void initState() {
-    super.initState();
-
-    _controller = AnimationController(
-      value: 1,
-      vsync: this,
-      duration: const Duration(milliseconds: 600),
-    )..addStatusListener(_animationStatusListener);
-
-    _initSequenceAnimation();
-  }
-
-  @override
-  void dispose() {
-    _controller.removeStatusListener(_animationStatusListener);
-    _controller.stop();
-    _controller.dispose();
-    super.dispose();
-  }
 
   void _animationStatusListener(AnimationStatus status) {
     if (status == AnimationStatus.dismissed) {
@@ -94,79 +79,6 @@ class _AuthPageState extends State<AuthPage>
     setState(() {
       _isLogin = isLogin;
     });
-  }
-
-  void _initSequenceAnimation() {
-    _sequenceAnimation = <String, Animation<double>>{};
-    _sequenceAnimation['scale'] = CurvedAnimation(
-      parent: _controller,
-      curve: Interval(.5, 1, curve: Curves.easeIn),
-    );
-    _sequenceAnimation['width'] = TweenSequence<double>([
-      TweenSequenceItem(
-        tween: Tween<double>(begin: 0, end: _headerHeight),
-        weight: .5,
-      ),
-      TweenSequenceItem(
-        tween: Tween<double>(begin: _headerHeight, end: _panelWidth),
-        weight: .5,
-      ),
-    ]).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: Interval(0, .5, curve: Curves.ease),
-      ),
-    );
-    _sequenceAnimation['height'] = TweenSequence<double>([
-      TweenSequenceItem(
-        tween: Tween<double>(
-          begin: 0,
-          end: _headerHeight,
-        ).chain(CurveTween(curve: Curves.ease)),
-        weight: .25,
-      ),
-      TweenSequenceItem(
-        tween: ConstantTween(_headerHeight),
-        weight: 1 - .25 - 5 / 12,
-      ),
-      TweenSequenceItem(
-        tween: Tween<double>(begin: _headerHeight, end: _panelHeight),
-        weight: 5 / 12,
-      ),
-    ]).animate(_controller);
-    _sequenceAnimation['headerHight'] = TweenSequence<double>([
-      TweenSequenceItem(
-        tween: Tween<double>(
-          begin: 0,
-          end: _headerHeight,
-        ).chain(CurveTween(curve: Curves.ease)),
-        weight: .25,
-      ),
-      TweenSequenceItem(tween: ConstantTween(_headerHeight), weight: .33),
-      TweenSequenceItem(
-        tween: Tween<double>(
-          begin: _headerHeight,
-          end: (_panelHeight - _headerHeight) / 2 + _headerHeight,
-        ),
-        weight: .21,
-      ),
-      TweenSequenceItem(
-        tween: Tween<double>(
-          begin: (_panelHeight - _headerHeight) / 2 + _headerHeight,
-          end: _headerHeight,
-        ).chain(CurveTween(curve: Curves.ease)),
-        weight: .21,
-      ),
-    ]).animate(_controller);
-    _sequenceAnimation['borderRadius'] = Tween<double>(
-      begin: 0,
-      end: kRadialReactionRadius,
-    ).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: Interval(0, .5, curve: Curves.ease),
-      ),
-    );
   }
 
   void _onPress(AuthState state) {
@@ -264,6 +176,88 @@ class _AuthPageState extends State<AuthPage>
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _controller.removeStatusListener(_animationStatusListener);
+    _controller.animateBack(0);
+    _controller.dispose();
+    super.dispose();
+  }
+
+  Map<String, Animation<double>> _createSequenceAnimation() {
+    final sequenceAnimation = <String, Animation<double>>{};
+    sequenceAnimation['scale'] = CurvedAnimation(
+      parent: _controller,
+      curve: Interval(.5, 1, curve: Curves.easeIn),
+    );
+    sequenceAnimation['width'] = TweenSequence<double>([
+      TweenSequenceItem(
+        tween: Tween<double>(begin: 0, end: _headerHeight),
+        weight: .5,
+      ),
+      TweenSequenceItem(
+        tween: Tween<double>(begin: _headerHeight, end: _panelWidth),
+        weight: .5,
+      ),
+    ]).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: Interval(0, .5, curve: Curves.ease),
+      ),
+    );
+    sequenceAnimation['height'] = TweenSequence<double>([
+      TweenSequenceItem(
+        tween: Tween<double>(
+          begin: 0,
+          end: _headerHeight,
+        ).chain(CurveTween(curve: Curves.ease)),
+        weight: .25,
+      ),
+      TweenSequenceItem(
+        tween: ConstantTween(_headerHeight),
+        weight: 1 - .25 - 5 / 12,
+      ),
+      TweenSequenceItem(
+        tween: Tween<double>(begin: _headerHeight, end: _panelHeight),
+        weight: 5 / 12,
+      ),
+    ]).animate(_controller);
+    sequenceAnimation['headerHight'] = TweenSequence<double>([
+      TweenSequenceItem(
+        tween: Tween<double>(
+          begin: 0,
+          end: _headerHeight,
+        ).chain(CurveTween(curve: Curves.ease)),
+        weight: .25,
+      ),
+      TweenSequenceItem(tween: ConstantTween(_headerHeight), weight: .33),
+      TweenSequenceItem(
+        tween: Tween<double>(
+          begin: _headerHeight,
+          end: (_panelHeight - _headerHeight) / 2 + _headerHeight,
+        ),
+        weight: .21,
+      ),
+      TweenSequenceItem(
+        tween: Tween<double>(
+          begin: (_panelHeight - _headerHeight) / 2 + _headerHeight,
+          end: _headerHeight,
+        ).chain(CurveTween(curve: Curves.ease)),
+        weight: .21,
+      ),
+    ]).animate(_controller);
+    sequenceAnimation['borderRadius'] = Tween<double>(
+      begin: 0,
+      end: kRadialReactionRadius,
+    ).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: Interval(0, .5, curve: Curves.ease),
+      ),
+    );
+    return sequenceAnimation;
   }
 }
 

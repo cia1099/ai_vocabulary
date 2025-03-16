@@ -4,7 +4,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
-import '../bottom_sheet/retrieval_bottom_sheet.dart';
 import '../model/vocabulary.dart';
 import '../utils/clickable_text_mixin.dart';
 
@@ -25,9 +24,10 @@ class DefinitionSliders extends StatefulWidget {
 
 class _DefinitionSlidersState extends State<DefinitionSliders>
     with TickerProviderStateMixin, ClickableTextStateMixin {
-  late final tabController = widget.definitions.length > 1
-      ? TabController(length: widget.definitions.length, vsync: this)
-      : null;
+  late final tabController =
+      widget.definitions.length > 1
+          ? TabController(length: widget.definitions.length, vsync: this)
+          : null;
   final controller = PageController(initialPage: 0);
 
   @override
@@ -35,13 +35,14 @@ class _DefinitionSlidersState extends State<DefinitionSliders>
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
     final topColor = CupertinoDynamicColor.withBrightness(
-            color: colorScheme.surfaceBright, darkColor: colorScheme.surfaceDim)
-        .resolveFrom(context);
+      color: colorScheme.surfaceBright,
+      darkColor: colorScheme.surfaceDim,
+    ).resolveFrom(context);
     final hsvTop = HSVColor.fromColor(topColor);
     final bottomColor = CupertinoDynamicColor.withBrightness(
-            color: hsvTop.withValue(.975).toColor(),
-            darkColor: hsvTop.withSaturation(1).toColor())
-        .resolveFrom(context);
+      color: hsvTop.withValue(.975).toColor(),
+      darkColor: hsvTop.withSaturation(1).toColor(),
+    ).resolveFrom(context);
     return DecoratedBox(
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -56,19 +57,21 @@ class _DefinitionSlidersState extends State<DefinitionSliders>
         children: [
           tabController != null
               ? RotatedBox(
-                  quarterTurns: 1,
-                  child: TabPageSelector(
-                    controller: tabController,
-                    selectedColor: colorScheme.primary,
-                  ),
-                )
+                quarterTurns: 1,
+                child: TabPageSelector(
+                  controller: tabController,
+                  selectedColor: colorScheme.primary,
+                ),
+              )
               : const SizedBox.square(dimension: 12),
           Expanded(
             child: LayoutBuilder(
               builder: (context, constraints) {
-                final titleStyle =
-                    textTheme.titleLarge!.copyWith(fontWeight: FontWeight.w600);
-                final remainHeight = constraints.maxHeight -
+                final titleStyle = textTheme.titleLarge!.copyWith(
+                  fontWeight: FontWeight.w600,
+                );
+                final remainHeight =
+                    constraints.maxHeight -
                     (titleStyle.fontSize! * titleStyle.height!);
                 final style = textTheme.bodyLarge!;
                 final maxLines =
@@ -84,12 +87,13 @@ class _DefinitionSlidersState extends State<DefinitionSliders>
                     final definition = widget.definitions[index];
                     final text = definition.index2Explanation();
                     final textPainter = TextPainter(
-                        text: TextSpan(text: text, style: style),
-                        maxLines: maxLines,
-                        textDirection: TextDirection.ltr)
-                      ..layout(maxWidth: constraints.maxWidth);
-                    final overflowIndex =
-                        textPainter.overflowIndex(constraints.maxWidth);
+                      text: TextSpan(text: text, style: style),
+                      maxLines: maxLines,
+                      textDirection: TextDirection.ltr,
+                    )..layout(maxWidth: constraints.maxWidth);
+                    final overflowIndex = textPainter.overflowIndex(
+                      constraints.maxWidth,
+                    );
                     // print('overflow index = $overflowIndex');
                     // print('paint: ${textPainter.plainText}');
                     var splitText = textPainter.plainText;
@@ -108,27 +112,34 @@ class _DefinitionSlidersState extends State<DefinitionSliders>
                           children: [
                             Text(definition.partOfSpeech, style: titleStyle),
                             Text.rich(
-                              TextSpan(children: [
-                                ...clickableWords(splitText),
-                                if (overflowIndex > 0) ...[
-                                  TextSpan(text: '$remainText...'),
-                                  TextSpan(
-                                    text: 'more',
-                                    style: style.copyWith(
-                                      fontWeight: FontWeight.w600,
-                                      color: colorScheme.primary,
+                              TextSpan(
+                                children: [
+                                  ...clickableWords(splitText),
+                                  if (overflowIndex > 0) ...[
+                                    TextSpan(text: '$remainText...'),
+                                    TextSpan(
+                                      text: 'more',
+                                      style: style.copyWith(
+                                        fontWeight: FontWeight.w600,
+                                        color: colorScheme.primary,
+                                      ),
+                                      recognizer:
+                                          TapGestureRecognizer()
+                                            ..onTap = () {
+                                              requireFittingHeight(
+                                                TextSpan(
+                                                  text: text,
+                                                  style: style,
+                                                ),
+                                                constraints.maxWidth,
+                                              );
+                                            },
                                     ),
-                                    recognizer: TapGestureRecognizer()
-                                      ..onTap = () {
-                                        requireFittingHeight(
-                                            TextSpan(text: text, style: style),
-                                            constraints.maxWidth);
-                                      },
-                                  )
+                                  ],
                                 ],
-                              ]),
+                              ),
                               style: style,
-                            )
+                            ),
                           ],
                         ),
                         if (overflowIndex < 0 &&
@@ -138,8 +149,9 @@ class _DefinitionSlidersState extends State<DefinitionSliders>
                             alignment: const Alignment(1, 1),
                             child: PlatformTextButton(
                               onPressed: () {
-                                widget
-                                    .getMore(DefinitionSliders.kDefaultHeight);
+                                widget.getMore(
+                                  DefinitionSliders.kDefaultHeight,
+                                );
                               },
                               alignment: const Alignment(1, 1),
                               padding: EdgeInsets.zero,
@@ -150,12 +162,15 @@ class _DefinitionSlidersState extends State<DefinitionSliders>
                                   color: colorScheme.primary,
                                 ),
                               ),
-                              material: (_, __) => MaterialTextButtonData(
-                                  style: TextButton.styleFrom(
+                              material:
+                                  (_, __) => MaterialTextButtonData(
+                                    style: TextButton.styleFrom(
                                       tapTargetSize:
-                                          MaterialTapTargetSize.shrinkWrap)),
+                                          MaterialTapTargetSize.shrinkWrap,
+                                    ),
+                                  ),
                             ),
-                          )
+                          ),
                       ],
                     );
                   },
@@ -170,28 +185,21 @@ class _DefinitionSlidersState extends State<DefinitionSliders>
   }
 
   void requireFittingHeight(TextSpan text, double maxWidth) {
-    final textPainter =
-        TextPainter(text: text, textDirection: TextDirection.ltr)
-          ..layout(maxWidth: maxWidth);
-    final titleStyle = Theme.of(context)
-        .textTheme
-        .titleLarge!
-        .copyWith(fontWeight: FontWeight.w600);
+    final textPainter = TextPainter(
+      text: text,
+      textDirection: TextDirection.ltr,
+    )..layout(maxWidth: maxWidth);
+    final titleStyle = Theme.of(
+      context,
+    ).textTheme.titleLarge!.copyWith(fontWeight: FontWeight.w600);
     widget.getMore(
-        textPainter.height * 1.025 + titleStyle.fontSize! * titleStyle.height!);
+      textPainter.height * 1.025 + titleStyle.fontSize! * titleStyle.height!,
+    );
   }
 
   @override
   void initState() {
     super.initState();
-    onTap = <T>(word) => showPlatformModalSheet<T>(
-          context: context,
-          material: MaterialModalSheetData(
-            useSafeArea: true,
-            isScrollControlled: true,
-          ),
-          builder: (context) => RetrievalBottomSheet(queryWord: word),
-        );
     //Flutter's bug, it will display last page
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (controller.hasClients &&

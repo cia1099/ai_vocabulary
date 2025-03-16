@@ -1,6 +1,6 @@
 part of 'auth_page.dart';
 
-class LoginForm extends StatelessWidget {
+class LoginForm extends StatefulWidget {
   const LoginForm({
     super.key,
     required this.onLoginPressed,
@@ -13,14 +13,20 @@ class LoginForm extends StatelessWidget {
   final double safeArea;
 
   @override
+  State<LoginForm> createState() => _LoginFormState();
+}
+
+class _LoginFormState extends State<LoginForm> with FirebaseAuthMixin {
+  String email = '', password = '';
+  Future<String?> loginFuture = Future.value(null);
+
+  @override
   Widget build(BuildContext context) {
-    String email = '', password = '';
-    final errorNotifier = ValueNotifier('');
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.only(top: safeArea),
+          padding: EdgeInsets.only(top: widget.safeArea),
           child: AutofillGroup(
             child: Column(
               children: <Widget>[
@@ -43,8 +49,10 @@ class LoginForm extends StatelessWidget {
                   keyboardType: TextInputType.visiblePassword,
                   autofillHints: [AutofillHints.password],
                   onFieldSubmitted: (value) {
-                    login(email, value, context, errorNotifier);
                     TextInput.finishAutofillContext();
+                    setState(() {
+                      loginFuture = login(email, value);
+                    });
                   },
                   onChanged: (value) => password = value,
                   obscureText: true,
@@ -55,12 +63,18 @@ class LoginForm extends StatelessWidget {
                     child: Row(
                       children: [
                         Expanded(
-                          child: ValueListenableBuilder(
-                            valueListenable: errorNotifier,
+                          child: FutureBuilder(
+                            future: loginFuture,
                             builder:
-                                (context, error, child) => Text(
-                                  error,
-                                  style: TextStyle(color: Colors.red),
+                                (context, snapshot) => Text(
+                                  snapshot.data ?? '',
+                                  style: TextStyle(
+                                    color:
+                                        isCupertino(context)
+                                            ? CupertinoColors.destructiveRed
+                                                .resolveFrom(context)
+                                            : Colors.redAccent,
+                                  ),
                                 ),
                           ),
                         ),
@@ -79,14 +93,22 @@ class LoginForm extends StatelessWidget {
                     ),
                   ),
                 ),
-                AuthButton(
-                  onPressed: (_) {
-                    login(email, password, context, errorNotifier);
-                  },
-                  brand: Method.custom,
-                  text: "Login",
-                  textColor: Colors.white,
-                  backgroundColor: headerLoginColor,
+                FutureBuilder(
+                  future: loginFuture,
+                  builder:
+                      (context, snapshot) => AuthButton(
+                        onPressed: (_) {
+                          setState(() {
+                            loginFuture = login(email, password);
+                          });
+                        },
+                        brand: Method.custom,
+                        text: "Login",
+                        textColor: Colors.white,
+                        backgroundColor: headerLoginColor,
+                        showLoader:
+                            snapshot.connectionState == ConnectionState.waiting,
+                      ),
                 ),
                 DetermineVisibility(
                   child: Row(
@@ -104,6 +126,7 @@ class LoginForm extends StatelessWidget {
                 AuthMultiButtons(
                   onPressed: (method) {},
                   brands: [Method.google, Method.apple, Method.facebook],
+                  // showLoader: Method.apple,
                 ),
                 DetermineVisibility(
                   // scrollDirection: Axis.horizontal,
@@ -112,7 +135,7 @@ class LoginForm extends StatelessWidget {
                     children: <Widget>[
                       CallToActionText("Don't have an account?"),
                       CallToActionButton(
-                        onPressed: onSignUpPressed,
+                        onPressed: widget.onSignUpPressed,
                         text: 'Sign Up',
                         color: headerSignUpColor,
                       ),
@@ -127,29 +150,9 @@ class LoginForm extends StatelessWidget {
     );
   }
 
-  Future<void> login(
-    String email,
-    String password,
-    BuildContext context,
-    ValueNotifier errorNotifier,
-  ) async {
-    errorNotifier.value = '';
-    showPlatformDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => DummyDialog(msg: ''),
-    );
-    debugPrint('email: $email, password: $password');
-    final res = await loginByFirebase(email, password);
-    if (res.status == 200) {
-      await loginFirebaseToken(res.content).then(
-        (user) {},
-        onError: (e) => errorNotifier.value = messageExceptions(e),
-      );
-    } else {
-      errorNotifier.value = res.content;
-    }
-    Navigator.popUntil(context, (route) => route.isFirst);
+  @override
+  void successfullyLogin(SignInUser user) {
+    // TODO: implement successfullyLogin
   }
 }
 
