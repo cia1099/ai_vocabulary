@@ -1,11 +1,9 @@
 import 'dart:math' show pi;
 import 'dart:ui';
 
-import 'package:ai_vocabulary/api/dict_api.dart';
-import 'package:ai_vocabulary/firebase/authorization.dart';
+import 'package:ai_vocabulary/effects/show_toast.dart';
 import 'package:ai_vocabulary/firebase/firebase_auth_mixin.dart';
 import 'package:ai_vocabulary/model/user.dart';
-import 'package:ai_vocabulary/utils/handle_except.dart';
 import 'package:auth_button_kit/auth_button_kit.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';

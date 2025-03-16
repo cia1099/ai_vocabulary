@@ -50,9 +50,7 @@ class _LoginFormState extends State<LoginForm> with FirebaseAuthMixin {
                   autofillHints: [AutofillHints.password],
                   onFieldSubmitted: (value) {
                     TextInput.finishAutofillContext();
-                    setState(() {
-                      loginFuture = login(email, value);
-                    });
+                    signIn();
                   },
                   onChanged: (value) => password = value,
                   obscureText: true,
@@ -66,20 +64,41 @@ class _LoginFormState extends State<LoginForm> with FirebaseAuthMixin {
                           child: FutureBuilder(
                             future: loginFuture,
                             builder:
-                                (context, snapshot) => Text(
-                                  snapshot.data ?? '',
-                                  style: TextStyle(
-                                    color:
-                                        isCupertino(context)
-                                            ? CupertinoColors.destructiveRed
-                                                .resolveFrom(context)
-                                            : Colors.redAccent,
+                                (context, snapshot) => Offstage(
+                                  offstage:
+                                      snapshot.connectionState ==
+                                          ConnectionState.waiting ||
+                                      !snapshot.hasData,
+                                  child: Text(
+                                    '${snapshot.data}',
+                                    style: TextStyle(
+                                      color:
+                                          isCupertino(context)
+                                              ? CupertinoColors.destructiveRed
+                                                  .resolveFrom(context)
+                                              : Colors.redAccent,
+                                    ),
                                   ),
                                 ),
                           ),
                         ),
                         PlatformTextButton(
-                          onPressed: () {},
+                          onPressed: () async {
+                            final inform =
+                                await resetPassword(email) ??
+                                "We've sent an email to\n$email.";
+                            if (context.mounted && isMaterial(context)) {
+                              ScaffoldMessenger.of(
+                                context,
+                              ).showSnackBar(SnackBar(content: Text(inform)));
+                            } else if (context.mounted) {
+                              showToast(
+                                context: context,
+                                alignment: Alignment(0, .85),
+                                child: Text(inform),
+                              );
+                            }
+                          },
                           padding: EdgeInsets.zero,
                           child: Text(
                             'Forgot password?',
@@ -97,11 +116,7 @@ class _LoginFormState extends State<LoginForm> with FirebaseAuthMixin {
                   future: loginFuture,
                   builder:
                       (context, snapshot) => AuthButton(
-                        onPressed: (_) {
-                          setState(() {
-                            loginFuture = login(email, password);
-                          });
-                        },
+                        onPressed: (_) => signIn(),
                         brand: Method.custom,
                         text: "Login",
                         textColor: Colors.white,
@@ -150,13 +165,26 @@ class _LoginFormState extends State<LoginForm> with FirebaseAuthMixin {
     );
   }
 
+  void signIn() {
+    setState(() {
+      loginFuture = login(email, password).then((error) {
+        if (error == null && mounted) {
+          //TODO: Navigator.pushReplacement
+          // widget.onLoginPressed();
+        }
+        return error;
+      });
+    });
+  }
+
   @override
   void successfullyLogin(SignInUser user) {
     // TODO: implement successfullyLogin
+    print("Successfully Login\n${user.toRawJson()}");
   }
 }
 
-class SignUpForm extends StatelessWidget {
+class SignUpForm extends StatefulWidget {
   const SignUpForm({
     super.key,
     required this.onLoginPressed,
@@ -169,12 +197,21 @@ class SignUpForm extends StatelessWidget {
   final double safeArea;
 
   @override
+  State<SignUpForm> createState() => _SignUpFormState();
+}
+
+class _SignUpFormState extends State<SignUpForm> with FirebaseAuthMixin {
+  String email = '', password = '';
+  String? name;
+  Future<String?> registerFuture = Future.value(null);
+
+  @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.only(top: safeArea),
+          padding: EdgeInsets.only(top: widget.safeArea),
           child: Column(
             children: <Widget>[
               const Padding(
@@ -189,25 +226,60 @@ class SignUpForm extends StatelessWidget {
                 hintText: 'Name',
                 textInputAction: TextInputAction.next,
                 textCapitalization: TextCapitalization.words,
+                onChanged:
+                    (value) => value.isEmpty ? name = null : name = value,
                 keyboardType: TextInputType.name,
               ),
               TextInputBox(
-                icon: PlatformIcons(context).mail, //Icons.email,
+                icon: PlatformIcons(context).mail,
                 hintText: 'Email',
                 textInputAction: TextInputAction.next,
                 keyboardType: TextInputType.emailAddress,
+                onChanged: (value) => email = value,
               ),
               TextInputBox(
                 icon: PlatformIcons(context).padlockOutline,
                 hintText: 'Password',
+                keyboardType: TextInputType.visiblePassword,
+                onChanged: (value) => password = value,
+                onFieldSubmitted: (_) => signUp(),
                 obscureText: true,
               ),
-              AuthButton(
-                onPressed: (_) => onSignUpPressed(),
-                brand: Method.custom,
-                text: "Sign Up",
-                textColor: Colors.white,
-                backgroundColor: headerSignUpColor,
+              FutureBuilder(
+                future: registerFuture,
+                builder:
+                    (context, snapshot) => Offstage(
+                      offstage:
+                          snapshot.connectionState == ConnectionState.waiting ||
+                          !snapshot.hasData,
+                      child: Text(
+                        "${snapshot.data}",
+                        style: TextStyle(
+                          color:
+                              isCupertino(context)
+                                  ? CupertinoColors.destructiveRed.resolveFrom(
+                                    context,
+                                  )
+                                  : Colors.redAccent,
+                        ),
+                      ),
+                    ),
+              ),
+              FutureBuilder(
+                future: registerFuture,
+                builder:
+                    (context, snapshot) => AuthButton(
+                      onPressed: (_) {
+                        signUp();
+                        // widget.onSignUpPressed();
+                      },
+                      brand: Method.custom,
+                      text: "Sign Up",
+                      textColor: Colors.white,
+                      backgroundColor: headerSignUpColor,
+                      showLoader:
+                          snapshot.connectionState == ConnectionState.waiting,
+                    ),
               ),
               DetermineVisibility(
                 child: Row(
@@ -223,7 +295,7 @@ class SignUpForm extends StatelessWidget {
                       flex: 1,
                       child: CallToActionButton(
                         text: 'Sign in',
-                        onPressed: onLoginPressed,
+                        onPressed: widget.onLoginPressed,
                         color: headerLoginColor,
                       ),
                     ),
@@ -235,6 +307,26 @@ class SignUpForm extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void signUp() {
+    setState(() {
+      registerFuture = register(email, password, name).then((error) {
+        if (error == null && mounted) {
+          showToast(
+            context: context,
+            alignment: Alignment(0, .85),
+            child: Text("Please verify your email."),
+          );
+        }
+        return error;
+      });
+    });
+  }
+
+  @override
+  void successfullyLogin(SignInUser user) {
+    // TODO: implement successfullyLogin
   }
 }
 

@@ -10,3 +10,13 @@ Future<SignInUser> loginFirebaseToken(String token) async {
     throw ApiException(res.content);
   }
 }
+
+Future<void> registerFirebaseToken({required String token, String? name}) {
+  final url = Uri.http(baseURL, '/dict/firebase/register', {"name": name});
+  final headers = {'Authorization': 'Bearer $token'};
+  return _httpGet(url, headers: headers).then((res) {
+    if (res.status != 200) {
+      throw ApiException(res.content);
+    }
+  });
+}

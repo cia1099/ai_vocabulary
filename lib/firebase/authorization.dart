@@ -8,6 +8,9 @@ Future<ApiResponse> loginByFirebase(String email, String password) {
         .signInWithEmailAndPassword(email: email, password: password)
         .then(
           (credential) async {
+            if (!(credential.user?.emailVerified ?? false)) {
+              return ApiResponse(status: 203, content: "Email not verified");
+            }
             final token = await credential.user?.getIdToken();
             return ApiResponse(
               status: token == null ? 404 : 200,
@@ -39,6 +42,7 @@ Future<ApiResponse> signUpInFirebase(String email, String password) {
       .then(
         (credential) async {
           // FirebaseAuth.instance.sendSignInLinkToEmail(email: email, actionCodeSettings: ActionCodeSettings(url: url))
+          await credential.user?.sendEmailVerification();
           final token = await credential.user?.getIdToken();
           return ApiResponse(
             status: token == null ? 404 : 200,
@@ -57,7 +61,9 @@ Future<ApiResponse> signUpInFirebase(String email, String password) {
 Future<void> resetFirebasePassword(
   String email, [
   ActionCodeSettings? actionCodeSettings,
-]) => FirebaseAuth.instance.sendPasswordResetEmail(
-  email: email,
-  actionCodeSettings: actionCodeSettings,
-);
+]) {
+  return FirebaseAuth.instance.sendPasswordResetEmail(
+    email: email,
+    actionCodeSettings: actionCodeSettings,
+  );
+}

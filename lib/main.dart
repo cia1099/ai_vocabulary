@@ -96,8 +96,8 @@ class _MyAppState extends State<MyApp> {
                             .resolveFrom(context),
                       ),
                   initialRoute: AppRoute.home,
-                  home: const HomePage(),
-                  // home: AuthPage(),
+                  // home: const HomePage(),
+                  home: AuthPage(),
                   // home: Builder(
                   //   builder: (context) {
                   //     return PlatformScaffold(
