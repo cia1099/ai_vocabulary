@@ -19,6 +19,7 @@ class LoginForm extends StatefulWidget {
 class _LoginFormState extends State<LoginForm> with FirebaseAuthMixin {
   String email = '', password = '';
   Future<String?> loginFuture = Future.value(null);
+  var loginMethod = Method.custom;
 
   @override
   Widget build(BuildContext context) {
@@ -63,23 +64,20 @@ class _LoginFormState extends State<LoginForm> with FirebaseAuthMixin {
                         Expanded(
                           child: FutureBuilder(
                             future: loginFuture,
-                            builder:
-                                (context, snapshot) => Offstage(
-                                  offstage:
-                                      snapshot.connectionState ==
-                                          ConnectionState.waiting ||
-                                      !snapshot.hasData,
-                                  child: Text(
-                                    '${snapshot.data}',
-                                    style: TextStyle(
-                                      color:
-                                          isCupertino(context)
-                                              ? CupertinoColors.destructiveRed
-                                                  .resolveFrom(context)
-                                              : Colors.redAccent,
-                                    ),
+                            builder: (context, snapshot) {
+                              final isWaiting =
+                                  snapshot.connectionState ==
+                                  ConnectionState.waiting;
+                              return Offstage(
+                                offstage: isWaiting || !snapshot.hasData,
+                                child: Text(
+                                  '${snapshot.data}',
+                                  style: TextStyle(
+                                    color: Theme.of(context).colorScheme.error,
                                   ),
                                 ),
+                              );
+                            },
                           ),
                         ),
                         PlatformTextButton(
@@ -114,16 +112,18 @@ class _LoginFormState extends State<LoginForm> with FirebaseAuthMixin {
                 ),
                 FutureBuilder(
                   future: loginFuture,
-                  builder:
-                      (context, snapshot) => AuthButton(
-                        onPressed: (_) => signIn(),
-                        brand: Method.custom,
-                        text: "Login",
-                        textColor: Colors.white,
-                        backgroundColor: headerLoginColor,
-                        showLoader:
-                            snapshot.connectionState == ConnectionState.waiting,
-                      ),
+                  builder: (context, snapshot) {
+                    final isWaiting =
+                        snapshot.connectionState == ConnectionState.waiting;
+                    return AuthButton(
+                      onPressed: (_) => isWaiting ? null : signIn(),
+                      brand: Method.custom,
+                      text: "Login",
+                      textColor: Colors.white,
+                      backgroundColor: headerLoginColor,
+                      showLoader: isWaiting && loginMethod == Method.custom,
+                    );
+                  },
                 ),
                 DetermineVisibility(
                   child: Row(
@@ -138,10 +138,26 @@ class _LoginFormState extends State<LoginForm> with FirebaseAuthMixin {
                     ],
                   ),
                 ),
-                AuthMultiButtons(
-                  onPressed: (method) {},
-                  brands: [Method.google, Method.apple, Method.facebook],
-                  // showLoader: Method.apple,
+                FutureBuilder(
+                  future: loginFuture,
+                  builder: (context, snapshot) {
+                    final isWaiting =
+                        snapshot.connectionState == ConnectionState.waiting;
+                    return AuthMultiButtons(
+                      onPressed: (method) {
+                        if (isWaiting) return;
+                        setState(() {
+                          loginMethod = method;
+                          loginFuture = socialLogin(method);
+                        });
+                      },
+                      brands: [Method.google, Method.apple, Method.facebook]
+                        ..removeWhere(
+                          (m) => isMaterial(context) && m == Method.apple,
+                        ),
+                      showLoader: isWaiting ? loginMethod : null,
+                    );
+                  },
                 ),
                 DetermineVisibility(
                   // scrollDirection: Axis.horizontal,
@@ -174,6 +190,7 @@ class _LoginFormState extends State<LoginForm> with FirebaseAuthMixin {
         }
         return error;
       });
+      loginMethod = Method.custom;
     });
   }
 
@@ -255,31 +272,28 @@ class _SignUpFormState extends State<SignUpForm> with FirebaseAuthMixin {
                       child: Text(
                         "${snapshot.data}",
                         style: TextStyle(
-                          color:
-                              isCupertino(context)
-                                  ? CupertinoColors.destructiveRed.resolveFrom(
-                                    context,
-                                  )
-                                  : Colors.redAccent,
+                          color: Theme.of(context).colorScheme.error,
                         ),
                       ),
                     ),
               ),
               FutureBuilder(
                 future: registerFuture,
-                builder:
-                    (context, snapshot) => AuthButton(
-                      onPressed: (_) {
-                        signUp();
-                        // widget.onSignUpPressed();
-                      },
-                      brand: Method.custom,
-                      text: "Sign Up",
-                      textColor: Colors.white,
-                      backgroundColor: headerSignUpColor,
-                      showLoader:
-                          snapshot.connectionState == ConnectionState.waiting,
-                    ),
+                builder: (context, snapshot) {
+                  final isWaiting =
+                      snapshot.connectionState == ConnectionState.waiting;
+                  return AuthButton(
+                    onPressed: (_) {
+                      if (!isWaiting) signUp();
+                      // widget.onSignUpPressed();
+                    },
+                    brand: Method.custom,
+                    text: "Sign Up",
+                    textColor: Colors.white,
+                    backgroundColor: headerSignUpColor,
+                    showLoader: isWaiting,
+                  );
+                },
               ),
               DetermineVisibility(
                 child: Row(

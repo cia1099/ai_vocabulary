@@ -1,4 +1,5 @@
 import 'package:ai_vocabulary/model/user.dart';
+import 'package:auth_button_kit/enum.dart' show Method;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -57,4 +58,23 @@ mixin FirebaseAuthMixin<T extends StatefulWidget> on State<T>
 
   Future<String?> resetPassword(String email) =>
       resetFirebasePassword(email).then((_) => null, onError: (e) => e.message);
+
+  Future<String?> socialLogin(Method method) async {
+    String? errorMessage;
+    final res = await switch (method) {
+      Method.google => signInWithGoogle(),
+      _ => Future.value(
+        ApiResponse(status: 203, content: "Unsupported social login method"),
+      ),
+    };
+    if (res.status == 200) {
+      await loginFirebaseToken(res.content).then(
+        successfullyLogin,
+        onError: (e) => errorMessage = messageExceptions(e),
+      );
+    } else {
+      errorMessage = res.content;
+    }
+    return errorMessage;
+  }
 }

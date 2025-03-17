@@ -1,6 +1,7 @@
 import 'package:ai_vocabulary/api/dict_api.dart';
 import 'package:ai_vocabulary/utils/handle_except.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 Future<ApiResponse> loginByFirebase(String email, String password) {
   return FirebaseAuth.instance.signOut().then(
@@ -65,5 +66,36 @@ Future<void> resetFirebasePassword(
   return FirebaseAuth.instance.sendPasswordResetEmail(
     email: email,
     actionCodeSettings: actionCodeSettings,
+  );
+}
+
+Future<ApiResponse> signInWithGoogle() async {
+  // Trigger the authentication flow
+  final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+
+  // Obtain the auth details from the request
+  final GoogleSignInAuthentication? googleAuth =
+      await googleUser?.authentication;
+
+  // Create a new credential
+  final credential = GoogleAuthProvider.credential(
+    accessToken: googleAuth?.accessToken,
+    idToken: googleAuth?.idToken,
+  );
+
+  // Once signed in, return the UserCredential
+  return FirebaseAuth.instance.signInWithCredential(credential).then(
+    (credential) async {
+      final token = await credential.user?.getIdToken();
+      return ApiResponse(
+        status: token == null ? 404 : 200,
+        content: token ?? 'User not found',
+      );
+    },
+    onError:
+        (e) => ApiResponse(
+          status: 501,
+          content: e.message ?? 'Firebase exception',
+        ),
   );
 }

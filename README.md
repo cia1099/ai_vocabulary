@@ -77,6 +77,24 @@ android {
 }
 ```
 
+### iOS configuration
+enable Firebase to iOS project, you should open `ios/<project>.xcworkerspace` in Xcode. Set `minimum Deployment` to **13** and <kbd>Product</kbd>&rarr;<kbd>Scheme</kbd>&rarr;<kbd>Edit...</kbd>, add a below argument to `Arguments Passed On Launch` in Run for Firebase Analysis.
+```shell
+-FIRDebugDisabled # Not Necessary
+```
+* #### Enable Google Sign In
+Download `GoogleService-Info.plist` from Firebase console, and move to `ios/Runner/GoogleService-Info.plist`.\
+Use Xcode to edit the URL Type:
+1. open `ios/<project>.xcworkerspace`
+1. select Targets at second left dock panel
+2. select Info in header tab bar
+3. add URL type which same as your `GoogleService-Info.plist` value of `REVERSED_CLIENT_ID`
+
+see [document](https://firebase.google.com/docs/auth/ios/google-signin?hl=en&authuser=0)\
+Note: If you suffer ios CocoaPods problem, you could just remove `ios/Podfile.lock`.
+
+
+
 # adb command line
 * Find packages name
 ```sh
