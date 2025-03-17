@@ -2,6 +2,7 @@ import 'package:ai_vocabulary/api/dict_api.dart';
 import 'package:ai_vocabulary/utils/handle_except.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 
 Future<ApiResponse> loginByFirebase(String email, String password) {
   return FirebaseAuth.instance.signOut().then(
@@ -98,4 +99,31 @@ Future<ApiResponse> signInWithGoogle() async {
           content: e.message ?? 'Firebase exception',
         ),
   );
+}
+
+Future<ApiResponse> signInWithFacebook() async {
+  // Trigger the sign-in flow
+  final LoginResult loginResult = await FacebookAuth.instance.login();
+  // Create a credential from the access token
+  if (loginResult.accessToken?.tokenString != null) {
+    final OAuthCredential facebookAuthCredential =
+        FacebookAuthProvider.credential(loginResult.accessToken!.tokenString);
+    return FirebaseAuth.instance
+        .signInWithCredential(facebookAuthCredential)
+        .then(
+          (credential) async {
+            final token = await credential.user?.getIdToken();
+            return ApiResponse(
+              status: token == null ? 404 : 200,
+              content: token ?? 'User not found',
+            );
+          },
+          onError:
+              (e) => ApiResponse(
+                status: 501,
+                content: e.message ?? 'Firebase exception',
+              ),
+        );
+  }
+  return ApiResponse(status: 501, content: "Failed login Facebook");
 }
