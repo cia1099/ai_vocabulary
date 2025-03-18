@@ -47,11 +47,14 @@ class AppRoute<T> extends PageRoute<T> {
         final uri = Uri.tryParse(settings.name!);
         var path = uri?.path;
 
+        var msg = '';
         if (!validation(context)) {
-          if (currentWord == null) {
-            path = "'$path' needs word, but word is null";
+          if (currentWord == null &&
+              StudyRouters.asMap().values.contains(path)) {
+            msg = "'$path' needs word, but word is null";
+            path = "default";
           } else {
-            path = "'$path' not found";
+            msg = "'$path' not found";
           }
         }
         // print('overTarget = $overTarget');
@@ -118,7 +121,7 @@ class AppRoute<T> extends PageRoute<T> {
           case AppRoute.login:
             return AuthPage();
           default:
-            return DummyDialog(msg: path);
+            return DummyDialog(msg: msg);
         }
       },
       maximumSize: const Size(300, 812.0), // Maximum size
@@ -155,9 +158,9 @@ class AppRoute<T> extends PageRoute<T> {
     final currentWord = AppSettings.of(context).wordProvider?.currentWord;
     final uri = Uri.tryParse(settings.name ?? '');
     final path = uri?.path;
-    final isLogin = path == AppRouters.login.path;
-    final validName = AppRouters.asMap().values.contains(path);
-    return isLogin || currentWord != null && validName;
+    // final isLogin = path == AppRouters.login.path;
+    final validName = StudyRouters.asMap().values.contains(path);
+    return currentWord != null && validName;
   }
 
   @override
@@ -180,26 +183,24 @@ bool fromEntry(String? routeName) {
   return routeName != null && routeName.contains('entry');
 }
 
-enum AppRouters implements Comparable<String> {
+enum StudyRouters implements Comparable<String> {
   // home('/'), // You shouldn't navigate to home, because it's root page
-  login('/login'),
-  entry('/entry'),
-  entryVocabulary('/entry/vocabulary'),
-  cloze('/entry/cloze'),
-  reviewWords('/entry/review'),
-  todayWords('/today/words'),
-  chatRoom('/chat/room'),
-  vocabulary('/vocabulary'),
-  report('/report'),
-  menuPopup('/menu/popup'),
-  searchWords('/search/words');
+  entryVocabulary(AppRoute.entryVocabulary),
+  cloze(AppRoute.cloze),
+  reviewWords(AppRoute.reviewWords),
+  todayWords(AppRoute.todayWords),
+  vocabulary(AppRoute.vocabulary),
+  report(AppRoute.report);
+  // chatRoom('/chat/room'),
+  // menuPopup('/menu/popup'),
+  // searchWords('/search/words');
 
   static Map<String, String> asMap() {
-    return {for (final e in AppRouters.values) e.name: e.path};
+    return {for (final e in StudyRouters.values) e.name: e.path};
   }
 
   final String path;
-  const AppRouters(this.path);
+  const StudyRouters(this.path);
 
   @override
   int compareTo(String other) => name.compareTo(other);

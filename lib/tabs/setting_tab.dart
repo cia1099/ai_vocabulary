@@ -1,10 +1,12 @@
 import 'dart:math';
 
+import 'package:ai_vocabulary/app_route.dart';
 import 'package:ai_vocabulary/database/my_db.dart';
 import 'package:ai_vocabulary/pages/punch_out_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
+import 'package:ai_vocabulary/firebase/authorization.dart' show signOut;
 
 import '../app_settings.dart';
 import '../pages/color_select_page.dart';
@@ -192,6 +194,24 @@ class SettingTab extends StatelessWidget {
                             },
                           ),
                       child: const Text('Make up Punch Out'),
+                    ),
+                    CupertinoFormSection(
+                      header: Text("Account"),
+                      children: [
+                        PlatformListTile(
+                          title: Text("Sign Out"),
+                          onTap:
+                              () => signOut().then(
+                                (_) =>
+                                    context.mounted
+                                        ? Navigator.pushReplacementNamed(
+                                          context,
+                                          AppRoute.login,
+                                        )
+                                        : null,
+                              ),
+                        ),
+                      ],
                     ),
                   ],
                 ),

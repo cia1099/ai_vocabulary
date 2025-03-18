@@ -183,13 +183,13 @@ class _LoginFormState extends State<LoginForm> with FirebaseAuthMixin {
 
   void signIn() {
     setState(() {
-      loginFuture = login(email, password).then((error) {
-        if (error == null && mounted) {
-          //TODO: Navigator.pushReplacement
-          widget.onLoginPressed?.call();
-        }
-        return error;
-      });
+      loginFuture = login(email, password);
+      // .then((error) {
+      //   if (error == null && mounted) {
+      //     widget.onLoginPressed?.call();
+      //   }
+      //   return error;
+      // });
       loginMethod = Method.custom;
     });
   }
@@ -198,7 +198,7 @@ class _LoginFormState extends State<LoginForm> with FirebaseAuthMixin {
   void successfullyLogin(SignInUser user) {
     // TODO: implement successfullyLogin
     print("Successfully Login\n${user.toRawJson()}");
-    // widget.onLoginPressed?.call();
+    widget.onLoginPressed?.call();
   }
 }
 

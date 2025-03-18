@@ -11,6 +11,7 @@ import 'package:ai_vocabulary/pages/home_page.dart';
 import 'package:auth_button_kit/auth_button_kit.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
@@ -48,7 +49,19 @@ class _AuthPageState extends State<AuthPage>
 
   // variables controlling authentication state
   bool _isLogin = true;
-  AuthState _authState = AuthState.login;
+  AuthState _authState = AuthState.home;
+
+  @override
+  void initState() {
+    super.initState();
+    SchedulerBinding.instance.scheduleTask(() {
+      _authState = AuthState.login;
+      containerKey.currentState?.animation.addStatusListener((status) {
+        if (status != AnimationStatus.completed) return;
+        _routeTransition();
+      });
+    }, Priority.idle);
+  }
 
   void _animationStatusListener(AnimationStatus status) {
     if (status == AnimationStatus.dismissed) {
@@ -74,7 +87,7 @@ class _AuthPageState extends State<AuthPage>
       _expandingHeight = MediaQuery.sizeOf(context).height;
       _expandingWidth = MediaQuery.sizeOf(context).width;
       _expandingBorderRadius = 0;
-      _routeTransition();
+      // _routeTransition();
     });
   }
 
@@ -91,8 +104,7 @@ class _AuthPageState extends State<AuthPage>
 
   Future<void> _routeTransition() async {
     await AppSettings.of(context).loadSetting();
-    containerKey.currentState?.animation.addStatusListener((status) {
-      if (status != AnimationStatus.completed || !mounted) return;
+    if (mounted) {
       Navigator.pushReplacement(
         context,
         PageRouteBuilder(
@@ -100,13 +112,13 @@ class _AuthPageState extends State<AuthPage>
               (context, animation, secondaryAnimation) =>
                   CupertinoDialogTransition(
                     animation: animation,
-                    scale: .01,
+                    // scale: .01,
                     child: HomePage(),
                   ),
           settings: RouteSettings(name: AppRoute.home),
         ),
       );
-    });
+    }
   }
 
   @override
@@ -167,7 +179,11 @@ class _AuthPageState extends State<AuthPage>
                             _onPress(AuthState.signup);
                           },
                           onLoginPressed: () {
-                            _onPress(AuthState.home);
+                            if (_authState == AuthState.home) {
+                              _routeTransition();
+                            } else {
+                              _onPress(AuthState.home);
+                            }
                           },
                         )
                         : SignUpForm(

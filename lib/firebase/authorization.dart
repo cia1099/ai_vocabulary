@@ -5,38 +5,38 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 
 Future<ApiResponse> loginByFirebase(String email, String password) {
-  return FirebaseAuth.instance.signOut().then(
-    (_) => FirebaseAuth.instance
-        .signInWithEmailAndPassword(email: email, password: password)
-        .then(
-          (credential) async {
-            if (!(credential.user?.emailVerified ?? false)) {
-              return ApiResponse(status: 203, content: "Email not verified");
-            }
-            final token = await credential.user?.getIdToken();
+  return FirebaseAuth.instance
+      .signInWithEmailAndPassword(email: email, password: password)
+      .then(
+        (credential) async {
+          if (!(credential.user?.emailVerified ?? false)) {
+            return ApiResponse(status: 203, content: "Email not verified");
+          }
+          final token = await credential.user?.getIdToken();
+          return ApiResponse(
+            status: token == null ? 404 : 200,
+            content: token ?? 'User not found',
+          );
+        },
+        onError: (e) {
+          if (e is FirebaseAuthException) {
+            final message = switch (e.code) {
+              'invalid-credential' =>
+                'Login failed, please check your email or password',
+              _ => e.message,
+            };
             return ApiResponse(
-              status: token == null ? 404 : 200,
-              content: token ?? 'User not found',
+              status: 401,
+              content: message ?? 'Firebase exception',
             );
-          },
-          onError: (e) {
-            if (e is FirebaseAuthException) {
-              final message = switch (e.code) {
-                'invalid-credential' =>
-                  'Login failed, please check your email or password',
-                _ => e.message,
-              };
-              return ApiResponse(
-                status: 401,
-                content: message ?? 'Firebase exception',
-              );
-            } else {
-              return ApiResponse(status: 501, content: messageExceptions(e));
-            }
-          },
-        ),
-  );
+          } else {
+            return ApiResponse(status: 501, content: messageExceptions(e));
+          }
+        },
+      );
 }
+
+Future<void> signOut() => FirebaseAuth.instance.signOut();
 
 Future<ApiResponse> signUpInFirebase(String email, String password) {
   return FirebaseAuth.instance
