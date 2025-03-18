@@ -1,3 +1,4 @@
+import 'package:ai_vocabulary/pages/auth_page.dart';
 import 'package:ai_vocabulary/pages/punch_out_page.dart';
 import 'package:ai_vocabulary/pages/word_list_page.dart';
 import 'package:ai_vocabulary/utils/handle_except.dart';
@@ -114,6 +115,8 @@ class AppRoute<T> extends PageRoute<T> {
             );
           case AppRoute.report:
             return ReportPage(wordId: currentWord!.wordId);
+          case AppRoute.login:
+            return AuthPage();
           default:
             return DummyDialog(msg: path);
         }
@@ -152,8 +155,9 @@ class AppRoute<T> extends PageRoute<T> {
     final currentWord = AppSettings.of(context).wordProvider?.currentWord;
     final uri = Uri.tryParse(settings.name ?? '');
     final path = uri?.path;
+    final isLogin = path == AppRouters.login.path;
     final validName = AppRouters.asMap().values.contains(path);
-    return currentWord != null && validName;
+    return isLogin || currentWord != null && validName;
   }
 
   @override
@@ -178,6 +182,7 @@ bool fromEntry(String? routeName) {
 
 enum AppRouters implements Comparable<String> {
   // home('/'), // You shouldn't navigate to home, because it's root page
+  login('/login'),
   entry('/entry'),
   entryVocabulary('/entry/vocabulary'),
   cloze('/entry/cloze'),

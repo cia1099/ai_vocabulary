@@ -1,9 +1,13 @@
 import 'dart:math' show pi;
 import 'dart:ui';
 
+import 'package:ai_vocabulary/app_settings.dart';
 import 'package:ai_vocabulary/effects/show_toast.dart';
+import 'package:ai_vocabulary/effects/transient.dart';
 import 'package:ai_vocabulary/firebase/firebase_auth_mixin.dart';
 import 'package:ai_vocabulary/model/user.dart';
+import 'package:ai_vocabulary/app_route.dart';
+import 'package:ai_vocabulary/pages/home_page.dart';
 import 'package:auth_button_kit/auth_button_kit.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -35,6 +39,7 @@ class _AuthPageState extends State<AuthPage>
   double _expandingWidth = 0;
   double _expandingHeight = 0;
   double _expandingBorderRadius = 500;
+  final containerKey = GlobalKey<ImplicitlyAnimatedWidgetState>();
 
   // constant values for the login/registration panel
   static const double _panelWidth = 350;
@@ -85,12 +90,23 @@ class _AuthPageState extends State<AuthPage>
   }
 
   Future<void> _routeTransition() async {
-    // return Future.delayed(const Duration(milliseconds: 500), () {
-    //   Navigator.pushReplacement<dynamic, dynamic>(
-    //     context,
-    //     FadeRoute(const HomePage()),
-    //   );
-    // });
+    await AppSettings.of(context).loadSetting();
+    containerKey.currentState?.animation.addStatusListener((status) {
+      if (status != AnimationStatus.completed || !mounted) return;
+      Navigator.pushReplacement(
+        context,
+        PageRouteBuilder(
+          pageBuilder:
+              (context, animation, secondaryAnimation) =>
+                  CupertinoDialogTransition(
+                    animation: animation,
+                    scale: .01,
+                    child: HomePage(),
+                  ),
+          settings: RouteSettings(name: AppRoute.home),
+        ),
+      );
+    });
   }
 
   @override
@@ -159,13 +175,11 @@ class _AuthPageState extends State<AuthPage>
                           onLoginPressed: () {
                             _onPress(AuthState.login);
                           },
-                          onSignUpPressed: () {
-                            _onPress(AuthState.home);
-                          },
                         ),
               ),
             ),
             ExpandingPageAnimation(
+              containerKey: containerKey,
               width: _expandingWidth,
               height: _expandingHeight,
               borderRadius: _expandingBorderRadius,
@@ -308,6 +322,7 @@ class ExpandingPageAnimation extends StatelessWidget {
     required double width,
     required double height,
     required double borderRadius,
+    required this.containerKey,
   }) : _width = width,
        _height = height,
        _borderRadius = borderRadius;
@@ -315,11 +330,13 @@ class ExpandingPageAnimation extends StatelessWidget {
   final double _width;
   final double _height;
   final double _borderRadius;
+  final GlobalKey<ImplicitlyAnimatedWidgetState> containerKey;
 
   @override
   Widget build(BuildContext context) {
     return Center(
       child: AnimatedContainer(
+        key: containerKey,
         duration: const Duration(milliseconds: 500),
         curve: Curves.ease,
         width: _width,

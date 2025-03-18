@@ -3,13 +3,13 @@ part of 'auth_page.dart';
 class LoginForm extends StatefulWidget {
   const LoginForm({
     super.key,
-    required this.onLoginPressed,
-    required this.onSignUpPressed,
+    this.onLoginPressed,
+    this.onSignUpPressed,
     required this.safeArea,
   });
 
-  final VoidCallback onSignUpPressed;
-  final VoidCallback onLoginPressed;
+  final VoidCallback? onSignUpPressed;
+  final VoidCallback? onLoginPressed;
   final double safeArea;
 
   @override
@@ -186,7 +186,7 @@ class _LoginFormState extends State<LoginForm> with FirebaseAuthMixin {
       loginFuture = login(email, password).then((error) {
         if (error == null && mounted) {
           //TODO: Navigator.pushReplacement
-          // widget.onLoginPressed();
+          widget.onLoginPressed?.call();
         }
         return error;
       });
@@ -198,19 +198,20 @@ class _LoginFormState extends State<LoginForm> with FirebaseAuthMixin {
   void successfullyLogin(SignInUser user) {
     // TODO: implement successfullyLogin
     print("Successfully Login\n${user.toRawJson()}");
+    // widget.onLoginPressed?.call();
   }
 }
 
 class SignUpForm extends StatefulWidget {
   const SignUpForm({
     super.key,
-    required this.onLoginPressed,
-    required this.onSignUpPressed,
+    this.onLoginPressed,
+    this.onSignUpPressed,
     required this.safeArea,
   });
 
-  final VoidCallback onLoginPressed;
-  final VoidCallback onSignUpPressed;
+  final VoidCallback? onLoginPressed;
+  final VoidCallback? onSignUpPressed;
   final double safeArea;
 
   @override
@@ -285,7 +286,7 @@ class _SignUpFormState extends State<SignUpForm> with FirebaseAuthMixin {
                   return AuthButton(
                     onPressed: (_) {
                       if (!isWaiting) signUp();
-                      // widget.onSignUpPressed();
+                      widget.onSignUpPressed?.call();
                     },
                     brand: Method.custom,
                     text: "Sign Up",
@@ -443,12 +444,12 @@ class TextInputBox extends StatelessWidget {
 class CallToActionButton extends StatelessWidget {
   const CallToActionButton({
     super.key,
-    required this.onPressed,
+    this.onPressed,
     required this.text,
     required this.color,
   });
 
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
   final String text;
   final Color color;
 
