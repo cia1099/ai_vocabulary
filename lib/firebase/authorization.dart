@@ -36,7 +36,7 @@ Future<ApiResponse> loginByFirebase(String email, String password) {
       );
 }
 
-Future<void> signOut() => FirebaseAuth.instance.signOut();
+Future<void> signOutFirebase() => FirebaseAuth.instance.signOut();
 
 Future<ApiResponse> signUpInFirebase(String email, String password) {
   return FirebaseAuth.instance

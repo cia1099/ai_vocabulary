@@ -3,10 +3,11 @@ import 'dart:math';
 import 'package:ai_vocabulary/app_route.dart';
 import 'package:ai_vocabulary/database/my_db.dart';
 import 'package:ai_vocabulary/pages/punch_out_page.dart';
+import 'package:ai_vocabulary/widgets/action_button.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
-import 'package:ai_vocabulary/firebase/authorization.dart' show signOut;
+import 'package:ai_vocabulary/firebase/authorization.dart' show signOutFirebase;
 
 import '../app_settings.dart';
 import '../pages/color_select_page.dart';
@@ -198,10 +199,11 @@ class SettingTab extends StatelessWidget {
                     CupertinoFormSection(
                       header: Text("Account"),
                       children: [
-                        PlatformListTile(
-                          title: Text("Sign Out"),
-                          onTap:
-                              () => signOut().then(
+                        ActionButton(
+                          // isDestructiveAction: true,
+                          child: Text("Sign Out"),
+                          onPressed:
+                              () => signOutFirebase().then(
                                 (_) =>
                                     context.mounted
                                         ? Navigator.pushReplacementNamed(
@@ -210,6 +212,11 @@ class SettingTab extends StatelessWidget {
                                         )
                                         : null,
                               ),
+                        ),
+                        ActionButton(
+                          isDestructiveAction: true,
+                          onPressed: () {},
+                          child: Text("Shit man"),
                         ),
                       ],
                     ),

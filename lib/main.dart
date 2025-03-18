@@ -97,19 +97,38 @@ class _MyAppState extends State<MyApp> {
                   // home: Builder(
                   //   builder: (context) {
                   //     return PlatformScaffold(
-                  //       body: const Center(
+                  //       body: Center(
                   //         child: Column(
                   //           mainAxisAlignment: MainAxisAlignment.center,
                   //           children: [
-                  //             const PunchCalendar(),
+                  //             // PunchCalendar(),
                   //             CupertinoButton.filled(
-                  //               onPressed: () => appearAward(context, 'apple'),
-                  //               // showPlatformModalSheet(
-                  //               //       context: context,
-                  //               //       builder: (context) =>
-                  //               //           const ManageCollectionSheet(wordID: 830),
-                  //               //     ),
-                  //               child: const Text('Go Route!'),
+                  //               onPressed:
+                  //                   () =>
+                  //                   // appearAward(context, 'apple'),
+                  //                   showPlatformModalSheet(
+                  //                     context: context,
+                  //                     // builder: (context) =>
+                  //                     //     const ManageCollectionSheet(wordID: 830),
+                  //                     material: MaterialModalSheetData(
+                  //                       backgroundColor: Colors.transparent,
+                  //                       scrollControlDisabledMaxHeightRatio: 1,
+                  //                       isDismissible: false,
+                  //                     ),
+                  //                     builder:
+                  //                         (context) => FutureBuilder(
+                  //                           future: MyDB().isReady,
+                  //                           builder:
+                  //                               (context, snapshot) =>
+                  //                                   snapshot.data == true
+                  //                                       ? SpeechConfirmDialog(
+                  //                                         filePath:
+                  //                                             '${MyDB().appDirectory}/${DateTime.now().millisecondsSinceEpoch ~/ 1e3}.wav',
+                  //                                       )
+                  //                                       : CircularProgressIndicator.adaptive(),
+                  //                         ),
+                  //                   ),
+                  //               child: Text('Go Route!'),
                   //             ),
                   //           ],
                   //         ),
