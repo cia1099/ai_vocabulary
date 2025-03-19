@@ -13,12 +13,19 @@ abstract interface class UserSignIn {
 
 mixin FirebaseAuthMixin<T extends StatefulWidget> on State<T>
     implements UserSignIn {
+  var _hasUser = false;
+  bool get hasUser => _hasUser;
+
   @override
   initState() {
     super.initState();
     if (FirebaseAuth.instance.currentUser?.emailVerified ?? false) {
       FirebaseAuth.instance.currentUser?.getIdToken(true).then((token) async {
-        if (token == null) return;
+        if (token == null) {
+          _hasUser = false;
+          return;
+        }
+        _hasUser = true;
         loginFirebaseToken(token).then(successfullyLogin);
       });
     }

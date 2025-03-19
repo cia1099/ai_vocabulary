@@ -11,7 +11,6 @@ import 'package:ai_vocabulary/pages/home_page.dart';
 import 'package:auth_button_kit/auth_button_kit.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
@@ -49,18 +48,17 @@ class _AuthPageState extends State<AuthPage>
 
   // variables controlling authentication state
   bool _isLogin = true;
-  AuthState _authState = AuthState.home;
+  AuthState _authState = AuthState.login;
 
   @override
   void initState() {
     super.initState();
-    SchedulerBinding.instance.scheduleTask(() {
-      _authState = AuthState.login;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       containerKey.currentState?.animation.addStatusListener((status) {
         if (status != AnimationStatus.completed) return;
         _routeTransition();
       });
-    }, Priority.idle);
+    });
   }
 
   void _animationStatusListener(AnimationStatus status) {
@@ -112,7 +110,7 @@ class _AuthPageState extends State<AuthPage>
               (context, animation, secondaryAnimation) =>
                   CupertinoDialogTransition(
                     animation: animation,
-                    // scale: .01,
+                    scale: .9,
                     child: HomePage(),
                   ),
           settings: RouteSettings(name: AppRoute.home),
@@ -178,8 +176,8 @@ class _AuthPageState extends State<AuthPage>
                           onSignUpPressed: () {
                             _onPress(AuthState.signup);
                           },
-                          onLoginPressed: () {
-                            if (_authState == AuthState.home) {
+                          onLogin: (hasUser) {
+                            if (hasUser) {
                               _routeTransition();
                             } else {
                               _onPress(AuthState.home);

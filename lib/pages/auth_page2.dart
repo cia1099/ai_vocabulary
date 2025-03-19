@@ -3,13 +3,13 @@ part of 'auth_page.dart';
 class LoginForm extends StatefulWidget {
   const LoginForm({
     super.key,
-    this.onLoginPressed,
+    this.onLogin,
     this.onSignUpPressed,
     required this.safeArea,
   });
 
   final VoidCallback? onSignUpPressed;
-  final VoidCallback? onLoginPressed;
+  final Function(bool hasUser)? onLogin;
   final double safeArea;
 
   @override
@@ -198,7 +198,7 @@ class _LoginFormState extends State<LoginForm> with FirebaseAuthMixin {
   void successfullyLogin(SignInUser user) {
     // TODO: implement successfullyLogin
     print("Successfully Login\n${user.toRawJson()}");
-    widget.onLoginPressed?.call();
+    widget.onLogin?.call(hasUser);
   }
 }
 
