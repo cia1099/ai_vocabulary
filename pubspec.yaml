@@ -43,6 +43,8 @@ dev_dependencies:
   flutter_lints: ^5.0.0
   flutter_web_frame: ^1.0.0
   flutter_lorem: ^2.0.0
+  integration_test:
+    sdk: flutter
 
 dart_code_metrics:
   rules:
