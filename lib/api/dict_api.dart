@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:ai_vocabulary/model/chat_answer.dart';
 import 'package:ai_vocabulary/model/user.dart';
 import 'package:ai_vocabulary/model/vocabulary.dart';
+import 'package:ai_vocabulary/provider/user_provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart' show MediaType;
 import 'package:path/path.dart' as p;
@@ -20,7 +21,10 @@ const kHttpTimeOut = Duration(seconds: 5);
 
 Future<List<Vocabulary>> retrievalWord(String word) async {
   final url = Uri.http(baseURL, '/dict/retrieval', {'word': word});
-  final res = await _httpGet(url);
+  final headers = {
+    "Authorization": "Bearer ${UserProvider().currentUser?.accessToken}",
+  };
+  final res = await _httpGet(url, headers: headers);
   if (res.status == 200) {
     return List<Vocabulary>.from(
       json.decode(res.content).map((json) => Vocabulary.fromJson(json)),
@@ -37,7 +41,10 @@ Future<List<Vocabulary>> searchWord({
   final query = 'word=$word&page=$page';
   const path = '/dict/search';
   final url = Uri.parse('http://$baseURL$path?$query');
-  final res = await _httpGet(url);
+  final headers = {
+    "Authorization": "Bearer ${UserProvider().currentUser?.accessToken}",
+  };
+  final res = await _httpGet(url, headers: headers);
   if (res.status == 200) {
     return List<Vocabulary>.from(
       json.decode(res.content).map((json) => Vocabulary.fromJson(json)),
@@ -49,7 +56,10 @@ Future<List<Vocabulary>> searchWord({
 
 Future<int> getMaxId() async {
   final url = Uri.http(baseURL, '/dict/words/max_id');
-  final res = await _httpGet(url);
+  final headers = {
+    "Authorization": "Bearer ${UserProvider().currentUser?.accessToken}",
+  };
+  final res = await _httpGet(url, headers: headers);
   if (res.status == 200) {
     return int.parse(res.content);
   } else {
@@ -62,7 +72,10 @@ Future<List<Vocabulary>> getWords(Iterable<int> ids) async {
   const path = '/dict/words';
   final url = Uri.parse('http://$baseURL$path?$query');
   // final url = Uri.http(baseURL, path, {"id": query});
-  final res = await _httpGet(url);
+  final headers = {
+    "Authorization": "Bearer ${UserProvider().currentUser?.accessToken}",
+  };
+  final res = await _httpGet(url, headers: headers);
   if (res.status == 200) {
     return List<Vocabulary>.from(
       json.decode(res.content).map((json) => Vocabulary.fromJson(json)),
@@ -74,7 +87,10 @@ Future<List<Vocabulary>> getWords(Iterable<int> ids) async {
 
 Future<Vocabulary> getWordById(int id) async {
   final url = Uri.http(baseURL, '/dict/word_id/$id');
-  final res = await _httpGet(url);
+  final headers = {
+    "Authorization": "Bearer ${UserProvider().currentUser?.accessToken}",
+  };
+  final res = await _httpGet(url, headers: headers);
   if (res.status == 200) {
     return Vocabulary.fromRawJson(res.content);
   } else {

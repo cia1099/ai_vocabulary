@@ -196,8 +196,7 @@ class _LoginFormState extends State<LoginForm> with FirebaseAuthMixin {
 
   @override
   void successfullyLogin(SignInUser user) {
-    // TODO: implement successfullyLogin
-    print("Successfully Login\n${user.toRawJson()}");
+    UserProvider().currentUser = user;
     widget.onLogin?.call(hasUser);
   }
 }
