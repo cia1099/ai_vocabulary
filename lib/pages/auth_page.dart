@@ -8,6 +8,7 @@ import 'package:ai_vocabulary/firebase/firebase_auth_mixin.dart';
 import 'package:ai_vocabulary/model/user.dart';
 import 'package:ai_vocabulary/app_route.dart';
 import 'package:ai_vocabulary/pages/home_page.dart';
+import 'package:ai_vocabulary/provider/user_provider.dart';
 import 'package:auth_button_kit/auth_button_kit.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
