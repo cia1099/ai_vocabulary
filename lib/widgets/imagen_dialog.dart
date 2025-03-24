@@ -1,4 +1,5 @@
 import 'package:ai_vocabulary/api/dict_api.dart';
+import 'package:ai_vocabulary/provider/user_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
@@ -17,7 +18,12 @@ class _ImagenDialogState extends State<ImagenDialog> {
   late final url = Uri.http(baseURL, '/dict/imagen/256', {
     'prompt': widget.prompt,
   });
-  late final imageProvider = NetworkImage(url.toString());
+  late final imageProvider = NetworkImage(
+    url.toString(),
+    headers: {
+      "Authorization": "Bearer ${UserProvider().currentUser?.accessToken}",
+    },
+  );
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width * .95;
