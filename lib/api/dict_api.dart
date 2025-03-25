@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:core';
+import 'dart:io';
 
 import 'package:ai_vocabulary/model/chat_answer.dart';
 import 'package:ai_vocabulary/model/user.dart';
@@ -115,7 +116,7 @@ Future<ChatAnswer> chatVocabulary(
   if (res.statusCode == 200) {
     return ChatAnswer.fromRawJson(res.body);
   } else {
-    throw ApiException(res.body, uri: url);
+    throw HttpException(res.body, uri: url);
   }
 }
 
@@ -123,7 +124,7 @@ Future<ApiResponse> _httpGet(Uri url, {Map<String, String>? headers}) async {
   try {
     final res = await http.get(url, headers: headers).timeout(kHttpTimeOut);
     if (res.statusCode != 200) {
-      throw ApiException(res.body, uri: url);
+      throw HttpException(res.body, uri: url);
     }
     return ApiResponse.fromRawJson(res.body);
   } catch (e) {
@@ -156,9 +157,8 @@ class ApiResponse {
 
 class ApiException implements Exception {
   final String message;
-  final Uri? uri;
 
-  ApiException(this.message, {this.uri});
+  ApiException(this.message);
   @override
   String toString() {
     return message.isEmpty ? "ApiException" : "ApiException: $message";

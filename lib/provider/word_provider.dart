@@ -16,8 +16,10 @@ import '../utils/regex.dart';
 
 abstract class WordProvider {
   final _studyWords = <Vocabulary>[];
-  late final pageController =
-      PageController(onAttach: _onAttach, keepPage: false);
+  late final pageController = PageController(
+    onAttach: _onAttach,
+    keepPage: false,
+  );
   Vocabulary? _currentWord;
   final _providerState = StreamController<Vocabulary?>();
   late final _provider = _providerState.stream.asBroadcastStream();
@@ -64,7 +66,9 @@ abstract class WordProvider {
   void nextStudyWord() {
     Future.delayed(Durations.extralong4, () {
       pageController.nextPage(
-          duration: Durations.medium3, curve: Curves.easeInBack);
+        duration: Durations.medium3,
+        curve: Curves.easeInBack,
+      );
     });
   }
 
@@ -95,33 +99,43 @@ class RecommendProvider extends WordProvider {
     const initCount = 5;
     if (index % kMaxLength ~/ 2 != _fetchTime) return;
     _fetchTime = ++_fetchTime % 5;
-    final count = _studyWords.length < kMaxLength && _fetchTime == 4
-        ? 1
-        : _studyWords.isNotEmpty
+    final count =
+        _studyWords.length < kMaxLength && _fetchTime == 4
+            ? 1
+            : _studyWords.isNotEmpty
             ? 2
             : initCount;
     await MyDB().isReady;
     final reviewIDs = MyDB().fetchReviewWordIDs().toList();
-    reviewIDs
-        .removeWhere((id) => _studyWords.map((w) => w.wordId).contains(id));
+    reviewIDs.removeWhere(
+      (id) => _studyWords.map((w) => w.wordId).contains(id),
+    );
     final requestIDs = await sampleWordIds(
-        _studyWords.map((w) => w.wordId).toList() + reviewIDs, count);
+      _studyWords.map((w) => w.wordId).toList() + reviewIDs,
+      count,
+    );
     // print(
     //     'page = $index, fetchTime = $_fetchTime, sampleIDs = ${requestIDs.join(', ')}');
     // final words = await requestWords(requestIDs);
-    final candidateWords = (await Future.wait(
-            [requestWords(requestIDs), fetchWords(reviewIDs, take: count * 2)]))
-        .reduce((a, b) => a + b);
-    final isCompletedReview = context.mounted &&
+    final candidateWords = (await Future.wait([
+      requestWords(requestIDs),
+      fetchWords(reviewIDs, take: count * 2),
+    ])).reduce((a, b) => a + b);
+    final isCompletedReview =
+        context.mounted &&
         AppSettings.of(context).studyState == StudyStatus.completedReview;
     final fib = Fibonacci();
-    final selector = WeightedSelector(candidateWords,
-        candidateWords.map((w) => 1 - calculateRetention(w, fib)));
-    final words = isCompletedReview
-        ? candidateWords.take(count)
-        : selector.sampleN(count);
+    final selector = WeightedSelector(
+      candidateWords,
+      candidateWords.map((w) => 1 - calculateRetention(w, fib)),
+    );
+    final words =
+        isCompletedReview
+            ? candidateWords.take(count)
+            : selector.sampleN(count);
     MyDB().insertWords(
-        Stream.fromIterable(words.where((w) => requestIDs.contains(w.wordId))));
+      Stream.fromIterable(words.where((w) => requestIDs.contains(w.wordId))),
+    );
 
     if (_studyWords.length < kMaxLength) {
       _studyWords.addAll(words);
@@ -163,14 +177,20 @@ Future<List<Vocabulary>> requestWords(Set<int> wordIds) async {
       words = await getWords(wordIds);
       error = null;
     } on ApiException catch (e) {
-      final errorIds = splitWords(e.message).expand((w) sync* {
-        if (w.contains(RegExp(r'^-?\d+$'))) yield w;
-      }).map((s) => int.parse(s));
+      final errorIds = splitWords(e.message)
+          .expand((w) sync* {
+            if (w.contains(RegExp(r'^-?\d+$'))) yield w;
+          })
+          .map((s) => int.parse(s));
       debugPrint('There is errorIDs: $errorIds in fetch dictionary API');
       wordIds.removeAll(errorIds);
       final resampleIDs = await sampleWordIds(wordIds, errorIds.length);
       wordIds.addAll(resampleIDs);
       error = e;
+    } catch (e) {
+      //TODO: need to break while loop when http raise error, and hadle the message UI
+      print(e);
+      error = null;
     }
   }
   // MyDB.instance.insertWords(Stream.fromIterable(words));
@@ -184,9 +204,12 @@ Future<List<Vocabulary>> fetchWords(Iterable<int> wordIds, {int? take}) async {
 
 List<Vocabulary> sortByRetention(Iterable<Vocabulary> words) {
   final fibonacci = Fibonacci();
-  return words.toList()
-    ..sort((a, b) => calculateRetention(a, fibonacci)
-        .compareTo(calculateRetention(b, fibonacci)));
+  return words.toList()..sort(
+    (a, b) => calculateRetention(
+      a,
+      fibonacci,
+    ).compareTo(calculateRetention(b, fibonacci)),
+  );
 }
 
 Future<Set<int>> sampleWordIds(Iterable<int> existIDs, final int count) async {

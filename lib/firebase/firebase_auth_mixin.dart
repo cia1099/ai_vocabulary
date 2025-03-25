@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:ai_vocabulary/model/user.dart';
 import 'package:auth_button_kit/enum.dart' show Method;
 import 'package:firebase_auth/firebase_auth.dart';
@@ -19,15 +21,17 @@ mixin FirebaseAuthMixin<T extends StatefulWidget> on State<T>
   @override
   initState() {
     super.initState();
-    if (FirebaseAuth.instance.currentUser?.emailVerified ?? false) {
-      FirebaseAuth.instance.currentUser?.getIdToken(true).then((token) async {
-        if (token == null) {
-          _hasUser = false;
-          return;
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null && user.emailVerified) {
+      user.getIdToken(true).then((token) async {
+        try {
+          final singInUser = await loginFirebaseToken(token!);
+          _hasUser = true;
+          successfullyLogin(singInUser);
+        } catch (_) {
+          signOutFirebase();
         }
-        _hasUser = true;
-        loginFirebaseToken(token).then(successfullyLogin);
-      });
+      }, onError: (_) => signOutFirebase());
     }
   }
 

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' show pi;
 import 'dart:ui';
 
@@ -30,7 +31,7 @@ class _AuthPageState extends State<AuthPage>
     with SingleTickerProviderStateMixin {
   // animation variables
   late final _controller = AnimationController(
-    value: 1,
+    value: 0,
     vsync: this,
     duration: const Duration(milliseconds: 600),
   )..addStatusListener(_animationStatusListener);
@@ -41,6 +42,8 @@ class _AuthPageState extends State<AuthPage>
   double _expandingHeight = 0;
   double _expandingBorderRadius = 500;
   final containerKey = GlobalKey<ImplicitlyAnimatedWidgetState>();
+  final loginFormKey = GlobalKey<FirebaseAuthMixin>();
+  final loginFromState = StreamController<bool?>();
 
   // constant values for the login/registration panel
   static const double _panelWidth = 350;
@@ -54,10 +57,26 @@ class _AuthPageState extends State<AuthPage>
   @override
   void initState() {
     super.initState();
+    listenerFunc(VoidCallback f) => (AnimationStatus status) {
+      if (status != AnimationStatus.completed) return;
+      f();
+    };
+
+    final forwardListener = listenerFunc(() => _controller.forward());
+    final routeListener = listenerFunc(() => _routeTransition());
+    _controller.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        containerKey.currentState?.animation.removeStatusListener(
+          forwardListener,
+        );
+        containerKey.currentState?.animation.addStatusListener(routeListener);
+      }
+    });
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      containerKey.currentState?.animation.addStatusListener((status) {
-        if (status != AnimationStatus.completed) return;
-        _routeTransition();
+      containerKey.currentState?.animation.addStatusListener(forwardListener);
+      Future.delayed(Durations.extralong4).whenComplete(() {
+        final hasUser = loginFormKey.currentState?.hasUser ?? true;
+        if (!hasUser) loginFromState.add(false);
       });
     });
   }
@@ -173,6 +192,7 @@ class _AuthPageState extends State<AuthPage>
                 child:
                     _isLogin
                         ? LoginForm(
+                          key: loginFormKey,
                           safeArea: _headerHeight,
                           onSignUpPressed: () {
                             _onPress(AuthState.signup);
@@ -193,11 +213,21 @@ class _AuthPageState extends State<AuthPage>
                         ),
               ),
             ),
-            ExpandingPageAnimation(
-              containerKey: containerKey,
-              width: _expandingWidth,
-              height: _expandingHeight,
-              borderRadius: _expandingBorderRadius,
+            StreamBuilder(
+              stream: loginFromState.stream,
+              builder:
+                  (context, snapshot) => ExpandingPageAnimation(
+                    containerKey: containerKey,
+                    width:
+                        snapshot.hasData
+                            ? _expandingWidth
+                            : MediaQuery.sizeOf(context).width,
+                    height:
+                        snapshot.hasData
+                            ? _expandingHeight
+                            : MediaQuery.sizeOf(context).height,
+                    borderRadius: snapshot.hasData ? _expandingBorderRadius : 0,
+                  ),
             ),
           ],
         ),
