@@ -1,4 +1,5 @@
 import 'package:ai_vocabulary/api/dict_api.dart';
+import 'package:ai_vocabulary/utils/shortcut.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
@@ -133,9 +134,12 @@ class PartOfSpeechTitle extends StatelessWidget {
       spacing: 8,
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
-        Text(
-          definition.partOfSpeech,
-          style: textTheme.titleLarge!.copyWith(fontWeight: FontWeight.bold),
+        Text.rich(
+          SpeechColoredText(
+            partOfSpeech: definition.partOfSpeech,
+            context: context,
+            style: textTheme.titleLarge!.copyWith(fontWeight: FontWeight.bold),
+          ).span,
         ),
         if (definition.phoneticUk != null)
           Row(

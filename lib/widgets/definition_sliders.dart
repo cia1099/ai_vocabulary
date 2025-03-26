@@ -1,4 +1,5 @@
 import 'package:ai_vocabulary/utils/regex.dart';
+import 'package:ai_vocabulary/utils/shortcut.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -110,7 +111,13 @@ class _DefinitionSlidersState extends State<DefinitionSliders>
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(definition.partOfSpeech, style: titleStyle),
+                            Text.rich(
+                              SpeechColoredText(
+                                partOfSpeech: definition.partOfSpeech,
+                                context: context,
+                                style: titleStyle,
+                              ).span,
+                            ),
                             Text.rich(
                               TextSpan(
                                 children: [
