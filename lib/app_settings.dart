@@ -27,26 +27,36 @@ class MySettings extends ChangeNotifier {
   var _studyState = StudyStatus.underTarget;
   int studyMinute = 0;
 
+  File? _file;
   Future<void> loadSetting() async {
     final isReady = await MyDB().isReady;
     if (isReady != true) return;
-    final file = File(p.join(MyDB().appDirectory, 'my_settings.json'));
-    if (file.existsSync()) {
+    if (_file == null) {
+      _file ??= File(p.join(MyDB().appDirectory, 'my_settings.json'));
+      addListener(() {
+        final encoder = JsonEncoder.withIndent(' ' * 4);
+        _file!.writeAsString(encoder.convert(toJson()));
+      });
+      targetStudy.addListener(() {
+        final encoder = JsonEncoder.withIndent(' ' * 4);
+        _file!.writeAsString(encoder.convert(toJson()));
+      });
+    }
+    await resetCacheOrSignOut();
+  }
+
+  Future<void> resetCacheOrSignOut({bool signOut = false}) async {
+    _wordProvider = null;
+    studyMinute = 0;
+    _studyState = StudyStatus.underTarget;
+    if (await _file!.exists() && !signOut) {
       final settings =
-          json.decode(await file.readAsString()) as Map<String, dynamic>;
+          json.decode(await _file!.readAsString()) as Map<String, dynamic>;
       readFromJson(settings);
       final studyCount = MyDB().fetchStudyCounts();
       _studyState = nextStatus(studyCount);
       notifyListeners(); //wordProvider will notify but it has latency
     }
-    addListener(() {
-      final encoder = JsonEncoder.withIndent(' ' * 4);
-      file.writeAsString(encoder.convert(toJson()));
-    });
-    targetStudy.addListener(() {
-      final encoder = JsonEncoder.withIndent(' ' * 4);
-      file.writeAsString(encoder.convert(toJson()));
-    });
   }
 
   int get colorIndex => _colorIndex;

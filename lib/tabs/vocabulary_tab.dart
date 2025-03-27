@@ -163,7 +163,7 @@ class _VocabularyTabState extends State<VocabularyTab>
       );
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      AppSettings.of(context).wordProvider ??= recommend;
+      AppSettings.of(context).wordProvider = recommend;
     });
   }
 

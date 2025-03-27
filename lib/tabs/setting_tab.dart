@@ -1,11 +1,15 @@
-import 'dart:math';
+import 'dart:math' show Random;
 
 import 'package:ai_vocabulary/app_route.dart';
 import 'package:ai_vocabulary/database/my_db.dart';
 import 'package:ai_vocabulary/pages/punch_out_page.dart';
+import 'package:ai_vocabulary/provider/user_provider.dart';
+import 'package:ai_vocabulary/utils/function.dart';
+import 'package:ai_vocabulary/utils/shortcut.dart';
 import 'package:ai_vocabulary/widgets/action_button.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:ai_vocabulary/firebase/authorization.dart' show signOutFirebase;
 
@@ -18,35 +22,34 @@ class SettingTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final maxHeight =
-        MediaQuery.of(context).size.height -
-        kToolbarHeight -
-        kBottomNavigationBarHeight -
-        34;
-    final switches = List.generate(7, (_) => Random().nextBool());
+    // final maxHeight =
+    //     MediaQuery.sizeOf(context).height -
+    //     kToolbarHeight -
+    //     kBottomNavigationBarHeight -
+    //     34;
     return PlatformScaffold(
-      appBar: PlatformAppBar(
-        title: const Text('Settings'),
-        material:
-            (_, __) => MaterialAppBarData(
-              backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+      body: CustomScrollView(
+        physics: const AlwaysScrollableScrollPhysics(
+          parent: BouncingScrollPhysics(),
+        ),
+        slivers: [
+          SliverAppBar(
+            stretch: true,
+            expandedHeight: kExpandedSliverAppBarHeight,
+            flexibleSpace: FlexibleSpaceBar(
+              stretchModes: const [
+                StretchMode.zoomBackground,
+                StretchMode.blurBackground,
+                StretchMode.fadeTitle,
+              ],
+              background: SafeArea(bottom: false, child: ProfileHeader()),
             ),
-        cupertino:
-            (_, __) =>
-                CupertinoNavigationBarData(transitionBetweenRoutes: false),
-      ),
-      body: StatefulBuilder(
-        builder: (_, setState) {
-          return SizedBox(
-            // color: CupertinoColors.systemGrey2,
-            height: maxHeight,
-            child: SingleChildScrollView(
-              physics: const AlwaysScrollableScrollPhysics(
-                parent: BouncingScrollPhysics(),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 24),
-                child: Column(
+          ),
+          SliverToBoxAdapter(
+            child: StatefulBuilder(
+              builder: (context, setState) {
+                final switches = List.generate(7, (_) => Random().nextBool());
+                return Wrap(
                   children: [
                     PlatformListTile(
                       title: const Text('Send me marketing emails'),
@@ -101,128 +104,221 @@ class SettingTab extends StatelessWidget {
                             (value) => setState(() => switches[5] = value),
                       ),
                     ),
-                    CupertinoFormSection(
-                      header: const Text('Study'),
-                      children: [
-                        PlatformListTile(
-                          title: const Text(
-                            'Does hide vocabulary title in sliders?',
-                          ),
-                          trailing: PlatformSwitch(
-                            value: AppSettings.of(context).hideSliderTitle,
-                            onChanged:
-                                (value) =>
-                                    AppSettings.of(context).hideSliderTitle =
-                                        value,
-                          ),
+                  ],
+                );
+              },
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: CupertinoFormSection(
+              header: const Text('Study'),
+              children: [
+                PlatformListTile(
+                  title: const Text('Does hide vocabulary title in sliders?'),
+                  trailing: PlatformSwitch(
+                    value: AppSettings.of(context).hideSliderTitle,
+                    onChanged:
+                        (value) =>
+                            AppSettings.of(context).hideSliderTitle = value,
+                  ),
+                ),
+                CountPickerTile(
+                  titlePattern: 'Review ,?, words, a, day',
+                  initialCount: AppSettings.of(context).reviewCount,
+                  onPickDone: (count) {
+                    AppSettings.of(context).reviewCount = count;
+                  },
+                ),
+                CountPickerTile(
+                  titlePattern: 'Learn, new ,?, words, a, day',
+                  initialCount: AppSettings.of(context).learnCount,
+                  onPickDone: (count) {
+                    AppSettings.of(context).learnCount = count;
+                  },
+                ),
+              ],
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: CupertinoFormSection(
+              header: const Text('Theme'),
+              children: [
+                PlatformListTile(
+                  title: const Text('Dark mode'),
+                  trailing: PlatformSwitch(
+                    value:
+                        AppSettings.of(context).brightness == Brightness.dark,
+                    onChanged:
+                        (value) =>
+                            AppSettings.of(context).brightness =
+                                value ? Brightness.dark : Brightness.light,
+                  ),
+                ),
+                PlatformListTile(
+                  title: const Text('Application Color Theme'),
+                  trailing: const CupertinoListTileChevron(),
+                  onTap:
+                      () => Navigator.of(context).push(
+                        CupertinoDialogRoute(
+                          builder: (context) => const ColorSelectPage(),
+                          barrierColor: Theme.of(
+                            context,
+                          ).colorScheme.inverseSurface.withValues(alpha: .4),
+                          context: context,
                         ),
-                        CountPickerTile(
-                          titlePattern: 'Review ,?, words, a, day',
-                          initialCount: AppSettings.of(context).reviewCount,
-                          onPickDone: (count) {
-                            AppSettings.of(context).reviewCount = count;
-                          },
-                        ),
-                        CountPickerTile(
-                          titlePattern: 'Learn, new ,?, words, a, day',
-                          initialCount: AppSettings.of(context).learnCount,
-                          onPickDone: (count) {
-                            AppSettings.of(context).learnCount = count;
-                          },
-                        ),
-                      ],
-                    ),
-                    CupertinoFormSection(
-                      header: const Text('Theme'),
-                      children: [
-                        PlatformListTile(
-                          title: const Text('Dark mode'),
-                          trailing: PlatformSwitch(
-                            value:
-                                AppSettings.of(context).brightness ==
-                                Brightness.dark,
-                            onChanged:
-                                (value) =>
-                                    AppSettings.of(context).brightness =
-                                        value
-                                            ? Brightness.dark
-                                            : Brightness.light,
-                          ),
-                        ),
-                        PlatformListTile(
-                          title: const Text('Application Color Theme'),
-                          trailing: const CupertinoListTileChevron(),
-                          onTap:
-                              () => Navigator.of(context).push(
-                                CupertinoDialogRoute(
-                                  builder: (context) => const ColorSelectPage(),
-                                  barrierColor: Theme.of(context)
-                                      .colorScheme
-                                      .inverseSurface
-                                      .withValues(alpha: .4),
-                                  context: context,
+                      ),
+                ),
+              ],
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: ListenableBuilder(
+              listenable: MyDB(),
+              builder:
+                  (context, child) => FutureBuilder(
+                    future: MyDB().isReady,
+                    builder: (context, snapshot) {
+                      final canPunchOut =
+                          snapshot.data == true &&
+                          AppSettings.of(context).studyState.index >=
+                              StudyStatus.onTarget.index;
+                      return PlatformTextButton(
+                        onPressed:
+                            !canPunchOut
+                                ? null
+                                : () => Navigator.push(
+                                  context,
+                                  platformPageRoute(
+                                    context: context,
+                                    fullscreenDialog: true,
+                                    builder: (context) => const PunchOutPage(),
+                                  ),
                                 ),
-                              ),
-                        ),
-                      ],
+                        child: child,
+                      );
+                    },
+                  ),
+              child: const Text('Make up Punch Out'),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: CupertinoFormSection(
+              header: Text("Account"),
+              children: [
+                ActionButton(
+                  // isDestructiveAction: true,
+                  child: Text("Sign Out"),
+                  onPressed: () {
+                    UserProvider().currentUser = null;
+                    AppSettings.of(context).resetCacheOrSignOut(signOut: true);
+                    signOutFirebase().then(
+                      (_) =>
+                          context.mounted
+                              ? Navigator.pushReplacementNamed(
+                                context,
+                                AppRoute.login,
+                              )
+                              : null,
+                    );
+                  },
+                ),
+                ActionButton(
+                  isDestructiveAction: true,
+                  onPressed: () {},
+                  child: Text("Shit man"),
+                ),
+              ],
+            ),
+          ),
+          SliverPadding(padding: EdgeInsets.only(bottom: 24)),
+        ],
+      ),
+    );
+  }
+}
+
+class ProfileHeader extends StatelessWidget {
+  const ProfileHeader({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final hPadding = MediaQuery.sizeOf(context).width / 32;
+    return Container(
+      alignment: Alignment(0, 0),
+      // color: Colors.green,
+      // height: 100, // minus SafeAre remains 100
+      padding: EdgeInsets.symmetric(horizontal: hPadding),
+      child: StreamBuilder(
+        stream: UserProvider().userStateChanges(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return CircularProgressIndicator.adaptive();
+          }
+          final user = snapshot.data!;
+          return InkWell(
+            child: Row(
+              spacing: hPadding,
+              children: [
+                CircleAvatar(
+                  minRadius: 0,
+                  maxRadius: 50,
+                  child: FractionallySizedBox(
+                    widthFactor: 1,
+                    heightFactor: 1,
+                    child: FittedBox(
+                      fit: BoxFit.contain,
+                      child: Icon(CupertinoIcons.person_crop_circle),
                     ),
-                    ListenableBuilder(
-                      listenable: MyDB(),
-                      builder:
-                          (context, child) => FutureBuilder(
-                            future: MyDB().isReady,
-                            builder: (context, snapshot) {
-                              final canPunchOut =
-                                  snapshot.data == true &&
-                                  AppSettings.of(context).studyState.index >=
-                                      StudyStatus.onTarget.index;
-                              return PlatformTextButton(
-                                onPressed:
-                                    !canPunchOut
-                                        ? null
-                                        : () => Navigator.push(
-                                          context,
-                                          platformPageRoute(
-                                            context: context,
-                                            fullscreenDialog: true,
-                                            builder:
-                                                (context) =>
-                                                    const PunchOutPage(),
-                                          ),
-                                        ),
-                                child: child,
-                              );
-                            },
-                          ),
-                      child: const Text('Make up Punch Out'),
+                  ),
+                ),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      user.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: textTheme.titleMedium,
                     ),
-                    CupertinoFormSection(
-                      header: Text("Account"),
+                    Wrap(
                       children: [
-                        ActionButton(
-                          // isDestructiveAction: true,
-                          child: Text("Sign Out"),
-                          onPressed:
-                              () => signOutFirebase().then(
-                                (_) =>
-                                    context.mounted
-                                        ? Navigator.pushReplacementNamed(
-                                          context,
-                                          AppRoute.login,
-                                        )
-                                        : null,
-                              ),
+                        LimitedBox(
+                          maxWidth: 100,
+                          child: Text(
+                            "ID: ${user.uid}",
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
-                        ActionButton(
-                          isDestructiveAction: true,
-                          onPressed: () {},
-                          child: Text("Shit man"),
+                        GestureDetector(
+                          onTap: () {
+                            Clipboard.setData(ClipboardData(text: user.uid));
+                          },
+                          child: RotatedBox(
+                            quarterTurns: -1,
+                            child: Icon(
+                              CupertinoIcons.square_on_square,
+                              size: textTheme.bodyMedium?.fontSize?.scale(
+                                textTheme.bodyMedium?.height,
+                              ),
+                            ),
+                          ),
                         ),
                       ],
                     ),
                   ],
                 ),
-              ),
+                Expanded(child: SizedBox()),
+                Icon(
+                  CupertinoIcons.right_chevron,
+                  size: CupertinoTheme.of(
+                    context,
+                  ).textTheme.textStyle.fontSize?.scale(1.5),
+                  color: CupertinoColors.systemGrey2.resolveFrom(context),
+                ),
+              ],
             ),
           );
         },

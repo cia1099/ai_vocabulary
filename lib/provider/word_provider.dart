@@ -170,9 +170,9 @@ class ReviewProvider extends WordProvider {
 
 Future<List<Vocabulary>> requestWords(Set<int> wordIds) async {
   var words = <Vocabulary>[];
-  Exception? error = ApiException('initial');
+  Object? error = ApiException('initial');
   //errorID example: 1088
-  while (error != null) {
+  while (error is ApiException) {
     try {
       words = await getWords(wordIds);
       error = null;
@@ -187,10 +187,6 @@ Future<List<Vocabulary>> requestWords(Set<int> wordIds) async {
       final resampleIDs = await sampleWordIds(wordIds, errorIds.length);
       wordIds.addAll(resampleIDs);
       error = e;
-    } catch (e) {
-      //TODO: need to break while loop when http raise error, and hadle the message UI
-      print(e);
-      error = null;
     }
   }
   // MyDB.instance.insertWords(Stream.fromIterable(words));
