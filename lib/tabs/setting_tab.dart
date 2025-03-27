@@ -7,6 +7,7 @@ import 'package:ai_vocabulary/provider/user_provider.dart';
 import 'package:ai_vocabulary/utils/function.dart';
 import 'package:ai_vocabulary/utils/shortcut.dart';
 import 'package:ai_vocabulary/widgets/action_button.dart';
+import 'package:ai_vocabulary/widgets/segment_explanation.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -121,6 +122,10 @@ class SettingTab extends StatelessWidget {
                         (value) =>
                             AppSettings.of(context).hideSliderTitle = value,
                   ),
+                ),
+                PlatformListTile(
+                  title: Text("Default inquired sheet"),
+                  trailing: SegmentExplanation(),
                 ),
                 CountPickerTile(
                   titlePattern: 'Review ,?, words, a, day',

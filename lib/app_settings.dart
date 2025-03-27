@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:ai_vocabulary/database/my_db.dart';
 import 'package:ai_vocabulary/model/acquaintance.dart';
+import 'package:ai_vocabulary/pages/views/matching_word_view.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart' as p;
 
@@ -22,6 +23,7 @@ class MySettings extends ChangeNotifier {
   Brightness _brightness = Brightness.light;
   bool _hideSliderTitle = false;
   final targetStudy = ValueNotifier(StudyCount(newCount: 5, reviewCount: 5));
+  var defaultExplanation = SelectExplanation.explanation;
   //cache variables
   WordProvider? _wordProvider;
   var _studyState = StudyStatus.underTarget;
@@ -49,7 +51,7 @@ class MySettings extends ChangeNotifier {
     _wordProvider = null;
     studyMinute = 0;
     _studyState = StudyStatus.underTarget;
-    if (await _file!.exists() && !signOut) {
+    if (!signOut && await _file!.exists()) {
       final settings =
           json.decode(await _file!.readAsString()) as Map<String, dynamic>;
       readFromJson(settings);
@@ -144,6 +146,7 @@ class MySettings extends ChangeNotifier {
     "brightness": brightness.index,
     "hide_slider_title": hideSliderTitle,
     "target_study": targetStudy.value.toJson(),
+    "default_explanation": defaultExplanation.index,
   };
 
   void readFromJson(Map<String, dynamic> json) {
@@ -154,6 +157,7 @@ class MySettings extends ChangeNotifier {
     };
     _hideSliderTitle = json["hide_slider_title"];
     targetStudy.value = StudyCount.fromJson(json["target_study"]);
+    defaultExplanation = SelectExplanation.values[json["default_explanation"]];
   }
 
   @override

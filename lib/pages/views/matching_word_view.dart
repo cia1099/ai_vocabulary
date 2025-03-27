@@ -1,4 +1,5 @@
 import 'package:ai_vocabulary/api/dict_api.dart';
+import 'package:ai_vocabulary/app_settings.dart';
 import 'package:ai_vocabulary/model/vocabulary.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -110,31 +111,43 @@ class ExplanationBoard extends StatefulWidget {
 }
 
 class _ExplanationBoardState extends State<ExplanationBoard> {
-  var selectedIndex = 1; //TODO: used User setting as default value
+  late var selected = AppSettings.of(context).defaultExplanation;
+  final unselectColor = CupertinoDynamicColor.withBrightness(
+    color: CupertinoColors.systemFill.highContrastColor,
+    darkColor: CupertinoColors.systemFill.darkHighContrastColor,
+  );
   @override
   Widget build(BuildContext context) {
     final textTheme = CupertinoTheme.of(context).textTheme;
-    const selection = ["translation", "explanation"];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Wrap(
           spacing: widget.hPadding,
-          children: List.generate(selection.length, (i) {
-            final text = selection[i];
-            return GestureDetector(
-              onTap: () {
-                if (selectedIndex != i) {
-                  selectedIndex = i;
-                  setState(() {});
-                }
-              },
-              child:
-                  selectedIndex == i
-                      ? HighlineText(text, style: textTheme.navTitleTextStyle)
-                      : Text(text, style: textTheme.navTitleTextStyle),
-            );
-          }),
+          children: [
+            for (final s in SelectExplanation.values)
+              GestureDetector(
+                onTap: () {
+                  if (selected != s) {
+                    setState(() {
+                      selected = s;
+                    });
+                  }
+                },
+                child:
+                    selected == s
+                        ? HighlineText(
+                          s.type,
+                          style: textTheme.navTitleTextStyle,
+                        )
+                        : Text(
+                          s.type,
+                          style: textTheme.navTitleTextStyle.copyWith(
+                            color: unselectColor.resolveFrom(context),
+                          ),
+                        ),
+              ),
+          ],
         ),
         SizedBox(height: widget.hPadding / 8),
         AnimatedSwitcher(
@@ -148,10 +161,10 @@ class _ExplanationBoardState extends State<ExplanationBoard> {
                 child: ScaleTransition(scale: animation, child: child),
               ),
           child: Column(
-            key: ValueKey(selectedIndex),
+            key: ValueKey(selected.index),
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (selectedIndex == 0)
+              if (selected == SelectExplanation.translation)
                 for (final definition in widget.word.definitions)
                   if (definition.translate != null)
                     AlignParagraph(
@@ -169,7 +182,7 @@ class _ExplanationBoardState extends State<ExplanationBoard> {
                       xInterval: widget.hPadding / 4,
                       paragraphStyle: textTheme.textStyle,
                     ),
-              if (selectedIndex == 1)
+              if (selected == SelectExplanation.explanation)
                 for (final definition in widget.word.definitions)
                   AlignParagraph.text(
                     mark: Text(
@@ -194,6 +207,14 @@ class _ExplanationBoardState extends State<ExplanationBoard> {
   }
 }
 
+enum SelectExplanation {
+  translation("translation"),
+  explanation("explanation");
+
+  final String type;
+  const SelectExplanation(this.type);
+}
+
 class HighlineText extends StatelessWidget {
   final String text;
   final TextStyle? style;
@@ -202,7 +223,7 @@ class HighlineText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    return Container(
+    return DecoratedBox(
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
