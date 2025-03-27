@@ -155,16 +155,15 @@ class _ExplanationBoardState extends State<ExplanationBoard> {
                 for (final definition in widget.word.definitions)
                   if (definition.translate != null)
                     AlignParagraph(
-                      mark: Text.rich(
-                        SpeechColoredText(
-                          partOfSpeech: definition.partOfSpeech,
-                          context: context,
-                          isShortcut: true,
-                          length: 4,
-                          style: textTheme.textStyle.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ).span,
+                      mark: Text(
+                        definition.partOfSpeech,
+                        style: textTheme.textStyle.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ).coloredSpeech(
+                        context: context,
+                        isShortcut: true,
+                        length: 4,
                       ),
                       paragraph: Text(definition.translate ?? ''),
                       xInterval: widget.hPadding / 4,
@@ -173,16 +172,15 @@ class _ExplanationBoardState extends State<ExplanationBoard> {
               if (selectedIndex == 1)
                 for (final definition in widget.word.definitions)
                   AlignParagraph.text(
-                    mark: Text.rich(
-                      SpeechColoredText(
-                        partOfSpeech: definition.partOfSpeech,
-                        context: context,
-                        isShortcut: true,
-                        length: 4,
-                        style: textTheme.textStyle.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ).span,
+                    mark: Text(
+                      definition.partOfSpeech,
+                      style: textTheme.textStyle.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ).coloredSpeech(
+                      context: context,
+                      isShortcut: true,
+                      length: 4,
                     ),
                     paragraph: definition.index2Explanation(),
                     xInterval: widget.hPadding / 4,

@@ -134,13 +134,10 @@ class PartOfSpeechTitle extends StatelessWidget {
       spacing: 8,
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
-        Text.rich(
-          SpeechColoredText(
-            partOfSpeech: definition.partOfSpeech,
-            context: context,
-            style: textTheme.titleLarge!.copyWith(fontWeight: FontWeight.bold),
-          ).span,
-        ),
+        Text(
+          definition.partOfSpeech,
+          style: textTheme.titleLarge!.copyWith(fontWeight: FontWeight.bold),
+        ).coloredSpeech(context: context),
         if (definition.phoneticUk != null)
           Row(
             mainAxisSize: MainAxisSize.min,

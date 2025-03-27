@@ -111,13 +111,10 @@ class _DefinitionSlidersState extends State<DefinitionSliders>
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text.rich(
-                              SpeechColoredText(
-                                partOfSpeech: definition.partOfSpeech,
-                                context: context,
-                                style: titleStyle,
-                              ).span,
-                            ),
+                            Text(
+                              definition.partOfSpeech,
+                              style: titleStyle,
+                            ).coloredSpeech(context: context),
                             Text.rich(
                               TextSpan(
                                 children: [

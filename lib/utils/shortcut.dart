@@ -46,41 +46,17 @@ String speechShortcut(String partOfSpeech, {int length = 0}) {
       : shortcut;
 }
 
-class SpeechColoredText {
-  final String partOfSpeech;
-  final BuildContext context;
-  final int length;
-  final bool isShortcut;
-  final TextStyle? style;
-
-  final double maxWidth;
-  late final TextPainter textPainter;
-
-  SpeechColoredText({
-    required this.partOfSpeech,
-    required this.context,
-    this.isShortcut = false,
-    this.length = 0,
-    this.maxWidth = double.infinity,
-    this.style,
+extension SpeechColoredText on Text {
+  Text coloredSpeech({
+    required BuildContext context,
+    final bool isShortcut = false,
+    final int length = 0,
   }) {
-    final color = _speechColor(partOfSpeech)?.resolveFrom(context);
-    textPainter = TextPainter(
-      textDirection: TextDirection.ltr,
-      text: TextSpan(
-        text: isShortcut ? _shortcut() : partOfSpeech,
-        style: style?.apply(color: color) ?? TextStyle(color: color),
-      ),
-    )..layout(maxWidth: maxWidth);
+    final color = _speechColor(data!)?.resolveFrom(context);
+    final text = isShortcut ? speechShortcut(data!, length: length) : data!;
+    return Text(
+      text,
+      style: style?.apply(color: color) ?? TextStyle(color: color),
+    );
   }
-
-  String _shortcut() {
-    final shortcut =
-        _speechShortcut[partOfSpeech] ?? '${partOfSpeech.substring(0, 3)}.';
-    return shortcut.length < length
-        ? ' ' * (length - shortcut.length) + shortcut
-        : shortcut;
-  }
-
-  InlineSpan get span => textPainter.text!;
 }
