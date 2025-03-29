@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:ai_vocabulary/api/dict_api.dart';
+import 'package:ai_vocabulary/app_settings.dart';
 import 'package:ai_vocabulary/database/my_db.dart';
 import 'package:ai_vocabulary/model/message.dart';
 import 'package:ai_vocabulary/painters/bubble_shape.dart';
@@ -68,7 +69,7 @@ class _ChatBubbleState extends State<ChatBubble> with ShowContentMixin {
                     : Theme(
                       data: ThemeData(
                         iconTheme: IconThemeData(
-                          color: colorScheme.onSurface.withOpacity(.6),
+                          color: colorScheme.onSurface.withValues(alpha: .6),
                           size: iconSize * 1.6,
                         ),
                       ),
@@ -155,14 +156,20 @@ class _ChatBubbleState extends State<ChatBubble> with ShowContentMixin {
     );
   }
 
-  void soundContent(Message msg) async {
+  Future<void> soundContent(Message msg) {
     final file = File(
       p.join(MyDB().appDirectory, 'audio', '${msg.timeStamp}.wav'),
     );
-    if (await file.exists()) {
+    if (file.existsSync()) {
       return file.readAsBytes().then((bytes) => bytesPlay(bytes, 'audio/wav'));
     }
-    return soundAzure(widget.message.content);
+    final accent = AppSettings.of(context).accent;
+    final voicer = AppSettings.of(context).voicer;
+    return soundAzure(
+      widget.message.content,
+      lang: accent.azure.lang,
+      sound: voicer,
+    );
   }
 }
 

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:ai_vocabulary/app_settings.dart';
 import 'package:ai_vocabulary/effects/show_toast.dart';
 import 'package:ai_vocabulary/utils/handle_except.dart';
 import 'package:flutter/material.dart';
@@ -24,15 +25,20 @@ class RequireChatBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
+    final screenWidth = MediaQuery.sizeOf(context).width;
     final colorScheme = Theme.of(context).colorScheme;
+    final accent = AppSettings.of(context).accent;
+    final voicer = AppSettings.of(context).voicer;
     final leadingWidth = screenWidth * .1;
     final contentWidth = screenWidth * (.75 + (leading == null ? .1 : 0));
     final req = message;
-    final future = chatVocabulary(req.vocabulary.split(', ').first, req.content,
-            req.srcMsg.userID == null)
-        .then((ans) async {
-      if (!ChatBubble.showContents.value) await soundAzure(ans.answer);
+    final future = chatVocabulary(
+      req.vocabulary.split(', ').first,
+      req.content,
+      req.srcMsg.userID == null,
+    ).then((ans) async {
+      if (!ChatBubble.showContents.value)
+        await soundAzure(ans.answer, lang: accent.azure.lang, sound: voicer);
       return ans;
     });
     return ListenableBuilder(
@@ -49,7 +55,7 @@ class RequireChatBubble extends StatelessWidget {
                 constraints: BoxConstraints(maxWidth: leadingWidth),
                 child: req.srcMsg.hasError ? null : leading,
               ),
-            child!
+            child!,
           ],
         );
       },
@@ -59,7 +65,9 @@ class RequireChatBubble extends StatelessWidget {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return CustomPaint(
               painter: ChatBubblePainter(
-                  color: colorScheme.surfaceContainerHigh, isMe: false),
+                color: colorScheme.surfaceContainerHigh,
+                isMe: false,
+              ),
               child: waitingContent(contentWidth),
             );
           }
@@ -80,44 +88,55 @@ class RequireChatBubble extends StatelessWidget {
           }
           final ans = snapshot.data!;
           final responseMsg = TextMessage(
-              content: ans.answer,
-              timeStamp: ans.created,
-              patterns: message.vocabulary.split(', '),
-              wordID: message.wordID,
-              userID: ans.userId);
+            content: ans.answer,
+            timeStamp: ans.created,
+            patterns: message.vocabulary.split(', '),
+            wordID: message.wordID,
+            userID: ans.userId,
+          );
           upgradeMessage(responseMsg);
           if (ans.quiz) {
             Timer(const Duration(seconds: 2), () {
               final acquaint = MyDB().getAcquaintance(message.wordID).acquaint;
               MyDB().updateAcquaintance(
-                  wordId: message.wordID,
-                  acquaint: acquaint + 1,
-                  isCorrect: ans.quiz);
+                wordId: message.wordID,
+                acquaint: acquaint + 1,
+                isCorrect: ans.quiz,
+              );
               appearAward(context, message.vocabulary.split(', ').firstOrNull);
             });
           }
           return ChatBubble(
-              message: responseMsg,
-              maxWidth: contentWidth,
-              child: StreamBuilder(
-                  stream: (String text) async* {
+            message: responseMsg,
+            maxWidth: contentWidth,
+            child: StreamBuilder(
+              stream:
+                  (String text) async* {
                     if (ChatBubble.showContents.value) {
-                      await soundAzure(text);
+                      await soundAzure(
+                        text,
+                        lang: accent.azure.lang,
+                        sound: voicer,
+                      );
                       for (int s = 1; s <= text.length; s++) {
                         yield Text(text.substring(0, s));
                         await Future.delayed(
-                            s <= 4 ? Durations.short2 : Durations.short1);
+                          s <= 4 ? Durations.short2 : Durations.short1,
+                        );
                       }
                     }
-                  }(ans.answer)
-                      .asBroadcastStream(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.done) {
-                      return ClickableText(ans.answer,
-                          patterns: responseMsg.patterns);
-                    }
-                    return snapshot.data ?? waitingContent(contentWidth);
-                  }));
+                  }(ans.answer).asBroadcastStream(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.done) {
+                  return ClickableText(
+                    ans.answer,
+                    patterns: responseMsg.patterns,
+                  );
+                }
+                return snapshot.data ?? waitingContent(contentWidth);
+              },
+            ),
+          );
         },
       ),
     );

@@ -28,7 +28,11 @@ class _MatchingWordViewState extends State<MatchingWordView> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Future.delayed(Durations.medium1, () => soundGTTs(widget.word.word));
+      final accent = AppSettings.of(context).accent;
+      Future.delayed(
+        Durations.medium1,
+        () => soundGTTs(widget.word.word, accent.gTTS),
+      );
     });
   }
 
@@ -48,7 +52,11 @@ class _MatchingWordViewState extends State<MatchingWordView> {
                 TextSpan(text: '\t' * 2),
                 WidgetSpan(
                   child: GestureDetector(
-                    onTap: () => soundGTTs(widget.word.word),
+                    onTap:
+                        () => soundGTTs(
+                          widget.word.word,
+                          AppSettings.of(context).accent.gTTS,
+                        ),
                     child: Icon(
                       CupertinoIcons.volume_up,
                       size: textTheme.titleLarge!.fontSize! * 1.25,

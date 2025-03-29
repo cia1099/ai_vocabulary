@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'package:ai_vocabulary/app_settings.dart';
 import 'package:ai_vocabulary/database/my_db.dart';
 import 'package:ai_vocabulary/model/collections.dart';
 import 'package:ai_vocabulary/model/vocabulary.dart';
@@ -186,7 +187,8 @@ class _FavoriteWordsPageState extends State<FavoriteWordsPage> {
   }
 
   Iterable<Widget> takeSections() {
-    final hPadding = MediaQuery.of(context).size.width / 32;
+    final hPadding = MediaQuery.sizeOf(context).width / 32;
+    final accent = AppSettings.of(context).accent;
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
     return Iterable.generate(capitalKeys.length, (i) {
@@ -257,7 +259,11 @@ class _FavoriteWordsPageState extends State<FavoriteWordsPage> {
                           TextSpan(text: '\t' * 4),
                           WidgetSpan(
                             child: PlatformIconButton(
-                              onPressed: playPhonetic(null, word: word.word),
+                              onPressed: playPhonetic(
+                                null,
+                                word: word.word,
+                                gTTs: accent.gTTS,
+                              ),
                               padding: EdgeInsets.zero,
                               icon: const Icon(CupertinoIcons.volume_up),
                               cupertino:

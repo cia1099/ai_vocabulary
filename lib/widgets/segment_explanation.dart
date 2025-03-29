@@ -21,14 +21,7 @@ class _SegmentExplanationState extends State<SegmentExplanation> {
             showSelectedIcon: false,
             segments: [
               for (final value in SelectExplanation.values)
-                ButtonSegment(
-                  value: value,
-                  label: Text(
-                    value.type,
-                    maxLines: 1,
-                    overflow: TextOverflow.fade,
-                  ),
-                ),
+                ButtonSegment(value: value, label: Text(value.type)),
             ],
             onSelectionChanged:
                 (set) => setState(() {

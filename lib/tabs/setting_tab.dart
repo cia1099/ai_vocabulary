@@ -1,4 +1,4 @@
-import 'dart:math' show Random;
+import 'dart:math' show Random, pi;
 
 import 'package:ai_vocabulary/app_route.dart';
 import 'package:ai_vocabulary/database/my_db.dart';
@@ -8,14 +8,16 @@ import 'package:ai_vocabulary/utils/function.dart';
 import 'package:ai_vocabulary/utils/shortcut.dart';
 import 'package:ai_vocabulary/widgets/action_button.dart';
 import 'package:ai_vocabulary/widgets/segment_explanation.dart';
+import 'package:ai_vocabulary/firebase/authorization.dart' show signOutFirebase;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
-import 'package:ai_vocabulary/firebase/authorization.dart' show signOutFirebase;
+import 'package:vector_math/vector_math.dart' show Matrix2;
 
 import '../app_settings.dart';
 import '../pages/color_select_page.dart';
+import '../utils/enums.dart';
 import '../widgets/count_picker_tile.dart';
 
 class SettingTab extends StatelessWidget {
@@ -128,50 +130,67 @@ class SettingTab extends StatelessWidget {
                   trailing: SegmentExplanation(),
                 ),
                 CountPickerTile(
+                  titlePattern: "Voicer ,?,",
+                  initialCount: AppSettings.of(context).voicer.index,
+                  itemText:
+                      (index, value) =>
+                          '${AzureVoicer.values[index].name} ${AzureVoicer.values[index].gender == 'Male' ? '🙎‍♂️' : '🙎‍♀️'}',
+                  itemCount: AzureVoicer.values.length,
+                  onPickDone:
+                      (index) =>
+                          AppSettings.of(context).voicer =
+                              AzureVoicer.values[index],
+                ),
+                PlatformListTile(
+                  title: Text("Accent"),
+                  trailing: StatefulBuilder(
+                    builder:
+                        (context, setState) => Wrap(
+                          spacing: 8,
+                          children: [
+                            for (final accent in Accent.values)
+                              Row(
+                                children: [
+                                  PlatformRadio<Accent>(
+                                    value: accent,
+                                    activeColor:
+                                        Theme.of(context).colorScheme.primary,
+                                    groupValue: AppSettings.of(context).accent,
+                                    onChanged:
+                                        (accent) => setState(() {
+                                          AppSettings.of(context).accent =
+                                              accent;
+                                        }),
+                                  ),
+                                  Text(
+                                    accent.flag,
+                                    textScaler: TextScaler.linear(2),
+                                  ),
+                                ],
+                              ),
+                          ],
+                        ),
+                  ),
+                ),
+                CountPickerTile(
                   titlePattern: 'Review ,?, words, a, day',
                   initialCount: AppSettings.of(context).reviewCount,
+                  itemText: (index, value) => value.toString(),
+                  itemCount: 40,
                   onPickDone: (count) {
                     AppSettings.of(context).reviewCount = count;
                   },
+                  transform: Matrix2(5, 0, 5, 1),
                 ),
                 CountPickerTile(
                   titlePattern: 'Learn, new ,?, words, a, day',
                   initialCount: AppSettings.of(context).learnCount,
+                  itemText: (index, value) => value.toString(),
+                  itemCount: 40,
                   onPickDone: (count) {
                     AppSettings.of(context).learnCount = count;
                   },
-                ),
-              ],
-            ),
-          ),
-          SliverToBoxAdapter(
-            child: CupertinoFormSection(
-              header: const Text('Theme'),
-              children: [
-                PlatformListTile(
-                  title: const Text('Dark mode'),
-                  trailing: PlatformSwitch(
-                    value:
-                        AppSettings.of(context).brightness == Brightness.dark,
-                    onChanged:
-                        (value) =>
-                            AppSettings.of(context).brightness =
-                                value ? Brightness.dark : Brightness.light,
-                  ),
-                ),
-                PlatformListTile(
-                  title: const Text('Application Color Theme'),
-                  trailing: const CupertinoListTileChevron(),
-                  onTap:
-                      () => Navigator.of(context).push(
-                        CupertinoDialogRoute(
-                          builder: (context) => const ColorSelectPage(),
-                          barrierColor: Theme.of(
-                            context,
-                          ).colorScheme.inverseSurface.withValues(alpha: .4),
-                          context: context,
-                        ),
-                      ),
+                  transform: Matrix2(5, 0, 5, 1),
                 ),
               ],
             ),
@@ -204,6 +223,38 @@ class SettingTab extends StatelessWidget {
                     },
                   ),
               child: const Text('Make up Punch Out'),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: CupertinoFormSection(
+              header: const Text('Theme'),
+              children: [
+                PlatformListTile(
+                  title: const Text('Dark mode'),
+                  trailing: PlatformSwitch(
+                    value:
+                        AppSettings.of(context).brightness == Brightness.dark,
+                    onChanged:
+                        (value) =>
+                            AppSettings.of(context).brightness =
+                                value ? Brightness.dark : Brightness.light,
+                  ),
+                ),
+                PlatformListTile(
+                  title: const Text('Application Color Theme'),
+                  trailing: const CupertinoListTileChevron(),
+                  onTap:
+                      () => Navigator.of(context).push(
+                        CupertinoDialogRoute(
+                          builder: (context) => const ColorSelectPage(),
+                          barrierColor: Theme.of(
+                            context,
+                          ).colorScheme.inverseSurface.withValues(alpha: .4),
+                          context: context,
+                        ),
+                      ),
+                ),
+              ],
             ),
           ),
           SliverToBoxAdapter(
@@ -301,8 +352,9 @@ class ProfileHeader extends StatelessWidget {
                           onTap: () {
                             Clipboard.setData(ClipboardData(text: user.uid));
                           },
-                          child: RotatedBox(
-                            quarterTurns: -1,
+                          child: Transform(
+                            transform: Matrix4.rotationX(pi),
+                            alignment: Alignment(0, 0),
                             child: Icon(
                               CupertinoIcons.square_on_square,
                               size: textTheme.bodyMedium?.fontSize?.scale(
@@ -313,6 +365,7 @@ class ProfileHeader extends StatelessWidget {
                         ),
                       ],
                     ),
+                    Text("Primary"),
                   ],
                 ),
                 Expanded(child: SizedBox()),

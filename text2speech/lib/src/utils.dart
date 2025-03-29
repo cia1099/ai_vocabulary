@@ -54,3 +54,15 @@ Uri redirectUrl(Uri oldUrl) {
       Uri.https(oldUrl.authority, (['dict'] + oldUrl.pathSegments).join('/'));
   return newUri;
 }
+
+enum AzureLang {
+  US("en-US"),
+  UK("en-GB"),
+  CA("en-CA"), //Canada
+  AU("en-AU"), //Australia
+  IN("en-IN"), //India
+  IE("en-IE"); //Ireland
+
+  final String lang;
+  const AzureLang(this.lang);
+}

@@ -12,6 +12,8 @@ import 'package:http_parser/http_parser.dart' show MediaType;
 import 'package:path/path.dart' as p;
 import 'package:text2speech/text2speech.dart';
 
+import '../utils/enums.dart';
+
 part 'audio_api.dart';
 part 'auth_api.dart';
 

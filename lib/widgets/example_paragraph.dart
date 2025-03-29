@@ -1,6 +1,7 @@
 import 'dart:math' show sqrt2;
 
 import 'package:ai_vocabulary/api/dict_api.dart';
+import 'package:ai_vocabulary/app_settings.dart';
 import 'package:ai_vocabulary/utils/function.dart';
 import 'package:ai_vocabulary/widgets/align_paragraph.dart';
 import 'package:ai_vocabulary/widgets/imagen_dialog.dart';
@@ -36,6 +37,8 @@ class _ExampleParagraphState extends State<ExampleParagraph>
       color: colorScheme.onPrimaryContainer,
       fontSizeFactor: sqrt2,
     );
+    final accent = AppSettings.of(context).accent;
+    final voicer = AppSettings.of(context).voicer;
     return AlignParagraph(
       xInterval: 4,
       mark: Padding(
@@ -71,12 +74,22 @@ class _ExampleParagraphState extends State<ExampleParagraph>
               child: PlatformWidgetBuilder(
                 material:
                     (_, child, __) => InkWell(
-                      onTap: () => soundAzure(widget.example),
+                      onTap:
+                          () => soundAzure(
+                            widget.example,
+                            lang: accent.azure.lang,
+                            sound: voicer,
+                          ),
                       child: child,
                     ),
                 cupertino:
                     (_, child, __) => GestureDetector(
-                      onTap: () => soundAzure(widget.example),
+                      onTap:
+                          () => soundAzure(
+                            widget.example,
+                            lang: accent.azure.lang,
+                            sound: voicer,
+                          ),
                       child: child,
                     ),
                 child: Icon(

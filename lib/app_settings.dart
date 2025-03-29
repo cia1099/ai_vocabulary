@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:path/path.dart' as p;
 
 import 'provider/word_provider.dart';
+import 'utils/enums.dart';
 
 class AppSettings extends InheritedNotifier<MySettings> {
   const AppSettings({super.key, required super.notifier, required super.child})
@@ -24,6 +25,7 @@ class MySettings extends ChangeNotifier {
   bool _hideSliderTitle = false;
   final targetStudy = ValueNotifier(StudyCount(newCount: 5, reviewCount: 5));
   var defaultExplanation = SelectExplanation.explanation;
+  var voicer = AzureVoicer.Ava, accent = Accent.US;
   //cache variables
   WordProvider? _wordProvider;
   var _studyState = StudyStatus.underTarget;
@@ -147,6 +149,8 @@ class MySettings extends ChangeNotifier {
     "hide_slider_title": hideSliderTitle,
     "target_study": targetStudy.value.toJson(),
     "default_explanation": defaultExplanation.index,
+    "voicer": voicer.index,
+    "accent": accent.index,
   };
 
   void readFromJson(Map<String, dynamic> json) {
@@ -158,6 +162,8 @@ class MySettings extends ChangeNotifier {
     _hideSliderTitle = json["hide_slider_title"];
     targetStudy.value = StudyCount.fromJson(json["target_study"]);
     defaultExplanation = SelectExplanation.values[json["default_explanation"]];
+    voicer = AzureVoicer.values.elementAt(json["voicer"] ?? 0);
+    accent = Accent.values.elementAt(json["accent"] ?? 0);
   }
 
   @override

@@ -17,8 +17,9 @@ Future<void> soundGTTs(String text, [gTTS lang = gTTS.US]) async {
 Future<void> soundAzure(
   String text, {
   String lang = 'en-US',
-  String gender = 'Female',
-  String name = 'en-US-AvaMultilingualNeural',
+  // String gender = 'Female',
+  // String name = 'en-US-AvaMultilingualNeural',
+  AzureVoicer sound = AzureVoicer.Ava,
 }) async {
   final url = Uri.http(baseURL, '/dict/azure/audio');
   final accessToken = UserProvider().currentUser?.accessToken;
@@ -29,8 +30,8 @@ Future<void> soundAzure(
   final body = jsonEncode({
     'text': text,
     'lang': lang,
-    'gender': gender,
-    'name': name,
+    'gender': sound.gender,
+    'name': sound.apiName,
   });
   final res = await http
       .post(url, headers: headers, body: body)
