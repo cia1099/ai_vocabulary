@@ -24,8 +24,8 @@ class MySettings extends ChangeNotifier {
   Brightness _brightness = Brightness.light;
   bool _hideSliderTitle = false;
   final targetStudy = ValueNotifier(StudyCount(newCount: 5, reviewCount: 5));
-  var defaultExplanation = SelectExplanation.explanation;
-  var voicer = AzureVoicer.Ava, accent = Accent.US;
+  var _defaultExplanation = SelectExplanation.explanation;
+  var _voicer = AzureVoicer.Ava, _accent = Accent.US;
   //cache variables
   WordProvider? _wordProvider;
   var _studyState = StudyStatus.underTarget;
@@ -37,14 +37,8 @@ class MySettings extends ChangeNotifier {
     if (isReady != true) return;
     if (_file == null) {
       _file ??= File(p.join(MyDB().appDirectory, 'my_settings.json'));
-      addListener(() {
-        final encoder = JsonEncoder.withIndent(' ' * 4);
-        _file!.writeAsString(encoder.convert(toJson()));
-      });
-      targetStudy.addListener(() {
-        final encoder = JsonEncoder.withIndent(' ' * 4);
-        _file!.writeAsString(encoder.convert(toJson()));
-      });
+      addListener(write2Disk);
+      targetStudy.addListener(write2Disk);
     }
     await resetCacheOrSignOut();
   }
@@ -103,6 +97,24 @@ class MySettings extends ChangeNotifier {
     targetStudy.value = StudyCount(newCount: count, reviewCount: reviewCount);
   }
 
+  SelectExplanation get defaultExplanation => _defaultExplanation;
+  set defaultExplanation(SelectExplanation newExplanation) {
+    _defaultExplanation = newExplanation;
+    write2Disk();
+  }
+
+  AzureVoicer get voicer => _voicer;
+  set voicer(AzureVoicer v) {
+    _voicer = v;
+    write2Disk();
+  }
+
+  Accent get accent => _accent;
+  set accent(Accent a) {
+    _accent = a;
+    write2Disk();
+  }
+
   //StudyState FSM
   StudyStatus get studyState => _studyState;
   set studyState(StudyStatus newStatus) {
@@ -143,6 +155,13 @@ class MySettings extends ChangeNotifier {
     }
   }
 
+  void write2Disk() {
+    if (_file != null) {
+      final encoder = JsonEncoder.withIndent(' ' * 4);
+      _file!.writeAsString(encoder.convert(toJson()));
+    }
+  }
+
   Map<String, dynamic> toJson() => {
     "color_index": colorIndex,
     "brightness": brightness.index,
@@ -161,9 +180,9 @@ class MySettings extends ChangeNotifier {
     };
     _hideSliderTitle = json["hide_slider_title"];
     targetStudy.value = StudyCount.fromJson(json["target_study"]);
-    defaultExplanation = SelectExplanation.values[json["default_explanation"]];
-    voicer = AzureVoicer.values.elementAt(json["voicer"] ?? 0);
-    accent = Accent.values.elementAt(json["accent"] ?? 0);
+    _defaultExplanation = SelectExplanation.values[json["default_explanation"]];
+    _voicer = AzureVoicer.values.elementAt(json["voicer"] ?? 0);
+    _accent = Accent.values.elementAt(json["accent"] ?? 0);
   }
 
   @override

@@ -32,6 +32,7 @@ const kMaxInt64 = 9223372036854775807;
 const kUncategorizedName = 'uncategorized';
 // const kcollapsedSliverHeight = 64.0;
 const kExpandedSliverAppBarHeight = 112.0;
+const kChatBotUID = '00000000-0000-0000-0000-000000000000';
 
 const kCupertinoSheetColor = CupertinoDynamicColor.withBrightness(
   color: Color(0xCCF2F2F2),

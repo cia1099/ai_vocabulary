@@ -6,10 +6,7 @@ import 'package:intl/intl.dart';
 import '../utils/function.dart';
 
 class RememberRetention extends StatelessWidget {
-  const RememberRetention({
-    super.key,
-    this.acquaintance,
-  });
+  const RememberRetention({super.key, this.acquaintance});
 
   final Acquaintance? acquaintance;
 
@@ -30,10 +27,7 @@ class RememberRetention extends StatelessWidget {
 }
 
 class LearnedLabel extends StatelessWidget {
-  const LearnedLabel({
-    super.key,
-    this.lastLearnedTime,
-  });
+  const LearnedLabel({super.key, this.lastLearnedTime});
   final int? lastLearnedTime;
 
   @override
@@ -44,8 +38,9 @@ class LearnedLabel extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(4),
         decoration: BoxDecoration(
-            // color: Colors.yellow,
-            border: Border.all(color: colorScheme.onSurface)),
+          // color: Colors.yellow,
+          border: Border.all(color: colorScheme.onSurface),
+        ),
         child: Text("${title(lastLearnedTime)}", maxLines: 1),
       ),
     );
@@ -62,7 +57,7 @@ class LearnedLabel extends StatelessWidget {
     } else if (dt < 1440) {
       info = '${dt ~/ 60} hours ago';
     } else if (dt < 2880) {
-      info = 'yesterday after ${dt ~/ 60} hours';
+      info = 'yesterday';
     } else if (dt < 43200) {
       info = '${dt ~/ 1440} days ago';
     } else if (dt < 518400) {

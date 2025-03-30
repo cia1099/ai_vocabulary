@@ -151,7 +151,7 @@ class SettingTab extends StatelessWidget {
                             for (final accent in Accent.values)
                               Row(
                                 children: [
-                                  PlatformRadio<Accent>(
+                                  Radio.adaptive(
                                     value: accent,
                                     activeColor:
                                         Theme.of(context).colorScheme.primary,
@@ -159,7 +159,7 @@ class SettingTab extends StatelessWidget {
                                     onChanged:
                                         (accent) => setState(() {
                                           AppSettings.of(context).accent =
-                                              accent;
+                                              accent!;
                                         }),
                                   ),
                                   Text(

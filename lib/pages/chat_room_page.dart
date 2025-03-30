@@ -1,6 +1,8 @@
 import 'package:ai_vocabulary/database/my_db.dart';
 import 'package:ai_vocabulary/model/message.dart';
 import 'package:ai_vocabulary/model/vocabulary.dart';
+import 'package:ai_vocabulary/provider/user_provider.dart';
+import 'package:ai_vocabulary/utils/shortcut.dart';
 import 'package:ai_vocabulary/widgets/capital_avatar.dart';
 import 'package:ai_vocabulary/widgets/chat_input_panel.dart';
 import 'package:ai_vocabulary/widgets/require_chat_bubble.dart';
@@ -27,7 +29,6 @@ class _ChatRoomPageState extends State<ChatRoomPage> implements ChatInput {
   final scrollController = ScrollController();
   final showTips = ValueNotifier(false);
   var showBottomSheet = false;
-  final myID = '1';
 
   @override
   void initState() {
@@ -114,20 +115,24 @@ class _ChatRoomPageState extends State<ChatRoomPage> implements ChatInput {
                 ),
                 controller: scrollController,
                 itemCount: messages.length,
-                itemBuilder:
-                    (context, index) => ChatListTile(
-                      message: messages[index],
-                      leading:
-                          messages[index].userID != myID
-                              ? CapitalAvatar(
-                                id: widget.word.wordId,
-                                name: widget.word.word,
-                                url: widget.word.asset,
-                              )
-                              : null,
-                      upgradeMessage: (msg) => messages[index] = msg,
-                      sendMessage: (msg) => mounted && sendMessage(msg),
-                    ),
+                itemBuilder: (context, index) {
+                  final isMe =
+                      messages[index].userID != null &&
+                      messages[index].userID != kChatBotUID;
+                  return ChatListTile(
+                    message: messages[index],
+                    leading:
+                        !isMe
+                            ? CapitalAvatar(
+                              id: widget.word.wordId,
+                              name: widget.word.word,
+                              url: widget.word.asset,
+                            )
+                            : null,
+                    upgradeMessage: (msg) => messages[index] = msg,
+                    sendMessage: (msg) => mounted && sendMessage(msg),
+                  );
+                },
               ),
             ),
             ValueListenableBuilder(
@@ -217,7 +222,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> implements ChatInput {
       timeStamp: msg.timeStamp,
       wordID: widget.word.wordId,
       patterns: widget.word.getMatchingPatterns,
-      userID: myID,
+      userID: UserProvider().currentUser?.uid,
     );
     Future.delayed(Durations.long3, () => mounted && sendMessage(newMessage));
     setState(() {
@@ -240,5 +245,6 @@ const _tips = [
   'Can you give me some tips to help me make a sentence using this word?',
   'Can you explain to me the definition of this vocabulary?',
   'Is there an extended phrase, slang, or idiom associated with this word? What are they?',
+  'Use disassembling a word to help me memorize the word',
   'Can you give me examples using this word?',
 ];

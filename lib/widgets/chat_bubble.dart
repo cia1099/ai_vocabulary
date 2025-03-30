@@ -6,6 +6,7 @@ import 'package:ai_vocabulary/database/my_db.dart';
 import 'package:ai_vocabulary/model/message.dart';
 import 'package:ai_vocabulary/painters/bubble_shape.dart';
 import 'package:ai_vocabulary/utils/clickable_text_mixin.dart';
+import 'package:ai_vocabulary/utils/shortcut.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
@@ -31,7 +32,8 @@ class ChatBubble extends StatefulWidget {
 }
 
 class _ChatBubbleState extends State<ChatBubble> with ShowContentMixin {
-  late final isMe = widget.message.userID == '1';
+  late final isMe =
+      widget.message.userID != null && widget.message.userID != kChatBotUID;
 
   @override
   Widget build(BuildContext context) {
