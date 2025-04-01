@@ -5,6 +5,8 @@ import 'dart:ui';
 import 'package:ai_vocabulary/app_settings.dart';
 import 'package:ai_vocabulary/effects/show_toast.dart';
 import 'package:ai_vocabulary/effects/transient.dart';
+import 'package:ai_vocabulary/firebase/authorization.dart'
+    show signInAnonymously;
 import 'package:ai_vocabulary/firebase/firebase_auth_mixin.dart';
 import 'package:ai_vocabulary/model/user.dart';
 import 'package:ai_vocabulary/app_route.dart';
@@ -156,7 +158,25 @@ class _AuthPageState extends State<AuthPage>
                 .265 + _panelHeight / MediaQuery.sizeOf(context).height,
               ),
               child: PlatformTextButton(
-                onPressed: () {},
+                onPressed:
+                    () => signInAnonymously(
+                      entryFunc: (user) {
+                        UserProvider().currentUser = user;
+                        _onPress(AuthState.home);
+                      },
+                      errorOccur:
+                          (msg) => showToast(
+                            context: context,
+                            alignment: Alignment(0, .85),
+                            stay: Durations.extralong4 * 2,
+                            child: Text(
+                              msg,
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.error,
+                              ),
+                            ),
+                          ),
+                    ),
                 child: Text("Visitor", style: TextStyle(color: Colors.white)),
               ),
             ),

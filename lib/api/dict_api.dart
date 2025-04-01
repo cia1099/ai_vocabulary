@@ -118,7 +118,7 @@ Future<ChatAnswer> chatVocabulary(
   if (res.statusCode == 200) {
     return ChatAnswer.fromRawJson(res.body);
   } else {
-    throw HttpException(res.body, uri: url);
+    throw HttpException(convertFastAPIDetail(res.body), uri: url);
   }
 }
 
@@ -126,7 +126,8 @@ Future<ApiResponse> _httpGet(Uri url, {Map<String, String>? headers}) async {
   try {
     final res = await http.get(url, headers: headers).timeout(kHttpTimeOut);
     if (res.statusCode != 200) {
-      throw HttpException(res.body, uri: url);
+      final message = convertFastAPIDetail(res.body);
+      throw HttpException(message, uri: url);
     }
     return ApiResponse.fromRawJson(res.body);
   } catch (e) {
@@ -165,6 +166,11 @@ class ApiException implements Exception {
   String toString() {
     return message.isEmpty ? "ApiException" : "ApiException: $message";
   }
+}
+
+String convertFastAPIDetail(String body) {
+  final decode = json.decode(body);
+  return decode["detail"] ?? body;
 }
 
 void main() async {

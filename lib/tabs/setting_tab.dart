@@ -365,7 +365,10 @@ class ProfileHeader extends StatelessWidget {
                         ),
                       ],
                     ),
-                    Text("Primary"),
+                    Text(
+                      user.role.substring(0, 1).toUpperCase() +
+                          user.role.substring(1),
+                    ),
                   ],
                 ),
                 Expanded(child: SizedBox()),

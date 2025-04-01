@@ -1,4 +1,5 @@
 import 'package:ai_vocabulary/api/dict_api.dart';
+import 'package:ai_vocabulary/model/user.dart';
 import 'package:ai_vocabulary/utils/handle_except.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -126,4 +127,20 @@ Future<ApiResponse> signInWithFacebook() async {
         );
   }
   return ApiResponse(status: 501, content: "Failed login Facebook");
+}
+
+Future<void> signInAnonymously({
+  required void Function(SignInUser user) entryFunc,
+  void Function(String msg)? errorOccur,
+}) {
+  return FirebaseAuth.instance.signInAnonymously().then((credential) async {
+    final token = await credential.user?.getIdToken();
+    if (token == null) {
+      errorOccur?.call("Firebase anonymous failed");
+    } else {
+      loginFirebaseToken(
+        token,
+      ).then(entryFunc, onError: (e) => errorOccur?.call(e.message));
+    }
+  });
 }

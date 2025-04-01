@@ -242,9 +242,10 @@ class _ChatRoomPageState extends State<ChatRoomPage> implements ChatInput {
 }
 
 const _tips = [
+  'Is there an extended phrase, slang, or idiom associated with this word? What are they?',
+  'Use disassembling a word to help me memorize the word.',
+  'Give me some common synonyms or antonyms. I can recognize the word.',
   'Can you give me some tips to help me make a sentence using this word?',
   'Can you explain to me the definition of this vocabulary?',
-  'Is there an extended phrase, slang, or idiom associated with this word? What are they?',
-  'Use disassembling a word to help me memorize the word',
   'Can you give me examples using this word?',
 ];

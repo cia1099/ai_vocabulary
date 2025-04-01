@@ -1,16 +1,18 @@
 import 'dart:convert';
 
 class SignInUser {
-  String uid;
-  String email;
-  String accessToken;
-  String name;
+  final String uid;
+  final String email;
+  final String accessToken;
+  final String name;
+  final String role;
 
   SignInUser({
     required this.uid,
     required this.email,
     required this.accessToken,
     required this.name,
+    required this.role,
   });
 
   factory SignInUser.fromRawJson(String str) =>
@@ -23,6 +25,7 @@ class SignInUser {
     email: json["email"],
     accessToken: json["access_token"],
     name: json["name"],
+    role: json["role"],
   );
 
   Map<String, dynamic> toJson() => {
@@ -30,5 +33,6 @@ class SignInUser {
     "email": email,
     "access_token": accessToken,
     "name": name,
+    "role": role,
   };
 }

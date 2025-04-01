@@ -14,21 +14,16 @@ enum Accent {
 }
 
 enum AzureVoicer {
-  Ava(gender: "Female", name: "Ava", lang: "en-US"),
-  Nova(gender: "Female", name: "Nova", lang: "en-US"),
-  Emma(gender: "Female", name: "Emma", lang: "en-US"),
-  Brandon(gender: "Male", name: "Brandon", lang: "en-US"),
-  Adam(gender: "Male", name: "Adam", lang: "en-US"),
-  Christopher(gender: "Male", name: "Christopher", lang: "en-US");
+  Ava(gender: "Female", name: "Ava"),
+  Nova(gender: "Female", name: "Nova"),
+  Emma(gender: "Female", name: "Emma"),
+  Brandon(gender: "Male", name: "Brandon"),
+  Adam(gender: "Male", name: "Adam"),
+  Christopher(gender: "Male", name: "Christopher");
 
   final String gender;
   final String name;
-  final String lang;
-  const AzureVoicer({
-    required this.gender,
-    required this.name,
-    this.lang = "en-US",
-  });
+  const AzureVoicer({required this.gender, required this.name});
 
-  String get apiName => '$lang-${name}MultilingualNeural';
+  // String get apiName => '$lang-${name}MultilingualNeural';
 }
