@@ -20,3 +20,17 @@ Future<void> registerFirebaseToken({required String token, String? name}) {
     }
   });
 }
+
+Future<void> deleteFirebaseAccount() async {
+  final url = Uri.http(baseURL, '/dict/firebase/delete');
+  final currentUser = UserProvider().currentUser;
+  final accessToken = currentUser?.accessToken;
+  final headers = {
+    'Authorization': 'Bearer $accessToken',
+    'uid': '${currentUser?.uid}',
+  };
+  final res = await http.delete(url, headers: headers);
+  if (res.statusCode != 200) {
+    throw HttpException(convertFastAPIDetail(res.body), uri: url);
+  }
+}

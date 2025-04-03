@@ -133,14 +133,20 @@ Future<void> signInAnonymously({
   required void Function(SignInUser user) entryFunc,
   void Function(String msg)? errorOccur,
 }) {
-  return FirebaseAuth.instance.signInAnonymously().then((credential) async {
-    final token = await credential.user?.getIdToken();
-    if (token == null) {
-      errorOccur?.call("Firebase anonymous failed");
-    } else {
-      loginFirebaseToken(
-        token,
-      ).then(entryFunc, onError: (e) => errorOccur?.call(e.message));
-    }
-  });
+  return FirebaseAuth.instance.signInAnonymously().then(
+    (credential) async {
+      final token = await credential.user?.getIdToken();
+      if (token == null) {
+        errorOccur?.call("Firebase anonymous failed");
+      } else {
+        loginFirebaseToken(
+          token,
+        ).then(entryFunc, onError: (e) => errorOccur?.call(e.message));
+      }
+    },
+    onError: (e) {
+      FirebaseAuth.instance.currentUser?.delete();
+      errorOccur?.call(e.message);
+    },
+  );
 }

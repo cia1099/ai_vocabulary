@@ -15,6 +15,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:vector_math/vector_math.dart' show Matrix2;
 
+import '../api/dict_api.dart' show deleteFirebaseAccount;
 import '../app_settings.dart';
 import '../pages/color_select_page.dart';
 import '../utils/enums.dart';
@@ -262,26 +263,16 @@ class SettingTab extends StatelessWidget {
               header: Text("Account"),
               children: [
                 ActionButton(
-                  // isDestructiveAction: true,
                   child: Text("Sign Out"),
-                  onPressed: () {
-                    UserProvider().currentUser = null;
-                    AppSettings.of(context).resetCacheOrSignOut(signOut: true);
-                    signOutFirebase().then(
-                      (_) =>
-                          context.mounted
-                              ? Navigator.pushReplacementNamed(
-                                context,
-                                AppRoute.login,
-                              )
-                              : null,
-                    );
-                  },
+                  onPressed:
+                      () => signOutFirebase().whenComplete(
+                        () => context.mounted && signOut(context),
+                      ),
                 ),
                 ActionButton(
                   isDestructiveAction: true,
-                  onPressed: () {},
-                  child: Text("Shit man"),
+                  onPressed: () => deleteAccount(context),
+                  child: Text("Delete Account"),
                 ),
               ],
             ),
@@ -290,6 +281,51 @@ class SettingTab extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  void deleteAccount(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    showPlatformDialog<bool?>(
+      context: context,
+      builder:
+          (context) => PlatformAlertDialog(
+            title: const Text('Delete Account'),
+            content: const Text(
+              'Are you sure you want to delete this account?',
+            ),
+            actions: [
+              PlatformDialogAction(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('No'),
+              ),
+              PlatformDialogAction(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text('Yes'),
+                material:
+                    (_, __) => MaterialDialogActionData(
+                      style: TextButton.styleFrom(
+                        foregroundColor: colorScheme.error,
+                      ),
+                    ),
+                cupertino:
+                    (_, __) =>
+                        CupertinoDialogActionData(isDestructiveAction: true),
+              ),
+            ],
+          ),
+    ).then((isDelete) {
+      if (isDelete != true) return;
+      signOutFirebase()
+          .then((_) => deleteFirebaseAccount())
+          .whenComplete(() => context.mounted && signOut(context));
+    });
+  }
+
+  bool signOut(BuildContext context) {
+    UserProvider().currentUser = null;
+    AppSettings.of(context).resetCacheOrSignOut(signOut: true);
+    Navigator.pushReplacementNamed(context, AppRoute.login);
+    return true;
   }
 }
 
@@ -319,6 +355,10 @@ class ProfileHeader extends StatelessWidget {
                 CircleAvatar(
                   minRadius: 0,
                   maxRadius: 50,
+                  foregroundImage:
+                      user.photoURL == null
+                          ? null
+                          : NetworkImage(user.photoURL!),
                   child: FractionallySizedBox(
                     widthFactor: 1,
                     heightFactor: 1,
@@ -333,7 +373,7 @@ class ProfileHeader extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      user.name,
+                      user.name ?? "Anonymous",
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: textTheme.titleMedium,

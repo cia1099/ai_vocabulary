@@ -4,15 +4,17 @@ class SignInUser {
   final String uid;
   final String email;
   final String accessToken;
-  final String name;
   final String role;
+  final String? name;
+  final String? photoURL;
 
   SignInUser({
     required this.uid,
     required this.email,
     required this.accessToken,
-    required this.name,
     required this.role,
+    this.name,
+    this.photoURL,
   });
 
   factory SignInUser.fromRawJson(String str) =>
@@ -24,15 +26,17 @@ class SignInUser {
     uid: json["uid"],
     email: json["email"],
     accessToken: json["access_token"],
-    name: json["name"],
     role: json["role"],
+    name: json["name"],
+    photoURL: json["photoURL"],
   );
 
   Map<String, dynamic> toJson() => {
     "uid": uid,
     "email": email,
     "access_token": accessToken,
-    "name": name,
     "role": role,
+    "name": name,
+    "photoURL": photoURL,
   };
 }
