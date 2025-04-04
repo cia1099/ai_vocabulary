@@ -1,5 +1,6 @@
 import 'package:ai_vocabulary/app_route.dart';
 import 'package:ai_vocabulary/pages/auth_page.dart';
+import 'package:ai_vocabulary/pages/payment_page.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 import 'package:flutter/cupertino.dart';
@@ -93,7 +94,7 @@ class _MyAppState extends State<MyApp> {
                             .resolveFrom(context),
                       ),
                   // initialRoute: AppRoute.login,
-                  home: AuthPage(),
+                  home: PaymentPage(),
                   // home: Builder(
                   //   builder: (context) {
                   //     return PlatformScaffold(
@@ -106,27 +107,26 @@ class _MyAppState extends State<MyApp> {
                   //               onPressed:
                   //                   () =>
                   //                   // appearAward(context, 'apple'),
-                  //                   showPlatformModalSheet(
-                  //                     context: context,
-                  //                     // builder: (context) =>
-                  //                     //     const ManageCollectionSheet(wordID: 830),
-                  //                     material: MaterialModalSheetData(
-                  //                       backgroundColor: Colors.transparent,
-                  //                       scrollControlDisabledMaxHeightRatio: 1,
-                  //                       isDismissible: false,
+                  //                   // showPlatformModalSheet(
+                  //                   //   context: context,
+                  //                   //   builder:
+                  //                   //       (context) =>
+                  //                   //           const ManageCollectionSheet(
+                  //                   //             wordID: 830,
+                  //                   //           ),
+                  //                   //   material: MaterialModalSheetData(
+                  //                   //     backgroundColor: Colors.transparent,
+                  //                   //     scrollControlDisabledMaxHeightRatio: 1,
+                  //                   //     isDismissible: false,
+                  //                   //   ),
+                  //                   // ),
+                  //                   Navigator.push(
+                  //                     context,
+                  //                     platformPageRoute(
+                  //                       context: context,
+                  //                       fullscreenDialog: true,
+                  //                       builder: (context) => PaymentPage(),
                   //                     ),
-                  //                     builder:
-                  //                         (context) => FutureBuilder(
-                  //                           future: MyDB().isReady,
-                  //                           builder:
-                  //                               (context, snapshot) =>
-                  //                                   snapshot.data == true
-                  //                                       ? SpeechConfirmDialog(
-                  //                                         filePath:
-                  //                                             '${MyDB().appDirectory}/${DateTime.now().millisecondsSinceEpoch ~/ 1e3}.wav',
-                  //                                       )
-                  //                                       : CircularProgressIndicator.adaptive(),
-                  //                         ),
                   //                   ),
                   //               child: Text('Go Route!'),
                   //             ),
