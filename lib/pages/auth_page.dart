@@ -157,27 +157,42 @@ class _AuthPageState extends State<AuthPage>
                 .5,
                 .265 + _panelHeight / MediaQuery.sizeOf(context).height,
               ),
-              child: PlatformTextButton(
-                onPressed:
-                    () => signInAnonymously(
-                      entryFunc: (user) {
-                        UserProvider().currentUser = user;
-                        _onPress(AuthState.home);
-                      },
-                      errorOccur:
-                          (msg) => showToast(
-                            context: context,
-                            alignment: Alignment(0, .85),
-                            stay: Durations.extralong4 * 2,
-                            child: Text(
-                              msg,
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.error,
-                              ),
-                            ),
-                          ),
+              child: AnimatedBuilder(
+                animation: _controller,
+                builder:
+                    (context, _) => PlatformTextButton(
+                      onPressed:
+                          _controller.isCompleted
+                              ? () => signInAnonymously(
+                                entryFunc: (user) {
+                                  UserProvider().currentUser = user;
+                                  _onPress(AuthState.home);
+                                },
+                                errorOccur:
+                                    (msg) => showToast(
+                                      context: context,
+                                      alignment: Alignment(0, .85),
+                                      stay: Durations.extralong4 * 2,
+                                      child: Text(
+                                        msg,
+                                        style: TextStyle(
+                                          color:
+                                              Theme.of(
+                                                context,
+                                              ).colorScheme.error,
+                                        ),
+                                      ),
+                                    ),
+                              )
+                              : null,
+                      child: Text(
+                        "Visitor",
+                        style:
+                            _controller.isCompleted
+                                ? TextStyle(color: Colors.white70)
+                                : null,
+                      ),
                     ),
-                child: Text("Visitor", style: TextStyle(color: Colors.white)),
               ),
             ),
             Center(

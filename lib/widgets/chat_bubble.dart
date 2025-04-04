@@ -14,6 +14,9 @@ import 'package:intl/intl.dart';
 import 'package:path/path.dart' as p;
 import 'package:text2speech/text2speech.dart';
 
+import '../effects/show_toast.dart';
+import '../utils/handle_except.dart';
+
 class ChatBubble extends StatefulWidget {
   final Widget child;
   final Message message;
@@ -171,6 +174,11 @@ class _ChatBubbleState extends State<ChatBubble> with ShowContentMixin {
       widget.message.content,
       lang: accent.azure.lang,
       sound: voicer,
+    ).onError(
+      (e, _) =>
+          mounted
+              ? showToast(context: context, child: Text(messageExceptions(e)))
+              : null,
     );
   }
 }

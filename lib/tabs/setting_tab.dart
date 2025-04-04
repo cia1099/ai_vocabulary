@@ -297,6 +297,8 @@ class SettingTab extends StatelessWidget {
               PlatformDialogAction(
                 onPressed: () => Navigator.pop(context, false),
                 child: const Text('No'),
+                cupertino:
+                    (_, __) => CupertinoDialogActionData(isDefaultAction: true),
               ),
               PlatformDialogAction(
                 onPressed: () => Navigator.pop(context, true),

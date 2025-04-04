@@ -10,7 +10,7 @@ Future<void> soundGTTs(String text, [gTTS lang = gTTS.US]) async {
   if (res.statusCode == 200) {
     bytesPlay(res.bodyBytes);
   } else {
-    throw HttpException(convertFastAPIDetail(res.body), uri: url);
+    throw HttpException(res.body, uri: url);
   }
 }
 
@@ -39,7 +39,7 @@ Future<void> soundAzure(
   if (res.statusCode == 200) {
     bytesPlay(res.bodyBytes);
   } else {
-    throw HttpException(convertFastAPIDetail(res.body), uri: url);
+    throw HttpException(res.body, uri: url);
   }
 }
 
@@ -66,7 +66,7 @@ Future<SpeechRecognition> recognizeSpeech(String filePath) async {
     if (apiResponse.status != 200) throw ApiException(apiResponse.content);
     return SpeechRecognition.fromRawJson(apiResponse.content);
   } else {
-    throw HttpException(convertFastAPIDetail(body), uri: url);
+    throw HttpException(body, uri: url);
   }
 }
 
@@ -96,6 +96,6 @@ Future<SpeechRecognition> recognizeSpeechBytes(
     if (apiResponse.status != 200) throw ApiException(apiResponse.content);
     return SpeechRecognition.fromRawJson(apiResponse.content);
   } else {
-    throw HttpException(convertFastAPIDetail(body), uri: url);
+    throw HttpException(body, uri: url);
   }
 }

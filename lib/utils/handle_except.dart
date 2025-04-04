@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -11,7 +12,7 @@ import 'shortcut.dart';
 
 String messageExceptions(Object? error) {
   return switch (error) {
-    HttpException e => '${e.runtimeType}: ${e.message}',
+    HttpException e => convertFastAPIDetail(e.message),
     ApiException e => 'API error: ${e.message}',
     TimeoutException e =>
       '${e.runtimeType}: ${e.message ?? 'Network request is timeout'}',
@@ -27,6 +28,11 @@ String messageExceptions(Object? error) {
     SqliteException e => 'SQL error(${e.resultCode}): ${e.message}',
     _ => error.toString(),
   };
+}
+
+String convertFastAPIDetail(String body) {
+  final decode = json.decode(body);
+  return decode["detail"] ?? body;
 }
 
 class DummyDialog extends StatelessWidget {

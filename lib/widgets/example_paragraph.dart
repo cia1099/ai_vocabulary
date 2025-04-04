@@ -2,7 +2,9 @@ import 'dart:math' show sqrt2;
 
 import 'package:ai_vocabulary/api/dict_api.dart';
 import 'package:ai_vocabulary/app_settings.dart';
+import 'package:ai_vocabulary/effects/show_toast.dart';
 import 'package:ai_vocabulary/utils/function.dart';
+import 'package:ai_vocabulary/utils/handle_except.dart';
 import 'package:ai_vocabulary/widgets/align_paragraph.dart';
 import 'package:ai_vocabulary/widgets/imagen_dialog.dart';
 import 'package:flutter/cupertino.dart';
@@ -79,6 +81,14 @@ class _ExampleParagraphState extends State<ExampleParagraph>
                             widget.example,
                             lang: accent.azure.lang,
                             sound: voicer,
+                          ).onError(
+                            (e, _) =>
+                                context.mounted
+                                    ? showToast(
+                                      context: context,
+                                      child: Text(messageExceptions(e)),
+                                    )
+                                    : null,
                           ),
                       child: child,
                     ),
@@ -89,6 +99,14 @@ class _ExampleParagraphState extends State<ExampleParagraph>
                             widget.example,
                             lang: accent.azure.lang,
                             sound: voicer,
+                          ).onError(
+                            (e, _) =>
+                                context.mounted
+                                    ? showToast(
+                                      context: context,
+                                      child: Text(messageExceptions(e)),
+                                    )
+                                    : null,
                           ),
                       child: child,
                     ),

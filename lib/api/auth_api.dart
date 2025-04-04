@@ -31,6 +31,6 @@ Future<void> deleteFirebaseAccount() async {
   };
   final res = await http.delete(url, headers: headers);
   if (res.statusCode != 200) {
-    throw HttpException(convertFastAPIDetail(res.body), uri: url);
+    throw HttpException(res.body, uri: url);
   }
 }
