@@ -2,6 +2,7 @@ import 'dart:math' show Random, pi;
 
 import 'package:ai_vocabulary/app_route.dart';
 import 'package:ai_vocabulary/database/my_db.dart';
+import 'package:ai_vocabulary/pages/payment_page.dart';
 import 'package:ai_vocabulary/pages/punch_out_page.dart';
 import 'package:ai_vocabulary/provider/user_provider.dart';
 import 'package:ai_vocabulary/utils/function.dart';
@@ -407,9 +408,27 @@ class ProfileHeader extends StatelessWidget {
                         ),
                       ],
                     ),
-                    Text(
-                      user.role.substring(0, 1).toUpperCase() +
-                          user.role.substring(1),
+                    PlatformTextButton(
+                      onPressed:
+                          () => Navigator.push(
+                            context,
+                            platformPageRoute(
+                              context: context,
+                              fullscreenDialog: true,
+                              builder: (context) => PaymentPage(),
+                            ),
+                          ),
+                      padding: EdgeInsets.zero,
+                      child: Text(
+                        user.role.substring(0, 1).toUpperCase() +
+                            user.role.substring(1),
+                      ),
+                      material:
+                          (_, __) => MaterialTextButtonData(
+                            style: TextButton.styleFrom(
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            ),
+                          ),
                     ),
                   ],
                 ),
