@@ -1,11 +1,10 @@
-import 'dart:math' show Random;
-
 import 'package:ai_vocabulary/effects/pointer_down_physic.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:intl/intl.dart';
-import 'package:flutter_lorem/flutter_lorem.dart';
+
+import '../widgets/revolve_mock_deal.dart';
 
 class PaymentPage extends StatefulWidget {
   const PaymentPage({super.key});
@@ -59,124 +58,37 @@ class _PaymentPageState extends State<PaymentPage> {
           child: Icon(Icons.close),
           // child: Icon(CupertinoIcons.xmark, size: 24),
         ),
+        title: RevolveMockDeal(),
         cupertino: (_, __) => CupertinoNavigationBarData(border: Border()),
       ),
       body: Stack(
         children: [
-          Column(
-            // spacing: hPadding * 2,
-            // crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text.rich(
-                TextSpan(
-                  text: 'Start improving your ',
-                  children: [
-                    TextSpan(
-                      text: 'vocabulary',
-                      style: TextStyle(color: colorScheme.primary),
-                    ),
-                  ],
-                ),
-                textAlign: TextAlign.center,
-                style: textTheme.navLargeTitleTextStyle,
-              ),
-              ClipRect(
-                child: Container(
-                  height: kMinInteractiveDimensionCupertino,
-                  alignment: Alignment(-.5, 0),
-                  child: StreamBuilder(
-                    stream: () async* {
-                      final rng = Random();
-                      for (int i = 1; i < 100; i++) {
-                        final delayMilliSecond = rng.nextDouble() * 2e3 + 1e3;
-                        await Future.delayed(
-                          Duration(milliseconds: delayMilliSecond.round()),
-                        );
-                        if (rng.nextInt(4) == 0) {
-                          yield null;
-                        } else {
-                          final name = lorem(paragraphs: 1, words: 1);
-                          yield name.padRight(8, '*').substring(0, 8);
-                        }
-                      }
-                      yield null;
-                    }(),
-                    builder: (context, snapshot) {
-                      return AnimatedSwitcher(
-                        duration: Durations.extralong4,
-                        transitionBuilder: (child, animation) {
-                          final start = Offset(
-                            0,
-                            animation.status == AnimationStatus.dismissed
-                                ? 1
-                                : -1,
-                          );
-                          final opacity =
-                              animation.status == AnimationStatus.dismissed
-                                  ? 1.0
-                                  : .0;
-                          final curve =
-                              animation.status == AnimationStatus.dismissed
-                                  ? Curves.easeIn
-                                  : Curves.easeOut;
-                          return SlideTransition(
-                            position: Tween(
-                              begin: start,
-                              end: Offset.zero,
-                            ).animate(
-                              animation.drive(CurveTween(curve: curve)),
-                            ),
-                            child: FadeTransition(
-                              opacity: animation.drive(
-                                Tween(begin: opacity, end: 1),
-                              ),
-                              child: child,
-                            ),
-                          );
-                        },
-                        child:
-                            !snapshot.hasData
-                                ? SizedBox.shrink()
-                                : Container(
-                                  key: Key(snapshot.data!),
-                                  padding: EdgeInsets.symmetric(
-                                    vertical: 8,
-                                    horizontal: 16,
-                                  ),
-                                  margin: EdgeInsets.symmetric(vertical: 2),
-                                  decoration: BoxDecoration(
-                                    color: CupertinoDynamicColor.withBrightness(
-                                      darkColor: Color(0xCCF2F2F2),
-                                      color: Color(0xBF1E1E1E),
-                                    ).resolveFrom(context),
-                                    borderRadius: BorderRadius.circular(
-                                      (kMinInteractiveDimension - 8) / 2,
-                                    ),
-                                  ),
-                                  child: Text(
-                                    '${snapshot.data} has joined premium members',
-                                    style: textTheme.textStyle.apply(
-                                      color: colorScheme.onInverseSurface,
-                                    ),
-                                  ),
-                                ),
-                      );
-                    },
+          Padding(
+            padding: EdgeInsets.all(hPadding),
+            child: Column(
+              spacing: hPadding * 2,
+              // crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text.rich(
+                  TextSpan(
+                    text: 'Start improving your ',
+                    children: [
+                      TextSpan(
+                        text: 'vocabulary',
+                        style: TextStyle(color: colorScheme.primary),
+                      ),
+                    ],
                   ),
+                  textAlign: TextAlign.center,
+                  style: textTheme.navLargeTitleTextStyle,
                 ),
-              ),
-              Padding(
-                padding: EdgeInsets.all(hPadding),
-                child: Wrap(
+                Wrap(
                   runSpacing: hPadding,
                   children: [
                     ...PaymentPage.benefits.map((b) => benefitItems(b)),
                   ],
                 ),
-              ),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: hPadding),
-                child: Wrap(
+                Wrap(
                   children: [
                     ...PaymentPeriod.values.map(
                       (p) => GestureDetector(
@@ -193,8 +105,8 @@ class _PaymentPageState extends State<PaymentPage> {
                     ),
                   ],
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
           Positioned(
             bottom: 0,
@@ -356,8 +268,8 @@ class BenefitItem {
 }
 
 enum PaymentPeriod {
-  year('year', 500, "Original 600, save 17%"),
-  month('month', 50, null);
+  year('year', 800, "Original 760, save 17%"),
+  month('month', 80, null);
 
   final String _period;
   final double _price;

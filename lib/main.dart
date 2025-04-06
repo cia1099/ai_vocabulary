@@ -1,6 +1,5 @@
 import 'package:ai_vocabulary/app_route.dart';
 import 'package:ai_vocabulary/pages/auth_page.dart';
-import 'package:ai_vocabulary/pages/payment_page.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 import 'package:flutter/cupertino.dart';
@@ -94,7 +93,7 @@ class _MyAppState extends State<MyApp> {
                             .resolveFrom(context),
                       ),
                   // initialRoute: AppRoute.login,
-                  home: PaymentPage(),
+                  home: AuthPage(),
                   // home: Builder(
                   //   builder: (context) {
                   //     return PlatformScaffold(
