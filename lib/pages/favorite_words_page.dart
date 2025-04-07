@@ -3,6 +3,7 @@ import 'package:ai_vocabulary/app_settings.dart';
 import 'package:ai_vocabulary/database/my_db.dart';
 import 'package:ai_vocabulary/model/collections.dart';
 import 'package:ai_vocabulary/model/vocabulary.dart';
+import 'package:ai_vocabulary/utils/phonetic.dart' show playPhonetic;
 import 'package:ai_vocabulary/utils/regex.dart';
 import 'package:ai_vocabulary/utils/shortcut.dart';
 import 'package:ai_vocabulary/widgets/flashcard.dart';
@@ -13,7 +14,6 @@ import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:sliver_tools/sliver_tools.dart';
 
 import '../app_route.dart';
-import '../widgets/definition_tile.dart';
 import '../widgets/filter_input_bar.dart';
 import 'vocabulary_page.dart';
 

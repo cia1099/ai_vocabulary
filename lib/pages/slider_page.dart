@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:ai_vocabulary/app_route.dart';
 import 'package:ai_vocabulary/database/my_db.dart';
 import 'package:ai_vocabulary/model/acquaintance.dart';
+import 'package:ai_vocabulary/utils/phonetic.dart' show playPhonetic;
 import 'package:ai_vocabulary/widgets/capital_avatar.dart';
 import 'package:ai_vocabulary/widgets/entry_actions.dart';
 import 'package:ai_vocabulary/widgets/slider_title.dart';
@@ -15,7 +16,6 @@ import 'package:text2speech/text2speech.dart';
 
 import '../model/vocabulary.dart';
 import '../widgets/definition_sliders.dart';
-import '../widgets/definition_tile.dart';
 import '../widgets/remember_retention.dart';
 
 class SliderPage extends StatefulWidget {

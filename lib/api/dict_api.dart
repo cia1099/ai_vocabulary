@@ -11,6 +11,7 @@ import 'package:http_parser/http_parser.dart' show MediaType;
 import 'package:path/path.dart' as p;
 import 'package:text2speech/text2speech.dart';
 
+import '../model/audio_player.dart';
 import '../utils/enums.dart';
 
 part 'audio_api.dart';
@@ -116,6 +117,19 @@ Future<ChatAnswer> chatVocabulary(
       .timeout(kHttpTimeOut);
   if (res.statusCode == 200) {
     return ChatAnswer.fromRawJson(res.body);
+  } else {
+    throw HttpException(res.body, uri: url);
+  }
+}
+
+Future<AudioPlayer> getAudioPlayer(String audioUrl) async {
+  final url = Uri.parse(audioUrl);
+  final res = await http.get(url);
+  if (res.statusCode == 200) {
+    return AudioPlayer(
+      bytes: res.bodyBytes,
+      mimeType: res.headers['content-type'],
+    );
   } else {
     throw HttpException(res.body, uri: url);
   }

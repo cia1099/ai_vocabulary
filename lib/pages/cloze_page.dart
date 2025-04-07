@@ -1,3 +1,7 @@
+import 'dart:async';
+
+import 'package:ai_vocabulary/api/dict_api.dart';
+import 'package:ai_vocabulary/app_settings.dart';
 import 'package:ai_vocabulary/database/my_db.dart';
 import 'package:ai_vocabulary/effects/show_toast.dart';
 import 'package:ai_vocabulary/model/vocabulary.dart';
@@ -23,6 +27,8 @@ class _ClozePageState extends State<ClozePage> {
   late final tip = ValueNotifier(defaultTip);
   final inputController = TextEditingController();
   final focusNode = FocusNode();
+  final showPhonetic = ValueNotifier(false);
+  Timer? timer;
 
   @override
   void initState() {
@@ -49,22 +55,33 @@ class _ClozePageState extends State<ClozePage> {
     final entry = widget.entry ?? word.generateClozeEntry();
     final explain = entry.key;
     final example = entry.value;
-
+    final phonetic =
+        word.definitions
+            .where((d) => d.explanations.any((e) => e.explain == explain))
+            .map((d) => Phonetic(d.phoneticUs!, d.audioUs))
+            .first;
     final textTheme = Theme.of(context).textTheme;
+    final colorScheme = Theme.of(context).colorScheme;
     final hPadding = MediaQuery.of(context).size.width / 16;
     final routeName = ModalRoute.of(context)?.settings.name;
     return PlatformScaffold(
       appBar: PlatformAppBar(
         title: const Text('Cloze Quiz'),
-        material: (_, __) => MaterialAppBarData(
-            actions: routeName == AppRoute.cloze
-                ? [EntryActions(wordID: word.wordId)]
-                : null),
-        cupertino: (_, __) => CupertinoNavigationBarData(
-            transitionBetweenRoutes: false,
-            trailing: routeName == AppRoute.cloze
-                ? EntryActions(wordID: word.wordId)
-                : null),
+        material:
+            (_, __) => MaterialAppBarData(
+              actions:
+                  routeName == AppRoute.cloze
+                      ? [EntryActions(wordID: word.wordId)]
+                      : null,
+            ),
+        cupertino:
+            (_, __) => CupertinoNavigationBarData(
+              transitionBetweenRoutes: false,
+              trailing:
+                  routeName == AppRoute.cloze
+                      ? EntryActions(wordID: word.wordId)
+                      : null,
+            ),
       ),
       // PreferredSize(
       //     preferredSize: const Size.fromHeight(kToolbarHeight),
@@ -84,115 +101,187 @@ class _ClozePageState extends State<ClozePage> {
       //       ],
       //     )),
       body: SafeArea(
-          child: Padding(
-        padding: EdgeInsets.all(hPadding),
-        child: Wrap(
-          direction: Axis.vertical,
-          spacing: hPadding,
-          children: [
-            SizedBox(
-              // color: Colors.red,
-              width: hPadding * 14,
-              child: Text(explain,
-                  style: textTheme.bodyLarge!
-                      .copyWith(fontWeight: FontWeight.bold, height: 1.25)),
-            ),
-            SizedBox(
-                // color: Colors.green,
-                width: hPadding * 14,
-                child: Text.rich(
-                    TextSpan(
-                      children: generateCloze(example, word.getMatchingPatterns,
-                          Theme.of(context).colorScheme,
-                          autofocus: routeName == AppRoute.cloze),
-                    ),
-                    style: textTheme.bodyLarge)),
-            Container(
-              height: 80,
-              width: hPadding * 14,
-              padding: EdgeInsets.symmetric(horizontal: hPadding / 2),
-              decoration: BoxDecoration(
-                color: Theme.of(context)
-                    .colorScheme
-                    .secondaryContainer
-                    .withValues(alpha: .8),
-                borderRadius: BorderRadius.circular(16),
+        child: Padding(
+          padding: EdgeInsets.all(hPadding),
+          child: Column(
+            // direction: Axis.vertical,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: hPadding,
+            children: [
+              Text(
+                explain,
+                style: textTheme.bodyLarge!.copyWith(
+                  fontWeight: FontWeight.bold,
+                  height: 1.25,
+                ),
               ),
-              alignment: Alignment.centerLeft,
-              child: AnimatedBuilder(
+              Text.rich(
+                TextSpan(
+                  children: generateCloze(
+                    example,
+                    word.getMatchingPatterns,
+                    Theme.of(context).colorScheme,
+                    autofocus: routeName == AppRoute.cloze,
+                  ),
+                ),
+                style: textTheme.bodyLarge,
+              ),
+              Container(
+                height: 80,
+                // width: hPadding * 14,
+                padding: EdgeInsets.symmetric(horizontal: hPadding / 2),
+                decoration: BoxDecoration(
+                  color: colorScheme.secondaryContainer.withValues(alpha: .8),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                alignment: Alignment.centerLeft,
+                child: AnimatedBuilder(
                   animation: tip,
-                  builder: (context, child) => Text(
-                        tip.value,
-                        style: textTheme.bodyLarge!.apply(
-                            color: tip.value == defaultTip
-                                ? null
-                                : CupertinoColors.destructiveRed
-                                    .resolveFrom(context)),
-                      )),
-            )
-          ],
+                  builder:
+                      (context, child) => Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              tip.value,
+                              style: textTheme.bodyLarge!.apply(
+                                color:
+                                    tip.value == defaultTip
+                                        ? null
+                                        : CupertinoColors.destructiveRed
+                                            .resolveFrom(context),
+                              ),
+                            ),
+                          ),
+                          child!,
+                        ],
+                      ),
+                  child: Container(
+                    constraints: BoxConstraints(maxHeight: 30),
+                    decoration: BoxDecoration(
+                      color: colorScheme.surfaceContainerLowest.withAlpha(0x50),
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: PlatformTextButton(
+                      onPressed: () {
+                        final accent = AppSettings.of(context).accent;
+                        final voicer = AppSettings.of(context).voicer;
+                        soundAzure(
+                          example,
+                          lang: accent.azure.lang,
+                          sound: voicer,
+                        ).onError((_, __) => soundGTTs(example, accent.gTTS));
+                        showPhonetic.value = true;
+                        timer?.cancel();
+                        timer = Timer(const Duration(seconds: 3), () {
+                          showPhonetic.value = false;
+                        });
+                      },
+                      padding: EdgeInsets.symmetric(horizontal: hPadding / 2),
+                      child: Text('Sound', style: textTheme.bodySmall),
+                    ),
+                  ),
+                ),
+              ),
+              Expanded(child: SizedBox.shrink()),
+              Center(
+                child: ValueListenableBuilder(
+                  valueListenable: showPhonetic,
+                  builder:
+                      (context, value, child) => AnimatedSwitcher(
+                        duration: Durations.long3,
+                        transitionBuilder: (child, animation) {
+                          final opacity =
+                              animation.status == AnimationStatus.dismissed
+                                  ? .8
+                                  : 0.0;
+                          return FadeTransition(
+                            opacity: Tween(begin: opacity, end: 1.0).animate(
+                              CurvedAnimation(
+                                parent: animation,
+                                curve: Curves.easeIn,
+                              ),
+                            ),
+                            child: child,
+                          );
+                        },
+                        child: value ? child : SizedBox(width: double.infinity),
+                      ),
+                  child: Text(phonetic.phonetic, style: textTheme.bodyLarge),
+                ),
+              ),
+            ],
+          ),
         ),
-      )),
+      ),
     );
   }
 
   List<InlineSpan> generateCloze(
-      String text, Iterable<String> matches, ColorScheme colorScheme,
-      {bool autofocus = true}) {
+    String text,
+    Iterable<String> matches,
+    ColorScheme colorScheme, {
+    bool autofocus = true,
+  }) {
     return splitWords(text).map((s) {
       if (matches.contains(s) || matches.contains(s.toLowerCase())) {
         final wordPainter = TextPainter(
-            text: TextSpan(text: s),
-            maxLines: 1,
-            textDirection: TextDirection.ltr)
-          ..layout(maxWidth: double.maxFinite);
+          text: TextSpan(text: s),
+          maxLines: 1,
+          textDirection: TextDirection.ltr,
+        )..layout(maxWidth: double.maxFinite);
 
         final check = ValueNotifier(true);
         return WidgetSpan(
-            child: ValueListenableBuilder(
-          valueListenable: check,
-          builder: (context, _, __) {
-            return TextFormField(
-              autofocus: autofocus,
-              focusNode: focusNode,
-              keyboardType: TextInputType.text,
-              onChanged: (input) {
-                tip.value = defaultTip;
-                if (input.contains(RegExp(r'\s+'))) {
-                  inputController.text = input.replaceAll(RegExp(r'\s+'), '');
+          child: ValueListenableBuilder(
+            valueListenable: check,
+            builder: (context, _, __) {
+              return TextFormField(
+                autofocus: autofocus,
+                focusNode: focusNode,
+                keyboardType: TextInputType.text,
+                onChanged: (input) {
+                  tip.value = defaultTip;
+                  if (input.contains(RegExp(r'\s+'))) {
+                    inputController.text = input.replaceAll(RegExp(r'\s+'), '');
+                    final answer = verifyAnswer(s, matches);
+                    if (answer == 'Correct') {
+                      Navigator.of(context).popAndPushNamed(
+                        AppRoute.entryVocabulary,
+                        result: AppRoute.cloze,
+                      );
+                    } else {
+                      tip.value = answer;
+                    }
+                  }
+                  check.value = s.contains(RegExp(inputController.text));
+                },
+                style: TextStyle(
+                  color: check.value ? colorScheme.primary : colorScheme.error,
+                ),
+                onFieldSubmitted: (_) {
+                  focusNode.requestFocus();
                   final answer = verifyAnswer(s, matches);
                   if (answer == 'Correct') {
                     Navigator.of(context).popAndPushNamed(
-                        AppRoute.entryVocabulary,
-                        result: AppRoute.cloze);
+                      AppRoute.entryVocabulary,
+                      result: AppRoute.cloze,
+                    );
                   } else {
                     tip.value = answer;
                   }
-                }
-                check.value = s.contains(RegExp(inputController.text));
-              },
-              style: TextStyle(
-                  color: check.value ? colorScheme.primary : colorScheme.error),
-              onFieldSubmitted: (_) {
-                focusNode.requestFocus();
-                final answer = verifyAnswer(s, matches);
-                if (answer == 'Correct') {
-                  Navigator.of(context).popAndPushNamed(
-                      AppRoute.entryVocabulary,
-                      result: AppRoute.cloze);
-                } else {
-                  tip.value = answer;
-                }
-              },
-              controller: inputController,
-              decoration: InputDecoration(
+                },
+                controller: inputController,
+                decoration: InputDecoration(
                   contentPadding: const EdgeInsets.only(bottom: 4, left: 4),
                   constraints: BoxConstraints.tightFor(
-                      width: wordPainter.width * 1.6,
-                      height: wordPainter.height * 2)),
-            );
-          },
-        ));
+                    width: wordPainter.width * 1.6,
+                    height: wordPainter.height * 2,
+                  ),
+                ),
+              );
+            },
+          ),
+        );
       }
       return TextSpan(text: s);
     }).toList();
@@ -201,9 +290,10 @@ class _ClozePageState extends State<ClozePage> {
   String verifyAnswer(String correctWord, Iterable<String> matches) {
     if (inputController.text.toLowerCase() == correctWord.toLowerCase()) {
       MyDB().updateAcquaintance(
-          wordId: widget.word.wordId,
-          acquaint: ++widget.word.acquaint,
-          isCorrect: true);
+        wordId: widget.word.wordId,
+        acquaint: ++widget.word.acquaint,
+        isCorrect: true,
+      );
       appearAward(context, widget.word.word);
       return "Correct";
     }
