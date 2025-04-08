@@ -36,7 +36,11 @@ class _VocabularyPageState extends State<VocabularyPage> {
         final voicer = AppSettings.of(context).voicer;
         Future.delayed(
           Durations.medium1,
-          () => soundAzure(example, lang: accent.azure.lang, sound: voicer),
+          () => soundAzure(
+            example,
+            lang: accent.azure.lang,
+            sound: voicer,
+          ).onError((_, _) {}),
         );
       }
     });

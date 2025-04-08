@@ -123,7 +123,7 @@ class _SliderPageState extends State<SliderPage> {
                   // foregroundColor: colorScheme.onSurfaceVariant,
                   backgroundColor: colorScheme.surfaceContainer,
                 ),
-                onPressed: () => Navigator.pushNamed(context, AppRoute.cloze),
+                onPressed: () => Navigator.pushNamed(context, AppRoute.quiz),
                 icon: Icon(
                   CupertinoIcons.square_arrow_right_fill,
                   color: colorScheme.onSurfaceVariant,
@@ -179,7 +179,7 @@ class _SliderPageState extends State<SliderPage> {
             child: AspectRatio(
               aspectRatio: 1,
               child: GestureDetector(
-                onTap: () => Navigator.pushNamed(context, AppRoute.cloze),
+                onTap: () => Navigator.pushNamed(context, AppRoute.quiz),
                 child: RememberRetention(acquaintance: acquaintance),
               ),
             ),

@@ -27,3 +27,5 @@ enum AzureVoicer {
 
   // String get apiName => '$lang-${name}MultilingualNeural';
 }
+
+enum Quiz { cloze, puzzle, arbitrary }

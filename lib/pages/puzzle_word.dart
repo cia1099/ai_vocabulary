@@ -12,6 +12,7 @@ import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
 import '../effects/fade_out_conceal.dart';
 import '../effects/show_toast.dart' show appearAward;
+import '../widgets/entry_actions.dart' show EntryActions;
 
 class PuzzleWord extends StatefulWidget {
   final Vocabulary word;
@@ -45,7 +46,22 @@ class _PuzzleWordState extends State<PuzzleWord> {
       appBar: PlatformAppBar(
         title: Text("Puzzle Quiz"),
         backgroundColor: Theme.of(context).colorScheme.surface,
-        cupertino: (_, __) => CupertinoNavigationBarData(border: Border()),
+        material:
+            (_, __) => MaterialAppBarData(
+              actions:
+                  routeName == AppRoute.quiz
+                      ? [EntryActions(wordID: word.wordId)]
+                      : null,
+            ),
+        cupertino:
+            (_, __) => CupertinoNavigationBarData(
+              transitionBetweenRoutes: false,
+              trailing:
+                  routeName == AppRoute.quiz
+                      ? EntryActions(wordID: word.wordId)
+                      : null,
+              border: Border(),
+            ),
       ),
       body: SafeArea(
         child: Column(
@@ -73,7 +89,7 @@ class _PuzzleWordState extends State<PuzzleWord> {
                               child: child,
                             ),
                         child: Text(
-                          definition.phoneticUs!,
+                          '${definition.phoneticUs}',
                           style: textTheme.bodyLarge,
                         ),
                       ),
@@ -116,28 +132,26 @@ class _PuzzleWordState extends State<PuzzleWord> {
                 ],
               ),
             ),
-            Center(
-              child: _Puzzle(
-                cardSize: kToolbarHeight, //64.0,
-                puzzle: puzzle,
-                charBuilder:
-                    (context, index) => ValueListenableBuilder(
-                      valueListenable: showFault,
-                      builder:
-                          (context, show, _) => Text(
-                            puzzle[index].toUpperCase(),
-                            style: textTheme.labelLarge?.apply(
-                              color:
-                                  show && isFaultCharacter(index)
-                                      ? CupertinoColors.systemRed.resolveFrom(
-                                        context,
-                                      )
-                                      : Colors.black,
-                            ),
-                            textScaler: TextScaler.linear(2.4),
+            _Puzzle(
+              cardSize: kToolbarHeight, //64.0,
+              puzzle: puzzle,
+              charBuilder:
+                  (context, index) => ValueListenableBuilder(
+                    valueListenable: showFault,
+                    builder:
+                        (context, show, _) => Text(
+                          puzzle[index].toUpperCase(),
+                          style: textTheme.labelLarge?.apply(
+                            color:
+                                show && isFaultCharacter(index)
+                                    ? CupertinoColors.systemRed.resolveFrom(
+                                      context,
+                                    )
+                                    : Colors.black,
                           ),
-                    ),
-              ),
+                          textScaler: TextScaler.linear(2.4),
+                        ),
+                  ),
             ),
             Container(
               margin: EdgeInsets.only(top: hPadding * 3),
@@ -170,7 +184,11 @@ class _PuzzleWordState extends State<PuzzleWord> {
         isCorrect: true,
       );
       appearAward(context, widget.word.word);
-      Navigator.of(context).popAndPushNamed(AppRoute.entryVocabulary);
+      Navigator.popAndPushNamed(
+        context,
+        AppRoute.entryVocabulary,
+        result: AppRoute.quiz,
+      );
     } else {
       showFault.value = true;
       faultTimer?.cancel();
@@ -188,7 +206,6 @@ class _Puzzle extends StatefulWidget {
   final List<String> puzzle;
   final Widget Function(BuildContext context, int index) charBuilder;
   const _Puzzle({
-    super.key,
     required this.cardSize,
     required this.puzzle,
     required this.charBuilder,

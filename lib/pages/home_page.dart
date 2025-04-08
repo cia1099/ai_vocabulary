@@ -1,8 +1,8 @@
 import 'package:ai_vocabulary/app_route.dart';
 import 'package:ai_vocabulary/app_settings.dart';
 import 'package:ai_vocabulary/model/vocabulary.dart';
-import 'package:ai_vocabulary/pages/cloze_page.dart';
 import 'package:ai_vocabulary/pages/navigation_page.dart';
+import 'package:ai_vocabulary/pages/quiz_shuttle.dart';
 import 'package:ai_vocabulary/provider/word_provider.dart';
 import 'package:ai_vocabulary/utils/gesture_route_page.dart';
 import 'package:flutter/material.dart';
@@ -23,7 +23,7 @@ class HomePage extends StatelessWidget {
         return GestureRoutePage(
           draggable: value == 0 && provider is RecommendProvider,
           pushPage: SecondPage(provider: provider),
-          routeName: AppRoute.cloze,
+          routeName: AppRoute.quiz,
           child: child!,
         );
       },
@@ -51,7 +51,7 @@ class SecondPage extends StatelessWidget {
           );
         }
         final word = snapshot.data!;
-        return ClozePage(
+        return QuizShuttle(
           key: ValueKey(word.wordId),
           word: word,
           entry: word.generateClozeEntry(provider?.clozeSeed),

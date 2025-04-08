@@ -1,4 +1,5 @@
 import 'package:ai_vocabulary/effects/pointer_down_physic.dart';
+import 'package:ai_vocabulary/utils/function.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
@@ -268,7 +269,7 @@ class BenefitItem {
 }
 
 enum PaymentPeriod {
-  year('year', 800, "Original 760, save 17%"),
+  year('year', 800, "Original ${80 * 12}, save 17%"),
   month('month', 80, null);
 
   final String _period;
@@ -276,8 +277,7 @@ enum PaymentPeriod {
   final String? discount;
   const PaymentPeriod(this._period, this._price, this.discount);
 
-  String get title =>
-      "${_period.substring(0, 1).toUpperCase()}${_period.substring(1)}ly";
+  String get title => "${_period.capitalize()}ly";
   String pricePerPeriod(Locale locale) =>
       "${NumberFormat.simpleCurrency(locale: locale.toString()).format(_price)}/$_period";
   String? monthPrice(Locale locale) {

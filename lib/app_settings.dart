@@ -23,6 +23,7 @@ class MySettings extends ChangeNotifier {
   int _colorIndex = 0;
   Brightness _brightness = Brightness.light;
   bool _hideSliderTitle = false;
+  Quiz _quiz = Quiz.cloze;
   final targetStudy = ValueNotifier(StudyCount(newCount: 5, reviewCount: 5));
   var _defaultExplanation = SelectExplanation.explanation;
   var _voicer = AzureVoicer.Ava, _accent = Accent.US;
@@ -83,6 +84,14 @@ class MySettings extends ChangeNotifier {
   set hideSliderTitle(bool isHide) {
     if (_hideSliderTitle ^ isHide) {
       _hideSliderTitle = isHide;
+      notifyListeners();
+    }
+  }
+
+  Quiz get quiz => _quiz;
+  set quiz(Quiz newQuiz) {
+    if (_quiz != newQuiz) {
+      _quiz = newQuiz;
       notifyListeners();
     }
   }
@@ -166,6 +175,7 @@ class MySettings extends ChangeNotifier {
     "color_index": colorIndex,
     "brightness": brightness.index,
     "hide_slider_title": hideSliderTitle,
+    "quiz": quiz.index,
     "target_study": targetStudy.value.toJson(),
     "default_explanation": defaultExplanation.index,
     "voicer": voicer.index,
@@ -183,6 +193,7 @@ class MySettings extends ChangeNotifier {
     _defaultExplanation = SelectExplanation.values[json["default_explanation"]];
     _voicer = AzureVoicer.values.elementAt(json["voicer"] ?? 0);
     _accent = Accent.values.elementAt(json["accent"] ?? 0);
+    _quiz = Quiz.values.elementAt(json["quiz"] ?? 0);
   }
 
   @override

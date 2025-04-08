@@ -1,5 +1,6 @@
 import 'package:ai_vocabulary/pages/auth_page.dart';
 import 'package:ai_vocabulary/pages/punch_out_page.dart';
+import 'package:ai_vocabulary/pages/quiz_shuttle.dart';
 import 'package:ai_vocabulary/pages/word_list_page.dart';
 import 'package:ai_vocabulary/utils/handle_except.dart';
 import 'package:flutter/cupertino.dart';
@@ -7,7 +8,6 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:flutter_web_frame/flutter_web_frame.dart';
 
-import 'package:ai_vocabulary/pages/cloze_page.dart';
 import 'package:ai_vocabulary/pages/vocabulary_page.dart';
 
 import 'app_settings.dart';
@@ -20,7 +20,7 @@ class AppRoute<T> extends PageRoute<T> {
   static const login = '/login';
   static const entry = '/entry';
   static const entryVocabulary = '/entry/vocabulary';
-  static const cloze = '/entry/cloze';
+  static const quiz = '/entry/quiz';
   static const reviewWords = '/entry/review';
   static const todayWords = '/today/words';
   static const chatRoom = '/chat/room';
@@ -60,8 +60,8 @@ class AppRoute<T> extends PageRoute<T> {
         // print('overTarget = $overTarget');
 
         switch (path) {
-          case AppRoute.cloze:
-            return ClozePage(word: currentWord!);
+          case AppRoute.quiz:
+            return QuizShuttle(word: currentWord!);
           case AppRoute.vocabulary:
             return VocabularyPage(word: currentWord!);
           case AppRoute.entryVocabulary:
@@ -186,7 +186,8 @@ bool fromEntry(String? routeName) {
 enum StudyRouters implements Comparable<String> {
   // home('/'), // You shouldn't navigate to home, because it's root page
   entryVocabulary(AppRoute.entryVocabulary),
-  cloze(AppRoute.cloze),
+  // cloze(AppRoute.cloze),
+  quiz(AppRoute.quiz),
   reviewWords(AppRoute.reviewWords),
   todayWords(AppRoute.todayWords),
   vocabulary(AppRoute.vocabulary),

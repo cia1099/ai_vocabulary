@@ -90,7 +90,7 @@ class RevolveMockDeal extends StatelessWidget {
         yield null;
       } else {
         // await Future.delayed(Duration(milliseconds: delayMilliSecond.round()));
-        yield await mockName();
+        yield await mockName().then((name) => name, onError: (_) => null);
       }
     }
     yield null;
@@ -111,7 +111,7 @@ class RevolveMockDeal extends StatelessWidget {
     final url = Uri.parse(
       'https://fakerapi.it/api/v2/users?_quantity=1&_locale=$locale',
     );
-    final res = await http.get(url);
+    final res = await http.get(url).timeout(kHttpTimeOut);
     if (res.statusCode != 200) throw HttpException(res.body, uri: url);
     final faker = _FakerApi.fromRawJson(res.body);
     if (faker.code != 200) throw ApiException(faker.status);

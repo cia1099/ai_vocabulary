@@ -86,3 +86,9 @@ class WeightedSelector<T> {
 extension ScaleDouble on double? {
   double? scale(double? x) => this == null || x == null ? null : this! * x;
 }
+
+extension HelperString on String {
+  String capitalize() {
+    return "${substring(0, 1).toUpperCase()}${substring(1)}";
+  }
+}

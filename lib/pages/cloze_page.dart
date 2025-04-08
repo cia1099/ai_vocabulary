@@ -37,7 +37,7 @@ class _ClozePageState extends State<ClozePage> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final routeName = ModalRoute.of(context)?.settings.name;
-      if (routeName == AppRoute.cloze) {
+      if (routeName == AppRoute.quiz) {
         focusNode.requestFocus();
       }
     });
@@ -60,7 +60,7 @@ class _ClozePageState extends State<ClozePage> {
     final phonetic =
         word.definitions
             .where((d) => d.explanations.any((e) => e.explain == explain))
-            .map((d) => Phonetic(d.phoneticUs!, d.audioUs))
+            .map((d) => Phonetic('${d.phoneticUs}', d.audioUs))
             .first;
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
@@ -72,7 +72,7 @@ class _ClozePageState extends State<ClozePage> {
         material:
             (_, __) => MaterialAppBarData(
               actions:
-                  routeName == AppRoute.cloze
+                  routeName == AppRoute.quiz
                       ? [EntryActions(wordID: word.wordId)]
                       : null,
             ),
@@ -80,7 +80,7 @@ class _ClozePageState extends State<ClozePage> {
             (_, __) => CupertinoNavigationBarData(
               transitionBetweenRoutes: false,
               trailing:
-                  routeName == AppRoute.cloze
+                  routeName == AppRoute.quiz
                       ? EntryActions(wordID: word.wordId)
                       : null,
             ),
@@ -123,7 +123,7 @@ class _ClozePageState extends State<ClozePage> {
                     example,
                     word.getMatchingPatterns,
                     Theme.of(context).colorScheme,
-                    autofocus: routeName == AppRoute.cloze,
+                    autofocus: routeName == AppRoute.quiz,
                   ),
                 ),
                 style: textTheme.bodyLarge,
@@ -234,7 +234,7 @@ class _ClozePageState extends State<ClozePage> {
                       if (answer == 'Correct') {
                         Navigator.of(context).popAndPushNamed(
                           AppRoute.entryVocabulary,
-                          result: AppRoute.cloze,
+                          result: AppRoute.quiz,
                         );
                       } else {
                         tip.value = answer;
@@ -252,7 +252,7 @@ class _ClozePageState extends State<ClozePage> {
                     if (answer == 'Correct') {
                       Navigator.of(context).popAndPushNamed(
                         AppRoute.entryVocabulary,
-                        result: AppRoute.cloze,
+                        result: AppRoute.quiz,
                       );
                     } else {
                       tip.value = answer;

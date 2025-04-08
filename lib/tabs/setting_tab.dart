@@ -128,6 +128,29 @@ class SettingTab extends StatelessWidget {
                   ),
                 ),
                 PlatformListTile(
+                  title: Text("Quiz"),
+                  trailing: Wrap(
+                    spacing: 8,
+                    children: [
+                      for (final q in Quiz.values)
+                        Row(
+                          children: [
+                            Radio.adaptive(
+                              value: q,
+                              activeColor:
+                                  Theme.of(context).colorScheme.primary,
+                              groupValue: AppSettings.of(context).quiz,
+                              onChanged:
+                                  (value) =>
+                                      AppSettings.of(context).quiz = value!,
+                            ),
+                            Text(q.name.capitalize()),
+                          ],
+                        ),
+                    ],
+                  ),
+                ),
+                PlatformListTile(
                   title: Text("Default inquired sheet"),
                   trailing: SegmentExplanation(),
                 ),
