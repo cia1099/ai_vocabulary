@@ -10,6 +10,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
+import '../effects/fade_out_conceal.dart';
 import '../effects/show_toast.dart' show appearAward;
 
 class PuzzleWord extends StatefulWidget {
@@ -24,10 +25,9 @@ class PuzzleWord extends StatefulWidget {
 
 class _PuzzleWordState extends State<PuzzleWord> {
   late final puzzle = widget.word.word.split('')..shuffle();
-  final showPhonetic = ValueNotifier(false);
+  final showPhonetic = ValueNotifier(ConcealState.hide);
   final showFault = ValueNotifier(false);
-  Timer? tipTimer;
-  Timer? faultTimer;
+  Timer? tipTimer, faultTimer;
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +41,6 @@ class _PuzzleWordState extends State<PuzzleWord> {
     final colorScheme = Theme.of(context).colorScheme;
     final hPadding = MediaQuery.sizeOf(context).width / 32;
     final routeName = ModalRoute.of(context)?.settings.name;
-    const cardSize = kToolbarHeight; //64.0;
     return PlatformScaffold(
       appBar: PlatformAppBar(
         title: Text("Puzzle Quiz"),
@@ -69,28 +68,9 @@ class _PuzzleWordState extends State<PuzzleWord> {
                       ValueListenableBuilder(
                         valueListenable: showPhonetic,
                         builder:
-                            (context, value, child) => AnimatedSwitcher(
-                              duration: Durations.long3,
-                              transitionBuilder: (child, animation) {
-                                final opacity =
-                                    animation.status ==
-                                            AnimationStatus.dismissed
-                                        ? .8
-                                        : 0.0;
-                                return FadeTransition(
-                                  opacity: Tween(
-                                    begin: opacity,
-                                    end: 1.0,
-                                  ).animate(
-                                    CurvedAnimation(
-                                      parent: animation,
-                                      curve: Curves.easeIn,
-                                    ),
-                                  ),
-                                  child: child,
-                                );
-                              },
-                              child: value ? child : SizedBox.shrink(),
+                            (context, show, child) => FadeOutConceal(
+                              fadeOutState: show,
+                              child: child,
                             ),
                         child: Text(
                           definition.phoneticUs!,
@@ -108,10 +88,10 @@ class _PuzzleWordState extends State<PuzzleWord> {
                         child: PlatformTextButton(
                           onPressed: () {
                             playPhonetic(definition.audioUs, word: word.word)();
-                            showPhonetic.value = true;
+                            showPhonetic.value = ConcealState.unhide;
                             tipTimer?.cancel();
                             tipTimer = Timer(const Duration(seconds: 3), () {
-                              showPhonetic.value = false;
+                              showPhonetic.value = ConcealState.hide;
                             });
                           },
                           padding: EdgeInsets.symmetric(
@@ -137,60 +117,26 @@ class _PuzzleWordState extends State<PuzzleWord> {
               ),
             ),
             Center(
-              child: SizedBox(
-                // color: Colors.grey,
-                // alignment: Alignment(0, 0),
-                height: cardSize,
-                width: cardSize * puzzle.length,
-                child: StatefulBuilder(
-                  builder:
-                      (context, setState) => ReorderableListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemExtentBuilder:
-                            (index, dimensions) =>
-                                (dimensions.viewportMainAxisExtent /
-                                        puzzle.length)
-                                    .clamp(0, cardSize),
-                        itemBuilder:
-                            (context, index) => ReorderableDragStartListener(
-                              key: ValueKey(index),
-                              index: index,
-                              child: Container(
-                                alignment: Alignment(0, 0),
-                                decoration: BoxDecoration(
-                                  color: CupertinoColors.systemYellow
-                                      .resolveFrom(context),
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(width: 2),
-                                ),
-                                child: ValueListenableBuilder(
-                                  valueListenable: showFault,
-                                  builder:
-                                      (context, show, _) => Text(
-                                        puzzle[index],
-                                        style: textTheme.labelLarge?.apply(
-                                          color:
-                                              show && isFaultCharacter(index)
-                                                  ? CupertinoColors.systemRed
-                                                      .resolveFrom(context)
-                                                  : Colors.black,
-                                        ),
-                                        textScaler: TextScaler.linear(2),
-                                      ),
-                                ),
-                              ),
+              child: _Puzzle(
+                cardSize: kToolbarHeight, //64.0,
+                puzzle: puzzle,
+                charBuilder:
+                    (context, index) => ValueListenableBuilder(
+                      valueListenable: showFault,
+                      builder:
+                          (context, show, _) => Text(
+                            puzzle[index].toUpperCase(),
+                            style: textTheme.labelLarge?.apply(
+                              color:
+                                  show && isFaultCharacter(index)
+                                      ? CupertinoColors.systemRed.resolveFrom(
+                                        context,
+                                      )
+                                      : Colors.black,
                             ),
-                        itemCount: puzzle.length,
-                        onReorder: (oldIndex, newIndex) {
-                          if (oldIndex < newIndex) {
-                            newIndex -= 1;
-                          }
-                          final item = puzzle.removeAt(oldIndex);
-                          puzzle.insert(newIndex, item);
-                          setState(() {});
-                        },
-                      ),
-                ),
+                            textScaler: TextScaler.linear(2.4),
+                          ),
+                    ),
               ),
             ),
             Container(
@@ -235,4 +181,68 @@ class _PuzzleWordState extends State<PuzzleWord> {
   }
 
   bool isFaultCharacter(int index) => puzzle[index] != widget.word.word[index];
+}
+
+class _Puzzle extends StatefulWidget {
+  final double cardSize;
+  final List<String> puzzle;
+  final Widget Function(BuildContext context, int index) charBuilder;
+  const _Puzzle({
+    super.key,
+    required this.cardSize,
+    required this.puzzle,
+    required this.charBuilder,
+  });
+
+  @override
+  State<_Puzzle> createState() => _PuzzleState();
+}
+
+class _PuzzleState extends State<_Puzzle> {
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final cardSize = widget.cardSize;
+    final puzzle = widget.puzzle;
+
+    return SizedBox(
+      height: cardSize,
+      width: cardSize * puzzle.length,
+      child: ReorderableListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemExtentBuilder:
+            (index, dimensions) =>
+                (dimensions.viewportMainAxisExtent / puzzle.length).clamp(
+                  0,
+                  cardSize,
+                ),
+        itemBuilder:
+            (context, index) => ReorderableDragStartListener(
+              key: ValueKey(index),
+              index: index,
+              child: Container(
+                alignment: Alignment(0, 0),
+                decoration: BoxDecoration(
+                  color: CupertinoColors.systemYellow.resolveFrom(context),
+                  borderRadius: BorderRadius.circular(4),
+                  border: Border.symmetric(
+                    horizontal: BorderSide(color: colorScheme.outline),
+                    vertical: BorderSide(width: .5, color: colorScheme.outline),
+                  ),
+                ),
+                child: FittedBox(child: widget.charBuilder(context, index)),
+              ),
+            ),
+        itemCount: puzzle.length,
+        onReorder: (oldIndex, newIndex) {
+          if (oldIndex < newIndex) {
+            newIndex -= 1;
+          }
+          final item = puzzle.removeAt(oldIndex);
+          puzzle.insert(newIndex, item);
+          setState(() {});
+        },
+      ),
+    );
+  }
 }

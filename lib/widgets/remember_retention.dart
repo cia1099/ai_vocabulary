@@ -16,7 +16,7 @@ class RememberRetention extends StatelessWidget {
     final lastLearnedTime = acquaintance?.lastLearnedTime;
     var percentage = 0.0;
     if (acquaint > 0 && lastLearnedTime != null) {
-      final fib = Fibonacci().sequence(acquaint);
+      final fib = fibonacci(acquaint);
       final inMinute =
           DateTime.now().millisecondsSinceEpoch ~/ 6e4 - lastLearnedTime;
       percentage = forgettingCurve(inMinute / 1440, fib.toDouble());

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:ai_vocabulary/api/dict_api.dart';
 import 'package:ai_vocabulary/app_settings.dart';
 import 'package:ai_vocabulary/database/my_db.dart';
+import 'package:ai_vocabulary/effects/fade_out_conceal.dart';
 import 'package:ai_vocabulary/effects/show_toast.dart';
 import 'package:ai_vocabulary/model/vocabulary.dart';
 import 'package:ai_vocabulary/utils/phonetic.dart';
@@ -28,7 +29,7 @@ class _ClozePageState extends State<ClozePage> {
   late final tip = ValueNotifier(defaultTip);
   final inputController = TextEditingController();
   final focusNode = FocusNode();
-  final showPhonetic = ValueNotifier(false);
+  final showPhonetic = ValueNotifier(ConcealState.hide);
   Timer? timer;
 
   @override
@@ -165,10 +166,10 @@ class _ClozePageState extends State<ClozePage> {
                     child: PlatformTextButton(
                       onPressed: () {
                         playPhonetic(phonetic.audioUrl, word: word.word)();
-                        showPhonetic.value = true;
+                        showPhonetic.value = ConcealState.unhide;
                         timer?.cancel();
                         timer = Timer(const Duration(seconds: 3), () {
-                          showPhonetic.value = false;
+                          showPhonetic.value = ConcealState.hide;
                         });
                       },
                       padding: EdgeInsets.symmetric(horizontal: hPadding / 1.5),
@@ -187,25 +188,8 @@ class _ClozePageState extends State<ClozePage> {
                 child: ValueListenableBuilder(
                   valueListenable: showPhonetic,
                   builder:
-                      (context, value, child) => AnimatedSwitcher(
-                        duration: Durations.long3,
-                        transitionBuilder: (child, animation) {
-                          final opacity =
-                              animation.status == AnimationStatus.dismissed
-                                  ? .8
-                                  : 0.0;
-                          return FadeTransition(
-                            opacity: Tween(begin: opacity, end: 1.0).animate(
-                              CurvedAnimation(
-                                parent: animation,
-                                curve: Curves.easeIn,
-                              ),
-                            ),
-                            child: child,
-                          );
-                        },
-                        child: value ? child : SizedBox(width: double.infinity),
-                      ),
+                      (context, value, child) =>
+                          FadeOutConceal(fadeOutState: value, child: child),
                   child: Text(phonetic.phonetic, style: textTheme.bodyLarge),
                 ),
               ),

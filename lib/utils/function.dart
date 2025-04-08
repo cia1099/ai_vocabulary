@@ -16,18 +16,9 @@ class PeakQuadraticTween extends Tween<double> {
   }
 }
 
-class Fibonacci {
-  final _memory = [1, 1];
-
-  int sequence(int n) {
-    final element = _memory.elementAtOrNull(n);
-    if (element != null) return element;
-    final result = sequence(n - 1) + sequence(n - 2);
-    _memory.add(result);
-    return result;
-  }
-
-  int call(int n) => sequence(n);
+int fibonacci(int n, [int a = 0, int b = 1]) {
+  if (n <= 0) return b;
+  return fibonacci(n - 1, b, a + b);
 }
 
 class WeightedSelector<T> {

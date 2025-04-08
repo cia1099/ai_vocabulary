@@ -6,13 +6,14 @@ import 'package:ai_vocabulary/model/user.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Future<SignInUser> testerWithFirebase({
-  String email = "test123@test.com",
+  String email = "cia1099@gmail.com",
   String password = "sonic747",
 }) async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   final res = await FirebaseAuth.instance
       .signInWithEmailAndPassword(email: email, password: password)
+      // .signInAnonymously()
       .then((credential) async {
         final token = await credential.user?.getIdToken();
         return ApiResponse(

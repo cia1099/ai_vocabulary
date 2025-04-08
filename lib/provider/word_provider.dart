@@ -124,10 +124,9 @@ class RecommendProvider extends WordProvider {
     final isCompletedReview =
         context.mounted &&
         AppSettings.of(context).studyState == StudyStatus.completedReview;
-    final fib = Fibonacci();
     final selector = WeightedSelector(
       candidateWords,
-      candidateWords.map((w) => 1 - calculateRetention(w, fib)),
+      candidateWords.map((w) => 1 - calculateRetention(w)),
     );
     final words =
         isCompletedReview
@@ -199,13 +198,8 @@ Future<List<Vocabulary>> fetchWords(Iterable<int> wordIds, {int? take}) async {
 }
 
 List<Vocabulary> sortByRetention(Iterable<Vocabulary> words) {
-  final fibonacci = Fibonacci();
-  return words.toList()..sort(
-    (a, b) => calculateRetention(
-      a,
-      fibonacci,
-    ).compareTo(calculateRetention(b, fibonacci)),
-  );
+  return words.toList()
+    ..sort((a, b) => calculateRetention(a).compareTo(calculateRetention(b)));
 }
 
 Future<Set<int>> sampleWordIds(Iterable<int> existIDs, final int count) async {
@@ -222,7 +216,7 @@ Future<Set<int>> sampleWordIds(Iterable<int> existIDs, final int count) async {
   return wordIds;
 }
 
-double calculateRetention(Vocabulary word, Fibonacci fibonacci) {
+double calculateRetention(Vocabulary word) {
   final acquaint = word.acquaint;
   final lastLearnedTime = word.lastLearnedTime;
   if (acquaint == 0 || lastLearnedTime == null) return 0;
