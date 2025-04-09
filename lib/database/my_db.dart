@@ -6,6 +6,7 @@ import 'package:ai_vocabulary/model/collections.dart';
 import 'package:ai_vocabulary/model/message.dart';
 import 'package:ai_vocabulary/model/punch_day.dart';
 import 'package:ai_vocabulary/model/vocabulary.dart';
+import 'package:ai_vocabulary/provider/user_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -140,7 +141,8 @@ class MyDB with ChangeNotifier {
       stmts[4].execute([word.wordId, word.asset]);
     }
     if (stmts.length > 5) {
-      stmts[5].execute([word.wordId, null]);
+      final userID = UserProvider().currentUser?.uid;
+      stmts[5].execute([word.wordId, userID]);
     }
   }
 

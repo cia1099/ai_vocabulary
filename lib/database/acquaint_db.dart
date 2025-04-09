@@ -6,19 +6,23 @@ extension AcquaintDB on MyDB {
     required int acquaint,
     bool isCorrect = false,
   }) {
-    final lastLearnedTime =
+    final learnedTime =
         !isCorrect ? null : DateTime.now().millisecondsSinceEpoch ~/ 6e4;
+    final dbAcquaintance = getAcquaintance(wordId);
+    final dt = (learnedTime ?? 0) - (dbAcquaintance.lastLearnedTime ?? 0);
+    //Need review over 12 hours, the acquaint can be update
+    acquaint = !isCorrect || dt >= 60 * 12 ? acquaint : dbAcquaintance.acquaint;
     final update =
         'UPDATE acquaintances SET acquaint=?${isCorrect ? ',last_learned_time=?' : ''} WHERE word_id=? RETURNING word_id';
     final db = open(OpenMode.readWrite);
-    final values = <dynamic>[acquaint, lastLearnedTime, wordId]
+    final values = <dynamic>[acquaint, learnedTime, wordId]
       ..removeWhere((e) => e == null);
 
     final resultSet = db.select(update, values);
     if (resultSet.isEmpty) {
-      values.add(null); //TODO: add user_id
+      values.add(UserProvider().currentUser?.uid);
       final insert = """INSERT INTO acquaintances 
-          (acquaint,${lastLearnedTime != null ? 'last_learned_time,' : ''}word_id, user_id) 
+          (acquaint,${learnedTime != null ? 'last_learned_time,' : ''}word_id, user_id) 
           VALUE (${values.map((_) => '?').join(',')})""";
       db.execute(insert, values);
     }

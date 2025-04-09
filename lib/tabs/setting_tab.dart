@@ -442,10 +442,7 @@ class ProfileHeader extends StatelessWidget {
                             ),
                           ),
                       padding: EdgeInsets.zero,
-                      child: Text(
-                        user.role.substring(0, 1).toUpperCase() +
-                            user.role.substring(1),
-                      ),
+                      child: Text(user.role.capitalize()),
                       material:
                           (_, __) => MaterialTextButtonData(
                             style: TextButton.styleFrom(
