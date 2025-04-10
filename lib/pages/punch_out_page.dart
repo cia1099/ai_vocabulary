@@ -265,22 +265,41 @@ class _PunchOutPageState extends State<PunchOutPage> {
                       'My token',
                       style: TextStyle(color: colorScheme.onInverseSurface),
                     ),
-                    RichText(
-                      text: TextSpan(
-                        children: [
-                          TextSpan(
-                            text: '618',
-                            style: TextStyle(
-                              fontSize: textTheme.titleMedium?.fontSize.scale(
-                                1.2,
+                    FutureBuilder(
+                      future: getConsumeTokens(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return CircularProgressIndicator.adaptive(
+                            backgroundColor: colorScheme.onInverseSurface,
+                          );
+                        }
+                        final consumeTokens = snapshot.data;
+                        if (consumeTokens == null) {
+                          return Text(
+                            "You are invalid for tokens, please register",
+                            style: TextStyle(color: colorScheme.error),
+                          );
+                        }
+                        return RichText(
+                          text: TextSpan(
+                            children: [
+                              TextSpan(
+                                text: '$consumeTokens',
+                                style: TextStyle(
+                                  fontSize: textTheme.titleMedium?.fontSize
+                                      .scale(1.2),
+                                  fontWeight: textTheme.titleMedium?.fontWeight,
+                                ),
                               ),
-                              fontWeight: textTheme.titleMedium?.fontWeight,
+                              TextSpan(text: ' = ${consumeTokens * 2e-2}\$'),
+                            ],
+                            style: TextStyle(
+                              color: colorScheme.onInverseSurface,
                             ),
                           ),
-                          const TextSpan(text: ' = 6.08\$'),
-                        ],
-                        style: TextStyle(color: colorScheme.onInverseSurface),
-                      ),
+                        );
+                      },
                     ),
                   ],
                 ),

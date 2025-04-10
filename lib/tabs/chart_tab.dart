@@ -1,3 +1,4 @@
+import 'package:ai_vocabulary/api/dict_api.dart';
 import 'package:ai_vocabulary/database/my_db.dart';
 import 'package:ai_vocabulary/utils/function.dart';
 import 'package:ai_vocabulary/utils/shortcut.dart';
@@ -135,6 +136,35 @@ class ChartTab extends StatelessWidget {
                     ),
                   ],
                 ),
+              ),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: Align(
+              alignment: Alignment(-.75, 0),
+              child: FutureBuilder(
+                future: getConsumeTokens(),
+                builder:
+                    (context, snapshot) =>
+                        snapshot.hasData
+                            ? Text.rich(
+                              TextSpan(
+                                text: '• You still have ',
+                                children: [
+                                  TextSpan(
+                                    text: '${snapshot.data}',
+                                    style: TextStyle(
+                                      color: colorScheme.onSecondaryContainer,
+                                      backgroundColor:
+                                          colorScheme.secondaryContainer,
+                                    ),
+                                  ),
+                                  TextSpan(text: ' tokens left today.'),
+                                ],
+                              ),
+                              style: textTheme.titleMedium,
+                            )
+                            : SizedBox.shrink(),
               ),
             ),
           ),

@@ -34,3 +34,26 @@ Future<void> deleteFirebaseAccount() async {
     throw HttpException(res.body, uri: url);
   }
 }
+
+Future<void> checkExpire(String accessToken) async {
+  final url = Uri.http(baseURL, '/dict/check/access/token');
+  final headers = {'Authorization': 'Bearer $accessToken'};
+  return _httpGet(url, headers: headers).then((res) {
+    if (res.status != 200) {
+      throw ApiException(res.content);
+    }
+  });
+}
+
+Future<double?> getConsumeTokens() async {
+  final url = Uri.http(baseURL, '/dict/firebase/consume/token');
+  final currentUser = UserProvider().currentUser;
+  final accessToken = currentUser?.accessToken;
+  final headers = {'Authorization': 'Bearer $accessToken'};
+  final res = await _httpGet(url, headers: headers);
+  if (res.status == 200) {
+    return double.tryParse(res.content);
+  } else {
+    throw ApiException(res.content);
+  }
+}

@@ -13,6 +13,7 @@ class UserProvider {
 
   SignInUser? get currentUser => _user;
   set currentUser(SignInUser? user) {
+    print('Access Token: ${user?.accessToken}');
     _user = user;
     _userState.add(_user);
   }

@@ -13,10 +13,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:speech_record/speech_record.dart';
 import 'package:text2speech/text2speech.dart';
+import 'package:path/path.dart' as p;
 
 import '../model/vocabulary.dart';
 import '../widgets/definition_sliders.dart';
 import '../widgets/remember_retention.dart';
+import 'chat_room_page.dart';
 
 class SliderPage extends StatefulWidget {
   const SliderPage({required Key key, required this.word}) : super(key: key);
@@ -211,7 +213,20 @@ class _SliderPageState extends State<SliderPage> {
             children: [
               PlatformIconButton(
                 onPressed: () {
-                  Navigator.pushNamed(context, '/shit');
+                  // Navigator.pushNamed(context, '/shit');
+                  final routeName = ModalRoute.of(context)?.settings.name;
+                  final path = p.join(
+                    p.dirname(routeName ?? ''),
+                    AppRoute.chatRoom,
+                  );
+                  Navigator.push(
+                    context,
+                    platformPageRoute(
+                      context: context,
+                      settings: RouteSettings(name: path),
+                      builder: (context) => ChatRoomPage(word: widget.word),
+                    ),
+                  );
                 },
                 padding: EdgeInsets.zero,
                 icon: Transform.flip(
