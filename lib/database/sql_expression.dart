@@ -1,6 +1,6 @@
 const insertWord = r'INSERT INTO words (id, word) VALUES (?, ?)';
 const insertDefinition = '''
-INSERT INTO definitions (word_id, part_of_speech, inflection, alphabet_us, alphabet_uk, audio_us, audio_uk, translate) VALUES (?, ?, ?, ?, ?, ?, ?, ?) RETURNING definitions.id
+INSERT INTO definitions (word_id, id, part_of_speech, inflection, phonetic_us, phonetic_uk, audio_us, audio_uk, synonyms, antonyms) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING definitions.id
 ''';
 const insertExplanation =
     r'INSERT INTO explanations (word_id, definition_id, explain, subscript) VALUES (?, ?, ?, ?) RETURNING explanations.id';
@@ -23,17 +23,17 @@ DELETE FROM words WHERE id=?;
 ''';
 
 const fetchWordInID = '''
-SELECT words.id, words.word, assets.filename, 
-acquaintances.acquaint, acquaintances.last_learned_time, 
-definitions.part_of_speech, definitions.inflection, definitions.alphabet_uk, definitions.alphabet_us, 
-definitions.audio_uk, definitions.audio_us, definitions.translate, 
-explanations.subscript, explanations.explain, examples.example 
-FROM words LEFT OUTER JOIN assets ON assets.word_id = words.id 
-LEFT OUTER JOIN acquaintances ON words.id = acquaintances.word_id 
-JOIN definitions ON words.id = definitions.word_id 
-JOIN explanations ON explanations.definition_id = definitions.id 
-LEFT OUTER JOIN examples ON examples.explanation_id = explanations.id 
-WHERE words.id IN
+SELECT def.word_id, word, filename AS asset,
+def.id AS definition_id, part_of_speech, inflection, 
+phonetic_uk, phonetic_us, audio_uk, audio_us, synonyms, antonyms,
+subscript, explain, example,
+acquaint, last_learned_time
+FROM definitions def JOIN words ON words.id = def.word_id 
+LEFT OUTER JOIN assets ON assets.word_id = def.word_id
+JOIN explanations ON explanations.definition_id = def.id
+LEFT OUTER JOIN examples ON examples.explanation_id = explanations.id
+LEFT OUTER JOIN acquaintances ON acquaintances.word_id = def.word_id
+WHERE def.word_id IN
 ''';
 
 const avgFib = '''
@@ -104,11 +104,12 @@ CREATE TABLE definitions (
         word_id INTEGER NOT NULL, 
         part_of_speech VARCHAR, 
         inflection VARCHAR, 
-        alphabet_us VARCHAR, 
-        alphabet_uk VARCHAR, 
+        phonetic_us VARCHAR, 
+        phonetic_uk VARCHAR, 
         audio_us VARCHAR, 
         audio_uk VARCHAR, 
-        translate VARCHAR, 
+        synonyms VARCHAR, 
+        antonyms VARCHAR, 
         PRIMARY KEY (id), 
         CONSTRAINT definition_unique UNIQUE (word_id, id), 
         FOREIGN KEY(word_id) REFERENCES words (id)

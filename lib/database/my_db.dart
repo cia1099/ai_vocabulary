@@ -114,13 +114,15 @@ class MyDB with ChangeNotifier {
       final definitionID =
           stmts[1].select([
                 word.wordId,
+                definition.id,
                 definition.partOfSpeech,
                 definition.inflection,
                 definition.phoneticUs,
                 definition.phoneticUk,
                 definition.audioUs,
                 definition.audioUk,
-                definition.translate,
+                definition.synonyms,
+                definition.antonyms,
               ]).first['id']
               as int;
       for (final explanation in definition.explanations) {
@@ -161,21 +163,23 @@ List<Map<String, dynamic>> buildWordMaps(ResultSet resultSet) {
     final wordMap = traceWord(
       Queue.of([
         {
-          'word_id': row['id'],
+          'word_id': row['word_id'],
           'word': row['word'],
-          'asset': row['filename'],
+          'asset': row['asset'],
           'acquaint': row['acquaint'],
           'last_learned_time': row['last_learned_time'],
         },
         {'part_of_speech': row['part_of_speech']},
         {
+          "definition_id": row['definition_id'],
           "part_of_speech": row['part_of_speech'],
           "inflection": row['inflection'],
           "phonetic_uk": row['alphabet_uk'],
           "phonetic_us": row['alphabet_us'],
           "audio_uk": row['audio_uk'],
           "audio_us": row['audio_us'],
-          "translate": row['translate'],
+          "synonyms": row['synonyms'],
+          "antonyms": row['antonyms'],
         },
         {
           "part_of_speech": row['part_of_speech'],
@@ -190,7 +194,7 @@ List<Map<String, dynamic>> buildWordMaps(ResultSet resultSet) {
       ]),
       wordMaps,
     );
-    if (!wordMaps.any(((w) => w['word_id'] == row['id']))) {
+    if (!wordMaps.any(((w) => w['word_id'] == row['word_id']))) {
       wordMaps.add(wordMap);
     }
   }

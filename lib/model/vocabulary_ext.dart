@@ -1,12 +1,14 @@
 part of 'vocabulary.dart';
 
 extension VocabularyExtension on Vocabulary {
-  Iterable<String> get getInflection => definitions
+  Iterable<String> get getInflection =>
+      definitions
           .map((d) => (d.inflection ?? '').split(', '))
           .reduce((d1, d2) => d1 + d2)
           .expand((d) sync* {
-        if (d.isNotEmpty) yield d;
-      }).toSet();
+            if (d.isNotEmpty) yield d;
+          })
+          .toSet();
 
   Iterable<String> get getMatchingPatterns {
     final selfExplainWord = definitions
@@ -14,9 +16,9 @@ extension VocabularyExtension on Vocabulary {
         .reduce((e1, e2) => e1 + e2)
         .map((e) => e.explain)
         .expand((e) sync* {
-      final explainWord = e.split(' ');
-      if (explainWord.length == 1) yield explainWord[0];
-    });
+          final explainWord = e.split(' ');
+          if (explainWord.length == 1) yield explainWord[0];
+        });
     return Set.from(getInflection)
       ..add(word)
       ..addAll(selfExplainWord);
@@ -32,15 +34,18 @@ extension VocabularyExtension on Vocabulary {
       .map((d) => speechShortcut(d.partOfSpeech) + (d.translate ?? ''))
       .join('/ '); //(String.fromCharCode(0x2227));
 
+  String get getSpeechAndSynonyms => definitions
+      .map((d) => speechShortcut(d.partOfSpeech) + (d.synonyms ?? ''))
+      .join('/ ');
+
   int differ(String queryWord) => word.diff(queryWord);
 
   Iterable<Phonetic> getPhonetics() => definitions.expand((d) sync* {
-        final explain = d.explanations.map((e) => e.explain);
-        final isExtra =
-            explain.length == 1 && explain.first.split(' ').length == 1;
-        if (d.phoneticUs != null && !isExtra)
-          yield Phonetic(d.phoneticUs!, d.audioUs);
-      });
+    final explain = d.explanations.map((e) => e.explain);
+    final isExtra = explain.length == 1 && explain.first.split(' ').length == 1;
+    if (d.phoneticUs != null && !isExtra)
+      yield Phonetic(d.phoneticUs!, d.audioUs);
+  });
 
   MapEntry<String, String> generateClozeEntry([int? seed]) {
     final rng = Random(seed);
