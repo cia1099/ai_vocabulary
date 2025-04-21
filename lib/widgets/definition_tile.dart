@@ -1,5 +1,7 @@
 import 'package:ai_vocabulary/utils/phonetic.dart' show playPhonetic;
 import 'package:ai_vocabulary/utils/shortcut.dart';
+import 'package:ai_vocabulary/widgets/inline_paragraph.dart';
+import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
@@ -70,6 +72,55 @@ class DefinitionTile extends StatelessWidget {
             );
           }),
         ],
+        if (definition.synonyms != null || definition.antonyms != null) ...[
+          SizedBox(height: 16),
+          CupertinoPopupSurface(
+            child: Container(
+              margin: EdgeInsets.symmetric(vertical: 8),
+              constraints: BoxConstraints(minWidth: double.infinity),
+              child: synAntonymBlock(context, textTheme, colorScheme),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget synAntonymBlock(
+    BuildContext context,
+    TextTheme textTheme,
+    ColorScheme colorScheme,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (definition.synonyms != null)
+          InlineParagraph(
+            mark: BoxText(
+              text: "Synonyms",
+              style: textTheme.titleSmall,
+              color: colorScheme.primary,
+            ),
+            markColor: colorScheme.primary,
+            paragraph: definition.synonyms!.replaceAll(', ', ' / '),
+            paragraphStyle: textTheme.labelLarge?.copyWith(height: 1.618),
+          ),
+        if (definition.synonyms != null && definition.antonyms != null)
+          Padding(
+            padding: const EdgeInsets.only(left: 80, top: 4, bottom: 4),
+            child: DottedLine(dashColor: colorScheme.outline),
+          ),
+        if (definition.antonyms != null)
+          InlineParagraph(
+            mark: BoxText(
+              text: "Antonyms",
+              style: textTheme.titleSmall,
+              color: colorScheme.tertiary,
+            ),
+            markColor: colorScheme.tertiary,
+            paragraph: definition.antonyms!.replaceAll(', ', ' / '),
+            paragraphStyle: textTheme.labelLarge?.copyWith(height: 1.618),
+          ),
       ],
     );
   }

@@ -4,6 +4,7 @@ import 'dart:math';
 
 import 'package:ai_vocabulary/database/my_db.dart';
 import 'package:ai_vocabulary/effects/dot3indicator.dart';
+import 'package:ai_vocabulary/mock_data.dart';
 import 'package:ai_vocabulary/utils/handle_except.dart';
 import 'package:ai_vocabulary/utils/load_more_listview.dart';
 import 'package:ai_vocabulary/utils/shortcut.dart';
@@ -302,9 +303,7 @@ class _SearchPageState extends State<SearchPage> {
     TextTheme? textTheme,
     double? hPadding,
   ]) {
-    final prototype = Vocabulary.fromRawJson(
-      r'{"word_id": 830, "word": "apple", "asset": "http://www.cia1099.cloudns.ch/dict/dictionary/img/thumb/apple.jpg", "definitions": [{"part_of_speech": "noun", "explanations": [{"explain": "a hard, round fruit with a smooth green, red or yellow skin", "subscript": "countable, uncountable", "examples": ["apple juice"]}], "inflection": "apple, apples", "phonetic_uk": "/\\u02c8\\u00e6p.\\u0259l/", "phonetic_us": "/\\u02c8\\u00e6p.\\u0259l/", "audio_uk": "https://www.cia1099.cloudns.ch/dict/dictionary/audio/apple__gb_1.mp3", "audio_us": "https://www.cia1099.cloudns.ch/dict/dictionary/audio/apple__us_1.mp3", "translate": "\\u82f9\\u679c"}]}',
-    );
+    final prototype = Vocabulary.fromRawJson(apple_json);
     final historyWords = MyDB().fetchHistorySearches();
     return ListView.builder(
       prototypeItem: vocabularyItemBuilder(

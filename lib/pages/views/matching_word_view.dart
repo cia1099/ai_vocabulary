@@ -1,6 +1,7 @@
 import 'package:ai_vocabulary/api/dict_api.dart';
 import 'package:ai_vocabulary/app_settings.dart';
 import 'package:ai_vocabulary/model/vocabulary.dart';
+import 'package:ai_vocabulary/widgets/inline_paragraph.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -173,23 +174,7 @@ class _ExplanationBoardState extends State<ExplanationBoard> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               if (selected == SelectExplanation.translation)
-                for (final definition in widget.word.definitions)
-                  if (definition.translate != null)
-                    AlignParagraph(
-                      mark: Text(
-                        definition.partOfSpeech,
-                        style: textTheme.textStyle.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ).coloredSpeech(
-                        context: context,
-                        isShortcut: true,
-                        length: 4,
-                      ),
-                      paragraph: Text(definition.translate ?? ''),
-                      xInterval: widget.hPadding / 4,
-                      paragraphStyle: textTheme.textStyle,
-                    ),
+                ...translationPanelComponents(textTheme),
               if (selected == SelectExplanation.explanation)
                 for (final definition in widget.word.definitions)
                   AlignParagraph.text(
@@ -212,6 +197,50 @@ class _ExplanationBoardState extends State<ExplanationBoard> {
         ),
       ],
     );
+  }
+
+  Iterable<Widget> translationPanelComponents(
+    CupertinoTextThemeData textTheme,
+  ) sync* {
+    for (final definition in widget.word.definitions) {
+      final speechText = Text(
+        definition.partOfSpeech,
+        style: textTheme.textStyle.copyWith(fontWeight: FontWeight.bold),
+      ).coloredSpeech(context: context, isShortcut: true, length: 4);
+
+      if (definition.translate != null) {
+        yield AlignParagraph.text(
+          mark: speechText,
+          paragraph: definition.translate!,
+          xInterval: widget.hPadding / 4,
+          paragraphStyle: textTheme.textStyle,
+        );
+      }
+      if (definition.synonyms != null) {
+        yield AlignParagraph.text(
+          mark: BoxText(
+            text: "Syn.",
+            color: speechText.style?.color,
+            style: textTheme.actionTextStyle,
+          ),
+          xInterval: widget.hPadding / 4,
+          paragraph: definition.synonyms!.replaceAll(', ', ' / '),
+          paragraphStyle: textTheme.textStyle,
+        );
+      }
+      if (definition.antonyms != null) {
+        yield AlignParagraph.text(
+          mark: BoxText(
+            text: "Ant.",
+            color: speechText.style?.color,
+            style: textTheme.actionTextStyle,
+          ),
+          xInterval: widget.hPadding / 4,
+          paragraph: definition.antonyms!.replaceAll(', ', ' / '),
+          paragraphStyle: textTheme.textStyle,
+        );
+      }
+    }
   }
 }
 
