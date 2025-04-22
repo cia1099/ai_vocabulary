@@ -1,3 +1,4 @@
+import 'package:ai_vocabulary/utils/enums.dart';
 import 'package:ai_vocabulary/utils/phonetic.dart' show playPhonetic;
 import 'package:ai_vocabulary/utils/shortcut.dart';
 import 'package:ai_vocabulary/widgets/inline_paragraph.dart';
@@ -7,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:text2speech/text2speech.dart';
 
+import '../api/dict_api.dart';
 import '../model/vocabulary.dart';
 import '../utils/clickable_text_mixin.dart';
 import 'example_paragraph.dart';
@@ -59,7 +61,20 @@ class DefinitionTile extends StatelessWidget {
                     )
                     .toList(),
           ),
-        if (definition.translate != null) Text(definition.translate!),
+        // if (definition.translate != null) Text(definition.translate!),
+        FutureBuilder(
+          //TODO: settable locate
+          future: definitionTranslation(definition.id, TranslateLocate.zhCN),
+          initialData: definition.translate,
+          builder: (context, snapshot) {
+            // if (snapshot.hasError)
+            //   return Text(
+            //     messageExceptions(snapshot.error),
+            //     style: TextStyle(color: colorScheme.error),
+            //   );
+            return snapshot.hasData ? Text(snapshot.data!) : SizedBox.shrink();
+          },
+        ),
         for (final explain in definition.explanations) ...[
           DefinitionParagraph(explain: explain),
           ...explain.examples.map((example) {

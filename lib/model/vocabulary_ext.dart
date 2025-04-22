@@ -65,6 +65,18 @@ extension VocabularyExtension on Vocabulary {
   }
 }
 
+extension DefinitionExtension on Definition {
+  bool hasExample() => explanations.any((e) => e.examples.isNotEmpty);
+
+  String index2Explanation() {
+    final explanationStrs = [];
+    for (int i = 0; i < explanations.length; i++) {
+      explanationStrs.add("${i + 1}. ${explanations[i].explain}");
+    }
+    return explanationStrs.join('\n');
+  }
+}
+
 class Phonetic {
   final String phonetic;
   final String? audioUrl;

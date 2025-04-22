@@ -28,4 +28,17 @@ enum AzureVoicer {
   // String get apiName => '$lang-${name}MultilingualNeural';
 }
 
+enum TranslateLocate {
+  zhCN('zh-CN'),
+  zhTW('zh-TW'),
+  jaJP('ja-JP'),
+  koKR('ko-KR'),
+  viVN('vi-VN'),
+  arSA('ar-SA'),
+  thTH('th-TH');
+
+  final String lang;
+  const TranslateLocate(this.lang);
+}
+
 enum Quiz { cloze, puzzle, arbitrary }

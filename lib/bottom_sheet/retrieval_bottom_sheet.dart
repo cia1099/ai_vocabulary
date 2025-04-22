@@ -211,23 +211,25 @@ class _RetrievalBottomSheetState extends State<RetrievalBottomSheet>
                 child: const Text("Examples:"),
               ),
             ),
-            for (final definition in word.definitions) ...[
-              PartOfSpeechTitle(definition: definition, word: word.word),
-              const Divider(height: 4),
-              for (int i = 0; i < definition.explanations.length; i++)
-                ...definition.explanations[i].examples.map(
-                  (example) => ExampleParagraph(
-                    mark: Text(
-                      '${i + 1}.',
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onPrimaryContainer,
+            for (final definition in word.definitions)
+              if (definition.hasExample()) ...[
+                PartOfSpeechTitle(definition: definition, word: word.word),
+                const Divider(height: 4),
+                for (int i = 0; i < definition.explanations.length; i++)
+                  ...definition.explanations[i].examples.map(
+                    (example) => ExampleParagraph(
+                      mark: Text(
+                        '${i + 1}.',
+                        style: TextStyle(
+                          color:
+                              Theme.of(context).colorScheme.onPrimaryContainer,
+                        ),
                       ),
+                      example: example,
+                      patterns: word.getMatchingPatterns,
                     ),
-                    example: example,
-                    patterns: word.getMatchingPatterns,
                   ),
-                ),
-            ],
+              ],
           ],
         ),
       ),

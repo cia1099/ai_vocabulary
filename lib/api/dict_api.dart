@@ -3,6 +3,7 @@ import 'dart:core';
 import 'dart:io';
 
 import 'package:ai_vocabulary/model/chat_answer.dart';
+import 'package:ai_vocabulary/model/phrase.dart';
 import 'package:ai_vocabulary/model/user.dart';
 import 'package:ai_vocabulary/model/vocabulary.dart';
 import 'package:ai_vocabulary/provider/user_provider.dart';
@@ -16,14 +17,21 @@ import '../utils/enums.dart';
 
 part 'audio_api.dart';
 part 'auth_api.dart';
+part 'chat_api.dart';
 
 const baseURL = 'www.cia1099.cloudns.ch';
 // const baseURL = '127.0.0.1:8000';
 const punchCardUrl = "http://$baseURL/dict/imagen/punch/card";
 const kHttpTimeOut = Duration(seconds: 5);
 
-Future<List<Vocabulary>> retrievalWord(String word) async {
-  final url = Uri.http(baseURL, '/dict/retrieval', {'word': word});
+Future<List<Vocabulary>> retrievalWord(
+  String word, {
+  TranslateLocate? locate,
+}) async {
+  // final url = Uri.http(baseURL, '/dict/retrieval', {'word': word});
+  final query = 'word=$word${locate != null ? '&lang=${locate.lang}' : ''}';
+  const path = '/dict/retrieval';
+  final url = Uri.parse('http://$baseURL$path?$query');
   final headers = {
     "Authorization": "Bearer ${UserProvider().currentUser?.accessToken}",
   };
@@ -101,25 +109,38 @@ Future<Vocabulary> getWordById(int id) async {
   }
 }
 
-Future<ChatAnswer> chatVocabulary(
-  String vocabulary,
-  String text, [
-  bool isHelp = false,
-]) async {
-  final url = Uri.http(baseURL, '/dict/chat/$vocabulary');
+Future<List<Phrase>> getPhrases(int wordID) async {
+  final url = Uri.http(baseURL, '/dict/phrases', {'word_id': '$wordID'});
   final headers = {
-    'Content-Type': 'application/json',
     "Authorization": "Bearer ${UserProvider().currentUser?.accessToken}",
   };
-  final body = jsonEncode({'text': text, 'is_help': isHelp});
-  final res = await http
-      .post(url, headers: headers, body: body)
-      .timeout(kHttpTimeOut);
-  if (res.statusCode == 200) {
-    return ChatAnswer.fromRawJson(res.body);
+  final res = await _httpGet(url, headers: headers);
+  if (res.status == 200) {
+    return List<Phrase>.from(
+      json.decode(res.content).map((json) => Phrase.fromJson(json)),
+    );
   } else {
-    throw HttpException(res.body, uri: url);
+    throw ApiException(res.content);
   }
+}
+
+Future<String?> definitionTranslation(
+  int definitionID,
+  TranslateLocate locate,
+) async {
+  final url = Uri.http(baseURL, '/dict/definition/translation');
+  final headers = {
+    "Authorization": "Bearer ${UserProvider().currentUser?.accessToken}",
+    'Content-Type': 'application/json',
+  };
+  final res = await http.post(
+    url,
+    headers: headers,
+    body: jsonEncode({"definition_id": definitionID, "lang": locate.lang}),
+  );
+  if (res.statusCode != 200) throw HttpException(res.body, uri: url);
+  final translate = ApiResponse.fromRawJson(utf8.decode(res.bodyBytes)).content;
+  return translate.isEmpty ? null : translate;
 }
 
 Future<AudioPlayer> getAudioPlayer(String audioUrl) async {

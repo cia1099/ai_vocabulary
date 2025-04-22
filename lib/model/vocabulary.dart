@@ -86,14 +86,6 @@ class Definition {
     this.antonyms,
   });
 
-  String index2Explanation() {
-    final explanationStrs = [];
-    for (int i = 0; i < explanations.length; i++) {
-      explanationStrs.add("${i + 1}. ${explanations[i].explain}");
-    }
-    return explanationStrs.join('\n');
-  }
-
   factory Definition.fromRawJson(String str) =>
       Definition.fromJson(json.decode(str));
 
