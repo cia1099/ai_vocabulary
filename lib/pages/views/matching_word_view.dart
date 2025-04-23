@@ -219,9 +219,11 @@ class _ExplanationBoardState extends State<ExplanationBoard> {
       if (definition.synonyms != null) {
         yield AlignParagraph.text(
           mark: BoxText(
-            text: "Syn.",
+            text: "syn.",
             color: speechText.style?.color,
-            style: textTheme.actionTextStyle,
+            style: textTheme.actionTextStyle.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
           ),
           xInterval: widget.hPadding / 4,
           paragraph: definition.synonyms!.replaceAll(', ', ' / '),
@@ -231,9 +233,11 @@ class _ExplanationBoardState extends State<ExplanationBoard> {
       if (definition.antonyms != null) {
         yield AlignParagraph.text(
           mark: BoxText(
-            text: "Ant.",
+            text: "ant.",
             color: speechText.style?.color,
-            style: textTheme.actionTextStyle,
+            style: textTheme.actionTextStyle.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
           ),
           xInterval: widget.hPadding / 4,
           paragraph: definition.antonyms!.replaceAll(', ', ' / '),

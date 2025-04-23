@@ -1,3 +1,6 @@
+import 'dart:math' show pi;
+
+import 'package:ai_vocabulary/pages/payment_page.dart';
 import 'package:ai_vocabulary/utils/enums.dart';
 import 'package:ai_vocabulary/utils/phonetic.dart' show playPhonetic;
 import 'package:ai_vocabulary/utils/shortcut.dart';
@@ -67,12 +70,27 @@ class DefinitionTile extends StatelessWidget {
           future: definitionTranslation(definition.id, TranslateLocate.zhCN),
           initialData: definition.translate,
           builder: (context, snapshot) {
-            // if (snapshot.hasError)
-            //   return Text(
-            //     messageExceptions(snapshot.error),
-            //     style: TextStyle(color: colorScheme.error),
-            //   );
-            return snapshot.hasData ? Text(snapshot.data!) : SizedBox.shrink();
+            if (snapshot.error is ApiException) {
+              return GestureDetector(
+                onTap:
+                    () => Navigator.push(
+                      context,
+                      platformPageRoute(
+                        context: context,
+                        fullscreenDialog: true,
+                        builder: (context) => PaymentPage(),
+                      ),
+                    ),
+                child: Text(
+                  'Go to Enable Translation',
+                  style: TextStyle(
+                    color: colorScheme.secondary,
+                    decoration: TextDecoration.underline,
+                  ),
+                ),
+              );
+            }
+            return Text(snapshot.data ?? '');
           },
         ),
         for (final explain in definition.explanations) ...[
@@ -89,11 +107,24 @@ class DefinitionTile extends StatelessWidget {
         ],
         if (definition.synonyms != null || definition.antonyms != null) ...[
           SizedBox(height: 16),
-          CupertinoPopupSurface(
-            child: Container(
-              margin: EdgeInsets.symmetric(vertical: 8),
-              constraints: BoxConstraints(minWidth: double.infinity),
-              child: synAntonymBlock(context, textTheme, colorScheme),
+          DecoratedBox(
+            decoration: BoxDecoration(
+              border: Border.all(width: pi, color: colorScheme.inverseSurface),
+              borderRadius: BorderRadius.circular(kRadialReactionRadius),
+            ),
+            child: CupertinoPopupSurface(
+              child: Container(
+                margin: EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+                width: double.infinity,
+                // constraints: BoxConstraints(
+                //   minHeight:
+                //       textTheme.titleSmall?.fontSize
+                //           .scale(textTheme.titleSmall?.height)
+                //           .scale(1.5) ??
+                //       0,
+                // ),
+                child: synAntonymBlock(context, textTheme, colorScheme),
+              ),
             ),
           ),
         ],
@@ -118,7 +149,10 @@ class DefinitionTile extends StatelessWidget {
             ),
             markColor: colorScheme.primary,
             paragraph: definition.synonyms!.replaceAll(', ', ' / '),
-            paragraphStyle: textTheme.labelLarge?.copyWith(height: 1.618),
+            paragraphStyle: textTheme.labelLarge?.copyWith(
+              height: 1.618,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         if (definition.synonyms != null && definition.antonyms != null)
           Padding(
@@ -134,7 +168,10 @@ class DefinitionTile extends StatelessWidget {
             ),
             markColor: colorScheme.tertiary,
             paragraph: definition.antonyms!.replaceAll(', ', ' / '),
-            paragraphStyle: textTheme.labelLarge?.copyWith(height: 1.618),
+            paragraphStyle: textTheme.labelLarge?.copyWith(
+              height: 1.618,
+              fontWeight: FontWeight.w600,
+            ),
           ),
       ],
     );

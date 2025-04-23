@@ -124,7 +124,7 @@ Future<List<Phrase>> getPhrases(int wordID) async {
   }
 }
 
-Future<String?> definitionTranslation(
+Future<String> definitionTranslation(
   int definitionID,
   TranslateLocate locate,
 ) async {
@@ -138,9 +138,13 @@ Future<String?> definitionTranslation(
     headers: headers,
     body: jsonEncode({"definition_id": definitionID, "lang": locate.lang}),
   );
-  if (res.statusCode != 200) throw HttpException(res.body, uri: url);
-  final translate = ApiResponse.fromRawJson(utf8.decode(res.bodyBytes)).content;
-  return translate.isEmpty ? null : translate;
+  if (res.statusCode == 200) {
+    return ApiResponse.fromRawJson(utf8.decode(res.bodyBytes)).content;
+  } else if (res.statusCode == 403) {
+    throw ApiException("Permission deny");
+  } else {
+    throw HttpException(res.body, uri: url);
+  }
 }
 
 Future<AudioPlayer> getAudioPlayer(String audioUrl) async {

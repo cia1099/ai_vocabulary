@@ -1,3 +1,5 @@
+import 'dart:math' show pi;
+
 import 'package:ai_vocabulary/utils/clickable_text_mixin.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -26,17 +28,13 @@ class _InlineParagraphState extends State<InlineParagraph>
     return Text.rich(
       TextSpan(
         children: [
-          WidgetSpan(child: widget.mark),
+          WidgetSpan(
+            child: widget.mark,
+            alignment: PlaceholderAlignment.middle,
+          ),
           TextSpan(text: "\t:\t", style: TextStyle(color: widget.markColor)),
           TextSpan(
             children: clickableWords(widget.paragraph),
-            // style: textTheme.labelLarge?.copyWith(
-            //   height: 1.618,
-            //   // color: colorScheme.primary,
-            // ),
-            // style: cupTheme.textTheme.textStyle.copyWith(
-            //   fontWeight: FontWeight.w500,
-            // ),
             style: widget.paragraphStyle,
           ),
         ],
@@ -59,7 +57,19 @@ class BoxText extends StatelessWidget {
         borderRadius: BorderRadius.circular(4),
       ),
       padding: EdgeInsets.symmetric(horizontal: 2),
-      child: Text(text, style: style?.apply(color: color)),
+      child: Text(
+        text,
+        style: style?.apply(
+          color: color,
+          shadows: List.generate(
+            2,
+            (i) => Shadow(
+              offset: Offset.fromDirection(pi * (1 + 2 * i) / 4, 2),
+              color: Theme.of(context).colorScheme.surfaceDim,
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
