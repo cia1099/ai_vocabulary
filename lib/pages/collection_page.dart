@@ -84,11 +84,7 @@ class _CollectionPageState extends State<CollectionPage> {
                     flexibleSpace: FlexibleSpaceBar(
                       title: const Text("My Collections"),
                       titlePadding: const EdgeInsets.only(left: 54, bottom: 16),
-                      stretchModes: const [
-                        StretchMode.zoomBackground,
-                        StretchMode.blurBackground,
-                        StretchMode.fadeTitle,
-                      ],
+                      stretchModes: kStretchModes,
                       background: ColoredBox(color: colorScheme.surface),
                     ),
                   ),

@@ -92,7 +92,7 @@ class Definition {
   String toRawJson() => json.encode(toJson());
 
   factory Definition.fromJson(Map<String, dynamic> json) => Definition(
-    id: json["definition_id"],
+    id: json["definition_id"] ?? 0,
     partOfSpeech: json["part_of_speech"],
     explanations: List<Explanation>.from(
       json["explanations"].map((x) => Explanation.fromJson(x)),

@@ -133,11 +133,13 @@ Future<String> definitionTranslation(
     "Authorization": "Bearer ${UserProvider().currentUser?.accessToken}",
     'Content-Type': 'application/json',
   };
-  final res = await http.post(
-    url,
-    headers: headers,
-    body: jsonEncode({"definition_id": definitionID, "lang": locate.lang}),
-  );
+  final res = await http
+      .post(
+        url,
+        headers: headers,
+        body: jsonEncode({"definition_id": definitionID, "lang": locate.lang}),
+      )
+      .timeout(kHttpTimeOut);
   if (res.statusCode == 200) {
     return ApiResponse.fromRawJson(utf8.decode(res.bodyBytes)).content;
   } else if (res.statusCode == 403) {
@@ -149,7 +151,7 @@ Future<String> definitionTranslation(
 
 Future<AudioPlayer> getAudioPlayer(String audioUrl) async {
   final url = Uri.parse(audioUrl);
-  final res = await http.get(url);
+  final res = await http.get(url).timeout(kHttpTimeOut);
   if (res.statusCode == 200) {
     return AudioPlayer(
       bytes: res.bodyBytes,

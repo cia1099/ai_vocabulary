@@ -1,36 +1,58 @@
 part of '../vocabulary_page.dart';
 
 class DefinitionTab extends StatelessWidget {
-  const DefinitionTab({
-    super.key,
-    required this.word,
-    required this.hPadding,
-  });
+  const DefinitionTab({super.key, required this.word, required this.hPadding});
 
   final Vocabulary word;
   final double hPadding;
 
   @override
   Widget build(BuildContext context) {
+    // return ListView.builder(
+    //   itemCount: word.definitions.length,
+    //   itemBuilder:
+    //       (_, index) => Container(
+    //         padding: EdgeInsets.only(
+    //           top: hPadding,
+    //           left: hPadding,
+    //           right: hPadding,
+    //         ),
+    //         margin:
+    //             index == word.definitions.length - 1
+    //                 ? const EdgeInsets.only(bottom: kBottomNavigationBarHeight)
+    //                 : null,
+    //         child: DefinitionTile(
+    //           definition: word.definitions[index],
+    //           word: word.word,
+    //         ),
+    //       ),
+    // );
     return CustomScrollView(
       slivers: <Widget>[
         SliverOverlapInjector(
-            handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context)),
+          handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
+        ),
         SliverList.builder(
-            itemCount: word.definitions.length,
-            itemBuilder: (_, index) => Container(
-                  padding: EdgeInsets.only(
-                    top: hPadding,
-                    left: hPadding,
-                    right: hPadding,
-                  ),
-                  margin: index == word.definitions.length - 1
-                      ? const EdgeInsets.only(
-                          bottom: kBottomNavigationBarHeight)
-                      : null,
-                  child: DefinitionTile(
-                      definition: word.definitions[index], word: word.word),
-                ))
+          itemCount: word.definitions.length,
+          itemBuilder:
+              (_, index) => Container(
+                padding: EdgeInsets.only(
+                  top: hPadding,
+                  left: hPadding,
+                  right: hPadding,
+                ),
+                margin:
+                    index == word.definitions.length - 1
+                        ? const EdgeInsets.only(
+                          bottom: kBottomNavigationBarHeight,
+                        )
+                        : null,
+                child: DefinitionTile(
+                  definition: word.definitions[index],
+                  word: word.word,
+                ),
+              ),
+        ),
       ],
     );
   }
@@ -72,10 +94,16 @@ class RadialGradientPainter extends CustomPainter {
 
     // 在画布上绘制矩形并填充渐变
     // canvas.drawRect(rect, paint);
-    canvas.drawCircle(Offset(size.width, 0), size.height / 2,
-        Paint()..shader = gradient1.createShader(rect));
-    canvas.drawCircle(Offset(0, size.height), size.height / 2,
-        Paint()..shader = gradient2.createShader(rect));
+    canvas.drawCircle(
+      Offset(size.width, 0),
+      size.height / 2,
+      Paint()..shader = gradient1.createShader(rect),
+    );
+    canvas.drawCircle(
+      Offset(0, size.height),
+      size.height / 2,
+      Paint()..shader = gradient2.createShader(rect),
+    );
   }
 
   @override

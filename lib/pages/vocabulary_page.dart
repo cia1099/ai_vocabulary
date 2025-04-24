@@ -3,6 +3,7 @@ import 'package:ai_vocabulary/app_settings.dart';
 import 'package:ai_vocabulary/model/vocabulary.dart';
 import 'package:ai_vocabulary/app_route.dart';
 import 'package:ai_vocabulary/pages/chat_room_page.dart';
+import 'package:ai_vocabulary/pages/views/phrase_tab.dart';
 import 'package:ai_vocabulary/painters/bubble_shape.dart';
 import 'package:ai_vocabulary/widgets/definition_tile.dart';
 import 'package:ai_vocabulary/widgets/entry_actions.dart';
@@ -26,6 +27,8 @@ class VocabularyPage extends StatefulWidget {
 }
 
 class _VocabularyPageState extends State<VocabularyPage> {
+  late final futurePhrases = getPhrases(widget.word.wordId);
+
   @override
   void initState() {
     super.initState();
@@ -54,7 +57,7 @@ class _VocabularyPageState extends State<VocabularyPage> {
     return PlatformScaffold(
       body: SafeArea(
         child: DefaultTabController(
-          length: 1,
+          length: 2,
           child: NestedScrollView(
             headerSliverBuilder:
                 (context, innerBoxIsScrolled) => [
@@ -70,6 +73,17 @@ class _VocabularyPageState extends State<VocabularyPage> {
                         headerHeight: headerHeight,
                         word: widget.word,
                         backTap: widget.nextTap,
+                        bottom: TabBar.secondary(
+                          isScrollable: true,
+                          tabAlignment: TabAlignment.start,
+                          tabs: [
+                            Tab(
+                              text: "Definition",
+                              iconMargin: EdgeInsets.only(top: 8),
+                            ),
+                            TabPhrase(futurePhrases: futurePhrases),
+                          ],
+                        ),
                       ),
                       leading: const SizedBox(),
                     ),
@@ -80,6 +94,7 @@ class _VocabularyPageState extends State<VocabularyPage> {
                 TabBarView(
                   children: [
                     DefinitionTab(word: widget.word, hPadding: hPadding),
+                    PhraseTab(futurePhrases: futurePhrases, hPadding: hPadding),
                   ],
                 ),
                 Align(
@@ -137,12 +152,14 @@ class VocabularyHead extends StatelessWidget {
     super.key,
     required this.headerHeight,
     required this.word,
+    required this.bottom,
     this.backTap,
   });
 
   final double headerHeight;
   final Vocabulary word;
   final VoidCallback? backTap;
+  final Widget bottom;
 
   @override
   Widget build(BuildContext context) {
@@ -224,16 +241,10 @@ class VocabularyHead extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(
+            SizedBox(
               // color: Colors.green,
               height: 48,
-              child: TabBar.secondary(
-                isScrollable: true,
-                tabAlignment: TabAlignment.start,
-                tabs: [
-                  Tab(text: "Definition", iconMargin: EdgeInsets.only(top: 8)),
-                ],
-              ),
+              child: bottom,
             ),
           ],
         );

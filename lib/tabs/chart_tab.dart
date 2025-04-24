@@ -41,11 +41,7 @@ class ChartTab extends StatelessWidget {
                   flexibleSpace: FlexibleSpaceBar(
                     title: const Text('Charts'),
                     titlePadding: const EdgeInsets.only(left: 16, bottom: 16),
-                    stretchModes: const [
-                      StretchMode.zoomBackground,
-                      StretchMode.blurBackground,
-                      StretchMode.fadeTitle,
-                    ],
+                    stretchModes: kStretchModes,
                     background: DecoratedBox(
                       decoration: BoxDecoration(
                         color: Theme.of(context).colorScheme.surface,

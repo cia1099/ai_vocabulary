@@ -42,11 +42,7 @@ class SettingTab extends StatelessWidget {
             stretch: true,
             expandedHeight: kExpandedSliverAppBarHeight,
             flexibleSpace: FlexibleSpaceBar(
-              stretchModes: const [
-                StretchMode.zoomBackground,
-                StretchMode.blurBackground,
-                StretchMode.fadeTitle,
-              ],
+              stretchModes: kStretchModes,
               background: SafeArea(bottom: false, child: ProfileHeader()),
             ),
           ),

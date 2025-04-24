@@ -162,7 +162,7 @@ class _SearchPageState extends State<SearchPage> {
   Widget vocabularyItemBuilder({
     required Vocabulary word,
     required BuildContext context,
-    required void Function(Vocabulary word) onTap,
+    required Future<void> Function(Vocabulary word) onTap,
     Widget? leading,
     bool isTop = false,
     double? hPadding,
@@ -309,14 +309,14 @@ class _SearchPageState extends State<SearchPage> {
       prototypeItem: vocabularyItemBuilder(
         word: prototype,
         context: context,
-        onTap: (word) {},
+        onTap: (word) async {},
       ),
       itemCount: historyWords.length,
       itemBuilder:
           (context, index) => vocabularyItemBuilder(
             word: historyWords[index],
             context: context,
-            onTap: (word) => MyDB().updateHistory(word.wordId),
+            onTap: (word) async => MyDB().updateHistory(word.wordId),
             isTop: index == 0,
             leading: Icon(
               CupertinoIcons.time,

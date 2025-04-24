@@ -1,7 +1,6 @@
 import 'dart:math' show pi;
 
 import 'package:ai_vocabulary/utils/clickable_text_mixin.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class InlineParagraph extends StatefulWidget {
