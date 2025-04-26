@@ -1,14 +1,16 @@
 import 'dart:convert';
 
 class Acquaintance {
-  final int wordId;
   final String? userId;
-  final int? lastLearnedTime;
+  final int? wordId;
+  int? lastLearnedTime;
   int acquaint;
+  // double percentage; // for branch percentage
 
   Acquaintance({
-    required this.wordId,
-    required this.acquaint,
+    this.acquaint = 0,
+    // this.percentage = 0,
+    this.wordId,
     this.lastLearnedTime,
     this.userId,
   });
@@ -21,7 +23,7 @@ class Acquaintance {
   factory Acquaintance.fromJson(Map<String, dynamic> json) => Acquaintance(
     wordId: json["word_id"],
     userId: json["user_id"],
-    acquaint: json["acquaint"],
+    acquaint: json["acquaint"] ?? 0,
     lastLearnedTime: json["last_learned_time"],
   );
 

@@ -1,6 +1,7 @@
 import 'package:ai_vocabulary/api/dict_api.dart';
 import 'package:ai_vocabulary/app_settings.dart';
 import 'package:ai_vocabulary/model/vocabulary.dart';
+import 'package:ai_vocabulary/widgets/entry_actions.dart';
 import 'package:ai_vocabulary/widgets/inline_paragraph.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -131,34 +132,43 @@ class _ExplanationBoardState extends State<ExplanationBoard> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Wrap(
-          spacing: widget.hPadding,
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            for (final s in SelectExplanation.values)
-              GestureDetector(
-                onTap: () {
-                  if (selected != s) {
-                    setState(() {
-                      selected = s;
-                    });
-                  }
-                },
-                child:
-                    selected == s
-                        ? HighlineText(
-                          s.type,
-                          style: textTheme.navTitleTextStyle,
-                        )
-                        : Text(
-                          s.type,
-                          style: textTheme.navTitleTextStyle.copyWith(
-                            color: unselectColor.resolveFrom(context),
-                          ),
-                        ),
-              ),
+            Wrap(
+              spacing: widget.hPadding,
+              children: [
+                for (final s in SelectExplanation.values)
+                  GestureDetector(
+                    onTap: () {
+                      if (selected != s) {
+                        setState(() {
+                          selected = s;
+                        });
+                      }
+                    },
+                    child:
+                        selected == s
+                            ? HighlineText(
+                              s.type,
+                              style: textTheme.navTitleTextStyle,
+                            )
+                            : Text(
+                              s.type,
+                              style: textTheme.navTitleTextStyle.copyWith(
+                                color: unselectColor.resolveFrom(context),
+                              ),
+                            ),
+                  ),
+              ],
+            ),
+            FractionalTranslation(
+              translation: Offset(0, -.1),
+              child: FavoriteStar(wordID: widget.word.wordId, size: 30),
+            ),
           ],
         ),
-        SizedBox(height: widget.hPadding / 8),
+        // SizedBox(height: widget.hPadding / 8),
         AnimatedSwitcher(
           duration: Durations.short4,
           transitionBuilder:

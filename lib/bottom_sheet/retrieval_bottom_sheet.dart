@@ -76,11 +76,12 @@ class _RetrievalBottomSheetState extends State<RetrievalBottomSheet>
                         controller: scrollController,
                         physics: const ClampingScrollPhysics(),
                         child: Container(
-                          height: 32,
+                          height: 40,
                           padding: EdgeInsets.only(
                             top: 16,
                             right: hPadding / 2,
                             left: hPadding / 2,
+                            bottom: 8,
                           ),
                           child: Stack(
                             children: [
@@ -88,7 +89,7 @@ class _RetrievalBottomSheetState extends State<RetrievalBottomSheet>
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
-                                  const SizedBox(),
+                                  const SizedBox(width: 24),
                                   const Icon(
                                     CupertinoIcons.chevron_up_chevron_down,
                                   ),
@@ -104,8 +105,9 @@ class _RetrievalBottomSheetState extends State<RetrievalBottomSheet>
                                 future: futureWords,
                                 builder: (context, snapshot) {
                                   final words = snapshot.data;
-                                  if (words == null || words.length < 2)
+                                  if (words == null || words.length < 2) {
                                     return const SizedBox();
+                                  }
 
                                   tabController ??= TabController(
                                     length: words.length,

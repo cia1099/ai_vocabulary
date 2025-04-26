@@ -1,8 +1,8 @@
 import 'dart:math' show pi;
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
 import '../bottom_sheet/retrieval_bottom_sheet.dart';
 import 'regex.dart';
@@ -16,13 +16,39 @@ mixin ClickableTextStateMixin<T extends StatefulWidget> on State<T> {
   void initState() {
     super.initState();
     onTap =
-        <T>(word) => showPlatformModalSheet<T>(
-          context: context,
-          material: MaterialModalSheetData(
-            useSafeArea: true,
-            isScrollControlled: true,
+        // <T>(word) => showPlatformModalSheet<T>(
+        //   context: context,
+        //   material: MaterialModalSheetData(
+        //     useSafeArea: true,
+        //     isScrollControlled: true,
+        //   ),
+        //   builder: (context) => RetrievalBottomSheet(queryWord: word),
+        // );
+        <T>(word) => Navigator.push(
+          context,
+          PageRouteBuilder(
+            transitionDuration: Durations.medium1,
+            reverseTransitionDuration: Durations.medium1,
+            barrierDismissible: true,
+            barrierLabel: 'Dismiss',
+            opaque: false,
+            barrierColor: CupertinoDynamicColor.resolve(
+              kCupertinoModalBarrierColor,
+              context,
+            ),
+            pageBuilder:
+                (context, animation, secondaryAnimation) =>
+                    RetrievalBottomSheet(queryWord: word),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) =>
+                    SlideTransition(
+                      position: Tween(
+                        begin: const Offset(0, .75),
+                        end: Offset.zero,
+                      ).animate(animation),
+                      child: child,
+                    ),
           ),
-          builder: (context) => RetrievalBottomSheet(queryWord: word),
         );
   }
 
