@@ -1,10 +1,16 @@
+import 'dart:convert';
+import 'dart:ui';
+
+import 'package:ai_vocabulary/api/dict_api.dart';
 import 'package:ai_vocabulary/effects/pointer_down_physic.dart';
 import 'package:ai_vocabulary/utils/function.dart';
+import 'package:ai_vocabulary/utils/handle_except.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:intl/intl.dart';
 
+import '../model/payment_period.dart' show PaymentPeriod;
 import '../widgets/revolve_mock_deal.dart';
 
 class PaymentPage extends StatefulWidget {
@@ -45,6 +51,9 @@ class PaymentPage extends StatefulWidget {
 
 class _PaymentPageState extends State<PaymentPage> {
   PaymentPeriod? selectedPeriod;
+  late var futurePrices = getPayments(
+    Localizations.localeOf(context).toLanguageTag(),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -89,22 +98,41 @@ class _PaymentPageState extends State<PaymentPage> {
                     ...PaymentPage.benefits.map((b) => benefitItems(b)),
                   ],
                 ),
-                Wrap(
-                  children: [
-                    ...PaymentPeriod.values.map(
-                      (p) => GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            selectedPeriod = p;
-                          });
-                        },
-                        child: Payment(
-                          period: p,
-                          isSelect: selectedPeriod == p,
+                FutureBuilder(
+                  future: futurePrices,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return CircularProgressIndicator.adaptive();
+                    }
+                    if (snapshot.hasError) {
+                      return Text(
+                        messageExceptions(snapshot.error),
+                        style: TextStyle(color: colorScheme.error),
+                      );
+                    }
+                    final payments = List<PaymentPeriod>.from(
+                      jsonDecode(
+                        snapshot.data!.content,
+                      ).map((map) => PaymentPeriod.fromJson(map)),
+                    );
+                    return Wrap(
+                      children: [
+                        ...payments.map(
+                          (p) => GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                selectedPeriod = p;
+                              });
+                            },
+                            child: Payment(
+                              period: p,
+                              isSelect: selectedPeriod == p,
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
-                  ],
+                      ],
+                    );
+                  },
                 ),
               ],
             ),
@@ -125,7 +153,7 @@ class _PaymentPageState extends State<PaymentPage> {
               child: PlatformElevatedButton(
                 onPressed: selectedPeriod != null ? paymentProcess : null,
                 child: Text(
-                  "${selectedPeriod?.price(Localizations.localeOf(context)) ?? ""} Continue",
+                  "${selectedPeriod?.currencyPrice(Localizations.localeOf(context)) ?? ""} Continue",
                 ),
               ),
             ),
@@ -214,19 +242,24 @@ class Payment extends StatelessWidget {
                         TextSpan(
                           children: [
                             for (final entry
-                                in period.discount!.split(',').asMap().entries)
+                                in period.subtitle!.split(', ').asMap().entries)
                               TextSpan(
-                                text: entry.value,
-                                style: TextStyle(
-                                  decoration:
-                                      entry.key == 0
-                                          ? TextDecoration.lineThrough
-                                          : null,
-                                  color:
-                                      entry.key == 1
-                                          ? colorScheme.primary
-                                          : null,
-                                ),
+                                children: [
+                                  if (entry.key > 0) TextSpan(text: ", "),
+                                  TextSpan(
+                                    text: entry.value,
+                                    style: TextStyle(
+                                      decoration:
+                                          entry.key == 0
+                                              ? TextDecoration.lineThrough
+                                              : null,
+                                      color:
+                                          entry.key == 1
+                                              ? colorScheme.primary
+                                              : null,
+                                    ),
+                                  ),
+                                ],
                               ),
                           ],
                         ),
@@ -268,23 +301,25 @@ class BenefitItem {
   });
 }
 
-enum PaymentPeriod {
-  year('year', 800, "Original ${80 * 12}, save 17%"),
-  month('month', 80, null);
-
-  final String _period;
-  final double _price;
-  final String? discount;
-  const PaymentPeriod(this._period, this._price, this.discount);
-
-  String get title => "${_period.capitalize()}ly";
+extension PaymentPeriodExt on PaymentPeriod {
+  String get title => "${period.capitalize()}ly";
   String pricePerPeriod(Locale locale) =>
-      "${NumberFormat.simpleCurrency(locale: locale.toString()).format(_price)}/$_period";
+      "${NumberFormat.simpleCurrency(locale: locale.toLanguageTag()).format(price)}/$period";
   String? monthPrice(Locale locale) {
-    if (_period != "year") return null;
-    return "${NumberFormat.simpleCurrency(locale: locale.toString()).format(_price / 12)}/month";
+    if (period != "year") return null;
+    return "${NumberFormat.simpleCurrency(locale: locale.toLanguageTag()).format(price / 12)}/month";
   }
 
-  String price(Locale locale) =>
-      NumberFormat.simpleCurrency(locale: locale.toString()).format(_price);
+  String? get subtitle {
+    if (discount == null) return null;
+    final original = NumberFormat.simpleCurrency(
+      locale: locale,
+      decimalDigits: 0,
+    ).format(discount!.origin);
+    final save = (discount!.save * 1e2).toStringAsFixed(0);
+    return "Original $original, save $save%";
+  }
+
+  String currencyPrice(Locale locale) =>
+      NumberFormat.simpleCurrency(locale: locale.toLanguageTag()).format(price);
 }

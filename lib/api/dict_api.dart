@@ -18,6 +18,7 @@ import '../utils/enums.dart';
 part 'audio_api.dart';
 part 'auth_api.dart';
 part 'chat_api.dart';
+part 'pay_api.dart';
 
 const baseURL = 'www.cia1099.cloudns.ch';
 // const baseURL = '127.0.0.1:8000';

@@ -29,25 +29,23 @@ mixin ClickableTextStateMixin<T extends StatefulWidget> on State<T> {
           PageRouteBuilder(
             transitionDuration: Durations.medium1,
             reverseTransitionDuration: Durations.medium1,
+            opaque: false,
             barrierDismissible: true,
             barrierLabel: 'Dismiss',
-            opaque: false,
             barrierColor: CupertinoDynamicColor.resolve(
               kCupertinoModalBarrierColor,
               context,
             ),
             pageBuilder:
-                (context, animation, secondaryAnimation) =>
-                    RetrievalBottomSheet(queryWord: word),
+                (context, _, _) => RetrievalBottomSheet(queryWord: word),
             transitionsBuilder:
-                (context, animation, secondaryAnimation, child) =>
-                    SlideTransition(
-                      position: Tween(
-                        begin: const Offset(0, .75),
-                        end: Offset.zero,
-                      ).animate(animation),
-                      child: child,
-                    ),
+                (context, animation, _, child) => SlideTransition(
+                  position: Tween(
+                    begin: const Offset(0, .5),
+                    end: Offset.zero,
+                  ).animate(animation),
+                  child: child,
+                ),
           ),
         );
   }
