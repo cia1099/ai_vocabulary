@@ -196,12 +196,15 @@ class NaiveSegment extends StatefulWidget {
 }
 
 class _NaiveSegmentState extends State<NaiveSegment> {
-  late int acquaint = MyDB().getAcquaintance(widget.word.wordId).acquaint;
+  late int acquaint = widget.word.acquaint;
+  //MyDB().getAcquaintance(widget.word.wordId).acquaint;
   String firstText = 'Unknown', secondText = 'Naive';
 
   @override
   void dispose() {
-    MyDB().upsertAcquaintance(wordId: widget.word.wordId, acquaint: acquaint);
+    if (acquaint != widget.word.acquaint) {
+      MyDB().upsertAcquaintance(wordId: widget.word.wordId, acquaint: acquaint);
+    }
     super.dispose();
   }
 

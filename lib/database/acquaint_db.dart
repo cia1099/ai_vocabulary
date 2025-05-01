@@ -15,12 +15,9 @@ extension AcquaintDB on MyDB {
     if (isCorrect && dt < 60 * 12) {
       acquaint = dbAcquaintance.acquaint;
     }
-    final upsert = '''
-INSERT INTO acquaintances (
-acquaint, last_learned_time, word_id, user_id) VALUES (?, ?, ?, ?) 
-ON CONFLICT (word_id, user_id) DO UPDATE SET acquaint=excluded.acquaint
-${learnedTime != null ? ', last_learned_time=excluded.last_learned_time' : ''}
-''';
+
+    final upsert =
+        '$insertAcquaintance ${learnedTime != null ? ', last_learned_time=excluded.last_learned_time' : ''}';
     final userID = UserProvider().currentUser?.uid;
     final db = open(OpenMode.readWrite);
     db.execute(upsert, [acquaint, learnedTime, wordId, userID]);

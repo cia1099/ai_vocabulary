@@ -8,6 +8,12 @@ const insertExample =
     r'INSERT INTO examples (word_id, explanation_id, example) VALUES (?, ?, ?)';
 const insertAsset = r'INSERT INTO assets (word_id, filename) VALUES (?, ?)';
 
+const insertAcquaintance = '''
+INSERT INTO acquaintances (
+acquaint, last_learned_time, word_id, user_id) VALUES (?, ?, ?, ?) 
+ON CONFLICT (word_id, user_id) DO UPDATE SET acquaint=excluded.acquaint
+''';
+
 const insertTextMessage =
     r'INSERT INTO text_messages (time_stamp, content, word_id, patterns, user_id) VALUES (?, ?, ?, ?, ?)';
 
@@ -166,22 +172,24 @@ CREATE TABLE text_messages (
         FOREIGN KEY(user_id) REFERENCES users (id)
 );
 CREATE TABLE collections (
-        id INTEGER NOT NULL, 
-        "index" INTEGER NOT NULL, 
         name VARCHAR NOT NULL, 
+        user_id UUID,
+        "index" INTEGER NOT NULL, 
         icon INTEGER, 
         color INTEGER, 
-        PRIMARY KEY (id), 
-        UNIQUE (name)
+        PRIMARY KEY (name, user_id),
+        FOREIGN KEY(user_id) REFERENCES users (id),
+        CONSTRAINT collection_key UNIQUE (name, user_id)
 );
 CREATE TABLE collect_words (
-        id INTEGER NOT NULL, 
-        word_id INTEGER NOT NULL, 
+        user_id UUID,
+        word_id INTEGER NOT NULL,
         mark VARCHAR NOT NULL DEFAULT 'uncategorized',
-        PRIMARY KEY (id), 
-        CONSTRAINT collection_unique UNIQUE (word_id, mark), 
-        FOREIGN KEY(word_id) REFERENCES words (id), 
-        FOREIGN KEY(mark) REFERENCES collections (name)
+        PRIMARY KEY (user_id, word_id, mark),
+        FOREIGN KEY(word_id) REFERENCES words (id),
+        FOREIGN KEY(user_id) REFERENCES users (id),
+        FOREIGN KEY(mark) REFERENCES collections (name),
+        CONSTRAINT collect_word_unique UNIQUE (user_id, word_id, mark)
 );
 CREATE TABLE history_searches (
         word_id INTEGER NOT NULL,
