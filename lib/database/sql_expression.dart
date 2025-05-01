@@ -8,9 +8,6 @@ const insertExample =
     r'INSERT INTO examples (word_id, explanation_id, example) VALUES (?, ?, ?)';
 const insertAsset = r'INSERT INTO assets (word_id, filename) VALUES (?, ?)';
 
-const insertAcquaintance =
-    r'INSERT INTO acquaintances (word_id, user_id) VALUES (?, ?)';
-
 const insertTextMessage =
     r'INSERT INTO text_messages (time_stamp, content, word_id, patterns, user_id) VALUES (?, ?, ?, ?, ?)';
 
@@ -145,7 +142,7 @@ CREATE TABLE assets (
 );
 CREATE TABLE users (
         id UUID NOT NULL, 
-        email VARCHAR NOT NULL, 
+        update_at DATETIME, 
         PRIMARY KEY (id)
 );
 CREATE TABLE acquaintances (
@@ -153,9 +150,10 @@ CREATE TABLE acquaintances (
         user_id UUID, 
         acquaint INTEGER NOT NULL DEFAULT 0, 
         last_learned_time INTEGER, 
-        PRIMARY KEY (word_id), 
+        PRIMARY KEY (word_id, user_id), 
         FOREIGN KEY(word_id) REFERENCES words (id),
-        FOREIGN KEY(user_id) REFERENCES users (id)
+        FOREIGN KEY(user_id) REFERENCES users (id),
+        CONSTRAINT acquaintance_unique UNIQUE (word_id, user_id)
 );
 CREATE TABLE text_messages (
         time_stamp INTEGER NOT NULL, 

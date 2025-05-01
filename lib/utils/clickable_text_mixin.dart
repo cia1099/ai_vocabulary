@@ -8,7 +8,7 @@ import '../bottom_sheet/retrieval_bottom_sheet.dart';
 import 'regex.dart';
 
 mixin ClickableTextStateMixin<T extends StatefulWidget> on State<T> {
-  Future<T?> Function<T>(String)? onTap;
+  Future<T1?> Function<T1>(String)? onTap;
   int? _selectedIndex;
   final _tapRecognizers = <TapGestureRecognizer>[];
 
@@ -24,7 +24,7 @@ mixin ClickableTextStateMixin<T extends StatefulWidget> on State<T> {
         //   ),
         //   builder: (context) => RetrievalBottomSheet(queryWord: word),
         // );
-        <T>(word) => Navigator.push(
+        <T1>(word) => Navigator.push(
           context,
           PageRouteBuilder(
             transitionDuration: Durations.medium1,

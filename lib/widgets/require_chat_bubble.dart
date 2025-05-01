@@ -98,7 +98,7 @@ class RequireChatBubble extends StatelessWidget {
           if (ans.quiz) {
             Timer(const Duration(seconds: 2), () {
               final acquaint = MyDB().getAcquaintance(message.wordID).acquaint;
-              MyDB().updateAcquaintance(
+              MyDB().upsertAcquaintance(
                 wordId: message.wordID,
                 acquaint: acquaint + 1,
                 isCorrect: ans.quiz,

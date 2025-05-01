@@ -201,7 +201,7 @@ class _NaiveSegmentState extends State<NaiveSegment> {
 
   @override
   void dispose() {
-    MyDB().updateAcquaintance(wordId: widget.word.wordId, acquaint: acquaint);
+    MyDB().upsertAcquaintance(wordId: widget.word.wordId, acquaint: acquaint);
     super.dispose();
   }
 

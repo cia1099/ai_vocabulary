@@ -178,7 +178,7 @@ class _PuzzleWordState extends State<PuzzleWord> {
 
   void submitAnswer() {
     if (puzzle.join() == widget.word.word) {
-      MyDB().updateAcquaintance(
+      MyDB().upsertAcquaintance(
         wordId: widget.word.wordId,
         acquaint: ++widget.word.acquaint,
         isCorrect: true,

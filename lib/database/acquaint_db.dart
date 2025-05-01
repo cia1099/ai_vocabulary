@@ -1,40 +1,38 @@
 part of 'my_db.dart';
 
 extension AcquaintDB on MyDB {
-  void updateAcquaintance({
-    required int wordId,
+  void upsertAcquaintance({
+    required final int wordId,
     required int acquaint,
-    bool isCorrect = false,
+    final bool isCorrect = false,
   }) {
     final learnedTime =
         !isCorrect ? null : DateTime.now().millisecondsSinceEpoch ~/ 6e4;
     final dbAcquaintance = getAcquaintance(wordId);
     final dt = (learnedTime ?? 0) - (dbAcquaintance.lastLearnedTime ?? 0);
-    //Need review over 12 hours, the acquaint can be update
-    acquaint = !isCorrect || dt >= 60 * 12 ? acquaint : dbAcquaintance.acquaint;
-    final update =
-        'UPDATE acquaintances SET acquaint=?${isCorrect ? ',last_learned_time=?' : ''} WHERE word_id=? RETURNING word_id';
-    final db = open(OpenMode.readWrite);
-    final values = <dynamic>[acquaint, learnedTime, wordId]
-      ..removeWhere((e) => e == null);
-
-    final resultSet = db.select(update, values);
-    if (resultSet.isEmpty) {
-      values.add(UserProvider().currentUser?.uid);
-      final insert = """INSERT INTO acquaintances 
-          (acquaint,${learnedTime != null ? 'last_learned_time,' : ''}word_id, user_id) 
-          VALUE (${values.map((_) => '?').join(',')})""";
-      db.execute(insert, values);
+    //Need review over 12 hours, the acquaint can be update at correctly
+    // acquaint = !isCorrect || dt >= 60 * 12 ? acquaint : dbAcquaintance.acquaint;
+    if (isCorrect && dt < 60 * 12) {
+      acquaint = dbAcquaintance.acquaint;
     }
+    final upsert = '''
+INSERT INTO acquaintances (
+acquaint, last_learned_time, word_id, user_id) VALUES (?, ?, ?, ?) 
+ON CONFLICT (word_id, user_id) DO UPDATE SET acquaint=excluded.acquaint
+${learnedTime != null ? ', last_learned_time=excluded.last_learned_time' : ''}
+''';
+    final userID = UserProvider().currentUser?.uid;
+    final db = open(OpenMode.readWrite);
+    db.execute(upsert, [acquaint, learnedTime, wordId, userID]);
     db.dispose();
     Future.microtask(notifyListeners); //I don't know why it has to use Future
   }
 
-  Acquaintance getAcquaintance(int wordID) {
+  Acquaintance getAcquaintance(final int wordID) {
     final db = open(OpenMode.readOnly);
     final resultSet = db.select(
-      'SELECT * FROM acquaintances WHERE acquaintances.word_id = ?',
-      [wordID],
+      'SELECT * FROM acquaintances WHERE word_id = ? AND user_id = ?',
+      [wordID, UserProvider().currentUser?.uid],
     );
     final collects = resultSet.take(1).map((row) => Acquaintance.fromJson(row));
     db.dispose();

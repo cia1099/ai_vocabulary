@@ -70,7 +70,6 @@ class MyDB with ChangeNotifier {
       insertExplanation,
       insertExample,
       insertAsset,
-      insertAcquaintance,
     ];
     final stmts = db.prepareMultiple(insert.join(';'));
     await for (final word in words) {
@@ -88,9 +87,7 @@ class MyDB with ChangeNotifier {
                     ..execute([word.wordId])
                     ..dispose(),
             );
-        final acStmt = stmts.removeLast();
         _insertVocabulary(word, stmts);
-        stmts.add(acStmt);
       }
     }
     for (var stmt in stmts) {
@@ -141,10 +138,6 @@ class MyDB with ChangeNotifier {
     } //for definition
     if (word.asset != null) {
       stmts[4].execute([word.wordId, word.asset]);
-    }
-    if (stmts.length > 5) {
-      final userID = UserProvider().currentUser?.uid;
-      stmts[5].execute([word.wordId, userID]);
     }
   }
 
