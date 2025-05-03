@@ -86,11 +86,14 @@ extension AcquaintDB on MyDB {
 
   Iterable<int> getTodayStudyWordIDs() {
     const query =
-        'SELECT word_id FROM acquaintances WHERE last_learned_time > ?';
+        'SELECT word_id FROM acquaintances WHERE last_learned_time > ? AND user_id=?';
     final db = open(OpenMode.readOnly);
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
-    final resultSet = db.select(query, [today.millisecondsSinceEpoch ~/ 6e4]);
+    final resultSet = db.select(query, [
+      today.millisecondsSinceEpoch ~/ 6e4,
+      UserProvider().currentUser?.uid,
+    ]);
     db.dispose();
     return resultSet.map((row) => row['word_id'] as int);
   }
@@ -99,7 +102,8 @@ extension AcquaintDB on MyDB {
     await isReady;
     final db = open(OpenMode.readOnly);
     final now = DateTime.now().millisecondsSinceEpoch ~/ 6e4;
-    final resultSet = db.select(avgFib, [now, now]);
+    final userID = UserProvider().currentUser?.uid;
+    final resultSet = db.select(avgFib, [now, now, userID]);
     db.dispose();
     return resultSet.firstOrNull?['avgFib'];
   }

@@ -59,7 +59,7 @@ probabilityCTE AS (SELECT
             FROM acquaintances 
             WHERE last_learned_time IS NOT NULL), 0) AS rate
 FROM acquaintances 
-WHERE last_learned_time IS NOT NULL
+WHERE last_learned_time IS NOT NULL AND user_id=?
 )
 SELECT SUM(p.rate * f.fib) AS avgFib FROM probabilityCTE p
 JOIN fibCTE f ON p.word_id = f.id;

@@ -100,9 +100,9 @@ class MyDB with ChangeNotifier {
     final wordsCTE = '$fetchWordInID (${wordIds.map((id) => '$id').join(',')})';
     final fetchWordId = '''
     WITH words_cte AS ($wordsCTE)
-    SELECT *, acquaint, last_learned_time FROM words_cte
-    LEFT OUTER JOIN acquaintances ON words_cte.word_id = acquaintances.word_id
-    WHERE acquaintances.user_id = ?
+    SELECT words_cte.*, acquaint, last_learned_time FROM words_cte
+    LEFT JOIN acquaintances ON words_cte.word_id = acquaintances.word_id
+    AND acquaintances.user_id = ?
 ''';
     final db = open(OpenMode.readOnly);
     final resultSet = db.select(fetchWordId, [UserProvider().currentUser?.uid]);
