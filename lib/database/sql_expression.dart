@@ -29,13 +29,11 @@ const fetchWordInID = '''
 SELECT def.word_id, word, filename AS asset,
 def.id AS definition_id, part_of_speech, inflection, 
 phonetic_uk, phonetic_us, audio_uk, audio_us, synonyms, antonyms,
-subscript, explain, example,
-acquaint, last_learned_time
+subscript, explain, example
 FROM definitions def JOIN words ON words.id = def.word_id 
 LEFT OUTER JOIN assets ON assets.word_id = def.word_id
 JOIN explanations ON explanations.definition_id = def.id
 LEFT OUTER JOIN examples ON examples.explanation_id = explanations.id
-LEFT OUTER JOIN acquaintances ON acquaintances.word_id = def.word_id
 WHERE def.word_id IN
 ''';
 
@@ -165,6 +163,7 @@ CREATE TABLE text_messages (
         time_stamp INTEGER NOT NULL, 
         word_id INTEGER NOT NULL, 
         user_id TEXT, 
+        owner_id TEXT,
         content VARCHAR NOT NULL,  
         patterns VARCHAR NOT NULL DEFAULT '',  
         PRIMARY KEY (time_stamp), 
@@ -201,9 +200,10 @@ CREATE TABLE history_searches (
 );
 CREATE TABLE punch_days (
         date INTEGER NOT NULL,
+        user_id TEXT,
         study_minute INTEGER NOT NULL DEFAULT 0,
         study_word_ids VARCHAR NOT NULL DEFAULT '',
         punch_time INTEGER,
-        PRIMARY KEY (date)
+        PRIMARY KEY (date, user_id)
 );
 ''';

@@ -39,8 +39,8 @@ extension AcquaintDB on MyDB {
   Iterable<int> fetchDoneWordIDs() {
     final db = open(OpenMode.readOnly);
     final resultSet = db.select(
-      'SELECT word_id FROM acquaintances WHERE acquaintances.acquaint >= ?',
-      [kMaxAcquaintance],
+      'SELECT word_id FROM acquaintances WHERE acquaintances.acquaint >= ? AND user_id=?',
+      [kMaxAcquaintance, UserProvider().currentUser?.uid],
     );
     db.dispose();
     return resultSet.map((row) => row['word_id'] as int);
@@ -49,8 +49,8 @@ extension AcquaintDB on MyDB {
   Iterable<int> fetchReviewWordIDs() {
     final db = open(OpenMode.readOnly);
     final resultSet = db.select(
-      'SELECT word_id FROM acquaintances WHERE acquaint < ? AND last_learned_time IS NOT NULL',
-      [kMaxAcquaintance],
+      'SELECT word_id FROM acquaintances WHERE acquaint < ? AND last_learned_time IS NOT NULL AND user_id=?',
+      [kMaxAcquaintance, UserProvider().currentUser?.uid],
     );
     db.dispose();
     return resultSet.map((row) => row['word_id'] as int);
@@ -71,15 +71,15 @@ extension AcquaintDB on MyDB {
     SELECT 
       SUM(CASE WHEN acquaint <= 1 AND last_learned_time > ? THEN 1 ELSE 0 END) AS new_count,
       SUM(CASE WHEN acquaint > 1 AND last_learned_time > ? THEN 1 ELSE 0 END) AS review_count
-    FROM acquaintances;
+    FROM acquaintances WHERE user_id = ?;
 ''';
     final db = open(OpenMode.readOnly);
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
-    final resultSet = db.select(
-      query,
-      List.filled(2, today.millisecondsSinceEpoch ~/ 6e4),
-    );
+    final resultSet = db.select(query, [
+      ...List.filled(2, today.millisecondsSinceEpoch ~/ 6e4),
+      UserProvider().currentUser?.uid,
+    ]);
     db.dispose();
     return StudyCount.fromJson(resultSet.first);
   }

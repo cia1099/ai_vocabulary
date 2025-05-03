@@ -1,10 +1,10 @@
 import 'dart:convert';
 
 class PunchDay {
-  int date;
-  List<int> studyWordIDs;
-  int studyMinute;
-  int punchTime;
+  final int date;
+  final List<int> studyWordIDs;
+  final int studyMinute;
+  final int punchTime;
 
   PunchDay({
     required this.date,
@@ -12,6 +12,21 @@ class PunchDay {
     required this.studyMinute,
     required this.punchTime,
   });
+
+  factory PunchDay.now({
+    required Iterable<int> studyWordIDs,
+    int studyMinute = 0,
+  }) {
+    final now = DateTime.now();
+    final date = DateTime(now.year, now.month, now.day);
+    final punchTime = now.millisecondsSinceEpoch ~/ 1e3;
+    return PunchDay(
+      date: date.millisecondsSinceEpoch ~/ 1e3,
+      studyWordIDs: studyWordIDs.toList(),
+      studyMinute: studyMinute,
+      punchTime: punchTime,
+    );
+  }
 
   factory PunchDay.fromRawJson(String str) =>
       PunchDay.fromJson(json.decode(str));

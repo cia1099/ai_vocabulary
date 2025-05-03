@@ -356,7 +356,7 @@ I'm memorizing words with AI Vocabulary, punch with me! https://www.cia1099.clou
     switch (share.status) {
       case ShareResultStatus.success:
         if (mounted) {
-          MyDB().insertPunch(AppSettings.of(context).studyMinute);
+          MyDB().upsertPunch(AppSettings.of(context).studyMinute);
           showToast(
             context: context,
             alignment: const Alignment(0, .5),
