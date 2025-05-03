@@ -147,13 +147,13 @@ CREATE TABLE assets (
         FOREIGN KEY(word_id) REFERENCES words (id)
 );
 CREATE TABLE users (
-        id UUID NOT NULL, 
+        id TEXT NOT NULL, 
         update_at DATETIME, 
         PRIMARY KEY (id)
 );
 CREATE TABLE acquaintances (
         word_id INTEGER NOT NULL, 
-        user_id UUID, 
+        user_id TEXT, 
         acquaint INTEGER NOT NULL DEFAULT 0, 
         last_learned_time INTEGER, 
         PRIMARY KEY (word_id, user_id), 
@@ -164,7 +164,7 @@ CREATE TABLE acquaintances (
 CREATE TABLE text_messages (
         time_stamp INTEGER NOT NULL, 
         word_id INTEGER NOT NULL, 
-        user_id UUID, 
+        user_id TEXT, 
         content VARCHAR NOT NULL,  
         patterns VARCHAR NOT NULL DEFAULT '',  
         PRIMARY KEY (time_stamp), 
@@ -172,24 +172,26 @@ CREATE TABLE text_messages (
         FOREIGN KEY(user_id) REFERENCES users (id)
 );
 CREATE TABLE collections (
+        id INTEGER NOT NULL, 
         name VARCHAR NOT NULL, 
-        user_id UUID,
+        user_id TEXT,
         "index" INTEGER NOT NULL, 
         icon INTEGER, 
         color INTEGER, 
-        PRIMARY KEY (name, user_id),
+        PRIMARY KEY (id, user_id),
         FOREIGN KEY(user_id) REFERENCES users (id),
-        CONSTRAINT collection_key UNIQUE (name, user_id)
+        CONSTRAINT collection_key UNIQUE (id, user_id),
+        CONSTRAINT collection_name UNIQUE (name, user_id)
 );
 CREATE TABLE collect_words (
-        user_id UUID,
+        user_id TEXT,
         word_id INTEGER NOT NULL,
-        mark VARCHAR NOT NULL DEFAULT 'uncategorized',
-        PRIMARY KEY (user_id, word_id, mark),
+        collection_id INTEGER DEFAULT 0,
+        PRIMARY KEY (user_id, word_id, collection_id),
         FOREIGN KEY(word_id) REFERENCES words (id),
         FOREIGN KEY(user_id) REFERENCES users (id),
-        FOREIGN KEY(mark) REFERENCES collections (name),
-        CONSTRAINT collect_word_unique UNIQUE (user_id, word_id, mark)
+        FOREIGN KEY(collection_id) REFERENCES collections (id),
+        CONSTRAINT collect_word_unique UNIQUE (user_id, word_id, collection_id)
 );
 CREATE TABLE history_searches (
         word_id INTEGER NOT NULL,

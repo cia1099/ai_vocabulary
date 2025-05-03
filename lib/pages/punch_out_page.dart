@@ -216,6 +216,7 @@ class _PunchOutPageState extends State<PunchOutPage> {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(kRadialReactionRadius * 2),
               gradient: CollectionMark(
+                id: 0,
                 name: '',
                 index: -1,
                 color: colorScheme.primary.toARGB32(),

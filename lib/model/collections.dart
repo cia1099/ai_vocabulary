@@ -1,10 +1,11 @@
 import 'dart:convert';
 
 abstract class BookMark {
+  final int id;
   String name;
   int index;
 
-  BookMark({required this.name, this.index = -1});
+  BookMark({required this.name, this.id = 0, this.index = -1});
 
   @override
   bool operator ==(Object rhs) {
@@ -20,8 +21,13 @@ abstract class BookMark {
 class CollectionMark extends BookMark {
   int? color;
   int? icon;
-  CollectionMark(
-      {this.color, this.icon, required super.name, required super.index});
+  CollectionMark({
+    this.color,
+    this.icon,
+    required super.id,
+    required super.name,
+    required super.index,
+  });
 
   factory CollectionMark.fromRawJson(String str) =>
       CollectionMark.fromJson(json.decode(str));
@@ -29,25 +35,32 @@ class CollectionMark extends BookMark {
   String toRawJson() => json.encode(toJson());
 
   factory CollectionMark.fromJson(Map<String, dynamic> json) => CollectionMark(
-        name: json["name"],
-        index: json["index"],
-        icon: json["icon"],
-        color: json["color"],
-      );
+    id: json["id"],
+    name: json["name"],
+    index: json["index"],
+    icon: json["icon"],
+    color: json["color"],
+  );
 
   Map<String, dynamic> toJson() => {
-        "name": name,
-        "index": index,
-        "icon": icon,
-        "color": color,
-      };
+    "id": id,
+    "name": name,
+    "index": index,
+    "icon": icon,
+    "color": color,
+  };
 }
 
 class SystemMark extends BookMark {
-  SystemMark({required super.name, required super.index});
+  SystemMark({required super.name, required super.index, super.id});
 }
 
 class IncludeWordMark extends BookMark {
   bool included;
-  IncludeWordMark({required super.name, super.index, this.included = false});
+  IncludeWordMark({
+    required super.id,
+    required super.name,
+    super.index,
+    this.included = false,
+  });
 }

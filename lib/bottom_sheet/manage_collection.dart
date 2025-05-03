@@ -239,7 +239,7 @@ class _ManageCollectionSheetState extends State<ManageCollectionSheet> {
     // remove unchecked CollectWords
     MyDB().removeCollectWord(
       widget.wordID,
-      marks: marks.where((e) => !e.included).map((e) => e.name),
+      markIDs: marks.where((e) => !e.included).map((e) => e.id),
     );
     // insert new CollectionMarks and exclude kUncategorizedName
     marks.removeWhere((m) => m.name == kUncategorizedName);
@@ -247,7 +247,7 @@ class _ManageCollectionSheetState extends State<ManageCollectionSheet> {
     marks.asMap().entries.where((m) => !oldMarks.contains(m.value)).forEach((
       m,
     ) {
-      MyDB().insertCollection(m.value.name, m.key);
+      MyDB().insertCollection(m.value.id, m.value.name, m.key);
     });
     // insert new CollectWords
     final newIncludeMarks = marks.where((m) => m.included).expand((m) sync* {
@@ -258,12 +258,16 @@ class _ManageCollectionSheetState extends State<ManageCollectionSheet> {
     });
     MyDB().addCollectWord(
       widget.wordID,
-      marks: newIncludeMarks.map((e) => e.name),
+      markIDs: newIncludeMarks.map((e) => e.id),
     );
     // update indexes
     MyDB().updateIndexes(
       marks.asMap().entries.map(
-        (entry) => IncludeWordMark(name: entry.value.name, index: entry.key),
+        (entry) => IncludeWordMark(
+          id: entry.value.id,
+          name: entry.value.name,
+          index: entry.key,
+        ),
       ),
     );
     MyDB().notifyListeners();
@@ -345,10 +349,17 @@ class _ManageCollectionSheetState extends State<ManageCollectionSheet> {
             ),
           ),
     ).then((newName) {
-      if (newName != null && mounted)
+      if (newName != null && mounted) {
+        var newID = 1;
+        for (; newID < marks.length + 1; newID++) {
+          if (!marks.map((m) => m.id).contains(newID)) break;
+        }
         setState(() {
-          marks.add(IncludeWordMark(name: newName, index: marks.length));
+          marks.add(
+            IncludeWordMark(id: newID, name: newName, index: marks.length),
+          );
         });
+      }
     });
   }
 }

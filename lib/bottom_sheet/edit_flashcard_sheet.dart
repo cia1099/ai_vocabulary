@@ -61,6 +61,7 @@ class _EditFlashcardSheetState extends State<EditFlashcardSheet> {
                             onPressed: () {
                               Navigator.of(context).pop(
                                 CollectionMark(
+                                  id: widget.mark.id,
                                   name: widget.mark.name,
                                   color: color,
                                   icon: icon,
@@ -99,6 +100,7 @@ class _EditFlashcardSheetState extends State<EditFlashcardSheet> {
                               final mark = CollectionMark(
                                 icon: icon,
                                 color: color,
+                                id: widget.mark.id,
                                 name: widget.mark.name,
                                 index: widget.mark.index,
                               );

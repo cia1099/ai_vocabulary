@@ -35,7 +35,7 @@ class _CollectionPageState extends State<CollectionPage> {
   SliverAnimatedGridState? get gridState => gridKey.currentState;
   Iterable<BookMark> get fetchDB => MyDB().fetchMarks();
   List<BookMark> get systemMark => [
-    SystemMark(name: 'add', index: kMaxInt64),
+    SystemMark(name: 'add', index: kMaxInt64, id: kMaxInt64),
     SystemMark(name: 'Uncategorized', index: -1),
   ];
 
@@ -288,7 +288,12 @@ class _CollectionPageState extends State<CollectionPage> {
                           .map((digit) => int.tryParse(digit ?? '') ?? 0);
                       for (; nameNumbers.contains(count); count++) {}
                     }
+                    var newID = 1;
+                    for (; newID < marks.length + 1; newID++) {
+                      if (!marks.map((m) => m.id).contains(newID)) break;
+                    }
                     final newMark = CollectionMark(
+                      id: newID,
                       name:
                           'Repository${count > 0 ? '$count'.padLeft(2, '0') : ''}',
                       index: marks.whereType<CollectionMark>().length,
@@ -298,7 +303,7 @@ class _CollectionPageState extends State<CollectionPage> {
                       insertIndex,
                       duration: Durations.extralong1,
                     );
-                    MyDB().insertCollection(newMark.name, newMark.index);
+                    MyDB().insertCollection(newID, newMark.name, newMark.index);
                   },
                   elevation: 2,
                   shape: const CircleBorder(),
@@ -317,6 +322,7 @@ class _CollectionPageState extends State<CollectionPage> {
                           builder:
                               (context) => FavoriteWordsPage(
                                 mark: CollectionMark(
+                                  id: bookmark.id,
                                   name: kUncategorizedName,
                                   index: bookmark.index,
                                   icon: CupertinoIcons.star.codePoint,
@@ -419,7 +425,7 @@ class _CollectionPageState extends State<CollectionPage> {
       ),
       duration: Durations.extralong4,
     );
-    MyDB().removeMark(name: removedMark.name);
+    MyDB().removeMark(id: removedMark.id);
   }
 
   void onReorder(oldIndex, newIndex) {

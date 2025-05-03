@@ -171,7 +171,7 @@ class _FlashcardState extends State<Flashcard>
                                     : () {
                                       Navigator.of(context).pop();
                                       if (MyDB().renameMark(
-                                        name: widget.mark.name,
+                                        id: widget.mark.id,
                                         newName: editName.text,
                                       )) {
                                         setState(() {
@@ -208,7 +208,7 @@ class _FlashcardState extends State<Flashcard>
                   widget.mark.icon = mark.icon;
                 });
                 MyDB().editMark(
-                  name: mark.name,
+                  id: mark.id,
                   icon: mark.icon,
                   color: mark.color,
                 );

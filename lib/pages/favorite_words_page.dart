@@ -32,7 +32,7 @@ class _FavoriteWordsPageState extends State<FavoriteWordsPage> {
   ColorScheme? markScheme;
 
   Iterable<Vocabulary> get fetchDB =>
-      MyDB().fetchWordsFromMark(widget.mark.name);
+      MyDB().fetchWordsFromMarkID(widget.mark.id);
   late VoidCallback filterListener = () => filterWord(textController.text);
 
   @override
