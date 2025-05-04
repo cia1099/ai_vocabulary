@@ -31,11 +31,8 @@ extension CollectionDB on MyDB {
     db
       ..execute(removeRelative, [id, userID])
       ..dispose();
-    writeToCloud(replacePlaceholders(removeRelative, [id, userID])).then((res) {
-      if (res.status == 200) {
-        writeToCloud(replacePlaceholders(expression, [id, userID]));
-      }
-    });
+    writeToCloud(replacePlaceholders(removeRelative, [id, userID]));
+    writeToCloud(replacePlaceholders(expression, [id, userID]));
   }
 
   bool renameMark({required int id, required String newName}) {
@@ -71,17 +68,12 @@ extension CollectionDB on MyDB {
     final userID = UserProvider().currentUser?.uid;
     for (final mark in marks) {
       stmt.execute([mark.index, mark.id, userID]);
+      writeToCloud(
+        replacePlaceholders(expression, [mark.index, mark.id, userID]),
+      );
     }
     stmt.dispose();
     db.dispose();
-    (Iterable<BookMark> s) async {
-      for (final mark in s) {
-        final res = await writeToCloud(
-          replacePlaceholders(expression, [mark.index, mark.id, userID]),
-        );
-        if (res.status != 200) break;
-      }
-    }(marks);
   }
 
   String _updateExpression(Iterable<String> argsName) {

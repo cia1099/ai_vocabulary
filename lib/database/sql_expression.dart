@@ -188,8 +188,7 @@ CREATE TABLE collect_words (
         collection_id INTEGER DEFAULT 0,
         PRIMARY KEY (user_id, word_id, collection_id),
         FOREIGN KEY(word_id) REFERENCES words (id),
-        FOREIGN KEY(user_id) REFERENCES users (id),
-        FOREIGN KEY(collection_id) REFERENCES collections (id),
+        FOREIGN KEY(collection_id, user_id) REFERENCES collections (id, user_id),
         CONSTRAINT collect_word_unique UNIQUE (user_id, word_id, collection_id)
 );
 CREATE TABLE history_searches (
