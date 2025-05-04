@@ -22,6 +22,9 @@ extension AcquaintDB on MyDB {
     final db = open(OpenMode.readWrite);
     db.execute(upsert, [acquaint, learnedTime, wordId, userID]);
     db.dispose();
+    writeToCloud(
+      replacePlaceholders(upsert, [acquaint, learnedTime, wordId, userID]),
+    );
     Future.microtask(notifyListeners); //I don't know why it has to use Future
   }
 

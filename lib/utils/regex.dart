@@ -16,6 +16,18 @@ Iterable<String> splitWords(String text) {
       .where((w) => w.isNotEmpty);
 }
 
+String replacePlaceholders(String query, List<dynamic> values) {
+  int index = 0;
+  return query.replaceAllMapped(RegExp(r'\?'), (match) {
+    final value = values[index++];
+    if (value is String) {
+      return "'${value.replaceAll("'", "''")}'";
+    } else {
+      return value.toString();
+    }
+  });
+}
+
 extension SlidingWindow on String {
   Iterable<int> matchIndexes(String pattern) {
     final indexes = <int>[];

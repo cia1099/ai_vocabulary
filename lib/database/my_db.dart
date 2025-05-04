@@ -2,11 +2,13 @@ import 'dart:async';
 import 'dart:collection';
 import 'dart:io';
 
+import 'package:ai_vocabulary/api/dict_api.dart' show writeToCloud;
 import 'package:ai_vocabulary/model/collections.dart';
 import 'package:ai_vocabulary/model/message.dart';
 import 'package:ai_vocabulary/model/punch_day.dart';
 import 'package:ai_vocabulary/model/vocabulary.dart';
 import 'package:ai_vocabulary/provider/user_provider.dart';
+import 'package:ai_vocabulary/utils/regex.dart' show replacePlaceholders;
 import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 

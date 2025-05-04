@@ -13,10 +13,12 @@ extension CollectionDB on MyDB {
   void insertCollection(int id, String name, int index) {
     const expression =
         'INSERT INTO collections (id,name, "index", user_id) VALUES (?,?, ?, ?)';
+    final userID = UserProvider().currentUser?.uid;
     final db = open(OpenMode.readWrite);
     db
-      ..execute(expression, [id, name, index, UserProvider().currentUser?.uid])
+      ..execute(expression, [id, name, index, userID])
       ..dispose();
+    writeToCloud(replacePlaceholders(expression, [id, name, index, userID]));
   }
 
   void removeMark({required int id}) {
@@ -29,14 +31,21 @@ extension CollectionDB on MyDB {
     db
       ..execute(removeRelative, [id, userID])
       ..dispose();
+    writeToCloud(replacePlaceholders(removeRelative, [id, userID])).then((res) {
+      if (res.status == 200) {
+        writeToCloud(replacePlaceholders(expression, [id, userID]));
+      }
+    });
   }
 
   bool renameMark({required int id, required String newName}) {
     final stmt = _updateExpression(['name']);
+    final userID = UserProvider().currentUser?.uid;
     final db = open(OpenMode.readWrite);
     bool isSuccess;
     try {
-      db.execute(stmt, [newName, id, UserProvider().currentUser?.uid]);
+      db.execute(stmt, [newName, id, userID]);
+      writeToCloud(replacePlaceholders(stmt, [newName, id, userID]));
       isSuccess = true;
     } on SqliteException {
       isSuccess = false;
@@ -47,10 +56,12 @@ extension CollectionDB on MyDB {
 
   void editMark({required int id, required int? icon, required int? color}) {
     final expression = _updateExpression(['icon', 'color']);
+    final userID = UserProvider().currentUser?.uid;
     final db = open(OpenMode.readWrite);
     db
-      ..execute(expression, [icon, color, id, UserProvider().currentUser?.uid])
+      ..execute(expression, [icon, color, id, userID])
       ..dispose();
+    writeToCloud(replacePlaceholders(expression, [icon, color, id, userID]));
   }
 
   void updateIndexes(Iterable<BookMark> marks) {
@@ -63,6 +74,14 @@ extension CollectionDB on MyDB {
     }
     stmt.dispose();
     db.dispose();
+    (Iterable<BookMark> s) async {
+      for (final mark in s) {
+        final res = await writeToCloud(
+          replacePlaceholders(expression, [mark.index, mark.id, userID]),
+        );
+        if (res.status != 200) break;
+      }
+    }(marks);
   }
 
   String _updateExpression(Iterable<String> argsName) {
@@ -80,11 +99,12 @@ extension CollectionDB on MyDB {
     final userID = UserProvider().currentUser?.uid;
     final expression = '''
       INSERT INTO collect_words (word_id, user_id, collection_id)
-      VALUES ${markIDs.map((id) => '($wordID,"$userID",$id)').join(',')};
+      VALUES ${markIDs.map((id) => "($wordID,'$userID',$id)").join(',')};
     ''';
     final db = open(OpenMode.readWrite);
     db.execute(expression);
     db.dispose();
+    writeToCloud(expression);
     notifyListeners();
   }
 
@@ -122,6 +142,7 @@ extension CollectionDB on MyDB {
     db
       ..execute(expression, [wordID, userID, ...markIDs])
       ..dispose();
+    writeToCloud(replacePlaceholders(expression, [wordID, userID, ...markIDs]));
     notifyListeners();
   }
 
