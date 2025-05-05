@@ -31,8 +31,11 @@ extension CollectionDB on MyDB {
     db
       ..execute(removeRelative, [id, userID])
       ..dispose();
-    writeToCloud(replacePlaceholders(removeRelative, [id, userID]));
-    writeToCloud(replacePlaceholders(expression, [id, userID]));
+    writeToCloud(replacePlaceholders(removeRelative, [id, userID])).then((res) {
+      if (res.status == 200) {
+        writeToCloud(replacePlaceholders(expression, [id, userID]));
+      }
+    });
   }
 
   bool renameMark({required int id, required String newName}) {

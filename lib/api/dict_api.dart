@@ -21,8 +21,8 @@ part 'chat_api.dart';
 part 'pay_api.dart';
 part 'storage_api.dart';
 
-// const baseURL = 'www.cia1099.cloudns.ch';
-const baseURL = '127.0.0.1:8000';
+const baseURL = 'www.cia1099.cloudns.ch';
+// const baseURL = '127.0.0.1:8000';
 const punchCardUrl = "http://$baseURL/dict/imagen/punch/card";
 const kHttpTimeOut = Duration(seconds: 5);
 
