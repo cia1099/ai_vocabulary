@@ -89,20 +89,6 @@ extension CollectionDB on MyDB {
     return 'UPDATE collections SET $posInput WHERE id=? AND user_id=?';
   }
 
-  void addCollectWord(int wordID, {Iterable<int> markIDs = const [0]}) {
-    if (markIDs.isEmpty) return;
-    final userID = UserProvider().currentUser?.uid;
-    final expression = '''
-      INSERT INTO collect_words (word_id, user_id, collection_id)
-      VALUES ${markIDs.map((id) => "($wordID,'$userID',$id)").join(',')};
-    ''';
-    final db = open(OpenMode.readWrite);
-    db.execute(expression);
-    db.dispose();
-    writeToCloud(expression);
-    notifyListeners();
-  }
-
   Iterable<IncludeWordMark> fetchMarksIncludeWord(int wordID) {
     const expression = '''
   WITH bookmarks AS (SELECT name, "index" AS idx, id
@@ -124,6 +110,21 @@ extension CollectionDB on MyDB {
         id: row['id'] ?? 0,
       ),
     );
+  }
+
+  void addCollectWord(int wordID, {Iterable<int> markIDs = const [0]}) {
+    if (markIDs.isEmpty) return;
+    final userID = UserProvider().currentUser?.uid;
+    final expression = '''
+      INSERT INTO collect_words (word_id, user_id, collection_id)
+      VALUES ${markIDs.map((id) => "($wordID,'$userID',$id)").join(',')}
+      ON CONFLICT DO NOTHING;
+    ''';
+    final db = open(OpenMode.readWrite);
+    db.execute(expression);
+    db.dispose();
+    writeToCloud(expression);
+    notifyListeners();
   }
 
   void removeCollectWord(int wordID, {Iterable<int> markIDs = const []}) {

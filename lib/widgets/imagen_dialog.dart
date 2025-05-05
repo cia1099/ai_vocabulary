@@ -1,5 +1,6 @@
 import 'package:ai_vocabulary/api/dict_api.dart';
 import 'package:ai_vocabulary/provider/user_provider.dart';
+import 'package:ai_vocabulary/utils/handle_except.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
@@ -45,30 +46,37 @@ class _ImagenDialogState extends State<ImagenDialog> {
                   height: height - 80,
                   child: Column(
                     children: [
-                      Image(
-                        key: ValueKey(DateTime.now()),
-                        image: imageProvider,
-                        fit: BoxFit.cover,
-                        width: width * .85,
+                      Container(
                         height: height * .65,
-                        frameBuilder: (
-                          context,
-                          child,
-                          frame,
-                          wasSynchronouslyLoaded,
-                        ) {
-                          if (wasSynchronouslyLoaded) return child;
-                          return Container(
-                            height: height * .65,
-                            alignment: Alignment.center,
-                            child: generateImageLoader(
+                        alignment: Alignment.center,
+                        child: Image(
+                          key: ValueKey(DateTime.now()),
+                          image: imageProvider,
+                          fit: BoxFit.cover,
+                          width: width * .85,
+                          height: height * .65,
+                          frameBuilder: (
+                            context,
+                            child,
+                            frame,
+                            wasSynchronouslyLoaded,
+                          ) {
+                            if (wasSynchronouslyLoaded) return child;
+                            return generateImageLoader(
                               context,
                               child,
                               frame,
                               wasSynchronouslyLoaded,
-                            ),
-                          );
-                        },
+                            );
+                          },
+                          errorBuilder:
+                              (context, error, stackTrace) => Text(
+                                messageExceptions(error),
+                                style: textTheme.titleLarge?.apply(
+                                  color: colorScheme.error,
+                                ),
+                              ),
+                        ),
                       ),
                       Expanded(
                         child: Container(
@@ -96,24 +104,28 @@ class _ImagenDialogState extends State<ImagenDialog> {
                     () => imageProvider.evict().then((_) => setState(() {})),
                 material: (_, __) => MaterialIconButtonData(iconSize: 48),
                 cupertino: (_, __) => CupertinoIconButtonData(minSize: 48),
-                cupertinoIcon: const Icon(
+                cupertinoIcon: Icon(
                   CupertinoIcons.refresh_circled_solid,
                   size: 48,
                 ),
-                icon: const Icon(CupertinoIcons.refresh_circled_solid),
+                icon: Icon(CupertinoIcons.refresh_circled_solid),
               ),
             ),
             Align(
-              alignment: const FractionalOffset(1, 0),
+              alignment: const FractionalOffset(1.05, -.025),
               child: PlatformIconButton(
                 onPressed: Navigator.of(context).pop,
                 material: (_, __) => MaterialIconButtonData(iconSize: 48),
                 cupertino: (_, __) => CupertinoIconButtonData(minSize: 48),
-                cupertinoIcon: const Icon(
+                cupertinoIcon: Icon(
                   CupertinoIcons.xmark_circle_fill,
                   size: 48,
+                  color: colorScheme.onSurfaceVariant.withAlpha(200),
                 ),
-                icon: const Icon(CupertinoIcons.xmark_circle_fill),
+                icon: Icon(
+                  CupertinoIcons.xmark_circle_fill,
+                  color: colorScheme.onSurfaceVariant.withAlpha(200),
+                ),
               ),
             ),
           ],

@@ -18,7 +18,7 @@ extension ChatMsgDB on MyDB {
     final upsert = '''
 INSERT INTO text_messages 
 (time_stamp, content, word_id, patterns, user_id, owner_id) VALUES
-${messages.map((m) => '(${m.timeStamp},${m.content},${m.wordID},${m.patterns.join(', ')},${m.userID},$ownerID)').join(',')}
+${await messages.map((m) => "(${m.timeStamp},'${m.content}',${m.wordID},'${m.patterns.join(', ')}','${m.userID}','$ownerID')").join(',')}
 ON CONFLICT (time_stamp, owner_id) DO NOTHING RETURNING *;
 ''';
     final db = open(OpenMode.readWrite);
