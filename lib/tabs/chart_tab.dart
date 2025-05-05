@@ -20,6 +20,7 @@ class ChartTab extends StatelessWidget {
     //     kBottomNavigationBarHeight;
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
+    final tomorrow = DateTime.now().add(Duration(days: 1));
     return PlatformScaffold(
       body: CustomScrollView(
         physics: const AlwaysScrollableScrollPhysics(
@@ -87,7 +88,7 @@ class ChartTab extends StatelessWidget {
                       child: Column(
                         children: [
                           Text(
-                            '${MyDB().getPastPunchDays()}',
+                            '${MyDB().getPastPunchDays(tomorrow)}',
                             style: TextStyle(
                               fontSize: textTheme.titleMedium?.fontSize.scale(
                                 1.2,

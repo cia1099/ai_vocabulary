@@ -31,9 +31,9 @@ extension CollectionDB on MyDB {
     db
       ..execute(removeRelative, [id, userID])
       ..dispose();
-    writeToCloud(replacePlaceholders(removeRelative, [id, userID])).then((res) {
+    eraseCloud(replacePlaceholders(removeRelative, [id, userID])).then((res) {
       if (res.status == 200) {
-        writeToCloud(replacePlaceholders(expression, [id, userID]));
+        eraseCloud(replacePlaceholders(expression, [id, userID]));
       }
     });
   }
@@ -137,7 +137,7 @@ extension CollectionDB on MyDB {
     db
       ..execute(expression, [wordID, userID, ...markIDs])
       ..dispose();
-    writeToCloud(replacePlaceholders(expression, [wordID, userID, ...markIDs]));
+    eraseCloud(replacePlaceholders(expression, [wordID, userID, ...markIDs]));
     notifyListeners();
   }
 

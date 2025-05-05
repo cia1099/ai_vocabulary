@@ -16,8 +16,12 @@ extension AcquaintDB on MyDB {
       acquaint = dbAcquaintance.acquaint;
     }
 
-    final upsert =
-        '$insertAcquaintance ${learnedTime != null ? ', last_learned_time=excluded.last_learned_time' : ''}';
+    final upsert = '''
+INSERT INTO acquaintances (
+acquaint, last_learned_time, word_id, user_id) VALUES (?, ?, ?, ?) 
+ON CONFLICT (word_id, user_id) DO UPDATE SET acquaint=excluded.acquaint
+${learnedTime != null ? ', last_learned_time=excluded.last_learned_time' : ''};
+''';
     final userID = UserProvider().currentUser?.uid;
     final db = open(OpenMode.readWrite);
     db.execute(upsert, [acquaint, learnedTime, wordId, userID]);
@@ -77,8 +81,7 @@ extension AcquaintDB on MyDB {
     FROM acquaintances WHERE user_id = ?;
 ''';
     final db = open(OpenMode.readOnly);
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
+    final today = DateTime.now().copyWith(hour: 0, minute: 0, second: 0);
     final resultSet = db.select(query, [
       ...List.filled(2, today.millisecondsSinceEpoch ~/ 6e4),
       UserProvider().currentUser?.uid,
@@ -91,8 +94,7 @@ extension AcquaintDB on MyDB {
     const query =
         'SELECT word_id FROM acquaintances WHERE last_learned_time > ? AND user_id=?';
     final db = open(OpenMode.readOnly);
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
+    final today = DateTime.now().copyWith(hour: 0, minute: 0, second: 0);
     final resultSet = db.select(query, [
       today.millisecondsSinceEpoch ~/ 6e4,
       UserProvider().currentUser?.uid,

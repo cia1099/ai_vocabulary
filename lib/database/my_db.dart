@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:collection';
 import 'dart:io';
 
-import 'package:ai_vocabulary/api/dict_api.dart' show writeToCloud;
+import 'package:ai_vocabulary/api/dict_api.dart' show writeToCloud, eraseCloud;
 import 'package:ai_vocabulary/model/collections.dart';
 import 'package:ai_vocabulary/model/message.dart';
 import 'package:ai_vocabulary/model/punch_day.dart';

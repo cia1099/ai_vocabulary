@@ -19,3 +19,23 @@ Future<ApiResponse> writeToCloud(String sqlQuery) async {
     throw HttpException(response.body, uri: url);
   }
 }
+
+Future<ApiResponse> eraseCloud(String sqlQuery) async {
+  final url = Uri.http(baseURL, '/dict/supabase/erase');
+  final accessToken = UserProvider().currentUser?.accessToken;
+  final response = await http.delete(
+    url,
+    headers: {
+      'Content-Type': 'text/plain',
+      'Authorization': 'Bearer $accessToken',
+    },
+    body: sqlQuery,
+  );
+  if (response.statusCode == 200) {
+    return ApiResponse.fromRawJson(response.body);
+  } else if (response.statusCode == 406) {
+    return ApiResponse(status: 406, content: response.body);
+  } else {
+    throw HttpException(response.body, uri: url);
+  }
+}

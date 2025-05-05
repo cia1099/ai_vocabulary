@@ -16,14 +16,18 @@ extension PunchDB on MyDB {
     return resultSets.map((json) => PunchDay.fromJson(json)).toList();
   }
 
-  int getPastPunchDays() {
+  int getPastPunchDays([DateTime? whatDate]) {
     const query =
         "SELECT COUNT(date) AS days FROM punch_days WHERE date < ? AND user_id = ?";
     final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
+    final date = DateTime(
+      whatDate?.year ?? now.year,
+      whatDate?.month ?? now.month,
+      whatDate?.day ?? now.day,
+    );
     final db = open(OpenMode.readOnly);
     final resultSet = db.select(query, [
-      today.millisecondsSinceEpoch ~/ 1e3,
+      date.millisecondsSinceEpoch ~/ 1e3,
       UserProvider().currentUser?.uid,
     ]);
     db.dispose();
@@ -41,11 +45,11 @@ extension PunchDB on MyDB {
       studyWordIDs: getTodayStudyWordIDs(),
       studyMinute: studyMinute,
     );
+    final userID = UserProvider().currentUser?.uid;
     final db = open(OpenMode.readWrite);
-    db.execute(upsert, [
-      ...punchDay.toJson().values,
-      UserProvider().currentUser?.uid,
-    ]);
+    final values = punchDay.toJson().values;
+    db.execute(upsert, [...values, userID]);
     db.dispose();
+    writeToCloud(replacePlaceholders(upsert, [...values, userID]));
   }
 }

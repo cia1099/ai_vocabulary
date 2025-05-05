@@ -8,15 +8,6 @@ const insertExample =
     r'INSERT INTO examples (word_id, explanation_id, example) VALUES (?, ?, ?)';
 const insertAsset = r'INSERT INTO assets (word_id, filename) VALUES (?, ?)';
 
-const insertAcquaintance = '''
-INSERT INTO acquaintances (
-acquaint, last_learned_time, word_id, user_id) VALUES (?, ?, ?, ?) 
-ON CONFLICT (word_id, user_id) DO UPDATE SET acquaint=excluded.acquaint
-''';
-
-const insertTextMessage =
-    r'INSERT INTO text_messages (time_stamp, content, word_id, patterns, user_id) VALUES (?, ?, ?, ?, ?)';
-
 const deleteVocabulary = '''
 DELETE FROM assets WHERE word_id=?;
 DELETE FROM examples WHERE word_id=?;
@@ -163,12 +154,12 @@ CREATE TABLE text_messages (
         time_stamp INTEGER NOT NULL, 
         word_id INTEGER NOT NULL, 
         user_id TEXT, 
-        owner_id TEXT,
+        owner_id TEXT NOT NULL,
         content VARCHAR NOT NULL,  
-        patterns VARCHAR NOT NULL DEFAULT '',  
-        PRIMARY KEY (time_stamp), 
+        patterns VARCHAR NOT NULL DEFAULT '',
+        PRIMARY KEY (time_stamp, owner_id),
         FOREIGN KEY(word_id) REFERENCES words (id), 
-        FOREIGN KEY(user_id) REFERENCES users (id)
+        FOREIGN KEY(owner_id) REFERENCES users (id)
 );
 CREATE TABLE collections (
         id INTEGER NOT NULL, 
