@@ -103,30 +103,21 @@ class _MyAppState extends State<MyApp> {
                   //           children: [
                   //             // PunchCalendar(),
                   //             CupertinoButton.filled(
-                  //               onPressed:
-                  //                   () =>
-                  //                   // appearAward(context, 'apple'),
-                  //                   // showPlatformModalSheet(
-                  //                   //   context: context,
-                  //                   //   builder:
-                  //                   //       (context) =>
-                  //                   //           const ManageCollectionSheet(
-                  //                   //             wordID: 830,
-                  //                   //           ),
-                  //                   //   material: MaterialModalSheetData(
-                  //                   //     backgroundColor: Colors.transparent,
-                  //                   //     scrollControlDisabledMaxHeightRatio: 1,
-                  //                   //     isDismissible: false,
-                  //                   //   ),
-                  //                   // ),
-                  //                   Navigator.push(
-                  //                     context,
-                  //                     platformPageRoute(
-                  //                       context: context,
-                  //                       fullscreenDialog: true,
-                  //                       builder: (context) => PaymentPage(),
-                  //                     ),
-                  //                   ),
+                  //               onPressed: () {},
+                  //               // appearAward(context, 'apple'),
+                  //               // showPlatformModalSheet(
+                  //               //   context: context,
+                  //               //   builder:
+                  //               //       (context) =>
+                  //               //           const ManageCollectionSheet(
+                  //               //             wordID: 830,
+                  //               //           ),
+                  //               //   material: MaterialModalSheetData(
+                  //               //     backgroundColor: Colors.transparent,
+                  //               //     scrollControlDisabledMaxHeightRatio: 1,
+                  //               //     isDismissible: false,
+                  //               //   ),
+                  //               // ),
                   //               child: Text('Go Route!'),
                   //             ),
                   //           ],

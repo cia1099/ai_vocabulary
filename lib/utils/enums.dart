@@ -42,3 +42,13 @@ enum TranslateLocate {
 }
 
 enum Quiz { cloze, puzzle, arbitrary }
+
+enum TableName {
+  acquaintances('acquaintances'),
+  collections('collections'),
+  collectWords('collect_words'),
+  punchDays('punch_days');
+
+  final String name;
+  const TableName(this.name);
+}

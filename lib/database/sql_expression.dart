@@ -177,9 +177,9 @@ CREATE TABLE collect_words (
         user_id TEXT,
         word_id INTEGER NOT NULL,
         collection_id INTEGER DEFAULT 0,
-        PRIMARY KEY (user_id, word_id, collection_id),
+        PRIMARY KEY (word_id, collection_id, user_id),
         FOREIGN KEY(word_id) REFERENCES words (id),
-        FOREIGN KEY(collection_id, user_id) REFERENCES collections (id, user_id),
+        FOREIGN KEY(collection_id, user_id) REFERENCES collections (id, user_id) ON DELETE CASCADE,
         CONSTRAINT collect_word_unique UNIQUE (user_id, word_id, collection_id)
 );
 CREATE TABLE history_searches (
@@ -196,4 +196,13 @@ CREATE TABLE punch_days (
         punch_time INTEGER,
         PRIMARY KEY (date, user_id)
 );
+CREATE INDEX "IX_definitions_word_id" ON definitions (word_id);
+CREATE INDEX "IX_explanations_definition_id" ON explanations (definition_id);
+CREATE INDEX "IX_examples_explanation_id" ON examples (explanation_id);
+CREATE INDEX "IX_explanations_word_id" ON explanations (word_id);
+CREATE INDEX "IX_examples_word_id" ON examples (word_id);
+CREATE INDEX "IX_assets_word_id" ON assets (word_id);
+CREATE INDEX "IX_text_message" ON text_messages (owner_id, word_id);
+CREATE INDEX "IX_collect_word" ON collect_words (user_id, word_id);
+CREATE INDEX "IX_collect_word_in_mark" ON collect_words (user_id, collection_id);
 ''';

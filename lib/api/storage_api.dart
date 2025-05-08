@@ -39,3 +39,36 @@ Future<ApiResponse> eraseCloud(String sqlQuery) async {
     throw HttpException(response.body, uri: url);
   }
 }
+
+// Future<List<Map<String, dynamic>>> pullFromCloud({
+Future<List> pullFromCloud({
+  required TableName tableName,
+  List<int> excludeIDs = const [],
+  int page = 0,
+}) async {
+  final url = Uri.http(baseURL, '/dict/supabase/pull', {'page': '$page'});
+  final accessToken = UserProvider().currentUser?.accessToken;
+  final userID = UserProvider().currentUser?.uid;
+  final response = await http
+      .post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $accessToken',
+        },
+        body: jsonEncode({
+          'tablename': tableName.name,
+          'user_id': userID,
+          'exclude_ids': excludeIDs,
+        }),
+      )
+      .timeout(kHttpTimeOut);
+  if (response.statusCode == 200) {
+    final res = ApiResponse.fromRawJson(response.body);
+    return jsonDecode(res.content);
+  } else if (response.statusCode == 406) {
+    return [];
+  } else {
+    throw HttpException(response.body, uri: url);
+  }
+}

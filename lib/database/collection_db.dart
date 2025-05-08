@@ -22,20 +22,22 @@ extension CollectionDB on MyDB {
   }
 
   void removeMark({required int id}) {
-    const expression = 'DELETE FROM collections WHERE id=? AND user_id=?';
+    const expression = 'DELETE FROM collections WHERE id=? AND user_id=?;';
     final userID = UserProvider().currentUser?.uid;
     final db = open(OpenMode.readWrite);
+    db.execute('PRAGMA foreign_keys = ON;');
     db.execute(expression, [id, userID]);
-    const removeRelative =
-        'DELETE FROM collect_words WHERE collection_id=? AND user_id=?';
-    db
-      ..execute(removeRelative, [id, userID])
-      ..dispose();
-    eraseCloud(replacePlaceholders(removeRelative, [id, userID])).then((res) {
+    db.dispose();
+    // const removeRelative =
+    //     'DELETE FROM collect_words WHERE collection_id=? AND user_id=?';
+    // db
+    //   ..execute(removeRelative, [id, userID])
+    //   ..dispose();
+    eraseCloud(replacePlaceholders(expression, [id, userID])).then((res) {
       if (res.status == 200) {
-        eraseCloud(replacePlaceholders(expression, [id, userID]));
+        // eraseCloud(replacePlaceholders(expression, [id, userID]));
       }
-    });
+    }, onError: print);
   }
 
   bool renameMark({required int id, required String newName}) {

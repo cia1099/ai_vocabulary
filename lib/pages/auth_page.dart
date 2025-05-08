@@ -12,6 +12,7 @@ import 'package:ai_vocabulary/model/user.dart';
 import 'package:ai_vocabulary/app_route.dart';
 import 'package:ai_vocabulary/pages/home_page.dart';
 import 'package:ai_vocabulary/provider/user_provider.dart';
+import 'package:ai_vocabulary/widgets/pull_data_dialog.dart';
 import 'package:auth_button_kit/auth_button_kit.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -125,16 +126,37 @@ class _AuthPageState extends State<AuthPage>
   Future<void> _routeTransition() async {
     await AppSettings.of(context).loadSetting();
     if (mounted) {
+      final _ = await showPlatformDialog<bool>(
+        context: context,
+        builder: (context) => PullDataDialog(),
+        // StreamBuilder(
+        //   stream: () async* {
+        //     yield* Stream.periodic(
+        //       Durations.extralong4,
+        //       (index) => ++index,
+        //     ).take(5);
+        //     if (context.mounted) {
+        //       Navigator.maybePop(context, true);
+        //     }
+        //   }(),
+        //   builder: (context, snapshot) {
+        //     final remain = 5 - (snapshot.data ?? 0);
+        //     final msg = remain > 0 ? 'remain waiting...${remain}s' : 'Done';
+        //     return DummyDialog(msg: msg);
+        //   },
+        // ),
+        barrierDismissible: false,
+      );
       Navigator.pushReplacement(
         context,
         PageRouteBuilder(
-          pageBuilder:
-              (context, animation, secondaryAnimation) =>
-                  CupertinoDialogTransition(
-                    animation: animation,
-                    scale: .9,
-                    child: HomePage(),
-                  ),
+          pageBuilder: (context, _, __) => HomePage(),
+          transitionsBuilder:
+              (_, animation, _, child) => CupertinoDialogTransition(
+                animation: animation,
+                scale: .9,
+                child: child,
+              ),
           settings: RouteSettings(name: AppRoute.home),
         ),
       );

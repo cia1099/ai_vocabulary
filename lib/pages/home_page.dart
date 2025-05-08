@@ -9,25 +9,29 @@ import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final tabIndex = ValueNotifier(0);
+  State<HomePage> createState() => _HomePageState();
+}
 
-    return ValueListenableBuilder(
-      valueListenable: tabIndex,
-      builder: (context, value, child) {
-        final provider = AppSettings.of(context).wordProvider;
-        return GestureRoutePage(
-          draggable: value == 0 && provider is RecommendProvider,
-          pushPage: SecondPage(provider: provider),
-          routeName: AppRoute.quiz,
-          child: child!,
-        );
-      },
-      child: NavigationPage(onTabChanged: (index) => tabIndex.value = index),
+class _HomePageState extends State<HomePage> {
+  var tabIndex = 0;
+  late final Widget child = NavigationPage(
+    onTabChanged:
+        (index) => setState(() {
+          tabIndex = index;
+        }),
+  );
+  @override
+  Widget build(BuildContext context) {
+    final provider = AppSettings.of(context).wordProvider;
+    return GestureRoutePage(
+      draggable: tabIndex == 0 && provider is RecommendProvider,
+      pushPage: SecondPage(provider: provider),
+      routeName: AppRoute.quiz,
+      child: child,
     );
   }
 }
