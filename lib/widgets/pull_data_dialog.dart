@@ -28,35 +28,31 @@ class PullDataDialog extends StatelessWidget {
           padding: EdgeInsets.symmetric(horizontal: hPadding),
           child: StreamBuilder(
             stream: (Stream pulls) async* {
+              yield await pullCollections().onError(handleError);
               await for (final text in pulls) {
                 yield text;
               }
-              yield 'Pull done';
+              yield await Future.delayed(
+                Duration(milliseconds: 350),
+                () => 'Complete synchronization',
+              );
               if (context.mounted) {
                 Navigator.maybePop(context, true);
               }
             }(
               Stream.fromFutures([
-                // pullAcquaintances().onError(handleError),
-                // pullPunchDays().onError(handleError),
+                pullAcquaintances().onError(handleError),
+                pullPunchDays().onError(handleError),
                 pullCollectWords().onError(handleError),
               ]),
             ),
             builder: (context, snapshot) {
               final text = snapshot.data ?? 'Start pulling...';
-              if (hasError) {
-                hasError ^= true;
-                return Text(
-                  text,
-                  style: textTheme.textStyle.apply(
-                    color: CupertinoColors.destructiveRed,
-                  ),
-                );
-              }
-              return Text(
-                text,
-                style: textTheme.textStyle.apply(color: CupertinoColors.white),
-              );
+              final color =
+                  hasError && !(hasError ^= true)
+                      ? CupertinoColors.destructiveRed.resolveFrom(context)
+                      : CupertinoColors.white;
+              return Text(text, style: textTheme.textStyle.apply(color: color));
             },
           ),
         ),
@@ -85,7 +81,7 @@ class PullDataDialog extends StatelessWidget {
       generateInsert: generateInsert,
     );
 
-    return 'Acquaintances pull done';
+    return 'Acquaintances synchronize done';
   }
 
   Future<String> pullPunchDays() async {
@@ -108,7 +104,7 @@ class PullDataDialog extends StatelessWidget {
       generateInsert: generateInsert,
     );
 
-    return 'Punch Days pull done';
+    return 'Punch Days synchronize done';
   }
 
   Future<String> pullCollections() async {
@@ -131,12 +127,12 @@ class PullDataDialog extends StatelessWidget {
       generateInsert: generateInsert,
     );
 
-    return 'Collections pull done';
+    return 'Collections synchronize done';
   }
 
   Future<String> pullCollectWords() async {
     final userID = UserProvider().currentUser?.uid;
-    final _ = await pullCollections();
+    // final _ = await pullCollections();
     final validIDs = await MyDB().readLocal(
         "SELECT id FROM collections WHERE user_id='$userID'",
       )
@@ -160,7 +156,7 @@ class PullDataDialog extends StatelessWidget {
       generateInsert: generateInsert,
     );
 
-    return 'Collected Words pull done';
+    return 'Collected Words synchronize done';
   }
 
   Future<void> pullCloudDB({

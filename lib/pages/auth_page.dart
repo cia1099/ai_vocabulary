@@ -129,22 +129,6 @@ class _AuthPageState extends State<AuthPage>
       final _ = await showPlatformDialog<bool>(
         context: context,
         builder: (context) => PullDataDialog(),
-        // StreamBuilder(
-        //   stream: () async* {
-        //     yield* Stream.periodic(
-        //       Durations.extralong4,
-        //       (index) => ++index,
-        //     ).take(5);
-        //     if (context.mounted) {
-        //       Navigator.maybePop(context, true);
-        //     }
-        //   }(),
-        //   builder: (context, snapshot) {
-        //     final remain = 5 - (snapshot.data ?? 0);
-        //     final msg = remain > 0 ? 'remain waiting...${remain}s' : 'Done';
-        //     return DummyDialog(msg: msg);
-        //   },
-        // ),
         barrierDismissible: false,
       );
       Navigator.pushReplacement(
