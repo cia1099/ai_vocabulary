@@ -16,7 +16,7 @@ class ImagenDialog extends StatefulWidget {
 }
 
 class _ImagenDialogState extends State<ImagenDialog> {
-  late final url = Uri.http(baseURL, '/dict/imagen/256', {
+  late final url = Uri.https(baseURL, '/dict/imagen/256', {
     'prompt': widget.prompt,
   });
   late final imageProvider = NetworkImage(

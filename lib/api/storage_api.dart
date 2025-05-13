@@ -1,7 +1,7 @@
 part of 'dict_api.dart';
 
 Future<ApiResponse> writeToCloud(String sqlQuery) async {
-  final url = Uri.http(baseURL, '/dict/supabase/write');
+  final url = Uri.https(baseURL, '/dict/supabase/write');
   final accessToken = UserProvider().currentUser?.accessToken;
   final response = await http.post(
     url,
@@ -21,7 +21,7 @@ Future<ApiResponse> writeToCloud(String sqlQuery) async {
 }
 
 Future<ApiResponse> eraseCloud(String sqlQuery) async {
-  final url = Uri.http(baseURL, '/dict/supabase/erase');
+  final url = Uri.https(baseURL, '/dict/supabase/erase');
   final accessToken = UserProvider().currentUser?.accessToken;
   final response = await http.delete(
     url,
@@ -46,7 +46,7 @@ Future<List> pullFromCloud({
   List<int> excludeIDs = const [],
   int page = 0,
 }) async {
-  final url = Uri.http(baseURL, '/dict/supabase/pull', {'page': '$page'});
+  final url = Uri.https(baseURL, '/dict/supabase/pull', {'page': '$page'});
   final accessToken = UserProvider().currentUser?.accessToken;
   final userID = UserProvider().currentUser?.uid;
   final response = await http

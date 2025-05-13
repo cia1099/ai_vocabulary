@@ -23,17 +23,17 @@ part 'storage_api.dart';
 
 const baseURL = 'www.cia1099.cloudns.ch';
 // const baseURL = '127.0.0.1:8000';
-const punchCardUrl = "http://$baseURL/dict/imagen/punch/card";
+const punchCardUrl = "https://$baseURL/dict/imagen/punch/card";
 const kHttpTimeOut = Duration(seconds: 5);
 
 Future<List<Vocabulary>> retrievalWord(
   String word, {
   TranslateLocate? locate,
 }) async {
-  // final url = Uri.http(baseURL, '/dict/retrieval', {'word': word});
+  // final url = Uri.https(baseURL, '/dict/retrieval', {'word': word});
   final query = 'word=$word${locate != null ? '&lang=${locate.lang}' : ''}';
   const path = '/dict/retrieval';
-  final url = Uri.parse('http://$baseURL$path?$query');
+  final url = Uri.parse('https://$baseURL$path?$query');
   final headers = {
     "Authorization": "Bearer ${UserProvider().currentUser?.accessToken}",
   };
@@ -53,7 +53,7 @@ Future<List<Vocabulary>> searchWord({
 }) async {
   final query = 'word=$word&page=$page';
   const path = '/dict/search';
-  final url = Uri.parse('http://$baseURL$path?$query');
+  final url = Uri.parse('https://$baseURL$path?$query');
   final headers = {
     "Authorization": "Bearer ${UserProvider().currentUser?.accessToken}",
   };
@@ -68,7 +68,7 @@ Future<List<Vocabulary>> searchWord({
 }
 
 Future<int> getMaxId() async {
-  final url = Uri.http(baseURL, '/dict/words/max_id');
+  final url = Uri.https(baseURL, '/dict/words/max_id');
   final headers = {
     "Authorization": "Bearer ${UserProvider().currentUser?.accessToken}",
   };
@@ -83,8 +83,8 @@ Future<int> getMaxId() async {
 Future<List<Vocabulary>> getWords(Iterable<int> ids) async {
   final query = ids.map((id) => 'id=$id').join('&');
   const path = '/dict/words';
-  final url = Uri.parse('http://$baseURL$path?$query');
-  // final url = Uri.http(baseURL, path, {"id": query});
+  final url = Uri.parse('https://$baseURL$path?$query');
+  // final url = Uri.https(baseURL, path, {"id": query});
   final headers = {
     "Authorization": "Bearer ${UserProvider().currentUser?.accessToken}",
   };
@@ -99,7 +99,7 @@ Future<List<Vocabulary>> getWords(Iterable<int> ids) async {
 }
 
 Future<Vocabulary> getWordById(int id) async {
-  final url = Uri.http(baseURL, '/dict/word_id/$id');
+  final url = Uri.https(baseURL, '/dict/word_id/$id');
   final headers = {
     "Authorization": "Bearer ${UserProvider().currentUser?.accessToken}",
   };
@@ -112,7 +112,7 @@ Future<Vocabulary> getWordById(int id) async {
 }
 
 Future<List<Phrase>> getPhrases(int wordID) async {
-  final url = Uri.http(baseURL, '/dict/phrases', {'word_id': '$wordID'});
+  final url = Uri.https(baseURL, '/dict/phrases', {'word_id': '$wordID'});
   final headers = {
     "Authorization": "Bearer ${UserProvider().currentUser?.accessToken}",
   };
@@ -130,7 +130,7 @@ Future<String> definitionTranslation(
   int definitionID,
   TranslateLocate locate,
 ) async {
-  final url = Uri.http(baseURL, '/dict/definition/translation');
+  final url = Uri.https(baseURL, '/dict/definition/translation');
   final headers = {
     "Authorization": "Bearer ${UserProvider().currentUser?.accessToken}",
     'Content-Type': 'application/json',
@@ -214,7 +214,7 @@ void main() async {
   final query = ids.map((id) => 'id=$id').join(r'&');
   const path = '/dict/words';
   final url = Uri.parse('https://$baseURL$path?$query');
-  final url2 = Uri.http(baseURL, path + r'_?' + query);
+  final url2 = Uri.https(baseURL, path + r'_?' + query);
   print(url.query);
   print(url2.path);
 }

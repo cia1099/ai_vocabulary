@@ -5,7 +5,7 @@ Future<ChatAnswer> chatVocabulary(
   String text, [
   bool isHelp = false,
 ]) async {
-  final url = Uri.http(baseURL, '/dict/chat/$vocabulary');
+  final url = Uri.https(baseURL, '/dict/chat/$vocabulary');
   final headers = {
     'Content-Type': 'application/json',
     "Authorization": "Bearer ${UserProvider().currentUser?.accessToken}",

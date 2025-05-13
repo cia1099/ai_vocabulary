@@ -1,7 +1,7 @@
 part of 'dict_api.dart';
 
 Future<void> soundGTTs(String text, [gTTS lang = gTTS.US]) async {
-  final url = Uri.http(baseURL, '/dict/gtts/audio');
+  final url = Uri.https(baseURL, '/dict/gtts/audio');
   final headers = {'Content-Type': 'application/json'};
   final body = jsonEncode({'text': text, 'lang': lang.lang});
   final res = await http
@@ -21,7 +21,7 @@ Future<void> soundAzure(
   // String name = 'en-US-AvaMultilingualNeural',
   AzureVoicer sound = AzureVoicer.Ava,
 }) async {
-  final url = Uri.http(baseURL, '/dict/azure/audio');
+  final url = Uri.https(baseURL, '/dict/azure/audio');
   final accessToken = UserProvider().currentUser?.accessToken;
   final headers = {
     'Content-Type': 'application/json',
@@ -44,7 +44,7 @@ Future<void> soundAzure(
 }
 
 Future<SpeechRecognition> recognizeSpeech(String filePath) async {
-  final url = Uri.http(baseURL, '/dict/chat/speech');
+  final url = Uri.https(baseURL, '/dict/chat/speech');
   final accessToken = UserProvider().currentUser?.accessToken;
   final headers = {
     'Content-Type': 'multipart/form-data',
@@ -74,7 +74,7 @@ Future<SpeechRecognition> recognizeSpeechBytes(
   List<int> bytes, {
   String filename = 'temporary.wav',
 }) async {
-  final url = Uri.http(baseURL, '/dict/chat/speech');
+  final url = Uri.https(baseURL, '/dict/chat/speech');
   final accessToken = UserProvider().currentUser?.accessToken;
   final headers = {
     'Content-Type': 'multipart/form-data',
