@@ -8,7 +8,6 @@ import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
 import 'app_settings.dart';
 import 'firebase_options.dart';
-import 'load_page_route.dart';
 import 'theme.dart';
 
 void main() {
@@ -94,75 +93,39 @@ class _MyAppState extends State<MyApp> {
                             .resolveFrom(context),
                       ),
                   // initialRoute: AppRoute.login,
-                  // home: AuthPage(),
-                  home: Builder(
-                    builder: (context) {
-                      return PlatformScaffold(
-                        body: Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              // PunchCalendar(),
-                              CupertinoButton.filled(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    LoadRoute(
-                                      stream: () async* {
-                                        // await Future.delayed(
-                                        //   Durations.extralong4,
-                                        // );
-                                        yield 'apple';
-                                        await Future.delayed(
-                                          Durations.extralong4,
-                                        );
-                                        throw Exception('Shit man');
-                                        yield 'banana';
-                                        await Future.delayed(
-                                          Durations.extralong4,
-                                        );
-                                        yield 'cherry';
-                                      }(),
-                                      builder:
-                                          (context, data) => PlatformScaffold(
-                                            appBar: PlatformAppBar(
-                                              title: Text('Target page'),
-                                            ),
-                                            body: Center(
-                                              child: Text(
-                                                data,
-                                                textScaler: TextScaler.linear(
-                                                  4,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                      barrierColor: kCupertinoModalBarrierColor,
-                                    ),
-                                  );
-                                },
-                                // appearAward(context, 'apple'),
-                                // showPlatformModalSheet(
-                                //   context: context,
-                                //   builder:
-                                //       (context) =>
-                                //           const ManageCollectionSheet(
-                                //             wordID: 830,
-                                //           ),
-                                //   material: MaterialModalSheetData(
-                                //     backgroundColor: Colors.transparent,
-                                //     scrollControlDisabledMaxHeightRatio: 1,
-                                //     isDismissible: false,
-                                //   ),
-                                // ),
-                                child: Text('Go Route!'),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  ),
+                  home: AuthPage(),
+                  // home: Builder(
+                  //   builder: (context) {
+                  //     return PlatformScaffold(
+                  //       body: Center(
+                  //         child: Column(
+                  //           mainAxisAlignment: MainAxisAlignment.center,
+                  //           children: [
+                  //             // PunchCalendar(),
+                  //             CupertinoButton.filled(
+                  //               onPressed: () {},
+                  //               // appearAward(context, 'apple'),
+                  //               // showPlatformModalSheet(
+                  //               //   context: context,
+                  //               //   builder:
+                  //               //       (context) =>
+                  //               //           const ManageCollectionSheet(
+                  //               //             wordID: 830,
+                  //               //           ),
+                  //               //   material: MaterialModalSheetData(
+                  //               //     backgroundColor: Colors.transparent,
+                  //               //     scrollControlDisabledMaxHeightRatio: 1,
+                  //               //     isDismissible: false,
+                  //               //   ),
+                  //               // ),
+                  //               child: Text('Go Route!'),
+                  //             ),
+                  //           ],
+                  //         ),
+                  //       ),
+                  //     );
+                  //   },
+                  // ),
                 ),
           ),
     );

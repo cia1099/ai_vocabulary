@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:ai_vocabulary/api/dict_api.dart';
 import 'package:ai_vocabulary/database/my_db.dart';
@@ -42,6 +43,7 @@ abstract class LoadingRoute<T, S> extends PageRoute<T> {
               platformPageRoute(
                 context: context,
                 settings: settings,
+                fullscreenDialog: isMaterial(context),
                 builder:
                     (context) => StreamBuilder(
                       initialData: lastData,
@@ -102,8 +104,8 @@ abstract class LoadingRoute<T, S> extends PageRoute<T> {
 
 class WordListRoute extends LoadingRoute<List<Vocabulary>, Iterable<int>> {
   WordListRoute({
-    required super.builder,
     required final Iterable<int> wordIDs,
+    required super.builder,
     super.barrierColor,
     super.settings,
   }) {
@@ -143,11 +145,12 @@ class WordRoute extends LoadingRoute<Vocabulary, int> {
 Stream<List<Vocabulary>> loadWordList(Iterable<int> wordIDs) async* {
   await MyDB().isReady;
   final words = MyDB().fetchWords(wordIDs);
-  if (words.isNotEmpty) {
+  if (words.isNotEmpty || wordIDs.isEmpty) {
     yield words;
   }
   final fetchSet = words.map((w) => w.wordId).toSet();
   final remainIDs = wordIDs.toSet().difference(fetchSet);
+  final errorMap = <int, String>{};
   if (remainIDs.isNotEmpty) {
     const count = 20;
     final futureWords = <Future<List<Vocabulary>>>[];
@@ -156,14 +159,24 @@ Stream<List<Vocabulary>> loadWordList(Iterable<int> wordIDs) async* {
       ids.isNotEmpty;
       ids = remainIDs.skip(++i * count).take(count)
     ) {
-      futureWords.add(getWords(ids));
+      futureWords.add(
+        getWords(ids).onError((e, _) {
+          errorMap.addAll({i: messageExceptions(e)});
+          return [];
+        }),
+      );
     }
     final wordLists = Stream.fromFutures(futureWords).asBroadcastStream();
     MyDB().insertWords(
       wordLists.asyncExpand((list) => Stream.fromIterable(list)),
     );
     await for (final remainWords in wordLists) {
-      yield words..addAll(remainWords);
+      words.addAll(remainWords);
     }
+    yield words;
+  }
+  if (errorMap.isNotEmpty) {
+    final msg = "Failed get ${errorMap.length} times.\n${jsonEncode(errorMap)}";
+    throw ApiException(msg);
   }
 }

@@ -1,3 +1,4 @@
+import 'package:ai_vocabulary/utils/load_word_route.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
@@ -88,17 +89,16 @@ class _PunchCalendarState extends State<PunchCalendar>
     if (index < 0) return null;
     return () {
       final punchDay = punchDays[index];
-      final words = MyDB().fetchWords(punchDay.studyWordIDs);
       Navigator.push(
         context,
-        platformPageRoute(
-          context: context,
+        WordListRoute(
           builder:
-              (context) => WordListPage(
-                words: words,
+              (context, data) => WordListPage(
+                words: data,
                 title:
                     "Studied on ${DateFormat.MEd().format(DateTime.fromMillisecondsSinceEpoch(punchDay.date * 1000))}",
               ),
+          wordIDs: punchDay.studyWordIDs,
         ),
       );
     };

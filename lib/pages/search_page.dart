@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 import 'dart:math';
 
 import 'package:ai_vocabulary/database/my_db.dart';
@@ -173,7 +172,7 @@ class _SearchPageState extends State<SearchPage> {
     hPadding ??= MediaQuery.sizeOf(context).width / 32;
     colorScheme ??= Theme.of(context).colorScheme;
     final minInteractiveDimension =
-        Platform.isIOS || Platform.isMacOS
+        isCupertino(context)
             ? kMinInteractiveDimensionCupertino
             : kMinInteractiveDimension;
     return Container(

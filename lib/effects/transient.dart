@@ -1,7 +1,7 @@
-import 'dart:io' show Platform;
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_platform_widgets/flutter_platform_widgets.dart'
+    show isCupertino;
 
 class CupertinoDialogTransition extends StatelessWidget {
   const CupertinoDialogTransition({
@@ -43,7 +43,7 @@ Widget loadingBuilder(
   final progress =
       loadingProgress.cumulativeBytesLoaded /
       loadingProgress.expectedTotalBytes!;
-  if (Platform.isIOS || Platform.isMacOS) {
+  if (isCupertino(context)) {
     return CupertinoActivityIndicator.partiallyRevealed(progress: progress);
   }
   return CircularProgressIndicator(value: progress);

@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:math' as math;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -22,6 +21,7 @@ class _ImPieChartState extends State<ImPieChart>
   Widget build(BuildContext context) {
     controller.animateTo(widget.percentage.clamp(.0, 1.0));
     final colorScheme = Theme.of(context).colorScheme;
+    final platform = Theme.of(context).platform;
     return LayoutBuilder(
       builder: (context, constraints) {
         final localSize = Size(constraints.maxWidth, constraints.maxHeight);
@@ -30,7 +30,8 @@ class _ImPieChartState extends State<ImPieChart>
             progress: controller,
             // subtitleColor: DefaultTextStyle.of(context).style.color,
             subtitleColor: colorScheme.onSecondaryContainer,
-            colors: Platform.isIOS || Platform.isMacOS
+            colors: [TargetPlatform.iOS, TargetPlatform.macOS]
+                    .contains(platform)
                 ? [
                     CupertinoColors.systemPink.resolveFrom(context),
                     CupertinoColors.systemOrange.resolveFrom(context),

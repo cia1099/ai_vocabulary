@@ -1,11 +1,10 @@
 import 'package:ai_vocabulary/pages/report_page.dart';
-import 'package:ai_vocabulary/utils/handle_except.dart';
+import 'package:ai_vocabulary/utils/load_word_route.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
 import '../app_route.dart';
-import '../database/my_db.dart';
 
 class ReportPopUpPage extends StatelessWidget {
   const ReportPopUpPage({
@@ -47,29 +46,14 @@ class ReportPopUpPage extends StatelessWidget {
                   ),
                   PlatformListTile(
                     onTap: () {
-                      final word =
-                          MyDB.instance.fetchWords([wordID]).firstOrNull;
-                      if (word == null) {
-                        showPlatformDialog(
-                          context: context,
-                          barrierDismissible: true,
-                          builder:
-                              (context) =>
-                                  const DummyDialog(msg: "Word not found"),
-                        );
-                      } else {
-                        Navigator.of(context).push(
-                          platformPageRoute(
-                            context: context,
-                            fullscreenDialog:
-                                platform(context) == PlatformTarget.android,
-                            settings: const RouteSettings(
-                              name: AppRoute.report,
-                            ),
-                            builder: (context) => ReportPage(wordId: wordID),
-                          ),
-                        );
-                      }
+                      Navigator.push(
+                        context,
+                        WordRoute(
+                          wordID: wordID,
+                          builder: (context, word) => ReportPage(word: word),
+                          settings: const RouteSettings(name: AppRoute.report),
+                        ),
+                      );
                     },
                     title: const Text('Report Issue'),
                     leading: const Icon(

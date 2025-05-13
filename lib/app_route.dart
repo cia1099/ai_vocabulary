@@ -117,7 +117,7 @@ class AppRoute<T> extends PageRoute<T> {
                       },
             );
           case AppRoute.report:
-            return ReportPage(wordId: currentWord!.wordId);
+            return ReportPage(word: currentWord!);
           case AppRoute.login:
             return AuthPage();
           default:

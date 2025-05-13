@@ -1,11 +1,11 @@
-import 'package:ai_vocabulary/database/my_db.dart';
+import 'package:ai_vocabulary/model/vocabulary.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
 class ReportPage extends StatelessWidget {
-  const ReportPage({super.key, required this.wordId});
-  final int wordId;
+  const ReportPage({super.key, required this.word});
+  final Vocabulary word;
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +19,6 @@ class ReportPage extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
     final hPadding = MediaQuery.of(context).size.width / 16;
-    final word = MyDB.instance.fetchWords([wordId]).first;
     return PlatformScaffold(
       appBar: PlatformAppBar(title: const Text('Report Issue')),
       body: SafeArea(

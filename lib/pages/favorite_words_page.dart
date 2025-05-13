@@ -19,7 +19,8 @@ import 'vocabulary_page.dart';
 
 class FavoriteWordsPage extends StatefulWidget {
   final CollectionMark mark;
-  const FavoriteWordsPage({super.key, required this.mark});
+  final Iterable<Vocabulary> words;
+  const FavoriteWordsPage({super.key, required this.mark, required this.words});
 
   @override
   State<FavoriteWordsPage> createState() => _FavoriteWordsPageState();
@@ -27,12 +28,10 @@ class FavoriteWordsPage extends StatefulWidget {
 
 class _FavoriteWordsPageState extends State<FavoriteWordsPage> {
   final textController = TextEditingController();
-  late var words = fetchDB.toList();
+  late var words = widget.words.toList();
   late List<GlobalObjectKey> capitalKeys;
   ColorScheme? markScheme;
 
-  Iterable<Vocabulary> get fetchDB =>
-      MyDB().fetchWordsFromMarkID(widget.mark.id);
   late VoidCallback filterListener = () => filterWord(textController.text);
 
   @override
@@ -378,7 +377,7 @@ class _FavoriteWordsPageState extends State<FavoriteWordsPage> {
   }
 
   void filterWord(String query) {
-    final queryWords = fetchDB.where(
+    final queryWords = widget.words.where(
       (word) => word.word.contains(query.toLowerCase()),
     );
     setState(() {

@@ -156,16 +156,15 @@ extension CollectionDB on MyDB {
     return result.first['count_word'] > 0;
   }
 
-  Iterable<Vocabulary> fetchWordsFromMarkID(int markID) {
+  Iterable<int> fetchWordIDsFromMarkID(int markID) {
     const query =
-        '$fetchWordInID (SELECT word_id FROM collect_words WHERE collection_id=? AND user_id=?)';
+        'SELECT word_id FROM collect_words WHERE collection_id=? AND user_id=?';
     final db = open(OpenMode.readOnly);
     final resultSet = db.select(query, [
       markID,
       UserProvider().currentUser?.uid,
     ]);
-    final wordMaps = buildWordMaps(resultSet);
     db.dispose();
-    return wordMaps.map((json) => Vocabulary.fromJson(json)).toList();
+    return resultSet.map((row) => row["word_id"] as int);
   }
 }

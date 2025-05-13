@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:ai_vocabulary/database/my_db.dart';
 import 'package:ai_vocabulary/model/collections.dart';
 import 'package:ai_vocabulary/utils/function.dart';
+import 'package:ai_vocabulary/utils/load_word_route.dart' show WordListRoute;
 import 'package:ai_vocabulary/utils/shortcut.dart';
 import 'package:ai_vocabulary/widgets/flashcard.dart';
 import 'package:flutter/cupertino.dart';
@@ -317,16 +318,17 @@ class _CollectionPageState extends State<CollectionPage> {
                   onTap:
                       () => Navigator.push(
                         context,
-                        platformPageRoute(
-                          context: context,
+                        WordListRoute(
+                          wordIDs: MyDB().fetchWordIDsFromMarkID(bookmark.id),
                           builder:
-                              (context) => FavoriteWordsPage(
+                              (context, words) => FavoriteWordsPage(
                                 mark: CollectionMark(
                                   id: bookmark.id,
                                   name: kUncategorizedName,
                                   index: bookmark.index,
                                   icon: CupertinoIcons.star.codePoint,
                                 ),
+                                words: words,
                               ),
                         ),
                       ),
