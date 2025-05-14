@@ -156,7 +156,7 @@ extension CollectionDB on MyDB {
     return result.first['count_word'] > 0;
   }
 
-  Iterable<int> fetchWordIDsFromMarkID(int markID) {
+  Iterable<int> fetchWordIDsByMarkID(int markID) {
     const query =
         'SELECT word_id FROM collect_words WHERE collection_id=? AND user_id=?';
     final db = open(OpenMode.readOnly);

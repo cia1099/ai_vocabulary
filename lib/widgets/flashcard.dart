@@ -77,7 +77,7 @@ class _FlashcardState extends State<Flashcard>
                             : () => Navigator.push(
                               context,
                               WordListRoute(
-                                wordIDs: MyDB().fetchWordIDsFromMarkID(
+                                wordIDs: MyDB().fetchWordIDsByMarkID(
                                   widget.mark.id,
                                 ),
                                 builder:

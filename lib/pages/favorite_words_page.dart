@@ -3,6 +3,7 @@ import 'package:ai_vocabulary/app_settings.dart';
 import 'package:ai_vocabulary/database/my_db.dart';
 import 'package:ai_vocabulary/model/collections.dart';
 import 'package:ai_vocabulary/model/vocabulary.dart';
+import 'package:ai_vocabulary/utils/load_word_route.dart';
 import 'package:ai_vocabulary/utils/phonetic.dart' show playPhonetic;
 import 'package:ai_vocabulary/utils/regex.dart';
 import 'package:ai_vocabulary/utils/shortcut.dart';
@@ -19,7 +20,7 @@ import 'vocabulary_page.dart';
 
 class FavoriteWordsPage extends StatefulWidget {
   final CollectionMark mark;
-  final Iterable<Vocabulary> words;
+  final List<Vocabulary> words;
   const FavoriteWordsPage({super.key, required this.mark, required this.words});
 
   @override
@@ -28,9 +29,14 @@ class FavoriteWordsPage extends StatefulWidget {
 
 class _FavoriteWordsPageState extends State<FavoriteWordsPage> {
   final textController = TextEditingController();
-  late var words = widget.words.toList();
+  late var words = widget.words;
   late List<GlobalObjectKey> capitalKeys;
   ColorScheme? markScheme;
+
+  Future<Iterable<Vocabulary>> get fetchDB async {
+    final wordIDs = MyDB().fetchWordIDsByMarkID(widget.mark.id);
+    return loadWordList(wordIDs).last;
+  }
 
   late VoidCallback filterListener = () => filterWord(textController.text);
 
@@ -376,8 +382,8 @@ class _FavoriteWordsPageState extends State<FavoriteWordsPage> {
     );
   }
 
-  void filterWord(String query) {
-    final queryWords = widget.words.where(
+  void filterWord(String query) async {
+    final queryWords = (await fetchDB).where(
       (word) => word.word.contains(query.toLowerCase()),
     );
     setState(() {

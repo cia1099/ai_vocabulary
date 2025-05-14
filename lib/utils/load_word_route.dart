@@ -32,8 +32,8 @@ abstract class LoadingRoute<T, S> extends PageRoute<T> {
     Animation<double> secondaryAnimation,
   ) {
     final bs = loading(src).asBroadcastStream();
-    return StreamBuilder(
-      stream: bs,
+    return FutureBuilder(
+      future: bs.first,
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           var lastData = snapshot.data as T;
@@ -180,3 +180,22 @@ Stream<List<Vocabulary>> loadWordList(Iterable<int> wordIDs) async* {
     throw ApiException(msg);
   }
 }
+
+// class ShitRoute extends LoadingRoute<String, int> {
+//   ShitRoute({required super.builder}) {
+//     super.src = 0;
+//   }
+
+//   @override
+//   Stream<String> loading(int src) async* {
+//     await Future.delayed(Duration(seconds: 1));
+//     yield "first";
+//     await Future.delayed(Duration(milliseconds: 100));
+//     // await Future.delayed(Duration(seconds: 1));
+//     // yield "second";
+//     // await Future.delayed(Duration(seconds: 1));
+//     // yield "third";
+//     // await Future.delayed(Duration(seconds: 1));
+//     yield "fourth";
+//   }
+// }

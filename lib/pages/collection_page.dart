@@ -319,7 +319,7 @@ class _CollectionPageState extends State<CollectionPage> {
                       () => Navigator.push(
                         context,
                         WordListRoute(
-                          wordIDs: MyDB().fetchWordIDsFromMarkID(bookmark.id),
+                          wordIDs: MyDB().fetchWordIDsByMarkID(bookmark.id),
                           builder:
                               (context, words) => FavoriteWordsPage(
                                 mark: CollectionMark(
