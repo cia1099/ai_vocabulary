@@ -34,6 +34,8 @@ final drunk = List<Vocabulary>.from(
   json.decode(drunk_json).map((json) => Vocabulary.fromJson(json)),
 );
 final recommendation = Vocabulary.fromRawJson(recommendation_json);
+final stage = Vocabulary.fromRawJson(stage_json);
+final greenwash = Vocabulary.fromRawJson(greenwash_json);
 
 void main() {
   print(drunk.length);

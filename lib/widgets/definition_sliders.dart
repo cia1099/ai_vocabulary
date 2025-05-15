@@ -100,7 +100,7 @@ class _DefinitionSlidersState extends State<DefinitionSliders>
                     var splitText = textPainter.plainText;
                     var remainText = '';
                     if (overflowIndex > 0) {
-                      splitText = splitText.substring(0, overflowIndex - 9);
+                      splitText = splitText.substring(0, overflowIndex - 10);
                       final lastSpace = splitText.lastIndexOf(' ');
                       remainText = splitText.substring(lastSpace);
                       splitText = splitText.substring(0, lastSpace);
@@ -143,6 +143,8 @@ class _DefinitionSlidersState extends State<DefinitionSliders>
                                 ],
                               ),
                               style: style,
+                              maxLines: maxLines,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ],
                         ),
@@ -215,3 +217,38 @@ class _DefinitionSlidersState extends State<DefinitionSliders>
     });
   }
 }
+
+// class DebugOverflow extends StatelessWidget {
+//   const DebugOverflow({super.key});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     var defSliderHeight = DefinitionSliders.kDefaultHeight;
+//     final screenWidth = MediaQuery.sizeOf(context).width;
+//     final word = stage;
+//     return PlatformScaffold(
+//       appBar: PlatformAppBar(title: Text('overflow')),
+//       body: Stack(
+//         children: [
+//           StatefulBuilder(
+//             builder: (context, setState) {
+//               return AnimatedPositioned(
+//                 bottom: kFloatingActionButtonMargin * 5,
+//                 duration: Durations.short2,
+//                 height: defSliderHeight,
+//                 width: screenWidth * .85,
+//                 child: DefinitionSliders(
+//                   definitions: word.definitions,
+//                   getMore:
+//                       (h) => setState(() {
+//                         defSliderHeight = h;
+//                       }),
+//                 ),
+//               );
+//             },
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }
