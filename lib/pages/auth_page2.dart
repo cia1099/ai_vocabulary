@@ -5,11 +5,13 @@ class LoginForm extends StatefulWidget {
     super.key,
     this.onLogin,
     this.onSignUpPressed,
+    required this.initAuthPage,
     required this.safeArea,
   });
 
   final VoidCallback? onSignUpPressed;
   final Function(bool hasUser)? onLogin;
+  final Function(bool hasUser) initAuthPage;
   final double safeArea;
 
   @override
@@ -20,6 +22,12 @@ class _LoginFormState extends State<LoginForm> with FirebaseAuthMixin {
   String email = '', password = '';
   Future<String?> loginFuture = Future.value(null);
   var loginMethod = Method.custom;
+
+  @override
+  void initAuthPage(bool hasUser) {
+    super.initAuthPage(hasUser);
+    widget.initAuthPage(hasUser);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -195,9 +203,9 @@ class _LoginFormState extends State<LoginForm> with FirebaseAuthMixin {
   }
 
   @override
-  void successfullyLogin(SignInUser user) {
+  void successfullyLogin([SignInUser? user]) {
     UserProvider().currentUser = user;
-    widget.onLogin?.call(hasUser);
+    widget.onLogin?.call(cacheUser);
   }
 }
 
@@ -339,9 +347,7 @@ class _SignUpFormState extends State<SignUpForm> with FirebaseAuthMixin {
   }
 
   @override
-  void successfullyLogin(SignInUser user) {
-    // TODO: implement successfullyLogin
-  }
+  void successfullyLogin([SignInUser? user]) {}
 }
 
 class DetermineVisibility extends StatelessWidget {

@@ -15,25 +15,32 @@ abstract interface class UserSignIn {
 
 mixin FirebaseAuthMixin<T extends StatefulWidget> on State<T>
     implements UserSignIn {
-  var _hasUser = false;
-  bool get hasUser => _hasUser;
+  var _cacheUser = false;
+  bool get cacheUser => _cacheUser;
 
   @override
   initState() {
     super.initState();
     final user = FirebaseAuth.instance.currentUser;
     if (user != null && user.emailVerified) {
-      user.getIdToken(true).then((token) async {
-        try {
-          final singInUser = await loginFirebaseToken(token!);
-          _hasUser = true;
-          successfullyLogin(singInUser);
-        } catch (_) {
-          signOutFirebase();
-        }
-      }, onError: (_) => signOutFirebase());
+      user
+          .getIdToken(true)
+          .then((token) async {
+            try {
+              final singInUser = await loginFirebaseToken(token!);
+              _cacheUser = true;
+              successfullyLogin(singInUser);
+            } catch (_) {
+              signOutFirebase();
+            }
+          }, onError: (_) => signOutFirebase())
+          .whenComplete(() => initAuthPage(true));
+    } else {
+      initAuthPage(false);
     }
   }
+
+  void initAuthPage(bool hasUser) {}
 
   Future<String?> login(String email, String password) async {
     String? errorMessage;

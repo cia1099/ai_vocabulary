@@ -46,7 +46,7 @@ class _AuthPageState extends State<AuthPage>
   double _expandingBorderRadius = 500;
   final containerKey = GlobalKey<ImplicitlyAnimatedWidgetState>();
   final loginFormKey = GlobalKey<FirebaseAuthMixin>();
-  final loginFromState = StreamController<bool?>();
+  final loginFromState = ValueNotifier<bool?>(null);
 
   // constant values for the login/registration panel
   static const double _panelWidth = 350;
@@ -66,7 +66,7 @@ class _AuthPageState extends State<AuthPage>
     };
 
     final forwardListener = listenerFunc(() => _controller.forward());
-    final routeListener = listenerFunc(() => _routeTransition());
+    final routeListener = listenerFunc(_routeTransition);
     _controller.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
         containerKey.currentState?.animation.removeStatusListener(
@@ -77,10 +77,6 @@ class _AuthPageState extends State<AuthPage>
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       containerKey.currentState?.animation.addStatusListener(forwardListener);
-      Future.delayed(Durations.extralong4).whenComplete(() {
-        final hasUser = loginFormKey.currentState?.hasUser ?? true;
-        if (!hasUser) loginFromState.add(false);
-      });
     });
   }
 
@@ -238,12 +234,18 @@ class _AuthPageState extends State<AuthPage>
                           onSignUpPressed: () {
                             _onPress(AuthState.signup);
                           },
-                          onLogin: (hasUser) {
-                            if (hasUser) {
+                          onLogin: (cacheUser) {
+                            if (cacheUser) {
                               _routeTransition();
                             } else {
                               _onPress(AuthState.home);
                             }
+                          },
+                          initAuthPage: (hasUser) {
+                            if (hasUser || loginFromState.value != null) return;
+                            Future.delayed(
+                              Durations.extralong4,
+                            ).then((_) => loginFromState.value ??= hasUser);
                           },
                         )
                         : SignUpForm(
@@ -254,20 +256,20 @@ class _AuthPageState extends State<AuthPage>
                         ),
               ),
             ),
-            StreamBuilder(
-              stream: loginFromState.stream,
+            ValueListenableBuilder(
+              valueListenable: loginFromState,
               builder:
-                  (context, snapshot) => ExpandingPageAnimation(
+                  (context, value, _) => ExpandingPageAnimation(
                     containerKey: containerKey,
                     width:
-                        snapshot.hasData
+                        value != null
                             ? _expandingWidth
                             : MediaQuery.sizeOf(context).width,
                     height:
-                        snapshot.hasData
+                        value != null
                             ? _expandingHeight
                             : MediaQuery.sizeOf(context).height,
-                    borderRadius: snapshot.hasData ? _expandingBorderRadius : 0,
+                    borderRadius: value != null ? _expandingBorderRadius : 0,
                   ),
             ),
           ],
