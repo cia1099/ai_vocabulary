@@ -14,6 +14,7 @@ import 'package:ai_vocabulary/pages/home_page.dart';
 import 'package:ai_vocabulary/provider/user_provider.dart';
 import 'package:ai_vocabulary/widgets/pull_data_dialog.dart';
 import 'package:auth_button_kit/auth_button_kit.dart';
+import 'package:authentication_buttons/authentication_buttons.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -152,7 +153,8 @@ class _AuthPageState extends State<AuthPage>
           children: <Widget>[
             ConstrainedBox(
               constraints: const BoxConstraints.expand(),
-              child: const FlutterLogo(style: FlutterLogoStyle.markOnly),
+              // child: const FlutterLogo(style: FlutterLogoStyle.markOnly),
+              child: Image.asset('assets/edge.png', fit: BoxFit.fitWidth),
             ),
             Align(
               alignment: FractionalOffset(

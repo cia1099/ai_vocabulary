@@ -21,7 +21,7 @@ class LoginForm extends StatefulWidget {
 class _LoginFormState extends State<LoginForm> with FirebaseAuthMixin {
   String email = '', password = '';
   Future<String?> loginFuture = Future.value(null);
-  var loginMethod = Method.custom;
+  AuthenticationMethod? loginMethod;
 
   @override
   void initAuthPage(bool hasUser) {
@@ -129,7 +129,7 @@ class _LoginFormState extends State<LoginForm> with FirebaseAuthMixin {
                       text: "Login",
                       textColor: Colors.white,
                       backgroundColor: headerLoginColor,
-                      showLoader: isWaiting && loginMethod == Method.custom,
+                      showLoader: isWaiting && loginMethod == null,
                     );
                   },
                 ),
@@ -146,26 +146,61 @@ class _LoginFormState extends State<LoginForm> with FirebaseAuthMixin {
                     ],
                   ),
                 ),
-                FutureBuilder(
-                  future: loginFuture,
-                  builder: (context, snapshot) {
-                    final isWaiting =
-                        snapshot.connectionState == ConnectionState.waiting;
-                    return AuthMultiButtons(
-                      onPressed: (method) {
-                        if (isWaiting) return;
-                        setState(() {
-                          loginMethod = method;
-                          loginFuture = socialLogin(method);
-                        });
-                      },
-                      brands: [Method.google, Method.apple, Method.facebook]
-                        ..removeWhere(
-                          (m) => isMaterial(context) && m == Method.apple,
-                        ),
-                      showLoader: isWaiting ? loginMethod : null,
-                    );
-                  },
+                SizedBox(
+                  width: double.infinity,
+                  child: FutureBuilder(
+                    future: loginFuture,
+                    builder: (context, snapshot) {
+                      final isWaiting =
+                          snapshot.connectionState == ConnectionState.waiting;
+                      // return AuthMultiButtons(
+                      //   onPressed: (method) {
+                      //     if (isWaiting) return;
+                      //     setState(() {
+                      //       loginMethod = method;
+                      //       loginFuture = socialLogin(method);
+                      //     });
+                      //   },
+                      //   brands: [Method.google, Method.apple, Method.facebook]
+                      //     ..removeWhere(
+                      //       (m) => isMaterial(context) && m == Method.apple,
+                      //     ),
+                      //   showLoader: isWaiting ? loginMethod : null,
+                      // );
+                      return Wrap(
+                        alignment: WrapAlignment.spaceAround,
+                        children:
+                            [
+                                  AuthenticationMethod.google,
+                                  if (isCupertino(context))
+                                    AuthenticationMethod.apple,
+                                  AuthenticationMethod.facebook,
+                                ]
+                                .map(
+                                  (method) => ConstrainedBox(
+                                    constraints: BoxConstraints(
+                                      maxWidth: 60,
+                                      minHeight: 60,
+                                    ),
+                                    child: AuthenticationButton(
+                                      authenticationMethod: method,
+                                      onPressed: () {
+                                        if (isWaiting) return;
+                                        setState(() {
+                                          loginMethod = method;
+                                          loginFuture = socialLogin(method);
+                                        });
+                                      },
+                                      buttonSize: ButtonSize.small,
+                                      showLoader:
+                                          isWaiting && loginMethod == method,
+                                    ),
+                                  ),
+                                )
+                                .toList(),
+                      );
+                    },
+                  ),
                 ),
                 DetermineVisibility(
                   // scrollDirection: Axis.horizontal,
@@ -192,13 +227,7 @@ class _LoginFormState extends State<LoginForm> with FirebaseAuthMixin {
   void signIn() {
     setState(() {
       loginFuture = login(email, password);
-      // .then((error) {
-      //   if (error == null && mounted) {
-      //     widget.onLoginPressed?.call();
-      //   }
-      //   return error;
-      // });
-      loginMethod = Method.custom;
+      loginMethod = null;
     });
   }
 

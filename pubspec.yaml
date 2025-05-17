@@ -29,13 +29,14 @@ dependencies:
   lottie: ^3.2.0
   share_plus: ^10.1.4
   image: ^4.5.3
-  auth_button_kit: ^1.1.6
   firebase_core: ^3.12.1
   firebase_analytics: ^11.4.4
   firebase_performance: ^0.10.1+4
   firebase_auth: ^5.5.1
   google_sign_in: ^6.3.0
   flutter_facebook_auth: ^7.1.1
+  auth_button_kit: ^1.1.6
+  authentication_buttons: ^0.0.5
 
 dev_dependencies:
   flutter_test:
@@ -45,6 +46,15 @@ dev_dependencies:
   flutter_lorem: ^2.0.0
   integration_test:
     sdk: flutter
+  icons_launcher: ^3.0.1
+
+icons_launcher:
+  image_path: "assets/icon.png"
+  platforms:
+    android:
+      enable: true
+    ios:
+      enable: true
 
 dart_code_metrics:
   rules:

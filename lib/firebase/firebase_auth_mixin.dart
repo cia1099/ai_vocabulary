@@ -1,7 +1,8 @@
 import 'dart:async';
 
 import 'package:ai_vocabulary/model/user.dart';
-import 'package:auth_button_kit/enum.dart' show Method;
+import 'package:authentication_buttons/authentication_buttons.dart'
+    show AuthenticationMethod;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -25,15 +26,21 @@ mixin FirebaseAuthMixin<T extends StatefulWidget> on State<T>
     if (user != null && user.emailVerified) {
       user
           .getIdToken(true)
-          .then((token) async {
-            try {
-              final singInUser = await loginFirebaseToken(token!);
-              _cacheUser = true;
-              successfullyLogin(singInUser);
-            } catch (_) {
-              signOutFirebase();
-            }
-          }, onError: (_) => signOutFirebase())
+          .then(
+            (token) async {
+              try {
+                final singInUser = await loginFirebaseToken(token!);
+                _cacheUser = true;
+                successfullyLogin(singInUser);
+              } catch (_) {
+                signOutFirebase();
+              }
+            },
+            onError: (_) {
+              initAuthPage(false);
+              return signOutFirebase();
+            },
+          )
           .whenComplete(() => initAuthPage(true));
     } else {
       initAuthPage(false);
@@ -77,11 +84,11 @@ mixin FirebaseAuthMixin<T extends StatefulWidget> on State<T>
   Future<String?> resetPassword(String email) =>
       resetFirebasePassword(email).then((_) => null, onError: (e) => e.message);
 
-  Future<String?> socialLogin(Method method) async {
+  Future<String?> socialLogin(AuthenticationMethod method) async {
     String? errorMessage;
     final res = await switch (method) {
-      Method.google => signInWithGoogle(),
-      Method.facebook => signInWithFacebook(),
+      AuthenticationMethod.google => signInWithGoogle(),
+      AuthenticationMethod.facebook => signInWithFacebook(),
       _ => Future.value(
         ApiResponse(status: 203, content: "Unsupported social login method"),
       ),
