@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:ai_vocabulary/api/dict_api.dart';
+import 'package:ai_vocabulary/app_settings.dart';
 import 'package:ai_vocabulary/utils/handle_except.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -25,7 +26,8 @@ class _RetrievalBottomSheetState extends State<RetrievalBottomSheet>
   TabController? tabController;
 
   Future<List<Vocabulary>> fetchWords() async {
-    return await retrievalWord(widget.queryWord).then((words) {
+    final locate = AppSettings.of(context).translate;
+    return await retrievalWord(widget.queryWord, locate: locate).then((words) {
       return words..sort(
         (a, b) =>
             a.differ(widget.queryWord).compareTo(b.differ(widget.queryWord)),

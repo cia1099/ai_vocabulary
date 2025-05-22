@@ -53,6 +53,7 @@ icons_launcher:
   platforms:
     android:
       enable: true
+      adaptive_background_color: '#f3c4be'
     ios:
       enable: true
 

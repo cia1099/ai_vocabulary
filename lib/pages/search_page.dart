@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:ai_vocabulary/app_settings.dart';
 import 'package:ai_vocabulary/database/my_db.dart';
 import 'package:ai_vocabulary/effects/dot3indicator.dart';
 import 'package:ai_vocabulary/mock_data.dart';
@@ -237,7 +238,8 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   Future<bool> requireMoreWords(String text, int page) async {
-    final words = await searchWord(word: text, page: page);
+    final locate = AppSettings.of(context).translate;
+    final words = await searchWord(word: text, locate: locate, page: page);
     final hasMore = words.isNotEmpty;
     // print('text = $text, page = $page, words = ${words.length}');
     if (page == 0 || hasMore) {

@@ -29,16 +29,18 @@ enum AzureVoicer {
 }
 
 enum TranslateLocate {
-  zhCN('zh-CN'),
-  zhTW('zh-TW'),
-  jaJP('ja-JP'),
-  koKR('ko-KR'),
-  viVN('vi-VN'),
-  arSA('ar-SA'),
-  thTH('th-TH');
+  none("en-US", "none"),
+  zhCN('zh-CN', "简体中文"),
+  zhTW('zh-TW', "繁體中文"),
+  jaJP('ja-JP', "日本語"),
+  koKR('ko-KR', "한국어"),
+  viVN('vi-VN', "Tiếng Việt"),
+  arSA('ar-SA', "العربية"),
+  thTH('th-TH', "ไทย");
 
   final String lang;
-  const TranslateLocate(this.lang);
+  final String native;
+  const TranslateLocate(this.lang, this.native);
 }
 
 enum Quiz { cloze, puzzle, arbitrary }

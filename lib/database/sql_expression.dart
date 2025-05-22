@@ -8,11 +8,11 @@ const insertExample =
     r'INSERT INTO examples (word_id, explanation_id, example) VALUES (?, ?, ?)';
 const insertAsset = r'INSERT INTO assets (word_id, filename) VALUES (?, ?)';
 
+// DELETE FROM assets WHERE word_id=?;
+// DELETE FROM examples WHERE word_id=?;
+// DELETE FROM explanations WHERE word_id=?;
+// DELETE FROM definitions WHERE word_id=?;
 const deleteVocabulary = '''
-DELETE FROM assets WHERE word_id=?;
-DELETE FROM examples WHERE word_id=?;
-DELETE FROM explanations WHERE word_id=?;
-DELETE FROM definitions WHERE word_id=?;
 DELETE FROM words WHERE id=?;
 ''';
 
@@ -104,7 +104,7 @@ CREATE TABLE definitions (
         antonyms VARCHAR, 
         PRIMARY KEY (id), 
         CONSTRAINT definition_unique UNIQUE (word_id, id), 
-        FOREIGN KEY(word_id) REFERENCES words (id)
+        FOREIGN KEY(word_id) REFERENCES words (id) ON DELETE CASCADE
 );
 CREATE TABLE explanations (
         id INTEGER NOT NULL, 
@@ -114,8 +114,8 @@ CREATE TABLE explanations (
         subscript VARCHAR, 
         PRIMARY KEY (id), 
         CONSTRAINT explanation_unique UNIQUE (definition_id, id), 
-        FOREIGN KEY(word_id) REFERENCES words (id), 
-        FOREIGN KEY(definition_id) REFERENCES definitions (id)
+        FOREIGN KEY(word_id) REFERENCES words (id) ON DELETE CASCADE, 
+        FOREIGN KEY(definition_id) REFERENCES definitions (id) ON DELETE CASCADE
 );
 CREATE TABLE examples (
         id INTEGER NOT NULL, 
@@ -124,8 +124,8 @@ CREATE TABLE examples (
         example VARCHAR, 
         PRIMARY KEY (id), 
         CONSTRAINT example_unique UNIQUE (explanation_id, id), 
-        FOREIGN KEY(word_id) REFERENCES words (id), 
-        FOREIGN KEY(explanation_id) REFERENCES explanations (id)
+        FOREIGN KEY(word_id) REFERENCES words (id) ON DELETE CASCADE, 
+        FOREIGN KEY(explanation_id) REFERENCES explanations (id) ON DELETE CASCADE
 );
 CREATE TABLE assets (
         id INTEGER NOT NULL, 
@@ -133,7 +133,7 @@ CREATE TABLE assets (
         filename VARCHAR NOT NULL, 
         PRIMARY KEY (id), 
         CONSTRAINT word_unique UNIQUE (word_id, id), 
-        FOREIGN KEY(word_id) REFERENCES words (id)
+        FOREIGN KEY(word_id) REFERENCES words (id) ON DELETE CASCADE
 );
 CREATE TABLE users (
         id TEXT NOT NULL, 

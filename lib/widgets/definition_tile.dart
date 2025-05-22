@@ -1,7 +1,7 @@
 import 'dart:math' show pi;
 
+import 'package:ai_vocabulary/app_settings.dart';
 import 'package:ai_vocabulary/pages/payment_page.dart';
-import 'package:ai_vocabulary/utils/enums.dart';
 import 'package:ai_vocabulary/utils/phonetic.dart' show playPhonetic;
 import 'package:ai_vocabulary/utils/shortcut.dart';
 import 'package:ai_vocabulary/widgets/inline_paragraph.dart';
@@ -30,6 +30,7 @@ class DefinitionTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    final translator = AppSettings.of(context).translate;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -66,8 +67,7 @@ class DefinitionTile extends StatelessWidget {
           ),
         // if (definition.translate != null) Text(definition.translate!),
         FutureBuilder(
-          //TODO: settable locate
-          future: definitionTranslation(definition.id, TranslateLocate.zhCN),
+          future: definitionTranslation(definition.id, translator),
           initialData: definition.translate,
           builder: (context, snapshot) {
             if (snapshot.error is ApiException) {

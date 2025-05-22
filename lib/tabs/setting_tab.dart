@@ -151,6 +151,17 @@ class SettingTab extends StatelessWidget {
                   trailing: SegmentExplanation(),
                 ),
                 CountPickerTile(
+                  titlePattern: "Default Translator ,?,",
+                  initialCount: AppSettings.of(context).translate.index,
+                  itemText:
+                      (index, value) => TranslateLocate.values[index].native,
+                  itemCount: TranslateLocate.values.length,
+                  onPickDone:
+                      (index) =>
+                          AppSettings.of(context).translate =
+                              TranslateLocate.values[index],
+                ),
+                CountPickerTile(
                   titlePattern: "Voicer ,?,",
                   initialCount: AppSettings.of(context).voicer.index,
                   itemText:

@@ -55,20 +55,21 @@ class _ImagenDialogState extends State<ImagenDialog> {
                           fit: BoxFit.cover,
                           width: width * .85,
                           height: height * .65,
-                          frameBuilder: (
-                            context,
-                            child,
-                            frame,
-                            wasSynchronouslyLoaded,
-                          ) {
-                            if (wasSynchronouslyLoaded) return child;
-                            return generateImageLoader(
-                              context,
-                              child,
-                              frame,
-                              wasSynchronouslyLoaded,
-                            );
-                          },
+                          frameBuilder: generateImageLoader,
+                          // (
+                          //   context,
+                          //   child,
+                          //   frame,
+                          //   wasSynchronouslyLoaded,
+                          // ) {
+                          //   if (wasSynchronouslyLoaded) return child;
+                          //   return generateImageLoader(
+                          //     context,
+                          //     child,
+                          //     frame,
+                          //     wasSynchronouslyLoaded,
+                          //   );
+                          // },
                           errorBuilder:
                               (context, error, stackTrace) => Text(
                                 messageExceptions(error),

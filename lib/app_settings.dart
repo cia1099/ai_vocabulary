@@ -27,6 +27,7 @@ class MySettings extends ChangeNotifier {
   final targetStudy = ValueNotifier(StudyCount(newCount: 5, reviewCount: 5));
   var _defaultExplanation = SelectExplanation.explanation;
   var _voicer = AzureVoicer.Ava, _accent = Accent.US;
+  var _translate = TranslateLocate.none;
   //cache variables
   WordProvider? _wordProvider;
   var _studyState = StudyStatus.underTarget;
@@ -124,6 +125,12 @@ class MySettings extends ChangeNotifier {
     write2Disk();
   }
 
+  TranslateLocate get translate => _translate;
+  set translate(TranslateLocate tl) {
+    _translate = tl;
+    write2Disk();
+  }
+
   //StudyState FSM
   StudyStatus get studyState => _studyState;
   set studyState(StudyStatus newStatus) {
@@ -180,6 +187,7 @@ class MySettings extends ChangeNotifier {
     "default_explanation": defaultExplanation.index,
     "voicer": voicer.index,
     "accent": accent.index,
+    "translate": translate.index,
   };
 
   void readFromJson(Map<String, dynamic> json) {
@@ -194,6 +202,7 @@ class MySettings extends ChangeNotifier {
     _voicer = AzureVoicer.values.elementAt(json["voicer"] ?? 0);
     _accent = Accent.values.elementAt(json["accent"] ?? 0);
     _quiz = Quiz.values.elementAt(json["quiz"] ?? 0);
+    _translate = TranslateLocate.values.elementAt(json["translate"] ?? 0);
   }
 
   @override

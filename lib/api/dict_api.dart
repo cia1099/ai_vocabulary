@@ -49,9 +49,10 @@ Future<List<Vocabulary>> retrievalWord(
 
 Future<List<Vocabulary>> searchWord({
   required String word,
+  required TranslateLocate locate,
   int page = 0,
 }) async {
-  final query = 'word=$word&page=$page';
+  final query = 'word=$word&lang=${locate.lang}&page=$page';
   const path = '/dict/search';
   final url = Uri.parse('https://$baseURL$path?$query');
   final headers = {

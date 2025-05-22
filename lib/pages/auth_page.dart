@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math' show pi;
 import 'dart:ui';
 
+import 'package:ai_vocabulary/api/dict_api.dart' show baseURL;
 import 'package:ai_vocabulary/app_settings.dart';
 import 'package:ai_vocabulary/effects/show_toast.dart';
 import 'package:ai_vocabulary/effects/transient.dart';
@@ -151,10 +152,24 @@ class _AuthPageState extends State<AuthPage>
         decoration: backgroundAuthDecoration(),
         child: Stack(
           children: <Widget>[
-            ConstrainedBox(
-              constraints: const BoxConstraints.expand(),
-              // child: const FlutterLogo(style: FlutterLogoStyle.markOnly),
-              child: Image.asset('assets/edge.png', fit: BoxFit.fitWidth),
+            Align(
+              alignment: Alignment(0, -.2),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints.expand(
+                  // width: _panelWidth,
+                  height: _panelHeight,
+                ),
+                // child: const FlutterLogo(style: FlutterLogoStyle.markOnly),
+                // child: Image.asset('assets/edge.png', fit: BoxFit.contain),
+                child: Image(
+                  image: NetworkImage(
+                    Uri.https(baseURL, '/auth/cover/edge.png').toString(),
+                  ),
+                  fit: BoxFit.contain,
+                  frameBuilder: generateImageLoader,
+                  errorBuilder: (context, error, _) => SizedBox.shrink(),
+                ),
+              ),
             ),
             Align(
               alignment: FractionalOffset(
