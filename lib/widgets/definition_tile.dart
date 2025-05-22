@@ -30,7 +30,7 @@ class DefinitionTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
-    final translator = AppSettings.of(context).translate;
+    final translator = AppSettings.of(context).translator;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

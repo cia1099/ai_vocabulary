@@ -152,14 +152,14 @@ class SettingTab extends StatelessWidget {
                 ),
                 CountPickerTile(
                   titlePattern: "Default Translator ,?,",
-                  initialCount: AppSettings.of(context).translate.index,
+                  initialCount: AppSettings.of(context).translator.index,
                   itemText:
                       (index, value) => TranslateLocate.values[index].native,
                   itemCount: TranslateLocate.values.length,
-                  onPickDone:
-                      (index) =>
-                          AppSettings.of(context).translate =
-                              TranslateLocate.values[index],
+                  onPickDone: (index) {
+                    AppSettings.of(context).translator =
+                        TranslateLocate.values[index];
+                  },
                 ),
                 CountPickerTile(
                   titlePattern: "Voicer ,?,",
@@ -168,10 +168,9 @@ class SettingTab extends StatelessWidget {
                       (index, value) =>
                           '${AzureVoicer.values[index].name} ${AzureVoicer.values[index].gender == 'Male' ? '🙎‍♂️' : '🙎‍♀️'}',
                   itemCount: AzureVoicer.values.length,
-                  onPickDone:
-                      (index) =>
-                          AppSettings.of(context).voicer =
-                              AzureVoicer.values[index],
+                  onPickDone: (index) {
+                    AppSettings.of(context).voicer = AzureVoicer.values[index];
+                  },
                 ),
                 PlatformListTile(
                   title: Text("Accent"),

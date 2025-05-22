@@ -2,6 +2,7 @@ import 'package:ai_vocabulary/app_route.dart';
 import 'package:ai_vocabulary/app_settings.dart';
 import 'package:ai_vocabulary/model/vocabulary.dart';
 import 'package:ai_vocabulary/pages/vocabulary_page.dart';
+import 'package:ai_vocabulary/utils/handle_except.dart';
 import 'package:ai_vocabulary/utils/phonetic.dart' show playPhonetic;
 import 'package:ai_vocabulary/utils/shortcut.dart';
 import 'package:ai_vocabulary/widgets/entry_actions.dart';
@@ -29,6 +30,7 @@ class WordListPage extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
     final accent = AppSettings.of(context).accent;
+    final locate = AppSettings.of(context).translator;
     final reachTarget = ModalRoute.of(context)?.settings.arguments as bool?;
     return PlatformScaffold(
       appBar: PlatformAppBar(
@@ -62,6 +64,7 @@ class WordListPage extends StatelessWidget {
                 // if (index >= words.length) return const SizedBox();
                 final word = words[index];
                 final phonetics = word.getPhonetics();
+                var fTranslate = word.requireSpeechAndTranslation(locate);
                 return Column(
                   children: [
                     Offstage(
@@ -119,11 +122,65 @@ class WordListPage extends StatelessWidget {
                           ),
                         ],
                       ),
-                      subtitle: Text(
-                        word.getSpeechAndTranslation,
-                        maxLines: words.length < 10 ? 2 : 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: textTheme.bodyLarge,
+                      subtitle: StatefulBuilder(
+                        builder: (context, setState) {
+                          return FutureBuilder(
+                            future: fTranslate,
+                            initialData: word.getSpeechAndTranslation,
+                            builder: (context, snapshot) {
+                              final isWaiting =
+                                  snapshot.connectionState ==
+                                  ConnectionState.waiting;
+                              return Text.rich(
+                                TextSpan(
+                                  children: [
+                                    if (isWaiting)
+                                      WidgetSpan(
+                                        child:
+                                            CircularProgressIndicator.adaptive(),
+                                      ),
+                                    if (snapshot.hasError && !isWaiting)
+                                      WidgetSpan(
+                                        child: Padding(
+                                          padding: const EdgeInsets.only(
+                                            right: 4,
+                                          ),
+                                          child: GestureDetector(
+                                            onTap:
+                                                () => setState(() {
+                                                  fTranslate = word
+                                                      .requireSpeechAndTranslation(
+                                                        locate,
+                                                      );
+                                                }),
+                                            child: Icon(
+                                              PlatformIcons(context).refresh,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    TextSpan(
+                                      text:
+                                          snapshot.hasError
+                                              ? messageExceptions(
+                                                snapshot.error,
+                                              )
+                                              : snapshot.data,
+                                    ),
+                                  ],
+                                ),
+                                maxLines: words.length < 10 ? 2 : 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: textTheme.bodyLarge?.apply(
+                                  color:
+                                      snapshot.hasError
+                                          ? colorScheme.error
+                                          : null,
+                                ),
+                              );
+                            },
+                          );
+                        },
                       ),
                       // Wrap(
                       //     spacing: 8,

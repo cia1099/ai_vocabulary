@@ -38,6 +38,22 @@ extension VocabularyExtension on Vocabulary {
       .map((d) => speechShortcut(d.partOfSpeech) + (d.synonyms ?? ''))
       .join('/ ');
 
+  Future<String> requireSpeechAndTranslation(TranslateLocate locate) async {
+    if (locate == TranslateLocate.none) return getSpeechAndSynonyms;
+    final futures = definitions.map(
+      (d) => definitionTranslation(
+        d.id,
+        locate,
+      ).then((translate) => speechShortcut(d.partOfSpeech) + translate),
+    );
+    try {
+      final fd = await Future.wait(futures);
+      return fd.join('/ ');
+    } on ApiException catch (_) {
+      return getSpeechAndSynonyms;
+    }
+  }
+
   int differ(String queryWord) => word.diff(queryWord);
 
   Iterable<Phonetic> getPhonetics() => definitions.expand((d) sync* {

@@ -26,7 +26,7 @@ class _RetrievalBottomSheetState extends State<RetrievalBottomSheet>
   TabController? tabController;
 
   Future<List<Vocabulary>> fetchWords() async {
-    final locate = AppSettings.of(context).translate;
+    final locate = AppSettings.of(context).translator;
     return await retrievalWord(widget.queryWord, locate: locate).then((words) {
       return words..sort(
         (a, b) =>

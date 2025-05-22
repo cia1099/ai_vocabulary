@@ -163,7 +163,7 @@ class _AuthPageState extends State<AuthPage>
                 // child: Image.asset('assets/edge.png', fit: BoxFit.contain),
                 child: Image(
                   image: NetworkImage(
-                    Uri.https(baseURL, '/auth/cover/edge.png').toString(),
+                    Uri.https(baseURL, '/dict/auth/cover/edge.png').toString(),
                   ),
                   fit: BoxFit.contain,
                   frameBuilder: generateImageLoader,

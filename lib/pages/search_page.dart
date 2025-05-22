@@ -238,7 +238,7 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   Future<bool> requireMoreWords(String text, int page) async {
-    final locate = AppSettings.of(context).translate;
+    final locate = AppSettings.of(context).translator;
     final words = await searchWord(word: text, locate: locate, page: page);
     final hasMore = words.isNotEmpty;
     // print('text = $text, page = $page, words = ${words.length}');

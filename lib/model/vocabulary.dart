@@ -1,6 +1,9 @@
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:ai_vocabulary/api/dict_api.dart';
+import 'package:ai_vocabulary/utils/enums.dart';
+
 import '../utils/shortcut.dart';
 part 'vocabulary_ext.dart';
 

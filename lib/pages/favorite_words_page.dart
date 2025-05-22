@@ -3,6 +3,7 @@ import 'package:ai_vocabulary/app_settings.dart';
 import 'package:ai_vocabulary/database/my_db.dart';
 import 'package:ai_vocabulary/model/collections.dart';
 import 'package:ai_vocabulary/model/vocabulary.dart';
+import 'package:ai_vocabulary/utils/handle_except.dart';
 import 'package:ai_vocabulary/utils/load_word_route.dart';
 import 'package:ai_vocabulary/utils/phonetic.dart' show playPhonetic;
 import 'package:ai_vocabulary/utils/regex.dart';
@@ -193,7 +194,6 @@ class _FavoriteWordsPageState extends State<FavoriteWordsPage> {
 
   Iterable<Widget> takeSections() {
     final hPadding = MediaQuery.sizeOf(context).width / 32;
-    final accent = AppSettings.of(context).accent;
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
     return Iterable.generate(capitalKeys.length, (i) {
@@ -231,6 +231,9 @@ class _FavoriteWordsPageState extends State<FavoriteWordsPage> {
           SliverList.builder(
             itemBuilder: (context, index) {
               final word = sectionWords.elementAt(index);
+              final accent = AppSettings.of(context).accent;
+              final locate = AppSettings.of(context).translator;
+              var fTranslate = word.requireSpeechAndTranslation(locate);
               final phonetics = word.getPhonetics();
               return Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -293,11 +296,59 @@ class _FavoriteWordsPageState extends State<FavoriteWordsPage> {
                       maxLines: 2,
                       style: textTheme.titleMedium,
                     ),
-                    subtitle: Text(
-                      word.getSpeechAndTranslation,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: textTheme.bodyLarge,
+                    subtitle: StatefulBuilder(
+                      builder:
+                          (context, setState) => FutureBuilder(
+                            future: fTranslate,
+                            initialData: word.getSpeechAndTranslation,
+                            builder: (context, snapshot) {
+                              final isWaiting =
+                                  snapshot.connectionState ==
+                                  ConnectionState.waiting;
+                              return Text.rich(
+                                TextSpan(
+                                  children: [
+                                    if (isWaiting)
+                                      WidgetSpan(
+                                        child:
+                                            CircularProgressIndicator.adaptive(),
+                                      ),
+                                    if (snapshot.hasError && !isWaiting)
+                                      WidgetSpan(
+                                        child: Padding(
+                                          padding: const EdgeInsets.only(
+                                            right: 4,
+                                          ),
+                                          child: GestureDetector(
+                                            onTap:
+                                                () => setState(() {
+                                                  fTranslate = word
+                                                      .requireSpeechAndTranslation(
+                                                        locate,
+                                                      );
+                                                }),
+                                            child: Icon(
+                                              PlatformIcons(context).refresh,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    TextSpan(
+                                      text:
+                                          snapshot.hasError
+                                              ? messageExceptions(
+                                                snapshot.error,
+                                              )
+                                              : snapshot.data,
+                                    ),
+                                  ],
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: textTheme.bodyLarge,
+                              );
+                            },
+                          ),
                     ),
                     // Wrap(
                     //   spacing: 8,
