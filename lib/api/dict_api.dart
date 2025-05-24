@@ -165,6 +165,31 @@ Future<AudioPlayer> getAudioPlayer(String audioUrl) async {
   }
 }
 
+Future<String> reportIssue({
+  required Vocabulary word,
+  required String issue,
+}) async {
+  final url = Uri.https(baseURL, '/dict/report/issue');
+  final headers = {
+    "Authorization": "Bearer ${UserProvider().currentUser?.accessToken}",
+    'Content-Type': 'application/json',
+  };
+  final res = await http.post(
+    url,
+    headers: headers,
+    body: jsonEncode({
+      "word_id": word.wordId,
+      "word": word.word,
+      "issue": issue,
+    }),
+  );
+  if (res.statusCode == 200) {
+    return ApiResponse.fromRawJson(res.body).content;
+  } else {
+    throw HttpException(res.body, uri: url);
+  }
+}
+
 Future<ApiResponse> _httpGet(Uri url, {Map<String, String>? headers}) async {
   try {
     final res = await http.get(url, headers: headers).timeout(kHttpTimeOut);

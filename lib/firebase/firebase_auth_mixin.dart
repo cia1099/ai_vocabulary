@@ -28,20 +28,21 @@ mixin FirebaseAuthMixin<T extends StatefulWidget> on State<T>
           .getIdToken(true)
           .then(
             (token) async {
-              try {
-                final singInUser = await loginFirebaseToken(token!);
-                _cacheUser = true;
-                successfullyLogin(singInUser);
-              } catch (_) {
-                signOutFirebase();
-              }
+              // try {
+              final singInUser = await loginFirebaseToken(token!);
+              _cacheUser = true;
+              successfullyLogin(singInUser);
+              initAuthPage(true);
+              // } catch (_) {
+              //   signOutFirebase();
+              // }
             },
             onError: (_) {
               initAuthPage(false);
               return signOutFirebase();
             },
-          )
-          .whenComplete(() => initAuthPage(true));
+          );
+      // .whenComplete(() => initAuthPage(true));
     } else {
       initAuthPage(false);
     }

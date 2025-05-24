@@ -5,6 +5,7 @@ import 'package:ai_vocabulary/app_settings.dart';
 import 'package:ai_vocabulary/database/my_db.dart';
 import 'package:ai_vocabulary/effects/dot3indicator.dart';
 import 'package:ai_vocabulary/mock_data.dart';
+import 'package:ai_vocabulary/utils/enums.dart';
 import 'package:ai_vocabulary/utils/handle_except.dart';
 import 'package:ai_vocabulary/utils/load_more_listview.dart';
 import 'package:ai_vocabulary/utils/shortcut.dart';
@@ -56,12 +57,16 @@ class _SearchPageState extends State<SearchPage> {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     final hPadding = MediaQuery.sizeOf(context).width / 32;
+    final locate = AppSettings.of(context).translator;
     return PlatformScaffold(
       appBar: PlatformAppBar(
         leading: const SizedBox.shrink(),
         title: PlatformTextField(
           autofocus: true,
-          hintText: 'find it',
+          hintText:
+              locate != TranslateLocate.none
+                  ? 'support ${locate.native} input'
+                  : 'find it',
           controller: textController,
           textInputAction: TextInputAction.search,
           onChanged: (text) {
