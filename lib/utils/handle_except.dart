@@ -31,7 +31,10 @@ String messageExceptions(Object? error) {
 }
 
 String convertFastAPIDetail(String body) {
-  final decode = json.decode(body);
+  var decode = <String, dynamic>{};
+  try {
+    decode = jsonDecode(body);
+  } catch (_) {}
   return decode["detail"] ?? body;
 }
 

@@ -56,12 +56,17 @@ extension VocabularyExtension on Vocabulary {
 
   int differ(String queryWord) => word.diff(queryWord);
 
-  Iterable<Phonetic> getPhonetics() => definitions.expand((d) sync* {
-    final explain = d.explanations.map((e) => e.explain);
-    final isExtra = explain.length == 1 && explain.first.split(' ').length == 1;
-    if (d.phoneticUs != null && !isExtra)
-      yield Phonetic(d.phoneticUs!, d.audioUs);
-  });
+  Iterable<Phonetic> getPhonetics([Accent accent = Accent.US]) =>
+      definitions.expand((d) sync* {
+        final explain = d.explanations.map((e) => e.explain);
+        final isExtra =
+            explain.length == 1 && explain.first.split(' ').length == 1;
+        if (accent == Accent.US && d.phoneticUs != null && !isExtra) {
+          yield Phonetic(d.phoneticUs!, d.audioUs);
+        } else if (d.phoneticUk != null && !isExtra) {
+          yield Phonetic(d.phoneticUk!, d.audioUs);
+        }
+      });
 
   MapEntry<String, String> generateClozeEntry([int? seed]) {
     final rng = Random(seed);
@@ -98,4 +103,19 @@ class Phonetic {
   final String? audioUrl;
 
   Phonetic(this.phonetic, this.audioUrl);
+}
+
+class Syllable {
+  final String grapheme;
+  final double score;
+
+  Syllable(this.grapheme, this.score);
+  factory Syllable.fromRawJson(String json) =>
+      Syllable.fromJson(jsonDecode(json));
+  String toRawJson() => jsonEncode(toJson());
+
+  factory Syllable.fromJson(Map<String, dynamic> json) {
+    return Syllable(json['grapheme'], json['score']);
+  }
+  Map<String, dynamic> toJson() => {'grapheme': grapheme, 'score': score};
 }
