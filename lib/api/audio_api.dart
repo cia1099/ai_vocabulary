@@ -70,16 +70,46 @@ Future<SpeechRecognition> recognizeSpeech(String filePath) async {
   }
 }
 
-Future<SpeechRecognition> recognizeSpeechBytes(
-  List<int> bytes, {
-  String filename = 'temporary.wav',
-}) async {
+Future<SpeechRecognition> recognizeSpeechBytes(List<int> bytes) async {
   final url = Uri.https(baseURL, '/dict/chat/speech');
+  final res = await postBytes(url, bytes);
+  if (res.statusCode == 200) {
+    final apiResponse = ApiResponse.fromRawJson(res.body);
+    if (apiResponse.status != 200) throw ApiException(apiResponse.content);
+    return SpeechRecognition.fromRawJson(apiResponse.content);
+  } else {
+    throw HttpException(res.body, uri: url);
+  }
+}
+
+Future<List<Syllable>> pronunciationWord({
+  required String word,
+  required List<int> bytes,
+}) async {
+  final url = Uri.https(baseURL, '/dict/pronunciation', {'word': word});
+  final res = await postBytes(url, bytes);
+  if (res.statusCode == 200) {
+    final apiResponse = ApiResponse.fromRawJson(res.body);
+    if (apiResponse.status != 200) throw ApiException(apiResponse.content);
+    return List<Syllable>.from(
+      jsonDecode(apiResponse.content).map((obj) => Syllable.fromJson(obj)),
+    );
+  } else {
+    throw HttpException(res.body, uri: url);
+  }
+}
+
+Future<http.Response> postBytes(
+  Uri url,
+  List<int> bytes, {
+  Map<String, String> headers = const {},
+  String filename = 'wave_media.wav',
+}) async {
   final accessToken = UserProvider().currentUser?.accessToken;
-  final headers = {
+  headers = {
     'Content-Type': 'multipart/form-data',
     'Authorization': 'Bearer $accessToken',
-  };
+  }..addAll(headers);
   final request = http.MultipartRequest('POST', url)..headers.addAll(headers);
   request.files.add(
     http.MultipartFile.fromBytes(
@@ -91,11 +121,12 @@ Future<SpeechRecognition> recognizeSpeechBytes(
   );
   final res = await request.send();
   final body = utf8.decode(await res.stream.last);
-  if (res.statusCode == 200) {
-    final apiResponse = ApiResponse.fromRawJson(body);
-    if (apiResponse.status != 200) throw ApiException(apiResponse.content);
-    return SpeechRecognition.fromRawJson(apiResponse.content);
-  } else {
-    throw HttpException(body, uri: url);
-  }
+  return http.Response(
+    body,
+    res.statusCode,
+    request: res.request,
+    headers: res.headers,
+    reasonPhrase: res.reasonPhrase,
+    persistentConnection: false,
+  );
 }
