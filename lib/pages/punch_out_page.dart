@@ -9,15 +9,16 @@ import 'package:ai_vocabulary/effects/transient.dart';
 import 'package:ai_vocabulary/model/acquaintance.dart';
 import 'package:ai_vocabulary/model/collections.dart';
 import 'package:ai_vocabulary/utils/function.dart';
+import 'package:ai_vocabulary/utils/handle_except.dart';
 import 'package:ai_vocabulary/widgets/flashcard.dart';
 import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
+import 'package:image/image.dart' as image;
 import 'package:lottie/lottie.dart';
 import 'package:path/path.dart' as p;
-import 'package:image/image.dart' as image;
 import 'package:share_plus/share_plus.dart';
 
 class PunchOutPage extends StatefulWidget {
@@ -29,6 +30,7 @@ class PunchOutPage extends StatefulWidget {
 
 class _PunchOutPageState extends State<PunchOutPage> {
   final paintKey = ValueNotifier(const GlobalObjectKey(0));
+  var myToken = getConsumeTokens();
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.sizeOf(context).width;
@@ -44,14 +46,13 @@ class _PunchOutPageState extends State<PunchOutPage> {
         );
         return FutureBuilder(
           future: colorFuture,
-          builder:
-              (context, snapshot) => PlatformScaffold(
-                backgroundColor: snapshot.data?.surfaceContainer,
-                appBar: PlatformAppBar(
-                  backgroundColor: snapshot.data?.inversePrimary,
-                ),
-                body: child,
-              ),
+          builder: (context, snapshot) => PlatformScaffold(
+            backgroundColor: snapshot.data?.surfaceContainer,
+            appBar: PlatformAppBar(
+              backgroundColor: snapshot.data?.inversePrimary,
+            ),
+            body: child,
+          ),
         );
       },
       child: Column(
@@ -65,54 +66,48 @@ class _PunchOutPageState extends State<PunchOutPage> {
               child: RotatedBox(
                 quarterTurns: -1,
                 child: ListWheelScrollView.useDelegate(
-                  onSelectedItemChanged:
-                      (index) => paintKey.value = GlobalObjectKey(index),
+                  onSelectedItemChanged: (index) =>
+                      paintKey.value = GlobalObjectKey(index),
                   physics: const FixedExtentScrollPhysics(),
                   overAndUnderCenterOpacity: .9,
                   itemExtent: screenWidth * .75,
                   childDelegate: ListWheelChildBuilderDelegate(
                     childCount: 4,
-                    builder:
-                        (context, index) => AspectRatio(
-                          aspectRatio: aspect,
-                          child: RotatedBox(
-                            quarterTurns: 1,
-                            child: ValueListenableBuilder(
-                              valueListenable: paintKey,
-                              builder:
-                                  (context, key, child) =>
-                                      index == key.value
-                                          ? RepaintBoundary(
-                                            key: key,
-                                            child: child,
-                                          )
-                                          : child!,
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(
-                                  kRadialReactionRadius,
+                    builder: (context, index) => AspectRatio(
+                      aspectRatio: aspect,
+                      child: RotatedBox(
+                        quarterTurns: 1,
+                        child: ValueListenableBuilder(
+                          valueListenable: paintKey,
+                          builder: (context, key, child) => index == key.value
+                              ? RepaintBoundary(key: key, child: child)
+                              : child!,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(
+                              kRadialReactionRadius,
+                            ),
+                            child: Column(
+                              children: [
+                                Expanded(
+                                  flex: 3,
+                                  child: Image.network(
+                                    width: double.infinity,
+                                    '$punchCardUrl/$index',
+                                    fit: BoxFit.fill,
+                                    loadingBuilder: loadingBuilder,
+                                    frameBuilder: generateImageLoader,
+                                  ),
                                 ),
-                                child: Column(
-                                  children: [
-                                    Expanded(
-                                      flex: 3,
-                                      child: Image.network(
-                                        width: double.infinity,
-                                        '$punchCardUrl/$index',
-                                        fit: BoxFit.fill,
-                                        loadingBuilder: loadingBuilder,
-                                        frameBuilder: generateImageLoader,
-                                      ),
-                                    ),
-                                    Expanded(
-                                      flex: 1,
-                                      child: cardPanel(colorScheme),
-                                    ),
-                                  ],
+                                Expanded(
+                                  flex: 1,
+                                  child: cardPanel(colorScheme),
                                 ),
-                              ),
+                              ],
                             ),
                           ),
                         ),
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -222,28 +217,39 @@ class _PunchOutPageState extends State<PunchOutPage> {
                 color: colorScheme.primary.toARGB32(),
               ).gradient(context),
             ),
-            child: Text.rich(
-              TextSpan(
-                text: 'Get 6 tokens for sharing',
-                children: [
+            child: FutureBuilder(
+              future: getTodayShares().onError((_, __) => 0),
+              initialData: 0,
+              builder: (context, snapshot) {
+                final msg = snapshot.data! == 0
+                    ? "Get 6 tokens for sharing"
+                    : "Share to other app for more tokens";
+                return Text.rich(
                   TextSpan(
-                    text:
-                        '\nGet tokens only when returning to the app after sharing',
-                    style: cupertinoTextTheme.textStyle.copyWith(
-                      fontSize: textTheme.labelSmall?.fontSize,
-                      // height: textTheme.labelSmall?.height,
-                      color: CupertinoColors.systemGrey4.resolveFrom(context),
-                    ),
+                    text: msg,
+                    children: [
+                      TextSpan(
+                        text:
+                            '\nGet tokens only when returning to the app after sharing',
+                        style: cupertinoTextTheme.textStyle.copyWith(
+                          fontSize: textTheme.labelSmall?.fontSize,
+                          // height: textTheme.labelSmall?.height,
+                          color: CupertinoColors.systemGrey4.resolveFrom(
+                            context,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: colorScheme.onPrimary,
-                fontSize: textTheme.titleMedium?.fontSize,
-                height: textTheme.titleMedium?.height,
-                fontWeight: textTheme.titleMedium?.fontWeight,
-              ),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: colorScheme.onPrimary,
+                    fontSize: textTheme.titleMedium?.fontSize,
+                    height: textTheme.titleMedium?.height,
+                    fontWeight: textTheme.titleMedium?.fontWeight,
+                  ),
+                );
+              },
             ),
           ),
         ),
@@ -267,7 +273,7 @@ class _PunchOutPageState extends State<PunchOutPage> {
                       style: TextStyle(color: colorScheme.onInverseSurface),
                     ),
                     FutureBuilder(
-                      future: getConsumeTokens(),
+                      future: myToken,
                       builder: (context, snapshot) {
                         if (snapshot.connectionState ==
                             ConnectionState.waiting) {
@@ -331,6 +337,7 @@ class _PunchOutPageState extends State<PunchOutPage> {
   }
 
   void punchOut() async {
+    MyDB().upsertPunch(AppSettings.of(context).studyMinute);
     final boundary =
         paintKey.value.currentContext?.findRenderObject()
             as RenderRepaintBoundary?;
@@ -355,13 +362,16 @@ I'm memorizing words with AI Vocabulary, punch with me! https://www.cia1099.clou
     );
     switch (share.status) {
       case ShareResultStatus.success:
+        final msg = await putSharedApp(share.raw).onError(messageExceptions);
         if (mounted) {
-          MyDB().upsertPunch(AppSettings.of(context).studyMinute);
+          setState(() {
+            myToken = getConsumeTokens();
+          });
           showToast(
             context: context,
             alignment: const Alignment(0, .5),
             stay: Durations.extralong4 * 1.5,
-            child: const Text('Successfully daily Punch Out!'),
+            child: Text(msg),
           );
         }
       case ShareResultStatus.unavailable:

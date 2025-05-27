@@ -57,12 +57,12 @@ class _PhoneticButtonState extends State<PhoneticButton> {
           onTapDown: (details) {
             setState(() => isPress = true);
             tapProtection = Timer(widget.protectLatency, () async {
+              widget.startRecordHint?.call();
               final recordStream = await recorder.startStream(
                   const RecordConfig(
                       encoder: AudioEncoder.pcm16bits,
                       sampleRate: kAzureSampleRate,
                       bitRate: kAzureBitRate));
-              widget.startRecordHint?.call();
               await for (final bytes in recordStream) {
                 pcmBuffer.addAll(bytes);
               }

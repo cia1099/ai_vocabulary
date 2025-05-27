@@ -20,15 +20,13 @@ class ReportPopUpPage extends StatelessWidget {
     final screenWidth = MediaQuery.sizeOf(context).width;
     const width = 200.0;
     final x = anchorPoint.dx + width / 2;
-    final left =
-        x > screenWidth
-            ? screenWidth - width - screenWidth / 32
-            : anchorPoint.dx - width / 2;
+    final left = x > screenWidth
+        ? screenWidth - width - screenWidth / 32
+        : anchorPoint.dx - width / 2;
     return PlatformWidgetBuilder(
       cupertino: (_, child, _) => child,
-      material:
-          (_, child, _) =>
-              Material(type: MaterialType.transparency, child: child),
+      material: (_, child, _) =>
+          Material(type: MaterialType.transparency, child: child),
       child: Stack(
         children: [
           Positioned(
@@ -38,15 +36,15 @@ class ReportPopUpPage extends StatelessWidget {
             child: CupertinoPopupSurface(
               child: Wrap(
                 children: [
-                  PlatformListTile(
-                    title: const Text('Study Setting'),
-                    leading: const Icon(CupertinoIcons.gear),
-                    cupertino:
-                        (_, __) => CupertinoListTileData(leadingToTitle: 4),
-                  ),
+                  // PlatformListTile(
+                  //   title: const Text('Study Setting'),
+                  //   leading: const Icon(CupertinoIcons.gear),
+                  //   cupertino: (_, __) =>
+                  //       CupertinoListTileData(leadingToTitle: 4),
+                  // ),
                   PlatformListTile(
                     onTap: () {
-                      Navigator.push(
+                      Navigator.pushReplacement(
                         context,
                         WordRoute(
                           wordID: wordID,
@@ -59,8 +57,8 @@ class ReportPopUpPage extends StatelessWidget {
                     leading: const Icon(
                       CupertinoIcons.exclamationmark_triangle,
                     ),
-                    cupertino:
-                        (_, __) => CupertinoListTileData(leadingToTitle: 4),
+                    cupertino: (_, __) =>
+                        CupertinoListTileData(leadingToTitle: 4),
                   ),
                 ],
               ),

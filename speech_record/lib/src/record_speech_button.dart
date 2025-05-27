@@ -71,10 +71,10 @@ class _RecordSpeechButtonState extends State<RecordSpeechButton> {
                     onDone: () async {
                       final filename = widget.createWavFileName();
                       final audioDir = p.join(widget.appDirectory, 'audio');
+                      widget.startRecordHint?.call();
                       await record.start(
                           const RecordConfig(encoder: AudioEncoder.wav),
                           path: p.join(audioDir, filename));
-                      widget.startRecordHint?.call();
                     },
                   );
                 }

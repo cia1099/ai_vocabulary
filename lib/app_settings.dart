@@ -29,8 +29,8 @@ class MySettings extends ChangeNotifier {
   var _voicer = AzureVoicer.Ava, _accent = Accent.US;
   var _translator = TranslateLocate.none;
   //cache variables
+  final _studyState = ValueNotifier(StudyStatus.underTarget);
   WordProvider? _wordProvider;
-  var _studyState = StudyStatus.underTarget;
   int studyMinute = 0;
 
   File? _file;
@@ -48,13 +48,13 @@ class MySettings extends ChangeNotifier {
   Future<void> resetCacheOrSignOut({bool signOut = false}) async {
     _wordProvider = null;
     studyMinute = 0;
-    _studyState = StudyStatus.underTarget;
+    _studyState.value = StudyStatus.underTarget;
     if (!signOut && await _file!.exists()) {
       final settings =
           json.decode(await _file!.readAsString()) as Map<String, dynamic>;
       readFromJson(settings);
       final studyCount = MyDB().fetchStudyCounts();
-      _studyState = nextStatus(studyCount);
+      _studyState.value = nextStatus(studyCount);
       notifyListeners(); //wordProvider will notify but it has latency
     }
   }
@@ -132,10 +132,11 @@ class MySettings extends ChangeNotifier {
   }
 
   //StudyState FSM
-  StudyStatus get studyState => _studyState;
+  ValueNotifier<StudyStatus> get studyStateListener => _studyState;
+  StudyStatus get studyState => _studyState.value;
   set studyState(StudyStatus newStatus) {
     if (_canTransition(newStatus)) {
-      _studyState = newStatus;
+      _studyState.value = newStatus;
     } else if (studyState != newStatus) {
       debugPrint("Invaild transition: $_studyState → $newStatus");
     }

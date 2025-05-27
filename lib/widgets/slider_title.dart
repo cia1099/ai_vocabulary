@@ -45,29 +45,26 @@ class SliderTitleState extends State<SliderTitle>
             Wrap(
               spacing: 8,
               runSpacing: 4,
-              children:
-                  widget.word.getInflection
-                      .map(
-                        (e) => Container(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 4,
-                            horizontal: 8,
-                          ),
-                          decoration: BoxDecoration(
-                            color: colorScheme.primaryContainer,
-                            borderRadius: BorderRadius.circular(
-                              textTheme.bodyMedium!.fontSize!,
-                            ),
-                          ),
-                          child: Text(
-                            e,
-                            style: TextStyle(
-                              color: colorScheme.onPrimaryContainer,
-                            ),
-                          ),
+              children: widget.word.getInflection
+                  .map(
+                    (e) => Container(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 4,
+                        horizontal: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: colorScheme.primaryContainer,
+                        borderRadius: BorderRadius.circular(
+                          textTheme.bodyMedium!.fontSize!,
                         ),
-                      )
-                      .toList(),
+                      ),
+                      child: Text(
+                        e,
+                        style: TextStyle(color: colorScheme.onPrimaryContainer),
+                      ),
+                    ),
+                  )
+                  .toList(),
             ),
           ],
         ),
@@ -110,8 +107,8 @@ class SliderTitleState extends State<SliderTitle>
               }
               return AnimatedSwitcher(
                 duration: Durations.medium1,
-                transitionBuilder:
-                    (child, animation) => CupertinoDialogTransition(
+                transitionBuilder: (child, animation) =>
+                    CupertinoDialogTransition(
                       animation: animation,
                       child: child,
                     ),
@@ -155,7 +152,7 @@ class SliderTitleState extends State<SliderTitle>
     final avgScore =
         syllables.map((s) => s.score).fold(.0, (a, b) => a + b) /
         syllables.length.clamp(1, 100);
-    if (avgScore > .75) {
+    if (avgScore > .74) {
       if (!wantKeepAlive && AppSettings.of(context).hideSliderTitle) {
         SchedulerBinding.instance.scheduleTask(() {
           if (mounted) {

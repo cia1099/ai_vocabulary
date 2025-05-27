@@ -1,6 +1,6 @@
 import 'package:ai_vocabulary/utils/load_word_route.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide CalendarDelegate;
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:intl/intl.dart';
 
@@ -45,13 +45,12 @@ class _PunchCalendarState extends State<PunchCalendar>
     final inSecondStamp = date.millisecondsSinceEpoch ~/ 1e3;
     final index = punchDays.indexWhere((punch) => punch.date == inSecondStamp);
     final colorScheme = Theme.of(context).colorScheme;
-    final style =
-        index < 0
-            ? null
-            : TextStyle(
-              color: colorScheme.onPrimaryContainer,
-              fontWeight: FontWeight.w500,
-            );
+    final style = index < 0
+        ? null
+        : TextStyle(
+            color: colorScheme.onPrimaryContainer,
+            fontWeight: FontWeight.w500,
+          );
     final now = DateTime.now();
     final isToday =
         now.year == date.year && now.month == date.month && now.day == date.day;
@@ -61,24 +60,22 @@ class _PunchCalendarState extends State<PunchCalendar>
         children: [
           isToday
               ? CircleAvatar(
-                maxRadius: maxHeight / 3.2,
-                child: Text('${date.day}'),
-              )
+                  maxRadius: maxHeight / 3.2,
+                  child: Text('${date.day}'),
+                )
               : Text(date.day.toString(), style: style),
           if (index > -1)
             PlatformWidget(
-              cupertino:
-                  (_, __) => Icon(
-                    CupertinoIcons.checkmark_alt,
-                    size: maxHeight / 2.1,
-                    color: CupertinoColors.systemGreen.resolveFrom(context),
-                  ),
-              material:
-                  (_, __) => Icon(
-                    Icons.file_download_done,
-                    size: maxHeight / 2.1,
-                    color: Colors.green,
-                  ),
+              cupertino: (_, __) => Icon(
+                CupertinoIcons.checkmark_alt,
+                size: maxHeight / 2.1,
+                color: CupertinoColors.systemGreen.resolveFrom(context),
+              ),
+              material: (_, __) => Icon(
+                Icons.file_download_done,
+                size: maxHeight / 2.1,
+                color: Colors.green,
+              ),
             ),
         ],
       ),
@@ -92,12 +89,11 @@ class _PunchCalendarState extends State<PunchCalendar>
       Navigator.push(
         context,
         WordListRoute(
-          builder:
-              (context, data) => WordListPage(
-                words: data,
-                title:
-                    "Studied on ${DateFormat.MEd().format(DateTime.fromMillisecondsSinceEpoch(punchDay.date * 1000))}",
-              ),
+          builder: (context, data) => WordListPage(
+            words: data,
+            title:
+                "Studied on ${DateFormat.MEd().format(DateTime.fromMillisecondsSinceEpoch(punchDay.date * 1000))}",
+          ),
           wordIDs: punchDay.studyWordIDs,
         ),
       );

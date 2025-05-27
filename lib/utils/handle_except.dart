@@ -4,13 +4,13 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:sqlite3/sqlite3.dart';
 import 'package:http/http.dart' as http;
+import 'package:sqlite3/sqlite3.dart';
 
 import '../api/dict_api.dart';
 import 'shortcut.dart';
 
-String messageExceptions(Object? error) {
+String messageExceptions([Object? error, StackTrace? stackTrace]) {
   return switch (error) {
     HttpException e => convertFastAPIDetail(e.message),
     ApiException e => 'API error: ${e.message}',

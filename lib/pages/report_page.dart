@@ -78,7 +78,10 @@ class _ReportPageState extends State<ReportPage> {
                   children: [
                     Padding(
                       padding: EdgeInsets.only(left: 20),
-                      child: Text("Other", style: textTheme.titleMedium),
+                      child: Text(
+                        "Other or additional information",
+                        style: textTheme.titleMedium,
+                      ),
                     ),
                     Container(
                       constraints: BoxConstraints(minHeight: 64),
@@ -90,35 +93,34 @@ class _ReportPageState extends State<ReportPage> {
                         textInputAction: TextInputAction.done,
                         controller: textEditController,
                         onChanged: (_) => toggleSelection(),
-                        cupertino:
-                            (_, _) => CupertinoTextFieldData(
-                              padding: EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: CupertinoColors.systemBackground
-                                    .resolveFrom(context),
-                                border: Border.all(color: colorScheme.primary),
-                                borderRadius: BorderRadius.circular(
-                                  kRadialReactionRadius / 2,
-                                ),
+                        cupertino: (_, _) => CupertinoTextFieldData(
+                          padding: EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: CupertinoColors.systemBackground.resolveFrom(
+                              context,
+                            ),
+                            border: Border.all(color: colorScheme.primary),
+                            borderRadius: BorderRadius.circular(
+                              kRadialReactionRadius / 2,
+                            ),
+                          ),
+                        ),
+                        material: (_, _) => MaterialTextFieldData(
+                          decoration: InputDecoration(
+                            contentPadding: EdgeInsets.all(8),
+                            fillColor: CupertinoColors.systemBackground
+                                .resolveFrom(context),
+                            border: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                color: colorScheme.primary,
+                                width: 2,
+                              ),
+                              borderRadius: BorderRadius.circular(
+                                kRadialReactionRadius / 2,
                               ),
                             ),
-                        material:
-                            (_, _) => MaterialTextFieldData(
-                              decoration: InputDecoration(
-                                contentPadding: EdgeInsets.all(8),
-                                fillColor: CupertinoColors.systemBackground
-                                    .resolveFrom(context),
-                                border: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                    color: colorScheme.primary,
-                                    width: 2,
-                                  ),
-                                  borderRadius: BorderRadius.circular(
-                                    kRadialReactionRadius / 2,
-                                  ),
-                                ),
-                              ),
-                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ],
@@ -128,11 +130,10 @@ class _ReportPageState extends State<ReportPage> {
               Center(
                 child: ValueListenableBuilder(
                   valueListenable: enableSubmit,
-                  builder:
-                      (context, value, child) => PlatformElevatedButton(
-                        onPressed: value ? () => submit(issue) : null,
-                        child: const Text("Submit"),
-                      ),
+                  builder: (context, value, child) => PlatformElevatedButton(
+                    onPressed: value ? () => submit(issue) : null,
+                    child: const Text("Submit"),
+                  ),
                 ),
               ),
             ],
@@ -143,20 +144,17 @@ class _ReportPageState extends State<ReportPage> {
   }
 
   void submit(String issue) {
-    final res = reportIssue(
-      word: widget.word,
-      issue: issue,
-    ).onError((e, _) => messageExceptions(e));
-    res.then(
-      (msg) =>
-          mounted
+    final _ = reportIssue(word: widget.word, issue: issue)
+        .onError(messageExceptions)
+        .then(
+          (msg) => mounted
               ? showToast(
-                context: context,
-                child: Text(msg),
-                alignment: Alignment(0, .5),
-              )
+                  context: context,
+                  child: Text(msg),
+                  alignment: Alignment(0, .5),
+                )
               : null,
-    );
+        );
   }
 }
 
@@ -188,18 +186,16 @@ class _RadioButtonState extends State<RadioButton> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap:
-          () => setState(() {
-            selected ^= true;
-            widget.onTap?.call(widget.value);
-          }),
-      child:
-          selected
-              ? const Icon(
-                CupertinoIcons.smallcircle_fill_circle_fill,
-                size: kRadialReactionRadius,
-              )
-              : const Icon(CupertinoIcons.circle, size: kRadialReactionRadius),
+      onTap: () => setState(() {
+        selected ^= true;
+        widget.onTap?.call(widget.value);
+      }),
+      child: selected
+          ? const Icon(
+              CupertinoIcons.smallcircle_fill_circle_fill,
+              size: kRadialReactionRadius,
+            )
+          : const Icon(CupertinoIcons.circle, size: kRadialReactionRadius),
     );
   }
 }

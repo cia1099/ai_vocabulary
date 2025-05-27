@@ -1,7 +1,7 @@
 import 'dart:math' show Random, pi;
 
 import 'package:ai_vocabulary/app_route.dart';
-import 'package:ai_vocabulary/database/my_db.dart';
+import 'package:ai_vocabulary/firebase/authorization.dart' show signOutFirebase;
 import 'package:ai_vocabulary/pages/payment_page.dart';
 import 'package:ai_vocabulary/pages/punch_out_page.dart';
 import 'package:ai_vocabulary/provider/user_provider.dart';
@@ -9,7 +9,6 @@ import 'package:ai_vocabulary/utils/function.dart';
 import 'package:ai_vocabulary/utils/shortcut.dart';
 import 'package:ai_vocabulary/widgets/action_button.dart';
 import 'package:ai_vocabulary/widgets/segment_explanation.dart';
-import 'package:ai_vocabulary/firebase/authorization.dart' show signOutFirebase;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -57,32 +56,32 @@ class SettingTab extends StatelessWidget {
                       // The Material switch has a platform adaptive constructor.
                       trailing: PlatformSwitch(
                         value: switches[0],
-                        onChanged:
-                            (value) => setState(() => switches[0] = value),
+                        onChanged: (value) =>
+                            setState(() => switches[0] = value),
                       ),
                     ),
                     PlatformListTile(
                       title: const Text('Enable notifications'),
                       trailing: PlatformSwitch(
                         value: switches[1],
-                        onChanged:
-                            (value) => setState(() => switches[1] = value),
+                        onChanged: (value) =>
+                            setState(() => switches[1] = value),
                       ),
                     ),
                     PlatformListTile(
                       title: const Text('Remind me to rate this app'),
                       trailing: PlatformSwitch(
                         value: switches[2],
-                        onChanged:
-                            (value) => setState(() => switches[2] = value),
+                        onChanged: (value) =>
+                            setState(() => switches[2] = value),
                       ),
                     ),
                     PlatformListTile(
                       title: const Text('Background song refresh'),
                       trailing: PlatformSwitch(
                         value: switches[3],
-                        onChanged:
-                            (value) => setState(() => switches[3] = value),
+                        onChanged: (value) =>
+                            setState(() => switches[3] = value),
                       ),
                     ),
                     PlatformListTile(
@@ -91,8 +90,8 @@ class SettingTab extends StatelessWidget {
                       ),
                       trailing: PlatformSwitch(
                         value: switches[4],
-                        onChanged:
-                            (value) => setState(() => switches[4] = value),
+                        onChanged: (value) =>
+                            setState(() => switches[4] = value),
                       ),
                     ),
                     PlatformListTile(
@@ -101,8 +100,8 @@ class SettingTab extends StatelessWidget {
                       ),
                       trailing: PlatformSwitch(
                         value: switches[5],
-                        onChanged:
-                            (value) => setState(() => switches[5] = value),
+                        onChanged: (value) =>
+                            setState(() => switches[5] = value),
                       ),
                     ),
                   ],
@@ -118,9 +117,8 @@ class SettingTab extends StatelessWidget {
                   title: const Text('Does hide vocabulary title in sliders?'),
                   trailing: PlatformSwitch(
                     value: AppSettings.of(context).hideSliderTitle,
-                    onChanged:
-                        (value) =>
-                            AppSettings.of(context).hideSliderTitle = value,
+                    onChanged: (value) =>
+                        AppSettings.of(context).hideSliderTitle = value,
                   ),
                 ),
                 PlatformListTile(
@@ -133,12 +131,12 @@ class SettingTab extends StatelessWidget {
                           children: [
                             Radio.adaptive(
                               value: q,
-                              activeColor:
-                                  Theme.of(context).colorScheme.primary,
+                              activeColor: Theme.of(
+                                context,
+                              ).colorScheme.primary,
                               groupValue: AppSettings.of(context).quiz,
-                              onChanged:
-                                  (value) =>
-                                      AppSettings.of(context).quiz = value!,
+                              onChanged: (value) =>
+                                  AppSettings.of(context).quiz = value!,
                             ),
                             Text(q.name.capitalize()),
                           ],
@@ -153,8 +151,8 @@ class SettingTab extends StatelessWidget {
                 CountPickerTile(
                   titlePattern: "Default Translator ,?,",
                   initialCount: AppSettings.of(context).translator.index,
-                  itemText:
-                      (index, value) => TranslateLocate.values[index].native,
+                  itemText: (index, value) =>
+                      TranslateLocate.values[index].native,
                   itemCount: TranslateLocate.values.length,
                   onPickDone: (index) {
                     AppSettings.of(context).translator =
@@ -164,9 +162,8 @@ class SettingTab extends StatelessWidget {
                 CountPickerTile(
                   titlePattern: "Voicer ,?,",
                   initialCount: AppSettings.of(context).voicer.index,
-                  itemText:
-                      (index, value) =>
-                          '${AzureVoicer.values[index].name} ${AzureVoicer.values[index].gender == 'Male' ? '🙎‍♂️' : '🙎‍♀️'}',
+                  itemText: (index, value) =>
+                      '${AzureVoicer.values[index].name} ${AzureVoicer.values[index].gender == 'Male' ? '🙎‍♂️' : '🙎‍♀️'}',
                   itemCount: AzureVoicer.values.length,
                   onPickDone: (index) {
                     AppSettings.of(context).voicer = AzureVoicer.values[index];
@@ -175,32 +172,30 @@ class SettingTab extends StatelessWidget {
                 PlatformListTile(
                   title: Text("Accent"),
                   trailing: StatefulBuilder(
-                    builder:
-                        (context, setState) => Wrap(
-                          spacing: 8,
-                          children: [
-                            for (final accent in Accent.values)
-                              Row(
-                                children: [
-                                  Radio.adaptive(
-                                    value: accent,
-                                    activeColor:
-                                        Theme.of(context).colorScheme.primary,
-                                    groupValue: AppSettings.of(context).accent,
-                                    onChanged:
-                                        (accent) => setState(() {
-                                          AppSettings.of(context).accent =
-                                              accent!;
-                                        }),
-                                  ),
-                                  Text(
-                                    accent.flag,
-                                    textScaler: TextScaler.linear(2),
-                                  ),
-                                ],
+                    builder: (context, setState) => Wrap(
+                      spacing: 8,
+                      children: [
+                        for (final accent in Accent.values)
+                          Row(
+                            children: [
+                              Radio.adaptive(
+                                value: accent,
+                                activeColor: Theme.of(
+                                  context,
+                                ).colorScheme.primary,
+                                groupValue: AppSettings.of(context).accent,
+                                onChanged: (accent) => setState(() {
+                                  AppSettings.of(context).accent = accent!;
+                                }),
                               ),
-                          ],
-                        ),
+                              Text(
+                                accent.flag,
+                                textScaler: TextScaler.linear(2),
+                              ),
+                            ],
+                          ),
+                      ],
+                    ),
                   ),
                 ),
                 CountPickerTile(
@@ -227,32 +222,25 @@ class SettingTab extends StatelessWidget {
             ),
           ),
           SliverToBoxAdapter(
-            child: ListenableBuilder(
-              listenable: MyDB(),
-              builder:
-                  (context, child) => FutureBuilder(
-                    future: MyDB().isReady,
-                    builder: (context, snapshot) {
-                      final canPunchOut =
-                          snapshot.data == true &&
-                          AppSettings.of(context).studyState.index >=
-                              StudyStatus.onTarget.index;
-                      return PlatformTextButton(
-                        onPressed:
-                            !canPunchOut
-                                ? null
-                                : () => Navigator.push(
-                                  context,
-                                  platformPageRoute(
-                                    context: context,
-                                    fullscreenDialog: true,
-                                    builder: (context) => const PunchOutPage(),
-                                  ),
-                                ),
-                        child: child,
-                      );
-                    },
-                  ),
+            child: ValueListenableBuilder(
+              valueListenable: AppSettings.of(context).studyStateListener,
+              builder: (context, studyState, child) {
+                final canPunchOut =
+                    studyState.index >= StudyStatus.onTarget.index;
+                return PlatformTextButton(
+                  onPressed: !canPunchOut
+                      ? null
+                      : () => Navigator.push(
+                          context,
+                          platformPageRoute(
+                            context: context,
+                            fullscreenDialog: true,
+                            builder: (context) => const PunchOutPage(),
+                          ),
+                        ),
+                  child: child,
+                );
+              },
               child: const Text('Make up Punch Out'),
             ),
           ),
@@ -265,25 +253,22 @@ class SettingTab extends StatelessWidget {
                   trailing: PlatformSwitch(
                     value:
                         AppSettings.of(context).brightness == Brightness.dark,
-                    onChanged:
-                        (value) =>
-                            AppSettings.of(context).brightness =
-                                value ? Brightness.dark : Brightness.light,
+                    onChanged: (value) => AppSettings.of(context).brightness =
+                        value ? Brightness.dark : Brightness.light,
                   ),
                 ),
                 PlatformListTile(
                   title: const Text('Application Color Theme'),
                   trailing: const CupertinoListTileChevron(),
-                  onTap:
-                      () => Navigator.of(context).push(
-                        CupertinoDialogRoute(
-                          builder: (context) => const ColorSelectPage(),
-                          barrierColor: Theme.of(
-                            context,
-                          ).colorScheme.inverseSurface.withValues(alpha: .4),
-                          context: context,
-                        ),
-                      ),
+                  onTap: () => Navigator.of(context).push(
+                    CupertinoDialogRoute(
+                      builder: (context) => const ColorSelectPage(),
+                      barrierColor: Theme.of(
+                        context,
+                      ).colorScheme.inverseSurface.withValues(alpha: .4),
+                      context: context,
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -294,10 +279,9 @@ class SettingTab extends StatelessWidget {
               children: [
                 ActionButton(
                   child: Text("Sign Out"),
-                  onPressed:
-                      () => signOutFirebase().whenComplete(
-                        () => context.mounted && signOut(context),
-                      ),
+                  onPressed: () => signOutFirebase().whenComplete(
+                    () => context.mounted && signOut(context),
+                  ),
                 ),
                 ActionButton(
                   isDestructiveAction: true,
@@ -317,34 +301,27 @@ class SettingTab extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     showPlatformDialog<bool?>(
       context: context,
-      builder:
-          (context) => PlatformAlertDialog(
-            title: const Text('Delete Account'),
-            content: const Text(
-              'Are you sure you want to delete this account?',
-            ),
-            actions: [
-              PlatformDialogAction(
-                onPressed: () => Navigator.pop(context, false),
-                child: const Text('No'),
-                cupertino:
-                    (_, __) => CupertinoDialogActionData(isDefaultAction: true),
-              ),
-              PlatformDialogAction(
-                onPressed: () => Navigator.pop(context, true),
-                child: const Text('Yes'),
-                material:
-                    (_, __) => MaterialDialogActionData(
-                      style: TextButton.styleFrom(
-                        foregroundColor: colorScheme.error,
-                      ),
-                    ),
-                cupertino:
-                    (_, __) =>
-                        CupertinoDialogActionData(isDestructiveAction: true),
-              ),
-            ],
+      builder: (context) => PlatformAlertDialog(
+        title: const Text('Delete Account'),
+        content: const Text('Are you sure you want to delete this account?'),
+        actions: [
+          PlatformDialogAction(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('No'),
+            cupertino: (_, __) =>
+                CupertinoDialogActionData(isDefaultAction: true),
           ),
+          PlatformDialogAction(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Yes'),
+            material: (_, __) => MaterialDialogActionData(
+              style: TextButton.styleFrom(foregroundColor: colorScheme.error),
+            ),
+            cupertino: (_, __) =>
+                CupertinoDialogActionData(isDestructiveAction: true),
+          ),
+        ],
+      ),
     ).then((isDelete) {
       if (isDelete != true) return;
       signOutFirebase()
@@ -387,10 +364,9 @@ class ProfileHeader extends StatelessWidget {
                 CircleAvatar(
                   minRadius: 0,
                   maxRadius: 50,
-                  foregroundImage:
-                      user.photoURL == null
-                          ? null
-                          : NetworkImage(user.photoURL!),
+                  foregroundImage: user.photoURL == null
+                      ? null
+                      : NetworkImage(user.photoURL!),
                   child: FractionallySizedBox(
                     widthFactor: 1,
                     heightFactor: 1,
@@ -438,23 +414,21 @@ class ProfileHeader extends StatelessWidget {
                       ],
                     ),
                     PlatformTextButton(
-                      onPressed:
-                          () => Navigator.push(
-                            context,
-                            platformPageRoute(
-                              context: context,
-                              fullscreenDialog: true,
-                              builder: (context) => PaymentPage(),
-                            ),
-                          ),
+                      onPressed: () => Navigator.push(
+                        context,
+                        platformPageRoute(
+                          context: context,
+                          fullscreenDialog: true,
+                          builder: (context) => PaymentPage(),
+                        ),
+                      ),
                       padding: EdgeInsets.zero,
                       child: Text(user.role.capitalize()),
-                      material:
-                          (_, __) => MaterialTextButtonData(
-                            style: TextButton.styleFrom(
-                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                            ),
-                          ),
+                      material: (_, __) => MaterialTextButtonData(
+                        style: TextButton.styleFrom(
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                      ),
                     ),
                   ],
                 ),
