@@ -5,6 +5,7 @@ import 'package:ai_vocabulary/api/dict_api.dart';
 import 'package:ai_vocabulary/app_settings.dart';
 import 'package:ai_vocabulary/database/my_db.dart';
 import 'package:ai_vocabulary/effects/show_toast.dart';
+import 'package:ai_vocabulary/effects/tip_overlap.dart';
 import 'package:ai_vocabulary/effects/transient.dart';
 import 'package:ai_vocabulary/model/acquaintance.dart';
 import 'package:ai_vocabulary/model/collections.dart';
@@ -268,9 +269,25 @@ class _PunchOutPageState extends State<PunchOutPage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'My token',
-                      style: TextStyle(color: colorScheme.onInverseSurface),
+                    Wrap(
+                      spacing: 8,
+                      children: [
+                        Text(
+                          'My token',
+                          style: TextStyle(color: colorScheme.onInverseSurface),
+                        ),
+                        TipOverlap(
+                          tipBuilder: (context) => Container(
+                            padding: EdgeInsets.all(8),
+                            child: Text("Shit man" * 10),
+                          ),
+                          child: Icon(
+                            CupertinoIcons.question_circle,
+                            size: 20,
+                            color: colorScheme.onInverseSurface,
+                          ),
+                        ),
+                      ],
                     ),
                     FutureBuilder(
                       future: myToken,
@@ -299,7 +316,7 @@ class _PunchOutPageState extends State<PunchOutPage> {
                                   fontWeight: textTheme.titleMedium?.fontWeight,
                                 ),
                               ),
-                              TextSpan(text: ' = ${consumeTokens * 2e-2}\$'),
+                              TextSpan(text: ' = \$${consumeTokens * 2e-2}'),
                             ],
                             style: TextStyle(
                               color: colorScheme.onInverseSurface,
@@ -311,24 +328,26 @@ class _PunchOutPageState extends State<PunchOutPage> {
                   ],
                 ),
               ),
-              GestureDetector(
-                onTap: () {},
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 4,
-                    horizontal: 12,
-                  ),
-                  margin: const EdgeInsets.only(right: 8),
-                  decoration: BoxDecoration(
-                    color: colorScheme.onSurfaceVariant.withAlpha(0x80),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Text(
-                    "What is token?",
-                    style: TextStyle(color: colorScheme.onInverseSurface),
-                  ),
-                ),
-              ),
+              // TipOverlap(
+              //   tipBuilder: (context) => Text("Shit man"),
+              //   child: Container(
+              //     padding: const EdgeInsets.symmetric(
+              //       vertical: 4,
+              //       horizontal: 12,
+              //     ),
+              //     margin: const EdgeInsets.only(right: 8),
+              //     decoration: BoxDecoration(
+              //       color: colorScheme.onSurfaceVariant.withAlpha(0x80),
+              //       borderRadius: BorderRadius.circular(16),
+              //     ),
+              //     child: Text(
+              //       "What is token?",
+              //       style: textTheme.bodySmall?.apply(
+              //         color: colorScheme.onInverseSurface,
+              //       ),
+              //     ),
+              //   ),
+              // ),
             ],
           ),
         ),

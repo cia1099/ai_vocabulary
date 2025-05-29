@@ -33,15 +33,14 @@ class EntryActions extends StatelessWidget {
     return [
       if (!skipIndexes.contains(0))
         GestureDetector(
-          onTap:
-              () => Navigator.of(context).push(
-                CupertinoDialogRoute(
-                  context: context,
-                  barrierDismissible: false,
-                  builder: (context) => const SearchPage(),
-                  settings: const RouteSettings(name: AppRoute.searchWords),
-                ),
-              ),
+          onTap: () => Navigator.of(context).push(
+            CupertinoDialogRoute(
+              context: context,
+              barrierDismissible: false,
+              builder: (context) => const SearchPage(),
+              settings: const RouteSettings(name: AppRoute.searchWords),
+            ),
+          ),
           child: Icon(
             CupertinoIcons.search,
             size: appBarIconSize,
@@ -56,38 +55,35 @@ class EntryActions extends StatelessWidget {
             final rBox = context.findRenderObject() as RenderBox?;
             final anchor = rBox?.localToGlobal(Offset.zero);
             if (anchor == null) return;
+            final isDark = Theme.brightnessOf(context) == Brightness.dark;
             Navigator.of(context).push(
               PageRouteBuilder(
                 opaque: false,
                 barrierDismissible: true,
                 barrierLabel: 'Dismiss',
-                barrierColor: colorScheme.inverseSurface.withValues(alpha: .4),
-                pageBuilder:
-                    (context, animation, secondaryAnimation) =>
-                        ReportPopUpPage(wordID: wordID!, anchorPoint: anchor),
+                barrierColor: colorScheme.inverseSurface.withValues(
+                  alpha: isDark ? 5e-2 : .4,
+                ),
+                pageBuilder: (context, animation, secondaryAnimation) =>
+                    ReportPopUpPage(wordID: wordID!, anchorPoint: anchor),
                 // transitionDuration: Durations.medium1,
                 settings: const RouteSettings(name: AppRoute.menuPopup),
-                transitionsBuilder: (
-                  context,
-                  animation,
-                  secondaryAnimation,
-                  child,
-                ) {
-                  final matrix = Matrix4Tween(
-                    end: Matrix4.identity(),
-                    begin: Matrix4.diagonal3Values(1, .1, 1)
-                      ..translate(.0, 1e3),
-                  ).chain(CurveTween(curve: Curves.easeOut));
-                  return AnimatedBuilder(
-                    animation: animation,
-                    builder:
-                        (_, __) => Transform(
+                transitionsBuilder:
+                    (context, animation, secondaryAnimation, child) {
+                      final matrix = Matrix4Tween(
+                        end: Matrix4.identity(),
+                        begin: Matrix4.diagonal3Values(1, .1, 1)
+                          ..translate(.0, 1e3),
+                      ).chain(CurveTween(curve: Curves.easeOut));
+                      return AnimatedBuilder(
+                        animation: animation,
+                        builder: (_, __) => Transform(
                           alignment: Alignment.topCenter,
                           transform: matrix.evaluate(animation),
                           child: child,
                         ),
-                  );
-                },
+                      );
+                    },
               ),
             );
           },
@@ -96,15 +92,14 @@ class EntryActions extends StatelessWidget {
             CupertinoIcons.ellipsis_vertical,
             size: appBarIconSize / 1.414,
           ),
-          cupertino:
-              (_, __) => CupertinoIconButtonData(minSize: appBarIconSize),
-          material:
-              (_, __) => MaterialIconButtonData(
-                style: IconButton.styleFrom(
-                  fixedSize: Size.square(appBarIconSize),
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                ),
-              ),
+          cupertino: (_, __) =>
+              CupertinoIconButtonData(minSize: appBarIconSize),
+          material: (_, __) => MaterialIconButtonData(
+            style: IconButton.styleFrom(
+              fixedSize: Size.square(appBarIconSize),
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+          ),
         ),
     ];
   }
@@ -128,10 +123,9 @@ class FavoriteStar extends StatelessWidget {
             tag: 'favorite_$wordID',
             child: Icon(
               collect ? CupertinoIcons.star_fill : CupertinoIcons.star,
-              color:
-                  collect
-                      ? CupertinoColors.systemYellow.resolveFrom(context)
-                      : null,
+              color: collect
+                  ? CupertinoColors.systemYellow.resolveFrom(context)
+                  : null,
               size: size,
             ),
             flightShuttleBuilder:
@@ -165,11 +159,10 @@ class FavoriteStar extends StatelessWidget {
             barrierColor: Theme.of(
               context,
             ).colorScheme.inverseSurface.withValues(alpha: .12),
-            builder:
-                (context) => AddCollectionIsland(
-                  wordID: wordID,
-                  onPressed: () => showManageCollectionSheet(context),
-                ),
+            builder: (context) => AddCollectionIsland(
+              wordID: wordID,
+              onPressed: () => showManageCollectionSheet(context),
+            ),
           ),
         );
       };
@@ -211,12 +204,11 @@ class _NaiveSegmentState extends State<NaiveSegment> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    firstText =
-        acquaint == 0
-            ? 'Learn in future'
-            : acquaint < kMaxAcquaintance
-            ? 'Unknown'
-            : "Don't learn anymore";
+    firstText = acquaint == 0
+        ? 'Learn in future'
+        : acquaint < kMaxAcquaintance
+        ? 'Unknown'
+        : "Don't learn anymore";
     secondText = acquaint == widget.word.acquaint ? 'Naive' : 'withdraw';
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
@@ -269,10 +261,9 @@ class _NaiveSegmentState extends State<NaiveSegment> {
                 ],
               ),
               style: TextStyle(
-                color:
-                    secondText != 'withdraw'
-                        ? colorScheme.onTertiaryContainer
-                        : colorScheme.primary,
+                color: secondText != 'withdraw'
+                    ? colorScheme.onTertiaryContainer
+                    : colorScheme.primary,
               ),
             ),
           ),
