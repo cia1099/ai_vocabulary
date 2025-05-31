@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:ui';
 
 import 'package:ai_vocabulary/api/dict_api.dart';
 import 'package:ai_vocabulary/effects/pointer_down_physic.dart';
@@ -20,7 +19,8 @@ class PaymentPage extends StatefulWidget {
   State<PaymentPage> createState() => _PaymentPageState();
   static const benefits = [
     BenefitItem(
-      benefit: "Learn unlimit speech, translation, and chat with AI assistance",
+      benefit:
+          "Learn unlimit speech, translation, and extra 200 tokens for chatting with AI assistance",
       icon: Icons.lock_open,
       color: Color(0xFF6C91F7),
     ),
@@ -31,7 +31,8 @@ class PaymentPage extends StatefulWidget {
     ),
     BenefitItem(
       benefit:
-          "Get extra 100 quota for visualizing example sentence to image everyday",
+          // "Get extra 100 quota for visualizing example sentence to image everyday",
+          "Get extra 200 tokens for visualizing example sentence to image everyday",
       icon: CupertinoIcons.photo,
       color: Color(0xFF90DFC1),
     ),
@@ -222,8 +223,9 @@ class Payment extends StatelessWidget {
     final locale = Localizations.localeOf(context);
     return OnPointerDownPhysic(
       child: Card(
-        shape:
-            isSelect ? Border.all(width: 2, color: colorScheme.primary) : null,
+        shape: isSelect
+            ? Border.all(width: 2, color: colorScheme.primary)
+            : null,
         child: Container(
           constraints: BoxConstraints.expand(height: 80),
           padding: EdgeInsets.symmetric(horizontal: hPadding),
@@ -249,14 +251,12 @@ class Payment extends StatelessWidget {
                                   TextSpan(
                                     text: entry.value,
                                     style: TextStyle(
-                                      decoration:
-                                          entry.key == 0
-                                              ? TextDecoration.lineThrough
-                                              : null,
-                                      color:
-                                          entry.key == 1
-                                              ? colorScheme.primary
-                                              : null,
+                                      decoration: entry.key == 0
+                                          ? TextDecoration.lineThrough
+                                          : null,
+                                      color: entry.key == 1
+                                          ? colorScheme.primary
+                                          : null,
                                     ),
                                   ),
                                 ],

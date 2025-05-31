@@ -5,12 +5,13 @@ import 'package:ai_vocabulary/api/dict_api.dart';
 import 'package:ai_vocabulary/app_settings.dart';
 import 'package:ai_vocabulary/database/my_db.dart';
 import 'package:ai_vocabulary/effects/show_toast.dart';
-import 'package:ai_vocabulary/effects/tip_overlap.dart';
+import 'package:ai_vocabulary/effects/tip_overlay.dart';
 import 'package:ai_vocabulary/effects/transient.dart';
 import 'package:ai_vocabulary/model/acquaintance.dart';
 import 'package:ai_vocabulary/model/collections.dart';
 import 'package:ai_vocabulary/utils/function.dart';
 import 'package:ai_vocabulary/utils/handle_except.dart';
+import 'package:ai_vocabulary/widgets/align_paragraph.dart';
 import 'package:ai_vocabulary/widgets/flashcard.dart';
 import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/cupertino.dart';
@@ -276,10 +277,28 @@ class _PunchOutPageState extends State<PunchOutPage> {
                           'My token',
                           style: TextStyle(color: colorScheme.onInverseSurface),
                         ),
-                        TipOverlap(
+                        TipOverlay(
                           tipBuilder: (context) => Container(
                             padding: EdgeInsets.all(8),
-                            child: Text("Shit man" * 10),
+                            child: Column(
+                              children: [
+                                Text(
+                                  "What can token do?",
+                                  style: CupertinoTheme.of(
+                                    context,
+                                  ).textTheme.textStyle.copyWith(height: 1.618),
+                                ),
+                                for (final canDo in _tokenListDo)
+                                  AlignParagraph.text(
+                                    paragraph: canDo,
+                                    mark: Icon(
+                                      CupertinoIcons.circle_fill,
+                                      size: 10,
+                                    ),
+                                    xInterval: 4,
+                                  ),
+                              ],
+                            ),
                           ),
                           child: Icon(
                             CupertinoIcons.question_circle,
@@ -328,7 +347,7 @@ class _PunchOutPageState extends State<PunchOutPage> {
                   ],
                 ),
               ),
-              // TipOverlap(
+              // TipOverlay(
               //   tipBuilder: (context) => Text("Shit man"),
               //   child: Container(
               //     padding: const EdgeInsets.symmetric(
@@ -405,3 +424,9 @@ I'm memorizing words with AI Vocabulary, punch with me! https://www.cia1099.clou
 extension on StudyCount {
   String get totalStudy => '${newCount + reviewCount}';
 }
+
+const _tokenListDo = [
+  "Engage in conversations with AI to practice using words by constructing sentences.",
+  "Visualize examples into vivid pictures to impress yourself.",
+  "Access supplementary and educational resources to enhance your learning experience.",
+];
