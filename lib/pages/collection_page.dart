@@ -76,24 +76,22 @@ class _CollectionPageState extends State<CollectionPage> {
             PlatformSliverAppBar(
               stretch: true,
               backgroundColor: kCupertinoSheetColor.resolveFrom(context),
-              material:
-                  (_, __) => MaterialSliverAppBarData(
-                    pinned: true,
-                    actions: actions(),
-                    expandedHeight: kExpandedSliverAppBarHeight,
-                    automaticallyImplyLeading: true,
-                    flexibleSpace: FlexibleSpaceBar(
-                      title: const Text("My Collections"),
-                      titlePadding: const EdgeInsets.only(left: 54, bottom: 16),
-                      stretchModes: kStretchModes,
-                      background: ColoredBox(color: colorScheme.surface),
-                    ),
-                  ),
-              cupertino:
-                  (_, __) => CupertinoSliverAppBarData(
-                    title: const Text("My Collections"),
-                    trailing: Wrap(spacing: 4, children: actions()),
-                  ),
+              material: (_, __) => MaterialSliverAppBarData(
+                pinned: true,
+                actions: actions(),
+                expandedHeight: kExpandedSliverAppBarHeight,
+                automaticallyImplyLeading: true,
+                flexibleSpace: FlexibleSpaceBar(
+                  title: const Text("My Collections"),
+                  titlePadding: const EdgeInsets.only(left: 54, bottom: 16),
+                  stretchModes: kStretchModes,
+                  background: ColoredBox(color: colorScheme.surface),
+                ),
+              ),
+              cupertino: (_, __) => CupertinoSliverAppBarData(
+                title: const Text("My Collections"),
+                trailing: Wrap(spacing: 4, children: actions()),
+              ),
             ),
             SliverPersistentHeader(
               pinned: true,
@@ -151,28 +149,25 @@ class _CollectionPageState extends State<CollectionPage> {
                     mainAxisSpacing: hPadding,
                     crossAxisSpacing: hPadding,
                   ),
-                  itemBuilder:
-                      (context, index, animation) =>
-                          onFlip
-                              ? MatrixTransition(
-                                animation: SineTween().animate(animation),
-                                onTransform:
-                                    (angle) => Matrix4.rotationY(angle),
-                                child: buildBookmark(
-                                  marks[index],
-                                  textController.text,
-                                ),
-                              )
-                              : ScaleTransition(
-                                scale: CurvedAnimation(
-                                  parent: animation,
-                                  curve: Curves.bounceOut,
-                                ),
-                                child: buildBookmark(
-                                  marks[index],
-                                  textController.text,
-                                ),
-                              ),
+                  itemBuilder: (context, index, animation) => onFlip
+                      ? MatrixTransition(
+                          animation: SineTween().animate(animation),
+                          onTransform: (angle) => Matrix4.rotationY(angle),
+                          child: buildBookmark(
+                            marks[index],
+                            textController.text,
+                          ),
+                        )
+                      : ScaleTransition(
+                          scale: CurvedAnimation(
+                            parent: animation,
+                            curve: Curves.bounceOut,
+                          ),
+                          child: buildBookmark(
+                            marks[index],
+                            textController.text,
+                          ),
+                        ),
                 ),
               ),
             ),
@@ -236,12 +231,11 @@ class _CollectionPageState extends State<CollectionPage> {
         0,
         (context, animation) => ValueListenableBuilder(
           valueListenable: SineTween().animate(animation),
-          builder:
-              (context, value, child) => Transform(
-                transform: Matrix4.rotationY(value),
-                alignment: const Alignment(0, 0),
-                child: child,
-              ),
+          builder: (context, value, child) => Transform(
+            transform: Matrix4.rotationY(value),
+            alignment: const Alignment(0, 0),
+            child: child,
+          ),
           child: buildBookmark(removedMark),
         ),
         duration: Durations.short4,
@@ -273,86 +267,87 @@ class _CollectionPageState extends State<CollectionPage> {
       SystemMark _ =>
         bookmark.index > 0
             ? Card.filled(
-              child: Center(
-                child: FloatingActionButton.large(
-                  onPressed: () {
-                    final insertIndex = reverse < 0 ? 1 : marks.length - 1;
-                    var count = 0;
-                    final repoNames = marks
-                        .where((m) => m.name.contains('Repository'))
-                        .map((m) => m.name);
-                    if (repoNames.isNotEmpty) {
-                      final nameNumbers = repoNames
-                          .map(
-                            (name) => RegExp(r'\d+').firstMatch(name)?.group(0),
-                          )
-                          .map((digit) => int.tryParse(digit ?? '') ?? 0);
-                      for (; nameNumbers.contains(count); count++) {}
-                    }
-                    var newID = 1;
-                    for (; newID < marks.length + 1; newID++) {
-                      if (!marks.map((m) => m.id).contains(newID)) break;
-                    }
-                    final newMark = CollectionMark(
-                      id: newID,
-                      name:
-                          'Repository${count > 0 ? '$count'.padLeft(2, '0') : ''}',
-                      index: marks.whereType<CollectionMark>().length,
-                    );
-                    marks.insert(insertIndex, newMark);
-                    gridState?.insertItem(
-                      insertIndex,
-                      duration: Durations.extralong1,
-                    );
-                    MyDB().insertCollection(newID, newMark.name, newMark.index);
-                  },
-                  elevation: 2,
-                  shape: const CircleBorder(),
-                  child: const Icon(CupertinoIcons.add),
+                child: Center(
+                  child: FloatingActionButton.large(
+                    onPressed: () {
+                      final insertIndex = reverse < 0 ? 1 : marks.length - 1;
+                      var count = 0;
+                      final repoNames = marks
+                          .where((m) => m.name.contains('Repository'))
+                          .map((m) => m.name);
+                      if (repoNames.isNotEmpty) {
+                        final nameNumbers = repoNames
+                            .map(
+                              (name) =>
+                                  RegExp(r'\d+').firstMatch(name)?.group(0),
+                            )
+                            .map((digit) => int.tryParse(digit ?? '') ?? 0);
+                        for (; nameNumbers.contains(count); count++) {}
+                      }
+                      var newID = 1;
+                      for (; newID < marks.length + 1; newID++) {
+                        if (!marks.map((m) => m.id).contains(newID)) break;
+                      }
+                      final newMark = CollectionMark(
+                        id: newID,
+                        name:
+                            'Repository${count > 0 ? '$count'.padLeft(2, '0') : ''}',
+                        index: marks.whereType<CollectionMark>().length,
+                      );
+                      marks.insert(insertIndex, newMark);
+                      gridState?.insertItem(
+                        insertIndex,
+                        duration: Durations.extralong1,
+                      );
+                      MyDB().upsertCollection(
+                        newMark,
+                      ); //.insertCollection(newID, newMark.name, newMark.index);
+                    },
+                    elevation: 2,
+                    shape: const CircleBorder(),
+                    child: const Icon(CupertinoIcons.add),
+                  ),
                 ),
-              ),
-            )
+              )
             : OnPointerDownPhysic(
-              child: Card.filled(
-                child: InkWell(
-                  onTap:
-                      () => Navigator.push(
-                        context,
-                        WordListRoute(
-                          wordIDs: MyDB().fetchWordIDsByMarkID(bookmark.id),
-                          builder:
-                              (context, words) => FavoriteWordsPage(
-                                mark: CollectionMark(
-                                  id: bookmark.id,
-                                  name: kUncategorizedName,
-                                  index: bookmark.index,
-                                  icon: CupertinoIcons.star.codePoint,
-                                ),
-                                words: words,
-                              ),
+                child: Card.filled(
+                  child: InkWell(
+                    onTap: () => Navigator.push(
+                      context,
+                      WordListRoute(
+                        wordIDs: MyDB().fetchWordIDsByMarkID(bookmark.id),
+                        builder: (context, words) => FavoriteWordsPage(
+                          mark: CollectionMark(
+                            id: bookmark.id,
+                            name: kUncategorizedName,
+                            index: bookmark.index,
+                            icon: CupertinoIcons.star.codePoint,
+                          ),
+                          words: words,
                         ),
                       ),
-                  child: Column(
-                    children: [
-                      Expanded(
-                        child: Lottie.asset(
-                          'assets/lottie/favorite.json',
-                          repeat: false,
+                    ),
+                    child: Column(
+                      children: [
+                        Expanded(
+                          child: Lottie.asset(
+                            'assets/lottie/favorite.json',
+                            repeat: false,
+                          ),
                         ),
-                      ),
-                      const Text(
-                        'Uncategorized',
-                        style: TextStyle(
-                          // backgroundColor: Colors.green,
-                          fontWeight: FontWeight.w600,
+                        const Text(
+                          'Uncategorized',
+                          style: TextStyle(
+                            // backgroundColor: Colors.green,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          textScaler: TextScaler.linear(1.6),
                         ),
-                        textScaler: TextScaler.linear(1.6),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
       _ => const Placeholder(),
     };
   }
@@ -363,25 +358,22 @@ class _CollectionPageState extends State<CollectionPage> {
         onPressed: dragEnabled ? null : flipReverseOrder,
         icon: const Icon(CupertinoIcons.arrow_2_squarepath),
         padding: EdgeInsets.zero,
-        material:
-            (_, __) => MaterialIconButtonData(
-              style: IconButton.styleFrom(
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              ),
-            ),
+        material: (_, __) => MaterialIconButtonData(
+          style: IconButton.styleFrom(
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          ),
+        ),
       ),
       PlatformTextButton(
-        onPressed:
-            () => setState(() {
-              dragEnabled ^= true;
-            }),
+        onPressed: () => setState(() {
+          dragEnabled ^= true;
+        }),
         padding: EdgeInsets.zero,
-        material:
-            (_, __) => MaterialTextButtonData(
-              style: TextButton.styleFrom(
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              ),
-            ),
+        material: (_, __) => MaterialTextButtonData(
+          style: TextButton.styleFrom(
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          ),
+        ),
         child: Text(dragEnabled ? 'Done' : 'Revise'),
       ),
     ];
@@ -391,10 +383,9 @@ class _CollectionPageState extends State<CollectionPage> {
     final updatedMarks = fetchDB;
     var hasUpdated = false;
     for (var i = 0; i < marks.length; i++) {
-      final updatedMark =
-          updatedMarks
-              .where((m) => m == marks[i] && m.index != marks[i].index)
-              .firstOrNull;
+      final updatedMark = updatedMarks
+          .where((m) => m == marks[i] && m.index != marks[i].index)
+          .firstOrNull;
       if (updatedMark != null) {
         marks[i].index = updatedMark.index;
         hasUpdated = true;

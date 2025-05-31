@@ -7,8 +7,8 @@ import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
-
 import 'package:im_charts/im_charts.dart';
+import 'package:intl/intl.dart';
 
 class ChartTab extends StatelessWidget {
   const ChartTab({super.key});
@@ -29,41 +29,38 @@ class ChartTab extends StatelessWidget {
         slivers: [
           PlatformSliverAppBar(
             stretch: true,
-            cupertino:
-                (_, __) => CupertinoSliverAppBarData(
-                  transitionBetweenRoutes: false,
-                  title: const Text('Charts'),
-                ),
-            material:
-                (_, _) => MaterialSliverAppBarData(
-                  pinned: true,
-                  expandedHeight: kExpandedSliverAppBarHeight,
-                  backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-                  flexibleSpace: FlexibleSpaceBar(
-                    title: const Text('Charts'),
-                    titlePadding: const EdgeInsets.only(left: 16, bottom: 16),
-                    stretchModes: kStretchModes,
-                    background: DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.surface,
-                      ),
-                    ),
+            cupertino: (_, __) => CupertinoSliverAppBarData(
+              transitionBetweenRoutes: false,
+              title: const Text('Charts'),
+            ),
+            material: (_, _) => MaterialSliverAppBarData(
+              pinned: true,
+              expandedHeight: kExpandedSliverAppBarHeight,
+              backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+              flexibleSpace: FlexibleSpaceBar(
+                title: const Text('Charts'),
+                titlePadding: const EdgeInsets.only(left: 16, bottom: 16),
+                stretchModes: kStretchModes,
+                background: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surface,
                   ),
                 ),
+              ),
+            ),
           ),
           const SliverToBoxAdapter(child: PunchCalendar()),
           SliverToBoxAdapter(
             child: FutureBuilder(
               future: MyDB().averageFibonacci,
-              builder:
-                  (context, snapshot) => Stack(
-                    alignment: const Alignment(0, -.25),
-                    children: [
-                      RememberChart(trainingRate: snapshot.data),
-                      if (snapshot.connectionState == ConnectionState.waiting)
-                        const CircularProgressIndicator.adaptive(),
-                    ],
-                  ),
+              builder: (context, snapshot) => Stack(
+                alignment: const Alignment(0, -.25),
+                children: [
+                  RememberChart(trainingRate: snapshot.data),
+                  if (snapshot.connectionState == ConnectionState.waiting)
+                    const CircularProgressIndicator.adaptive(),
+                ],
+              ),
             ),
           ),
           SliverToBoxAdapter(
@@ -94,12 +91,11 @@ class ChartTab extends StatelessWidget {
                                 1.2,
                               ),
                               fontWeight: textTheme.titleMedium?.fontWeight,
-                              color:
-                                  isCupertino(context)
-                                      ? CupertinoColors.activeGreen.resolveFrom(
-                                        context,
-                                      )
-                                      : Colors.green,
+                              color: isCupertino(context)
+                                  ? CupertinoColors.activeGreen.resolveFrom(
+                                      context,
+                                    )
+                                  : Colors.green,
                             ),
                           ),
                           Text('Punched days', style: textTheme.labelMedium),
@@ -141,27 +137,30 @@ class ChartTab extends StatelessWidget {
               alignment: Alignment(-.75, 0),
               child: FutureBuilder(
                 future: getConsumeTokens(),
-                builder:
-                    (context, snapshot) =>
-                        snapshot.hasData
-                            ? Text.rich(
-                              TextSpan(
-                                text: '• You still have ',
-                                children: [
-                                  TextSpan(
-                                    text: '${snapshot.data}',
-                                    style: TextStyle(
-                                      color: colorScheme.onSecondaryContainer,
-                                      backgroundColor:
-                                          colorScheme.secondaryContainer,
-                                    ),
-                                  ),
-                                  TextSpan(text: ' tokens left today.'),
-                                ],
-                              ),
-                              style: textTheme.titleMedium,
-                            )
-                            : SizedBox.shrink(),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) return SizedBox.shrink();
+                  final locale = Localizations.localeOf(
+                    context,
+                  ).toLanguageTag();
+                  return Text.rich(
+                    TextSpan(
+                      text: '• You still have ',
+                      children: [
+                        TextSpan(
+                          text: NumberFormat.decimalPattern(
+                            locale,
+                          ).format(snapshot.data),
+                          style: TextStyle(
+                            color: colorScheme.onSecondaryContainer,
+                            backgroundColor: colorScheme.secondaryContainer,
+                          ),
+                        ),
+                        TextSpan(text: ' tokens left today.'),
+                      ],
+                    ),
+                    style: textTheme.titleMedium,
+                  );
+                },
               ),
             ),
           ),

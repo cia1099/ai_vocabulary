@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:image/image.dart' as image;
+import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
 import 'package:path/path.dart' as p;
 import 'package:share_plus/share_plus.dart';
@@ -200,6 +201,7 @@ class _PunchOutPageState extends State<PunchOutPage> {
   Widget buildBottomButtons(ColorScheme colorScheme) {
     final textTheme = Theme.of(context).textTheme;
     final cupertinoTextTheme = CupertinoTheme.of(context).textTheme;
+    final locale = Localizations.localeOf(context).toLanguageTag();
     return Wrap(
       direction: Axis.vertical,
       crossAxisAlignment: WrapCrossAlignment.center,
@@ -284,9 +286,9 @@ class _PunchOutPageState extends State<PunchOutPage> {
                               children: [
                                 Text(
                                   "What can token do?",
-                                  style: CupertinoTheme.of(
-                                    context,
-                                  ).textTheme.textStyle.copyWith(height: 1.618),
+                                  style: cupertinoTextTheme.textStyle.copyWith(
+                                    height: 1.618,
+                                  ),
                                 ),
                                 for (final canDo in _tokenListDo)
                                   AlignParagraph.text(
@@ -328,14 +330,19 @@ class _PunchOutPageState extends State<PunchOutPage> {
                           text: TextSpan(
                             children: [
                               TextSpan(
-                                text: '$consumeTokens',
+                                text: NumberFormat.decimalPattern(
+                                  locale,
+                                ).format(consumeTokens),
                                 style: TextStyle(
                                   fontSize: textTheme.titleMedium?.fontSize
                                       .scale(1.2),
                                   fontWeight: textTheme.titleMedium?.fontWeight,
                                 ),
                               ),
-                              TextSpan(text: ' = \$${consumeTokens * 2e-2}'),
+                              TextSpan(
+                                text:
+                                    ' = ${NumberFormat.simpleCurrency(locale: locale).format(consumeTokens * 2e-2)}',
+                              ),
                             ],
                             style: TextStyle(
                               color: colorScheme.onInverseSurface,

@@ -21,6 +21,28 @@ extension CollectionDB on MyDB {
     writeToCloud(replacePlaceholders(expression, [id, name, index, userID]));
   }
 
+  void upsertCollection(CollectionMark mark) {
+    const upsert = '''
+    INSERT INTO collections (id, name, "index", color, icon, user_id)
+    VALUES (?, ?, ?, ?, ?, ?)
+    ON CONFLICT (id, user_id) DO UPDATE SET "index"=excluded."index", color=excluded.color, icon=excluded.icon
+''';
+    final userID = UserProvider().currentUser?.uid;
+    final data = [
+      mark.id,
+      mark.name,
+      mark.index,
+      mark.color,
+      mark.icon,
+      userID,
+    ];
+    final db = open(OpenMode.readWrite);
+    db
+      ..execute(upsert, data)
+      ..dispose();
+    writeToCloud(replacePlaceholders(upsert, data));
+  }
+
   void removeMark({required int id}) {
     const expression = 'DELETE FROM collections WHERE id=? AND user_id=?;';
     final userID = UserProvider().currentUser?.uid;
@@ -54,16 +76,6 @@ extension CollectionDB on MyDB {
     }
     db.dispose();
     return isSuccess;
-  }
-
-  void editMark({required int id, required int? icon, required int? color}) {
-    final expression = _updateExpression(['icon', 'color']);
-    final userID = UserProvider().currentUser?.uid;
-    final db = open(OpenMode.readWrite);
-    db
-      ..execute(expression, [icon, color, id, userID])
-      ..dispose();
-    writeToCloud(replacePlaceholders(expression, [icon, color, id, userID]));
   }
 
   void updateIndexes(Iterable<BookMark> marks) {
@@ -117,7 +129,8 @@ extension CollectionDB on MyDB {
   void addCollectWord(int wordID, {Iterable<int> markIDs = const [0]}) {
     if (markIDs.isEmpty) return;
     final userID = UserProvider().currentUser?.uid;
-    final expression = '''
+    final expression =
+        '''
       INSERT INTO collect_words (word_id, user_id, collection_id)
       VALUES ${markIDs.map((id) => "($wordID,'$userID',$id)").join(',')}
       ON CONFLICT DO NOTHING;
@@ -131,7 +144,8 @@ extension CollectionDB on MyDB {
 
   void removeCollectWord(int wordID, {Iterable<int> markIDs = const []}) {
     if (markIDs.isEmpty) return;
-    final expression = '''
+    final expression =
+        '''
     DELETE FROM collect_words 
     WHERE word_id=? AND user_id=? AND collection_id IN (${markIDs.map((id) => '?').join(',')})
     ''';

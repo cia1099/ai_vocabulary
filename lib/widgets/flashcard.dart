@@ -71,22 +71,20 @@ class _FlashcardState extends State<Flashcard>
                     gradient: widget.mark.gradient(context),
                   ),
                   child: InkWell(
-                    onTap:
-                        widget.dragEnabled
-                            ? null
-                            : () => Navigator.push(
-                              context,
-                              WordListRoute(
-                                wordIDs: MyDB().fetchWordIDsByMarkID(
-                                  widget.mark.id,
-                                ),
-                                builder:
-                                    (context, words) => FavoriteWordsPage(
-                                      mark: widget.mark,
-                                      words: words,
-                                    ),
+                    onTap: widget.dragEnabled
+                        ? null
+                        : () => Navigator.push(
+                            context,
+                            WordListRoute(
+                              wordIDs: MyDB().fetchWordIDsByMarkID(
+                                widget.mark.id,
+                              ),
+                              builder: (context, words) => FavoriteWordsPage(
+                                mark: widget.mark,
+                                words: words,
                               ),
                             ),
+                          ),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8.0),
                       child: Stack(
@@ -98,10 +96,10 @@ class _FlashcardState extends State<Flashcard>
                               child: Icon(
                                 widget.mark.icon != null
                                     ? IconData(
-                                      widget.mark.icon!,
-                                      fontFamily: 'CupertinoIcons',
-                                      fontPackage: 'cupertino_icons',
-                                    )
+                                        widget.mark.icon!,
+                                        fontFamily: 'CupertinoIcons',
+                                        fontPackage: 'cupertino_icons',
+                                      )
                                     : Icons.abc,
                                 size: 24 * 3,
                                 color: DefaultTextStyle.of(context).style.color,
@@ -133,63 +131,61 @@ class _FlashcardState extends State<Flashcard>
           final editName = TextEditingController(text: widget.mark.name);
           showCupertinoModalPopup(
             context: context,
-            builder:
-                (context) => PlatformAlertDialog(
-                  title: const Text('Rename the mark'),
-                  content: Form(
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                    // onChanged: () {
-                    //   if (!Form.of(primaryFocus!.context!).validate())
-                    //     editName.clear();
-                    // },
-                    child: CupertinoTextFormFieldRow(
-                      validator: (value) {
-                        if (value == null || value.isEmpty)
-                          return 'Mark cannot be anonymous';
-                        return null;
-                      },
-                      controller: editName,
-                      autofocus: true,
-                      minLines: 1,
-                      maxLines: 3,
-                      decoration: BoxDecoration(
-                        color: colorScheme.surfaceDim,
-                        borderRadius: BorderRadius.circular(
-                          kRadialReactionRadius / 2,
-                        ),
-                        border: Border.all(color: colorScheme.outlineVariant),
-                      ),
+            builder: (context) => PlatformAlertDialog(
+              title: const Text('Rename the mark'),
+              content: Form(
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                // onChanged: () {
+                //   if (!Form.of(primaryFocus!.context!).validate())
+                //     editName.clear();
+                // },
+                child: CupertinoTextFormFieldRow(
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Mark cannot be anonymous';
+                    }
+                    return null;
+                  },
+                  controller: editName,
+                  autofocus: true,
+                  minLines: 1,
+                  maxLines: 3,
+                  decoration: BoxDecoration(
+                    color: colorScheme.surfaceDim,
+                    borderRadius: BorderRadius.circular(
+                      kRadialReactionRadius / 2,
                     ),
+                    border: Border.all(color: colorScheme.outlineVariant),
                   ),
-                  actions: [
-                    PlatformDialogAction(
-                      onPressed: Navigator.of(context).pop,
-                      child: const Text('Cancel'),
-                    ),
-                    ListenableBuilder(
-                      listenable: editName,
-                      builder:
-                          (context, child) => PlatformDialogAction(
-                            onPressed:
-                                editName.text.isEmpty
-                                    ? null
-                                    : () {
-                                      Navigator.of(context).pop();
-                                      if (MyDB().renameMark(
-                                        id: widget.mark.id,
-                                        newName: editName.text,
-                                      )) {
-                                        setState(() {
-                                          widget.mark.name = editName.text;
-                                        });
-                                      }
-                                    },
-                            child: child,
-                          ),
-                      child: const Text('Done'),
-                    ),
-                  ],
                 ),
+              ),
+              actions: [
+                PlatformDialogAction(
+                  onPressed: Navigator.of(context).pop,
+                  child: const Text('Cancel'),
+                ),
+                ListenableBuilder(
+                  listenable: editName,
+                  builder: (context, child) => PlatformDialogAction(
+                    onPressed: editName.text.isEmpty
+                        ? null
+                        : () {
+                            Navigator.of(context).pop();
+                            if (MyDB().renameMark(
+                              id: widget.mark.id,
+                              newName: editName.text,
+                            )) {
+                              setState(() {
+                                widget.mark.name = editName.text;
+                              });
+                            }
+                          },
+                    child: child,
+                  ),
+                  child: const Text('Done'),
+                ),
+              ],
+            ),
           ).then((_) {
             if (mounted) Navigator.of(context).pop();
           });
@@ -198,8 +194,8 @@ class _FlashcardState extends State<Flashcard>
         child: const Text('Rename'),
       ),
       CupertinoContextMenuAction(
-        onPressed:
-            () => showCupertinoModalPopup<CollectionMark?>(
+        onPressed: () =>
+            showCupertinoModalPopup<CollectionMark?>(
               context: context,
               builder: (context) {
                 return SlideAppear(
@@ -212,11 +208,7 @@ class _FlashcardState extends State<Flashcard>
                   widget.mark.color = mark.color;
                   widget.mark.icon = mark.icon;
                 });
-                MyDB().editMark(
-                  id: mark.id,
-                  icon: mark.icon,
-                  color: mark.color,
-                );
+                MyDB().upsertCollection(mark);
               }
               if (mounted) Navigator.of(context).pop();
             }),
@@ -256,14 +248,14 @@ class _FlashcardState extends State<Flashcard>
           text.length,
           (i) => TextSpan(
             text: text[i],
-            style:
-                !matches.contains(i)
-                    ? null
-                    : TextStyle(
-                      backgroundColor:
-                          Theme.of(context).colorScheme.tertiaryContainer,
-                      color: Theme.of(context).colorScheme.onTertiaryContainer,
-                    ),
+            style: !matches.contains(i)
+                ? null
+                : TextStyle(
+                    backgroundColor: Theme.of(
+                      context,
+                    ).colorScheme.tertiaryContainer,
+                    color: Theme.of(context).colorScheme.onTertiaryContainer,
+                  ),
           ),
         ),
       ),
@@ -291,14 +283,13 @@ extension CardColors on CollectionMark {
     return color == null
         ? null
         : LinearGradient(
-          transform: GradientRotation(rotate),
-          colors:
-              brightness == Brightness.light
-                  ? [
+            transform: GradientRotation(rotate),
+            colors: brightness == Brightness.light
+                ? [
                     HSVColor.fromColor(Color(color!)).withValue(1).toColor(),
                     HSVColor.fromColor(Color(color!)).withValue(.75).toColor(),
                   ]
-                  : [
+                : [
                     HSVColor.fromColor(
                       Color(color!),
                     ).withSaturation(.5).toColor(),
@@ -306,6 +297,6 @@ extension CardColors on CollectionMark {
                       Color(color!),
                     ).withSaturation(.75).toColor(),
                   ],
-        );
+          );
   }
 }
