@@ -85,23 +85,23 @@ abstract class WordProvider {
 class RecommendProvider extends WordProvider {
   final BuildContext context;
   RecommendProvider({required this.context}) {
-    fetchStudyWords(0).whenComplete(() {
+    fetchStudyWords(0).onError(_completer.completeError).whenComplete(() {
       currentWord = _studyWords.firstOrNull;
-      _completer.complete(true);
+      if (!_completer.isCompleted) {
+        _completer.complete(true);
+      }
     });
-    // .onError(
-    //     (e, _) => _completer.completeError(TimeoutException(e.toString())));
   }
 
   static const kMaxLength = 10;
   var _fetchTime = 0;
-  Future<void> fetchStudyWords(int index) async {
+  Future<void> fetchStudyWords(int index, {bool isReset = false}) async {
     const initCount = 5;
     if (index % kMaxLength ~/ 2 != _fetchTime) return;
     final fetchTime = (_fetchTime + 1) % 5;
     final count = _studyWords.length < kMaxLength && fetchTime == 4
         ? 1
-        : _studyWords.isNotEmpty
+        : _studyWords.isNotEmpty && !isReset
         ? 2
         : initCount;
     await MyDB().isReady;
@@ -113,10 +113,14 @@ class RecommendProvider extends WordProvider {
       _studyWords.map((w) => w.wordId).toList() + reviewIDs,
       count,
     );
-    print(
-      'page = $index, fetchTime = $fetchTime, sampleIDs = ${requestIDs.join(', ')}',
-    );
-    // final words = await requestWords(requestIDs);
+    // print(
+    //   'page = $index, fetchTime = $fetchTime, sampleIDs = ${requestIDs.join(', ')}',
+    // );
+    // if (!_completer.isCompleted)
+    // await Future.delayed(
+    //   Duration(seconds: 1),
+    //   () => throw Exception('error happen'),
+    // );
     final candidateWords = (await Future.wait([
       requestWords(requestIDs),
       fetchWords(reviewIDs, take: count * 2),
@@ -131,16 +135,16 @@ class RecommendProvider extends WordProvider {
     final words = isCompletedReview
         ? candidateWords.take(count)
         : selector.sampleN(count);
-    MyDB().insertWords(
-      Stream.fromIterable(words.where((w) => requestIDs.contains(w.wordId))),
-    );
+    // MyDB().insertWords(
+    //   Stream.fromIterable(words.where((w) => requestIDs.contains(w.wordId))),
+    // );
+    if (isReset) _studyWords.clear();
 
     if (_studyWords.length < kMaxLength) {
       _studyWords.addAll(words);
-      // if (context.mounted)AppSettings.of(context).notifyListeners(); //cost too much
-      MyDB().notifyListeners();
+      if (_completer.isCompleted) MyDB().notifyListeners();
     } else {
-      final insertIndex = _fetchTime * 2;
+      final insertIndex = fetchTime * 2;
       _studyWords.replaceRange(insertIndex, insertIndex + 2, words);
     }
     //when request successfully, update _fetchTime
@@ -148,17 +152,25 @@ class RecommendProvider extends WordProvider {
   }
 
   Future<void> resetWords() async {
+    if (!_completer.isCompleted) return;
     _fetchTime = 0;
-    _studyWords.clear();
-    await fetchStudyWords(0);
+    await fetchStudyWords(0, isReset: true);
     currentWord = _studyWords.firstOrNull;
+    if (!await isReady.onError((_, _) => false)) {
+      //reset _completer to rebuild FutureBuilder
+      _completer = Completer<bool>()..complete(true);
+      // if (context.mounted) AppSettings.of(context).notifyListeners();
+    }
+  }
+
+  Future<void> bottomRequest() async {
+    return fetchStudyWords(_fetchTime * 2);
   }
 }
 
 class ReviewProvider extends WordProvider {
   ReviewProvider() {
-    fetchReviewWords();
-    // .onError((e, __) => _completer.completeError(e.toString()));
+    fetchReviewWords().onError(_completer.completeError);
   }
 
   Future<void> fetchReviewWords() async {
@@ -167,7 +179,10 @@ class ReviewProvider extends WordProvider {
       _completer = Completer<bool>();
     }
     final reviewIDs = MyDB().fetchReviewWordIDs();
-    final words = await fetchWords(reviewIDs);
+    final words = await fetchWords(reviewIDs).onError((e, st) {
+      _completer.completeError(e ?? Exception("Unknown error"), st);
+      return [];
+    });
     _studyWords
       ..clear()
       ..addAll(words);

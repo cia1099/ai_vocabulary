@@ -5,9 +5,8 @@ import 'package:ai_vocabulary/pages/navigation_page.dart';
 import 'package:ai_vocabulary/pages/quiz_shuttle.dart';
 import 'package:ai_vocabulary/provider/word_provider.dart';
 import 'package:ai_vocabulary/utils/gesture_route_page.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -19,10 +18,9 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   var tabIndex = 0;
   late final Widget child = NavigationPage(
-    onTabChanged:
-        (index) => setState(() {
-          tabIndex = index;
-        }),
+    onTabChanged: (index) => setState(() {
+      tabIndex = index;
+    }),
   );
   @override
   Widget build(BuildContext context) {
@@ -47,10 +45,20 @@ class SecondPage extends StatelessWidget {
       builder: (context, snapshot) {
         if (snapshot.data == null) {
           return PlatformScaffold(
-            body: Center(
-              child: SpinKitFadingCircle(
-                color: Theme.of(context).colorScheme.secondary,
+            appBar: PlatformAppBar(
+              leading: CupertinoNavigationBarBackButton(
+                onPressed: Navigator.of(context).pop,
+                previousPageTitle: 'Back',
               ),
+            ),
+            body: Center(
+              child: Text(
+                "There is no word can be quized",
+                style: CupertinoTheme.of(context).textTheme.navTitleTextStyle,
+              ),
+              // SpinKitFadingCircle(
+              //   color: Theme.of(context).colorScheme.secondary,
+              // ),
             ),
           );
         }

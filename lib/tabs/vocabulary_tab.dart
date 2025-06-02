@@ -4,6 +4,8 @@ import 'package:ai_vocabulary/database/my_db.dart';
 import 'package:ai_vocabulary/effects/refreshed_scroller.dart';
 import 'package:ai_vocabulary/pages/slider_page.dart';
 import 'package:ai_vocabulary/provider/word_provider.dart';
+import 'package:ai_vocabulary/utils/handle_except.dart';
+import 'package:ai_vocabulary/utils/shortcut.dart';
 import 'package:ai_vocabulary/widgets/entry_actions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
@@ -61,9 +63,10 @@ class _VocabularyTabState extends State<VocabularyTab>
               pageController.jumpTo(shift);
             }
           },
-          child: Stack(
+          child: Column(
             children: [
-              Positioned.fill(
+              StudyBoard(),
+              Expanded(
                 child: PageView(
                   // key: PageStorageKey(pageController),
                   controller: pageController,
@@ -79,21 +82,25 @@ class _VocabularyTabState extends State<VocabularyTab>
                     sliders(provider: review),
                     RefreshedScroller(
                       controller: recommend.pageController,
-                      refresh: (atTop) {
+                      refresh: (atTop) async {
+                        final hasError = !await recommend.isReady.onError(
+                          (_, _) => false,
+                        );
+                        registerFunc() => hasError ? setState(() {}) : null;
                         if (atTop) {
-                          // return Future.delayed(
-                          //   Durations.extralong1,
-                          // );
-                          return recommend.resetWords();
+                          return recommend.resetWords().whenComplete(
+                            registerFunc,
+                          );
                         }
-                        return recommend.fetchStudyWords(recommend.length - 1);
+
+                        return hasError ? null : recommend.bottomRequest();
                       },
+                      bottomAlignment: Alignment(0, .9),
                       child: sliders(provider: recommend),
                     ),
                   ],
                 ),
               ),
-              const Align(alignment: Alignment(0, -1), child: StudyBoard()),
             ],
           ),
         ),
@@ -105,22 +112,7 @@ class _VocabularyTabState extends State<VocabularyTab>
     return FutureBuilder(
       future: provider.isReady,
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(
-            child: SpinKitFadingCircle(
-              color: Theme.of(context).colorScheme.secondary,
-            ),
-          );
-        }
-        if (provider.length == 0) {
-          return const Center(
-            child: Text(
-              "You don't have to do review",
-              textAlign: TextAlign.center,
-              textScaler: TextScaler.linear(2.5),
-            ),
-          );
-        }
+        final loading = loadingSlider(snapshot, provider);
         return ListenableBuilder(
           listenable: MyDB(),
           builder: (context, child) => PageView.builder(
@@ -136,26 +128,22 @@ class _VocabularyTabState extends State<VocabularyTab>
               // provider.currentWord = provider[index % provider.length];
               // provider.clozeSeed = rng.nextInt(256);
               if (provider is RecommendProvider) {
-                provider.fetchStudyWords(index);
-                //TODO onError handle http failure
-                //     .whenComplete(() {
-                //   print('provider = ${provider.map((e) => e.wordId).join(', ')}');
-                //   //   print('words = ${provider.map((e) => e.word).join(', ')}');
-                // });
-                if (index == RecommendProvider.kMaxLength) {
-                  Future.delayed(Durations.extralong4, () {
-                    setState(() {
-                      provider.pageController.jumpToPage(0);
-                    });
-                  });
-                } else if (index > 0 &&
-                    provider.pageController.position.atEdge) {
-                  //TODO: fetch http request error
-                  print('at max page');
-                }
+                provider
+                    .fetchStudyWords(index)
+                    .then((_) {
+                      if (index == RecommendProvider.kMaxLength) {
+                        Future.delayed(Durations.long2, () {
+                          provider.pageController.jumpToPage(0);
+                        });
+                      } else if (index == provider.length) {
+                        print('at max page');
+                      }
+                    })
+                    .catchError((_) {});
               }
             },
             itemBuilder: (context, index) {
+              if (loading != null) return loading;
               final i = index % provider.length;
               final word = provider[i];
               provider.currentWord = word;
@@ -163,11 +151,46 @@ class _VocabularyTabState extends State<VocabularyTab>
               return SliderPage(key: ValueKey(word.wordId), word: word);
             },
             itemCount:
-                provider.length + (provider is RecommendProvider ? 1 : 0),
+                (provider.length + (provider is RecommendProvider ? 1 : 0))
+                    .clamp(1, kMaxInt64),
           ),
         );
       },
     );
+  }
+
+  Widget? loadingSlider(AsyncSnapshot snapshot, WordProvider provider) {
+    if (snapshot.connectionState == ConnectionState.waiting) {
+      return Center(
+        child: SpinKitFadingCircle(
+          color: Theme.of(context).colorScheme.secondary,
+        ),
+      );
+    } else if (snapshot.hasError) {
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        spacing: 8,
+        children: [
+          Text(
+            messageExceptions(snapshot.error),
+            style: Theme.of(context).textTheme.titleLarge?.apply(
+              color: Theme.of(context).colorScheme.error,
+            ),
+          ),
+          Text("Scroll up to refresh the page."),
+        ],
+      );
+    }
+    if (provider.length == 0) {
+      return const Center(
+        child: Text(
+          "You don't have to do review",
+          textAlign: TextAlign.center,
+          textScaler: TextScaler.linear(2.5),
+        ),
+      );
+    }
+    return null;
   }
 
   @override

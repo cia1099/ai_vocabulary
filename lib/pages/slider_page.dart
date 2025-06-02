@@ -12,9 +12,9 @@ import 'package:ai_vocabulary/widgets/slider_title.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
+import 'package:path/path.dart' as p;
 import 'package:speech_record/speech_record.dart';
 import 'package:text2speech/text2speech.dart';
-import 'package:path/path.dart' as p;
 
 import '../model/vocabulary.dart';
 import '../widgets/definition_sliders.dart';
@@ -74,7 +74,7 @@ class _SliderPageState extends State<SliderPage> {
       children: [
         Padding(
           padding: EdgeInsets.only(
-            top: 100 + hPadding + 16,
+            // top: 100 + hPadding + 16,
             left: hPadding,
             right: hPadding,
           ),
@@ -92,32 +92,29 @@ class _SliderPageState extends State<SliderPage> {
                 height: 80,
                 alignment: const Alignment(0, 0),
                 child: Wrap(
-                  children:
-                      phonetics
-                          .map(
-                            (p) => RichText(
-                              text: TextSpan(
-                                children: [
-                                  TextSpan(text: '\t' * 4),
-                                  TextSpan(text: p.phonetic),
-                                  TextSpan(text: '\t' * 2),
-                                  WidgetSpan(
-                                    child: GestureDetector(
-                                      onTap: playPhonetic(
-                                        p.audioUrl,
-                                        word: widget.word.word,
-                                      ),
-                                      child: const Icon(
-                                        CupertinoIcons.volume_up,
-                                      ),
-                                    ),
+                  children: phonetics
+                      .map(
+                        (p) => RichText(
+                          text: TextSpan(
+                            children: [
+                              TextSpan(text: '\t' * 4),
+                              TextSpan(text: p.phonetic),
+                              TextSpan(text: '\t' * 2),
+                              WidgetSpan(
+                                child: GestureDetector(
+                                  onTap: playPhonetic(
+                                    p.audioUrl,
+                                    word: widget.word.word,
                                   ),
-                                ],
-                                style: textTheme.titleLarge,
+                                  child: const Icon(CupertinoIcons.volume_up),
+                                ),
                               ),
-                            ),
-                          )
-                          .toList(),
+                            ],
+                            style: textTheme.titleLarge,
+                          ),
+                        ),
+                      )
+                      .toList(),
                 ),
               ),
               //#end height=250
@@ -148,10 +145,8 @@ class _SliderPageState extends State<SliderPage> {
           right: (screenWidth - 105 * 1.82) / 2,
           child: PhoneticButton(
             height: 105,
-            startRecordHint:
-                () => immediatelyPlay(
-                  'assets/sounds/speech_to_text_listening.m4r',
-                ),
+            startRecordHint: () =>
+                immediatelyPlay('assets/sounds/speech_to_text_listening.m4r'),
             doneRecord: (bytes) {
               bytesPlay(Uint8List.fromList(bytes), 'audio/wav');
               titleKey.currentState?.inputSpeech(bytes);
@@ -167,16 +162,15 @@ class _SliderPageState extends State<SliderPage> {
               width: screenWidth * .85,
               child: DefinitionSliders(
                 definitions: widget.word.definitions,
-                getMore:
-                    (h) => setState(() {
-                      defSliderHeight = h;
-                    }),
+                getMore: (h) => setState(() {
+                  defSliderHeight = h;
+                }),
               ),
             );
           },
         ),
         Align(
-          alignment: const Alignment(1, .25),
+          alignment: const Alignment(1, 0),
           child: FractionallySizedBox(
             widthFactor: .16,
             child: AspectRatio(
@@ -234,12 +228,11 @@ class _SliderPageState extends State<SliderPage> {
                   flipX: true,
                   child: Icon(CupertinoIcons.captions_bubble, size: iconSize),
                 ),
-                material:
-                    (_, __) => MaterialIconButtonData(
-                      style: IconButton.styleFrom(
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      ),
-                    ),
+                material: (_, __) => MaterialIconButtonData(
+                  style: IconButton.styleFrom(
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                ),
               ),
               FavoriteStar(wordID: widget.word.wordId, size: iconSize),
               PlatformIconButton(
@@ -250,12 +243,11 @@ class _SliderPageState extends State<SliderPage> {
                   transform: Matrix4.rotationY(pi),
                   child: Icon(CupertinoIcons.reply, size: iconSize),
                 ),
-                material:
-                    (_, __) => MaterialIconButtonData(
-                      style: IconButton.styleFrom(
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      ),
-                    ),
+                material: (_, __) => MaterialIconButtonData(
+                  style: IconButton.styleFrom(
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                ),
               ),
               GestureDetector(
                 onTap: () => Navigator.pushNamed(context, AppRoute.vocabulary),

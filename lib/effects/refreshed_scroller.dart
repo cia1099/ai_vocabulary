@@ -10,12 +10,15 @@ class RefreshedScroller extends StatefulWidget {
   final ScrollController controller;
   final Widget child;
   final Future<void> Function(bool atTop) refresh;
+  final Alignment? bottomAlignment, topAlignment;
   const RefreshedScroller({
     super.key,
     required this.controller,
     required this.child,
     required this.refresh,
     this.thresholdExtent = 125,
+    this.bottomAlignment,
+    this.topAlignment,
   });
 
   @override
@@ -34,7 +37,7 @@ class _RefreshedScrollerState extends State<RefreshedScroller> {
       children: [
         Positioned.fill(child: widget.child),
         Align(
-          alignment: Alignment(0, -1),
+          alignment: widget.topAlignment ?? Alignment(0, -1),
           child: StreamBuilder(
             stream: stream,
             builder: (context, snapshot) {
@@ -46,7 +49,7 @@ class _RefreshedScrollerState extends State<RefreshedScroller> {
           ),
         ),
         Align(
-          alignment: Alignment(0, 1),
+          alignment: widget.bottomAlignment ?? Alignment(0, 1),
           child: StreamBuilder(
             stream: stream,
             builder: (context, snapshot) {
@@ -127,13 +130,13 @@ enum _RefreshAt { top, bottom }
 void main() {
   runApp(
     CupertinoApp(
-      home: CupertinoPageScaffold(child: SafeArea(child: _Home())),
+      home: CupertinoPageScaffold(child: SafeArea(child: _Example())),
     ),
   );
 }
 
-class _Home extends StatelessWidget {
-  const _Home();
+class _Example extends StatelessWidget {
+  const _Example();
 
   @override
   Widget build(BuildContext context) {
