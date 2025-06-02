@@ -435,5 +435,5 @@ extension on StudyCount {
 const _tokenListDo = [
   "Engage in conversations with AI to practice using words by constructing sentences.",
   "Visualize examples into vivid pictures to impress yourself.",
-  "Access supplementary and educational resources to enhance your learning experience.",
+  "Purchase supplementary and educational resources to enhance your learning experience.",
 ];

@@ -98,13 +98,12 @@ class RecommendProvider extends WordProvider {
   Future<void> fetchStudyWords(int index) async {
     const initCount = 5;
     if (index % kMaxLength ~/ 2 != _fetchTime) return;
-    _fetchTime = ++_fetchTime % 5;
-    final count =
-        _studyWords.length < kMaxLength && _fetchTime == 4
-            ? 1
-            : _studyWords.isNotEmpty
-            ? 2
-            : initCount;
+    final fetchTime = (_fetchTime + 1) % 5;
+    final count = _studyWords.length < kMaxLength && fetchTime == 4
+        ? 1
+        : _studyWords.isNotEmpty
+        ? 2
+        : initCount;
     await MyDB().isReady;
     final reviewIDs = MyDB().fetchReviewWordIDs().toList();
     reviewIDs.removeWhere(
@@ -114,8 +113,9 @@ class RecommendProvider extends WordProvider {
       _studyWords.map((w) => w.wordId).toList() + reviewIDs,
       count,
     );
-    // print(
-    //     'page = $index, fetchTime = $_fetchTime, sampleIDs = ${requestIDs.join(', ')}');
+    print(
+      'page = $index, fetchTime = $fetchTime, sampleIDs = ${requestIDs.join(', ')}',
+    );
     // final words = await requestWords(requestIDs);
     final candidateWords = (await Future.wait([
       requestWords(requestIDs),
@@ -128,21 +128,30 @@ class RecommendProvider extends WordProvider {
       candidateWords,
       candidateWords.map((w) => 1 - calculateRetention(w)),
     );
-    final words =
-        isCompletedReview
-            ? candidateWords.take(count)
-            : selector.sampleN(count);
+    final words = isCompletedReview
+        ? candidateWords.take(count)
+        : selector.sampleN(count);
     MyDB().insertWords(
       Stream.fromIterable(words.where((w) => requestIDs.contains(w.wordId))),
     );
 
     if (_studyWords.length < kMaxLength) {
       _studyWords.addAll(words);
-      if (context.mounted) AppSettings.of(context).notifyListeners();
+      // if (context.mounted)AppSettings.of(context).notifyListeners(); //cost too much
+      MyDB().notifyListeners();
     } else {
       final insertIndex = _fetchTime * 2;
       _studyWords.replaceRange(insertIndex, insertIndex + 2, words);
     }
+    //when request successfully, update _fetchTime
+    _fetchTime = fetchTime;
+  }
+
+  Future<void> resetWords() async {
+    _fetchTime = 0;
+    _studyWords.clear();
+    await fetchStudyWords(0);
+    currentWord = _studyWords.firstOrNull;
   }
 }
 

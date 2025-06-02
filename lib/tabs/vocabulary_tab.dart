@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:ai_vocabulary/database/my_db.dart';
+import 'package:ai_vocabulary/effects/refreshed_scroller.dart';
 import 'package:ai_vocabulary/pages/slider_page.dart';
 import 'package:ai_vocabulary/provider/word_provider.dart';
 import 'package:ai_vocabulary/widgets/entry_actions.dart';
@@ -39,12 +40,14 @@ class _VocabularyTabState extends State<VocabularyTab>
           controller: tabController,
           tabAlignment: TabAlignment.center,
           dividerColor: const Color(0x00000000),
-          tabs: const [Tab(text: 'Review'), Tab(text: 'Recommend')],
+          tabs: const [
+            Tab(text: 'Review'),
+            Tab(text: 'Recommend'),
+          ],
         ),
         trailingActions: const [EntryActions()],
-        cupertino:
-            (_, __) =>
-                CupertinoNavigationBarData(transitionBetweenRoutes: false),
+        cupertino: (_, __) =>
+            CupertinoNavigationBarData(transitionBetweenRoutes: false),
         material: (_, _) => MaterialAppBarData(centerTitle: true),
       ),
       body: SafeArea(
@@ -67,13 +70,26 @@ class _VocabularyTabState extends State<VocabularyTab>
                   onPageChanged: (value) {
                     tabController.animateTo(value);
                     widget.onTabChanged?.call((value + 1) & 1);
-                    AppSettings.of(context).wordProvider =
-                        value == 0 ? review : recommend;
+                    AppSettings.of(context).wordProvider = value == 0
+                        ? review
+                        : recommend;
                   },
                   physics: const NeverScrollableScrollPhysics(),
                   children: [
                     sliders(provider: review),
-                    sliders(provider: recommend),
+                    RefreshedScroller(
+                      controller: recommend.pageController,
+                      refresh: (atTop) {
+                        if (atTop) {
+                          // return Future.delayed(
+                          //   Durations.extralong1,
+                          // );
+                          return recommend.resetWords();
+                        }
+                        return recommend.fetchStudyWords(recommend.length - 1);
+                      },
+                      child: sliders(provider: recommend),
+                    ),
                   ],
                 ),
               ),
@@ -107,46 +123,48 @@ class _VocabularyTabState extends State<VocabularyTab>
         }
         return ListenableBuilder(
           listenable: MyDB(),
-          builder:
-              (context, child) => PageView.builder(
-                // key: PageStorageKey(provider),
-                findChildIndexCallback:
-                    (key) => provider.indexWhere(
-                      (w) => w.wordId == (key as ValueKey).value,
-                    ),
-                scrollDirection: Axis.vertical,
-                controller: provider.pageController,
-                onPageChanged: (index) {
-                  provider.currentWord = provider[index % provider.length];
-                  provider.clozeSeed = rng.nextInt(256);
-                  if (provider is RecommendProvider) {
-                    provider.fetchStudyWords(index);
-                    //TODO onError handle http failure
-                    //     .whenComplete(() {
-                    //   print('provider = ${provider.map((e) => e.wordId).join(', ')}');
-                    //   //   print('words = ${provider.map((e) => e.word).join(', ')}');
-                    // });
-                    if (index == RecommendProvider.kMaxLength) {
-                      Future.delayed(Durations.extralong4, () {
-                        setState(() {
-                          provider.pageController.jumpToPage(0);
-                        });
-                      });
-                    } else if (index > 0 &&
-                        provider.pageController.position.atEdge) {
-                      //TODO: fetch http request error
-                      print('at max page');
-                    }
-                  }
-                },
-                itemBuilder: (context, index) {
-                  final i = index % provider.length;
-                  final word = provider[i];
-                  return SliderPage(key: ValueKey(word.wordId), word: word);
-                },
-                itemCount:
-                    provider.length + (provider is RecommendProvider ? 1 : 0),
-              ),
+          builder: (context, child) => PageView.builder(
+            // key: PageStorageKey(provider),
+            findChildIndexCallback: (key) =>
+                provider.indexWhere((w) => w.wordId == (key as ValueKey).value),
+            scrollDirection: Axis.vertical,
+            physics: AlwaysScrollableScrollPhysics(
+              parent: BouncingScrollPhysics(),
+            ),
+            controller: provider.pageController,
+            onPageChanged: (index) {
+              // provider.currentWord = provider[index % provider.length];
+              // provider.clozeSeed = rng.nextInt(256);
+              if (provider is RecommendProvider) {
+                provider.fetchStudyWords(index);
+                //TODO onError handle http failure
+                //     .whenComplete(() {
+                //   print('provider = ${provider.map((e) => e.wordId).join(', ')}');
+                //   //   print('words = ${provider.map((e) => e.word).join(', ')}');
+                // });
+                if (index == RecommendProvider.kMaxLength) {
+                  Future.delayed(Durations.extralong4, () {
+                    setState(() {
+                      provider.pageController.jumpToPage(0);
+                    });
+                  });
+                } else if (index > 0 &&
+                    provider.pageController.position.atEdge) {
+                  //TODO: fetch http request error
+                  print('at max page');
+                }
+              }
+            },
+            itemBuilder: (context, index) {
+              final i = index % provider.length;
+              final word = provider[i];
+              provider.currentWord = word;
+              provider.clozeSeed = rng.nextInt(256);
+              return SliderPage(key: ValueKey(word.wordId), word: word);
+            },
+            itemCount:
+                provider.length + (provider is RecommendProvider ? 1 : 0),
+          ),
         );
       },
     );

@@ -1,7 +1,6 @@
 import 'package:ai_vocabulary/app_route.dart';
 import 'package:ai_vocabulary/pages/auth_page.dart';
 import 'package:firebase_core/firebase_core.dart';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
@@ -51,83 +50,75 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return PlatformProvider(
       settings: PlatformSettingsData(iosUsesMaterialWidgets: true),
-      builder:
-          (context) => PlatformTheme(
-            materialLightTheme: appTheme,
-            //TODO: apply global fontsize scale
-            // .copyWith(textTheme: Theme.of(context).textTheme.apply(fontSizeFactor: 1.2)),
-            builder:
-                (context) => PlatformApp(
-                  cupertino:
-                      (context, platform) => CupertinoAppData(
-                        theme: MaterialBasedCupertinoThemeData(
-                          materialTheme: Theme.of(context).copyWith(
-                            cupertinoOverrideTheme: CupertinoThemeData(
-                              applyThemeToAll: true,
-                              textTheme: CupertinoTextThemeData(
-                                navActionTextStyle: CupertinoTheme.of(
-                                  context,
-                                ).textTheme.actionTextStyle.apply(
-                                  color:
-                                      appTheme.colorScheme.onPrimaryContainer,
-                                ),
-                              ),
-                              // primaryColor: appTheme.colorScheme.primary,
-                              barBackgroundColor:
-                                  appTheme.colorScheme.primaryContainer,
-                            ),
-                          ),
-                        ),
-                      ),
-                  title: 'AI Vocabulary App',
-                  localizationsDelegates: const [
-                    DefaultMaterialLocalizations.delegate,
-                    DefaultWidgetsLocalizations.delegate,
-                    DefaultCupertinoLocalizations.delegate,
-                  ],
-                  onGenerateRoute:
-                      (settings) => AppRoute(
-                        settings: settings,
-                        barrierColor: (kCupertinoModalBarrierColor
-                                as CupertinoDynamicColor)
-                            .resolveFrom(context),
-                      ),
-                  // initialRoute: AppRoute.login,
-                  home: AuthPage(),
-                  // home: Builder(
-                  //   builder: (context) {
-                  //     return PlatformScaffold(
-                  //       body: Center(
-                  //         child: Column(
-                  //           mainAxisAlignment: MainAxisAlignment.center,
-                  //           children: [
-                  //             // PunchCalendar(),
-                  //             CupertinoButton.filled(
-                  //               onPressed: () {},
-                  //               // appearAward(context, 'apple'),
-                  //               // showPlatformModalSheet(
-                  //               //   context: context,
-                  //               //   builder:
-                  //               //       (context) =>
-                  //               //           const ManageCollectionSheet(
-                  //               //             wordID: 830,
-                  //               //           ),
-                  //               //   material: MaterialModalSheetData(
-                  //               //     backgroundColor: Colors.transparent,
-                  //               //     scrollControlDisabledMaxHeightRatio: 1,
-                  //               //     isDismissible: false,
-                  //               //   ),
-                  //               // ),
-                  //               child: Text('Go Route!'),
-                  //             ),
-                  //           ],
-                  //         ),
-                  //       ),
-                  //     );
-                  //   },
-                  // ),
+      builder: (context) => PlatformTheme(
+        materialLightTheme: appTheme,
+        //TODO: apply global fontsize scale
+        // .copyWith(textTheme: Theme.of(context).textTheme.apply(fontSizeFactor: 1.2)),
+        builder: (context) => PlatformApp(
+          cupertino: (context, platform) => CupertinoAppData(
+            theme: MaterialBasedCupertinoThemeData(
+              materialTheme: Theme.of(context).copyWith(
+                cupertinoOverrideTheme: CupertinoThemeData(
+                  applyThemeToAll: true,
+                  textTheme: CupertinoTextThemeData(
+                    navActionTextStyle: CupertinoTheme.of(context)
+                        .textTheme
+                        .actionTextStyle
+                        .apply(color: appTheme.colorScheme.onPrimaryContainer),
+                  ),
+                  // primaryColor: appTheme.colorScheme.primary,
+                  barBackgroundColor: appTheme.colorScheme.primaryContainer,
                 ),
+              ),
+            ),
           ),
+          title: 'AI Vocabulary App',
+          localizationsDelegates: const [
+            DefaultMaterialLocalizations.delegate,
+            DefaultWidgetsLocalizations.delegate,
+            DefaultCupertinoLocalizations.delegate,
+          ],
+          onGenerateRoute: (settings) => AppRoute(
+            settings: settings,
+            barrierColor: (kCupertinoModalBarrierColor as CupertinoDynamicColor)
+                .resolveFrom(context),
+          ),
+          // initialRoute: AppRoute.login,
+          home: AuthPage(),
+          // home: Builder(
+          //   builder: (context) {
+          //     return PlatformScaffold(
+          //       body: Center(
+          //         child: Column(
+          //           mainAxisAlignment: MainAxisAlignment.center,
+          //           children: [
+          //             // PunchCalendar(),
+          //             CupertinoButton.filled(
+          //               onPressed: () {},
+          //               // appearAward(context, 'apple'),
+          //               // showPlatformModalSheet(
+          //               //   context: context,
+          //               //   builder:
+          //               //       (context) =>
+          //               //           const ManageCollectionSheet(
+          //               //             wordID: 830,
+          //               //           ),
+          //               //   material: MaterialModalSheetData(
+          //               //     backgroundColor: Colors.transparent,
+          //               //     scrollControlDisabledMaxHeightRatio: 1,
+          //               //     isDismissible: false,
+          //               //   ),
+          //               // ),
+          //               child: Text('Go Route!'),
+          //             ),
+          //           ],
+          //         ),
+          //       ),
+          //     );
+          //   },
+          // ),
+        ),
+      ),
     );
   }
 
