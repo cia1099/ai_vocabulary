@@ -40,7 +40,7 @@ class _SliderPageState extends State<SliderPage> {
     final colorScheme = Theme.of(context).colorScheme;
     final screenWidth = MediaQuery.sizeOf(context).width;
     final hPadding = screenWidth / 32;
-    final phonetics = widget.word.getPhonetics(Accent.UK);
+    final phonetics = widget.word.getPhonetics(Accent.US);
     var defSliderHeight = DefinitionSliders.kDefaultHeight;
     if (acquaintance == null) {
       acquaintance = Acquaintance(

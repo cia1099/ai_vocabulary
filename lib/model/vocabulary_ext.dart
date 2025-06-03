@@ -1,14 +1,13 @@
 part of 'vocabulary.dart';
 
 extension VocabularyExtension on Vocabulary {
-  Iterable<String> get getInflection =>
-      definitions
-          .map((d) => (d.inflection ?? '').split(', '))
-          .reduce((d1, d2) => d1 + d2)
-          .expand((d) sync* {
-            if (d.isNotEmpty) yield d;
-          })
-          .toSet();
+  Iterable<String> get getInflection => definitions
+      .map((d) => (d.inflection ?? '').split(', '))
+      .reduce((d1, d2) => d1 + d2)
+      .expand((d) sync* {
+        if (d.isNotEmpty) yield d;
+      })
+      .toSet();
 
   Iterable<String> get getMatchingPatterns {
     final selfExplainWord = definitions
@@ -61,10 +60,14 @@ extension VocabularyExtension on Vocabulary {
         final explain = d.explanations.map((e) => e.explain);
         final isExtra =
             explain.length == 1 && explain.first.split(' ').length == 1;
-        if (accent == Accent.US && d.phoneticUs != null && !isExtra) {
-          yield Phonetic(d.phoneticUs!, d.audioUs);
-        } else if (d.phoneticUk != null && !isExtra) {
-          yield Phonetic(d.phoneticUk!, d.audioUs);
+        if (!isExtra) {
+          final phoneme = accent == Accent.US
+              ? d.phoneticUs ?? d.phoneticUk
+              : d.phoneticUk ?? d.phoneticUs;
+          final audio = accent == Accent.US
+              ? d.audioUs ?? d.audioUk
+              : d.audioUk ?? d.audioUs;
+          if (phoneme != null) yield Phonetic(phoneme, audio);
         }
       });
 

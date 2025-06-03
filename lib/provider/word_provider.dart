@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:ai_vocabulary/utils/function.dart';
+import 'package:ai_vocabulary/utils/load_word_route.dart' show loadWordList;
 import 'package:ai_vocabulary/utils/shortcut.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -117,10 +118,10 @@ class RecommendProvider extends WordProvider {
     //   'page = $index, fetchTime = $fetchTime, sampleIDs = ${requestIDs.join(', ')}',
     // );
     // if (!_completer.isCompleted)
-    // await Future.delayed(
-    //   Duration(seconds: 1),
-    //   () => throw Exception('error happen'),
-    // );
+    //   await Future.delayed(
+    //     Duration(seconds: 1),
+    //     () => throw Exception('error happen'),
+    //   );
     final candidateWords = (await Future.wait([
       requestWords(requestIDs),
       fetchWords(reviewIDs, take: count * 2),
@@ -135,9 +136,9 @@ class RecommendProvider extends WordProvider {
     final words = isCompletedReview
         ? candidateWords.take(count)
         : selector.sampleN(count);
-    // MyDB().insertWords(
-    //   Stream.fromIterable(words.where((w) => requestIDs.contains(w.wordId))),
-    // );
+    MyDB().insertWords(
+      Stream.fromIterable(words.where((w) => requestIDs.contains(w.wordId))),
+    );
     if (isReset) _studyWords.clear();
 
     if (_studyWords.length < kMaxLength) {
@@ -155,11 +156,10 @@ class RecommendProvider extends WordProvider {
     if (!_completer.isCompleted) return;
     _fetchTime = 0;
     await fetchStudyWords(0, isReset: true);
-    currentWord = _studyWords.firstOrNull;
+    // currentWord = _studyWords.firstOrNull; //PageView itemBuilder has set currentWord
     if (!await isReady.onError((_, _) => false)) {
-      //reset _completer to rebuild FutureBuilder
+      //reset _completer to rebuild FutureBuilder to replace initialized error
       _completer = Completer<bool>()..complete(true);
-      // if (context.mounted) AppSettings.of(context).notifyListeners();
     }
   }
 
@@ -169,25 +169,27 @@ class RecommendProvider extends WordProvider {
 }
 
 class ReviewProvider extends WordProvider {
-  ReviewProvider() {
-    fetchReviewWords().onError(_completer.completeError);
+  final Iterable<int>? reviewIDs;
+  ReviewProvider([this.reviewIDs]) {
+    fetchReviewWords().onError(_completer.completeError).whenComplete(() {
+      if (!_completer.isCompleted) {
+        _completer.complete(true);
+      }
+    });
   }
 
   Future<void> fetchReviewWords() async {
     await MyDB().isReady;
-    if (_completer.isCompleted) {
-      _completer = Completer<bool>();
-    }
-    final reviewIDs = MyDB().fetchReviewWordIDs();
-    final words = await fetchWords(reviewIDs).onError((e, st) {
-      _completer.completeError(e ?? Exception("Unknown error"), st);
-      return [];
-    });
+    final requireIDs = reviewIDs ?? MyDB().fetchReviewWordIDs();
+    final words = await fetchWords(requireIDs);
     _studyWords
       ..clear()
       ..addAll(words);
-    currentWord = _studyWords.firstOrNull;
-    _completer.complete(true);
+    // currentWord = _studyWords.firstOrNull; //PageView itemBuilder has set currentWord
+    if (_completer.isCompleted && !await isReady.onError((_, _) => false)) {
+      //reset initialized error
+      _completer = Completer<bool>()..complete(true);
+    }
   }
 }
 
@@ -216,8 +218,11 @@ Future<List<Vocabulary>> requestWords(Set<int> wordIds) async {
   return words;
 }
 
-Future<List<Vocabulary>> fetchWords(Iterable<int> wordIds, {int? take}) async {
-  final words = await compute(sortByRetention, MyDB().fetchWords(wordIds));
+Future<List<Vocabulary>> fetchWords(Iterable<int> wordIDs, {int? take}) async {
+  final words = await compute(
+    sortByRetention,
+    await loadWordList(wordIDs).last,
+  );
   return words.sublist(0, take?.clamp(0, words.length));
 }
 

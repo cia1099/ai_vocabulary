@@ -79,7 +79,21 @@ class _VocabularyTabState extends State<VocabularyTab>
                   },
                   physics: const NeverScrollableScrollPhysics(),
                   children: [
-                    sliders(provider: review),
+                    RefreshedScroller(
+                      controller: review.pageController,
+                      refresh: (atTop) async {
+                        final hasError = !await review.isReady.onError(
+                          (_, _) => false,
+                        );
+                        registerFunc() => hasError
+                            ? setState(() {})
+                            : MyDB().notifyListeners();
+                        return review.fetchReviewWords().whenComplete(
+                          registerFunc,
+                        );
+                      },
+                      child: sliders(provider: review),
+                    ),
                     RefreshedScroller(
                       controller: recommend.pageController,
                       refresh: (atTop) async {
@@ -112,7 +126,6 @@ class _VocabularyTabState extends State<VocabularyTab>
     return FutureBuilder(
       future: provider.isReady,
       builder: (context, snapshot) {
-        final loading = loadingSlider(snapshot, provider);
         return ListenableBuilder(
           listenable: MyDB(),
           builder: (context, child) => PageView.builder(
@@ -143,7 +156,8 @@ class _VocabularyTabState extends State<VocabularyTab>
               }
             },
             itemBuilder: (context, index) {
-              if (loading != null) return loading;
+              final error = verifyProvider(snapshot, provider);
+              if (error != null) return error;
               final i = index % provider.length;
               final word = provider[i];
               provider.currentWord = word;
@@ -159,7 +173,7 @@ class _VocabularyTabState extends State<VocabularyTab>
     );
   }
 
-  Widget? loadingSlider(AsyncSnapshot snapshot, WordProvider provider) {
+  Widget? verifyProvider(AsyncSnapshot snapshot, WordProvider provider) {
     if (snapshot.connectionState == ConnectionState.waiting) {
       return Center(
         child: SpinKitFadingCircle(
@@ -182,11 +196,11 @@ class _VocabularyTabState extends State<VocabularyTab>
       );
     }
     if (provider.length == 0) {
-      return const Center(
+      return Center(
         child: Text(
-          "You don't have to do review",
+          "You don't have to do review now",
           textAlign: TextAlign.center,
-          textScaler: TextScaler.linear(2.5),
+          style: Theme.of(context).textTheme.titleLarge,
         ),
       );
     }
