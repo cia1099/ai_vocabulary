@@ -34,20 +34,17 @@ class WordListPage extends StatelessWidget {
     final reachTarget = ModalRoute.of(context)?.settings.arguments as bool?;
     return PlatformScaffold(
       appBar: PlatformAppBar(
-        leading:
-            nextTap == null
-                ? null
-                : CupertinoNavigationBarBackButton(onPressed: nextTap),
+        leading: nextTap == null
+            ? null
+            : CupertinoNavigationBarBackButton(onPressed: nextTap),
         title: Text(title),
         backgroundColor: colorScheme.primaryContainer,
-        cupertino:
-            (_, __) =>
-                CupertinoNavigationBarData(trailing: const EntryActions()),
-        material:
-            (_, __) => MaterialAppBarData(
-              backgroundColor: colorScheme.inversePrimary,
-              actions: [const EntryActions()],
-            ),
+        cupertino: (_, __) =>
+            CupertinoNavigationBarData(trailing: const EntryActions()),
+        material: (_, __) => MaterialAppBarData(
+          backgroundColor: colorScheme.inversePrimary,
+          actions: [const EntryActions()],
+        ),
       ),
       body: SafeArea(
         child: Stack(
@@ -63,7 +60,7 @@ class WordListPage extends StatelessWidget {
               itemBuilder: (context, index) {
                 // if (index >= words.length) return const SizedBox();
                 final word = words[index];
-                final phonetics = word.getPhonetics();
+                final phonetics = word.getPhonetics(accent);
                 var fTranslate = word.requireSpeechAndTranslation(locate);
                 return Column(
                   children: [
@@ -146,13 +143,12 @@ class WordListPage extends StatelessWidget {
                                             right: 4,
                                           ),
                                           child: GestureDetector(
-                                            onTap:
-                                                () => setState(() {
-                                                  fTranslate = word
-                                                      .requireSpeechAndTranslation(
-                                                        locate,
-                                                      );
-                                                }),
+                                            onTap: () => setState(() {
+                                              fTranslate = word
+                                                  .requireSpeechAndTranslation(
+                                                    locate,
+                                                  );
+                                            }),
                                             child: Icon(
                                               PlatformIcons(context).refresh,
                                             ),
@@ -160,22 +156,18 @@ class WordListPage extends StatelessWidget {
                                         ),
                                       ),
                                     TextSpan(
-                                      text:
-                                          snapshot.hasError
-                                              ? messageExceptions(
-                                                snapshot.error,
-                                              )
-                                              : snapshot.data,
+                                      text: snapshot.hasError
+                                          ? messageExceptions(snapshot.error)
+                                          : snapshot.data,
                                     ),
                                   ],
                                 ),
                                 maxLines: words.length < 10 ? 2 : 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: textTheme.bodyLarge?.apply(
-                                  color:
-                                      snapshot.hasError
-                                          ? colorScheme.error
-                                          : null,
+                                  color: snapshot.hasError
+                                      ? colorScheme.error
+                                      : null,
                                 ),
                               );
                             },
@@ -190,16 +182,15 @@ class WordListPage extends StatelessWidget {
                       //               style: textTheme.bodyLarge,
                       //             ))
                       //         .toList()),
-                      onTap:
-                          () => Navigator.of(context).push(
-                            platformPageRoute(
-                              context: context,
-                              builder: (context) => VocabularyPage(word: word),
-                              settings: const RouteSettings(
-                                name: AppRoute.vocabulary,
-                              ),
-                            ),
+                      onTap: () => Navigator.of(context).push(
+                        platformPageRoute(
+                          context: context,
+                          builder: (context) => VocabularyPage(word: word),
+                          settings: const RouteSettings(
+                            name: AppRoute.vocabulary,
                           ),
+                        ),
+                      ),
                     ),
                   ],
                 );

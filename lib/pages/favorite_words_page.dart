@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+
 import 'package:ai_vocabulary/app_settings.dart';
 import 'package:ai_vocabulary/database/my_db.dart';
 import 'package:ai_vocabulary/model/collections.dart';
@@ -105,50 +106,48 @@ class _FavoriteWordsPageState extends State<FavoriteWordsPage> {
                           PlatformSliverAppBar(
                             stretch: true,
                             backgroundColor: appBarColor,
-                            material:
-                                (_, __) => MaterialSliverAppBarData(
-                                  pinned: true,
-                                  expandedHeight: kExpandedSliverAppBarHeight,
-                                  flexibleSpace: FlexibleSpaceBar(
-                                    title: Text(title),
-                                    titlePadding: const EdgeInsets.only(
-                                      left: 54,
-                                      bottom: 16,
+                            material: (_, __) => MaterialSliverAppBarData(
+                              pinned: true,
+                              expandedHeight: kExpandedSliverAppBarHeight,
+                              flexibleSpace: FlexibleSpaceBar(
+                                title: Text(title),
+                                titlePadding: const EdgeInsets.only(
+                                  left: 54,
+                                  bottom: 16,
+                                ),
+                                stretchModes: const [
+                                  StretchMode.zoomBackground,
+                                  StretchMode.blurBackground,
+                                  StretchMode.fadeTitle,
+                                ],
+                                background: FittedBox(
+                                  fit: BoxFit.contain,
+                                  child: ColorFiltered(
+                                    colorFilter: ColorFilter.mode(
+                                      Theme.of(
+                                        context,
+                                      ).iconTheme.color!.withAlpha(85),
+                                      BlendMode.modulate,
                                     ),
-                                    stretchModes: const [
-                                      StretchMode.zoomBackground,
-                                      StretchMode.blurBackground,
-                                      StretchMode.fadeTitle,
-                                    ],
-                                    background: FittedBox(
-                                      fit: BoxFit.contain,
-                                      child: ColorFiltered(
-                                        colorFilter: ColorFilter.mode(
-                                          Theme.of(
-                                            context,
-                                          ).iconTheme.color!.withAlpha(85),
-                                          BlendMode.modulate,
-                                        ),
-                                        child: Icon(
-                                          widget.mark.icon == null
-                                              ? Icons.abc
-                                              : IconData(
-                                                widget.mark.icon!,
-                                                fontFamily: 'CupertinoIcons',
-                                                fontPackage: 'cupertino_icons',
-                                              ),
-                                        ),
-                                      ),
+                                    child: Icon(
+                                      widget.mark.icon == null
+                                          ? Icons.abc
+                                          : IconData(
+                                              widget.mark.icon!,
+                                              fontFamily: 'CupertinoIcons',
+                                              fontPackage: 'cupertino_icons',
+                                            ),
                                     ),
                                   ),
                                 ),
-                            cupertino:
-                                (_, __) => CupertinoSliverAppBarData(
-                                  title: Text(title),
-                                  previousPageTitle: 'Collections',
-                                  border: null,
-                                  enableBackgroundFilterBlur: false,
-                                ),
+                              ),
+                            ),
+                            cupertino: (_, __) => CupertinoSliverAppBarData(
+                              title: Text(title),
+                              previousPageTitle: 'Collections',
+                              border: null,
+                              enableBackgroundFilterBlur: false,
+                            ),
                           ),
                           SliverResizingHeader(
                             minExtentPrototype: SizedBox.fromSize(
@@ -216,9 +215,10 @@ class _FavoriteWordsPageState extends State<FavoriteWordsPage> {
                     color: colorScheme.outlineVariant,
                   ),
                 ),
-                color: (markScheme?.primaryContainer ??
-                        kCupertinoSheetColor.resolveFrom(context))
-                    .withAlpha(0xf0),
+                color:
+                    (markScheme?.primaryContainer ??
+                            kCupertinoSheetColor.resolveFrom(context))
+                        .withAlpha(0xf0),
               ),
               alignment: const Alignment(-1, 1),
               child: Text(
@@ -234,7 +234,7 @@ class _FavoriteWordsPageState extends State<FavoriteWordsPage> {
               final accent = AppSettings.of(context).accent;
               final locate = AppSettings.of(context).translator;
               var fTranslate = word.requireSpeechAndTranslation(locate);
-              final phonetics = word.getPhonetics();
+              final phonetics = word.getPhonetics(accent);
               return Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -274,20 +274,18 @@ class _FavoriteWordsPageState extends State<FavoriteWordsPage> {
                               ),
                               padding: EdgeInsets.zero,
                               icon: const Icon(CupertinoIcons.volume_up),
-                              cupertino:
-                                  (_, __) => CupertinoIconButtonData(
-                                    minSize: textTheme.bodyMedium?.fontSize,
+                              cupertino: (_, __) => CupertinoIconButtonData(
+                                minSize: textTheme.bodyMedium?.fontSize,
+                              ),
+                              material: (_, __) => MaterialIconButtonData(
+                                style: IconButton.styleFrom(
+                                  minimumSize: Size.square(
+                                    textTheme.bodyMedium!.fontSize!,
                                   ),
-                              material:
-                                  (_, __) => MaterialIconButtonData(
-                                    style: IconButton.styleFrom(
-                                      minimumSize: Size.square(
-                                        textTheme.bodyMedium!.fontSize!,
-                                      ),
-                                      tapTargetSize:
-                                          MaterialTapTargetSize.shrinkWrap,
-                                    ),
-                                  ),
+                                  tapTargetSize:
+                                      MaterialTapTargetSize.shrinkWrap,
+                                ),
+                              ),
                             ),
                           ),
                         ],
@@ -297,58 +295,50 @@ class _FavoriteWordsPageState extends State<FavoriteWordsPage> {
                       style: textTheme.titleMedium,
                     ),
                     subtitle: StatefulBuilder(
-                      builder:
-                          (context, setState) => FutureBuilder(
-                            future: fTranslate,
-                            initialData: word.getSpeechAndTranslation,
-                            builder: (context, snapshot) {
-                              final isWaiting =
-                                  snapshot.connectionState ==
-                                  ConnectionState.waiting;
-                              return Text.rich(
-                                TextSpan(
-                                  children: [
-                                    if (isWaiting)
-                                      WidgetSpan(
-                                        child:
-                                            CircularProgressIndicator.adaptive(),
-                                      ),
-                                    if (snapshot.hasError && !isWaiting)
-                                      WidgetSpan(
-                                        child: Padding(
-                                          padding: const EdgeInsets.only(
-                                            right: 4,
-                                          ),
-                                          child: GestureDetector(
-                                            onTap:
-                                                () => setState(() {
-                                                  fTranslate = word
-                                                      .requireSpeechAndTranslation(
-                                                        locate,
-                                                      );
-                                                }),
-                                            child: Icon(
-                                              PlatformIcons(context).refresh,
-                                            ),
-                                          ),
+                      builder: (context, setState) => FutureBuilder(
+                        future: fTranslate,
+                        initialData: word.getSpeechAndTranslation,
+                        builder: (context, snapshot) {
+                          final isWaiting =
+                              snapshot.connectionState ==
+                              ConnectionState.waiting;
+                          return Text.rich(
+                            TextSpan(
+                              children: [
+                                if (isWaiting)
+                                  WidgetSpan(
+                                    child: CircularProgressIndicator.adaptive(),
+                                  ),
+                                if (snapshot.hasError && !isWaiting)
+                                  WidgetSpan(
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(right: 4),
+                                      child: GestureDetector(
+                                        onTap: () => setState(() {
+                                          fTranslate = word
+                                              .requireSpeechAndTranslation(
+                                                locate,
+                                              );
+                                        }),
+                                        child: Icon(
+                                          PlatformIcons(context).refresh,
                                         ),
                                       ),
-                                    TextSpan(
-                                      text:
-                                          snapshot.hasError
-                                              ? messageExceptions(
-                                                snapshot.error,
-                                              )
-                                              : snapshot.data,
                                     ),
-                                  ],
+                                  ),
+                                TextSpan(
+                                  text: snapshot.hasError
+                                      ? messageExceptions(snapshot.error)
+                                      : snapshot.data,
                                 ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: textTheme.bodyLarge,
-                              );
-                            },
-                          ),
+                              ],
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: textTheme.bodyLarge,
+                          );
+                        },
+                      ),
                     ),
                     // Wrap(
                     //   spacing: 8,
@@ -360,17 +350,16 @@ class _FavoriteWordsPageState extends State<FavoriteWordsPage> {
                     //       .toList(),
                     // ),
                     trailing: const CupertinoListTileChevron(),
-                    onTap:
-                        () => Navigator.push(
-                          context,
-                          platformPageRoute(
-                            context: context,
-                            builder: (context) => VocabularyPage(word: word),
-                            settings: const RouteSettings(
-                              name: AppRoute.vocabulary,
-                            ),
-                          ),
+                    onTap: () => Navigator.push(
+                      context,
+                      platformPageRoute(
+                        context: context,
+                        builder: (context) => VocabularyPage(word: word),
+                        settings: const RouteSettings(
+                          name: AppRoute.vocabulary,
                         ),
+                      ),
+                    ),
                     // cupertino: (_, __) => CupertinoListTileData(
                     //     // backgroundColor:
                     //     //     kCupertinoSheetColor.resolveFrom(context),
@@ -421,14 +410,14 @@ class _FavoriteWordsPageState extends State<FavoriteWordsPage> {
       text.length,
       (i) => TextSpan(
         text: text[i],
-        style:
-            !matches.contains(i)
-                ? style
-                : style?.apply(
-                  backgroundColor:
-                      Theme.of(context).colorScheme.tertiaryContainer,
-                  color: Theme.of(context).colorScheme.onTertiaryContainer,
-                ),
+        style: !matches.contains(i)
+            ? style
+            : style?.apply(
+                backgroundColor: Theme.of(
+                  context,
+                ).colorScheme.tertiaryContainer,
+                color: Theme.of(context).colorScheme.onTertiaryContainer,
+              ),
       ),
     );
   }
@@ -448,31 +437,26 @@ class _FavoriteWordsPageState extends State<FavoriteWordsPage> {
       direction: Axis.vertical,
       alignment: WrapAlignment.center,
       spacing: textTheme.bodyMedium!.fontSize! / 4,
-      children:
-          capitalKeys
-              .map(
-                (key) => PlatformTextButton(
-                  onPressed: () {
-                    Scrollable.ensureVisible(key.currentContext!);
-                  },
-                  padding: EdgeInsets.zero,
-                  material:
-                      (_, __) => MaterialTextButtonData(
-                        style: TextButton.styleFrom(
-                          minimumSize: Size.square(
-                            textTheme.bodyMedium!.fontSize!,
-                          ),
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        ),
-                      ),
-                  cupertino:
-                      (_, __) => CupertinoTextButtonData(
-                        minSize: textTheme.bodyMedium?.fontSize,
-                      ),
-                  child: Text(key.value.toString()),
+      children: capitalKeys
+          .map(
+            (key) => PlatformTextButton(
+              onPressed: () {
+                Scrollable.ensureVisible(key.currentContext!);
+              },
+              padding: EdgeInsets.zero,
+              material: (_, __) => MaterialTextButtonData(
+                style: TextButton.styleFrom(
+                  minimumSize: Size.square(textTheme.bodyMedium!.fontSize!),
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
-              )
-              .toList(),
+              ),
+              cupertino: (_, __) => CupertinoTextButtonData(
+                minSize: textTheme.bodyMedium?.fontSize,
+              ),
+              child: Text(key.value.toString()),
+            ),
+          )
+          .toList(),
     );
   }
 }

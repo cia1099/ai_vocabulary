@@ -219,6 +219,10 @@ Future<List<Vocabulary>> requestWords(Set<int> wordIds) async {
 }
 
 Future<List<Vocabulary>> fetchWords(Iterable<int> wordIDs, {int? take}) async {
+  // await Future.delayed(
+  //   Durations.extralong4,
+  //   () => throw Exception("fetch error"),
+  // );
   final words = await compute(
     sortByRetention,
     await loadWordList(wordIDs).last,

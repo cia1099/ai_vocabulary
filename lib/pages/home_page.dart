@@ -53,8 +53,10 @@ class SecondPage extends StatelessWidget {
             ),
             body: Center(
               child: Text(
-                "There is no word can be quized",
-                style: CupertinoTheme.of(context).textTheme.navTitleTextStyle,
+                "No word can be questioned.",
+                style: CupertinoTheme.of(
+                  context,
+                ).textTheme.dateTimePickerTextStyle,
               ),
               // SpinKitFadingCircle(
               //   color: Theme.of(context).colorScheme.secondary,

@@ -92,6 +92,7 @@ class _VocabularyTabState extends State<VocabularyTab>
                           registerFunc,
                         );
                       },
+                      bottomAlignment: Alignment(0, .9),
                       child: sliders(provider: review),
                     ),
                     RefreshedScroller(

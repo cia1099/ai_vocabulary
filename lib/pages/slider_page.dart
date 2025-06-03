@@ -2,9 +2,9 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:ai_vocabulary/app_route.dart';
+import 'package:ai_vocabulary/app_settings.dart';
 import 'package:ai_vocabulary/database/my_db.dart';
 import 'package:ai_vocabulary/model/acquaintance.dart';
-import 'package:ai_vocabulary/utils/enums.dart';
 import 'package:ai_vocabulary/utils/phonetic.dart' show playPhonetic;
 import 'package:ai_vocabulary/widgets/capital_avatar.dart';
 import 'package:ai_vocabulary/widgets/entry_actions.dart';
@@ -39,8 +39,9 @@ class _SliderPageState extends State<SliderPage> {
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
     final screenWidth = MediaQuery.sizeOf(context).width;
+    final accent = AppSettings.of(context).accent;
     final hPadding = screenWidth / 32;
-    final phonetics = widget.word.getPhonetics(Accent.US);
+    final phonetics = widget.word.getPhonetics(accent);
     var defSliderHeight = DefinitionSliders.kDefaultHeight;
     if (acquaintance == null) {
       acquaintance = Acquaintance(
