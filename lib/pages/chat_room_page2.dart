@@ -27,7 +27,7 @@ class ChatListTile extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final myID = UserProvider().currentUser?.uid;
     switch (message.runtimeType) {
-      case InfoMessage info:
+      case InfoMessage:
         return Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -38,7 +38,7 @@ class ChatListTile extends StatelessWidget {
                 borderRadius: BorderRadius.circular(kRadialReactionRadius),
               ),
               child: Text(
-                info.content,
+                message.content,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(color: colorScheme.onTertiary),
@@ -46,7 +46,8 @@ class ChatListTile extends StatelessWidget {
             ),
           ],
         );
-      case TextMessage msg:
+      case TextMessage:
+        final msg = message as TextMessage;
         return ListenableBuilder(
           listenable: msg,
           builder: (context, child) => Wrap(
@@ -87,11 +88,11 @@ class ChatListTile extends StatelessWidget {
                 : ClickableText(msg.content, patterns: msg.patterns),
           ),
         );
-      case RequireMessage req:
+      case RequireMessage:
         return RequireChatBubble(
-          key: ValueKey(req.timeStamp),
+          key: ValueKey(message.timeStamp),
           leading: leading,
-          message: req,
+          message: message as RequireMessage,
           upgradeMessage: upgradeMessage,
         );
       default:

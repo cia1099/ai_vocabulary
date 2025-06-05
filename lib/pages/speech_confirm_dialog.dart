@@ -8,9 +8,9 @@ import 'package:ai_vocabulary/widgets/action_button.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:path/path.dart' as p;
 import 'package:speech_record/speech_record.dart';
 import 'package:text2speech/text2speech.dart';
-import 'package:path/path.dart' as p;
 
 class SpeechConfirmDialog extends StatefulWidget {
   final String filePath;
@@ -23,11 +23,11 @@ class SpeechConfirmDialog extends StatefulWidget {
 class _SpeechConfirmDialogState extends State<SpeechConfirmDialog> {
   final textController = TextEditingController();
   late var futureRecognition =
-  // Future.value(
-  //   SpeechRecognition(recognize: false, text: ''),
-  // );
-  recognizeSpeech(widget.filePath)
-    ..then((recognition) => textController.text = recognition.text);
+      // Future.value(
+      //   SpeechRecognition(recognize: false, text: ''),
+      // );
+      recognizeSpeech(widget.filePath)
+        ..then((recognition) => textController.text = recognition.text);
   var editMode = false;
   final focusNode = FocusNode();
 
@@ -103,15 +103,14 @@ class _SpeechConfirmDialogState extends State<SpeechConfirmDialog> {
                       ),
                     ),
                     ActionButton(
-                      onPressed:
-                          textController.text.isNotEmpty
-                              ? () => Navigator.of(context).pop(
-                                InfoMessage(
-                                  content: textController.text,
-                                  timeStamp: timeStamp,
-                                ),
-                              )
-                              : null,
+                      onPressed: textController.text.isNotEmpty
+                          ? () => Navigator.of(context).pop(
+                              InfoMessage(
+                                content: textController.text,
+                                timeStamp: timeStamp,
+                              ),
+                            )
+                          : null,
                       topBorder: true,
                       child: const _ActionSheet(
                         title: 'Confirm',
@@ -121,13 +120,13 @@ class _SpeechConfirmDialogState extends State<SpeechConfirmDialog> {
                     ActionButton(
                       onPressed:
                           snapshot.data != null &&
-                                  snapshot.connectionState !=
-                                      ConnectionState.waiting
-                              ? () => setState(() {
-                                editMode = true;
-                                focusNode.requestFocus();
-                              })
-                              : null,
+                              snapshot.connectionState !=
+                                  ConnectionState.waiting
+                          ? () => setState(() {
+                              editMode = true;
+                              focusNode.requestFocus();
+                            })
+                          : null,
                       topBorder: true,
                       child: const _ActionSheet(
                         title: 'Edit',
@@ -150,10 +149,9 @@ class _SpeechConfirmDialogState extends State<SpeechConfirmDialog> {
                           });
                           textController.clear();
                         },
-                        startRecordHint:
-                            () => immediatelyPlay(
-                              'assets/sounds/speech_to_text_listening.m4r',
-                            ),
+                        startRecordHint: () => immediatelyPlay(
+                          'assets/sounds/speech_to_text_listening.m4r',
+                        ),
                         child: ActionButton(
                           onPressed: enableRecord ? () {} : null,
                           topBorder: true,
@@ -214,11 +212,9 @@ class _SpeechConfirmDialogState extends State<SpeechConfirmDialog> {
       textAlignVertical: TextAlignVertical.center,
       textAlign: TextAlign.center,
       textInputAction: TextInputAction.done,
-      onChanged: (value) => textController.text = value,
-      onEditingComplete:
-          () => setState(() {
-            editMode = false;
-          }),
+      onEditingComplete: () => setState(() {
+        editMode = false;
+      }),
     );
   }
 
@@ -229,7 +225,7 @@ class _SpeechConfirmDialogState extends State<SpeechConfirmDialog> {
       child: CupertinoButton(
         onPressed: () => immediatelyPlay(widget.filePath, 'audio/wav'),
         padding: EdgeInsets.zero,
-        minSize: 36,
+        minimumSize: Size(36, 36),
         child: const Icon(CupertinoIcons.play_circle_fill, size: 36),
       ),
     ),

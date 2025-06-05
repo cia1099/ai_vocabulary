@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:ai_vocabulary/app_settings.dart';
 import 'package:ai_vocabulary/effects/show_toast.dart';
-import 'package:ai_vocabulary/model/chat_answer.dart';
 import 'package:ai_vocabulary/utils/handle_except.dart';
 import 'package:flutter/material.dart';
 
@@ -29,7 +28,11 @@ class RequireChatBubble extends StatefulWidget {
 }
 
 class _RequireChatBubbleState extends State<RequireChatBubble> {
-  late final future = requireAns(widget.message);
+  late final future = chatVocabulary(
+    widget.message.vocabulary.split(', ').first,
+    widget.message.content,
+    widget.message.srcMsg.userID == null,
+  );
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.sizeOf(context).width;
@@ -144,20 +147,6 @@ class _RequireChatBubbleState extends State<RequireChatBubble> {
         },
       ),
     );
-  }
-
-  Future<ChatAnswer> requireAns(RequireMessage req) async {
-    final ans = await chatVocabulary(
-      req.vocabulary.split(', ').first,
-      req.content,
-      req.srcMsg.userID == null,
-    );
-    if (!ChatBubble.showContents.value && mounted) {
-      final accent = AppSettings.of(context).accent;
-      final voicer = AppSettings.of(context).voicer;
-      await soundAzure(ans.answer, lang: accent.azure.lang, sound: voicer);
-    }
-    return ans;
   }
 
   Widget waitingContent(double maxWidth, [double width = 100]) {

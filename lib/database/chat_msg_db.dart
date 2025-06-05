@@ -15,16 +15,19 @@ extension ChatMsgDB on MyDB {
 
   Future<void> insertMessages(Stream<TextMessage> messages) async {
     final ownerID = UserProvider().currentUser?.uid;
-    final upsert = '''
+    final upsert =
+        '''
 INSERT INTO text_messages 
 (time_stamp, content, word_id, patterns, user_id, owner_id) VALUES
-${await messages.map((m) => "(${m.timeStamp},'${m.content}',${m.wordID},'${m.patterns.join(', ')}','${m.userID}','$ownerID')").join(',')}
-ON CONFLICT (time_stamp, owner_id) DO NOTHING RETURNING *;
+${await messages.map((m) => "(${m.timeStamp},'${m.content.replaceAll("'", "''")}',${m.wordID},'${m.patterns.join(', ')}','${m.userID}','$ownerID')").join(',')}
+ON CONFLICT (time_stamp, owner_id) DO NOTHING;
 ''';
     final db = open(OpenMode.readWrite);
-    final resultSet = db.select(upsert);
+    db.execute(upsert);
+    final resultSet = db.select("SELECT changes() AS inserted");
+    final inserted = (resultSet.firstOrNull?['inserted'] ?? 0) as int;
     db.dispose();
-    if (resultSet.isNotEmpty) {
+    if (inserted > 0) {
       notifyListeners();
     }
   }
