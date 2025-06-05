@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:ai_vocabulary/app_settings.dart';
 import 'package:ai_vocabulary/effects/show_toast.dart';
+import 'package:ai_vocabulary/model/chat_answer.dart';
 import 'package:ai_vocabulary/utils/handle_except.dart';
 import 'package:flutter/material.dart';
 
@@ -12,7 +13,7 @@ import '../model/message.dart';
 import '../painters/chat_bubble.dart';
 import 'chat_bubble.dart';
 
-class RequireChatBubble extends StatelessWidget {
+class RequireChatBubble extends StatefulWidget {
   final RequireMessage message;
   final Widget? leading;
   final void Function(TextMessage) upgradeMessage;
@@ -24,36 +25,35 @@ class RequireChatBubble extends StatelessWidget {
   });
 
   @override
+  State<RequireChatBubble> createState() => _RequireChatBubbleState();
+}
+
+class _RequireChatBubbleState extends State<RequireChatBubble> {
+  late final future = requireAns(widget.message);
+  @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.sizeOf(context).width;
     final colorScheme = Theme.of(context).colorScheme;
     final accent = AppSettings.of(context).accent;
     final voicer = AppSettings.of(context).voicer;
     final leadingWidth = screenWidth * .1;
-    final contentWidth = screenWidth * (.75 + (leading == null ? .1 : 0));
-    final req = message;
-    final future = chatVocabulary(
-      req.vocabulary.split(', ').first,
-      req.content,
-      req.srcMsg.userID == null,
-    ).then((ans) async {
-      if (!ChatBubble.showContents.value)
-        await soundAzure(ans.answer, lang: accent.azure.lang, sound: voicer);
-      return ans;
-    });
+    final contentWidth =
+        screenWidth * (.75 + (widget.leading == null ? .1 : 0));
+    final req = widget.message;
     return ListenableBuilder(
       listenable: req.srcMsg,
       builder: (context, child) {
         return Wrap(
-          alignment:
-              req.srcMsg.hasError ? WrapAlignment.center : WrapAlignment.start,
+          alignment: req.srcMsg.hasError
+              ? WrapAlignment.center
+              : WrapAlignment.start,
           crossAxisAlignment: WrapCrossAlignment.end,
           spacing: 8,
           children: [
-            if (leading != null)
+            if (widget.leading != null)
               ConstrainedBox(
                 constraints: BoxConstraints(maxWidth: leadingWidth),
-                child: req.srcMsg.hasError ? null : leading,
+                child: req.srcMsg.hasError ? null : widget.leading,
               ),
             child!,
           ],
@@ -72,7 +72,7 @@ class RequireChatBubble extends StatelessWidget {
             );
           }
           if (snapshot.hasError) {
-            Future.microtask(() => message.srcMsg.hasError = true);
+            Future.microtask(() => widget.message.srcMsg.hasError = true);
             return Container(
               constraints: BoxConstraints(maxWidth: contentWidth),
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -90,42 +90,46 @@ class RequireChatBubble extends StatelessWidget {
           final responseMsg = TextMessage(
             content: ans.answer,
             timeStamp: ans.created,
-            patterns: message.vocabulary.split(', '),
-            wordID: message.wordID,
+            patterns: widget.message.vocabulary.split(', '),
+            wordID: widget.message.wordID,
             userID: ans.userId,
           );
-          upgradeMessage(responseMsg);
+          widget.upgradeMessage(responseMsg);
           if (ans.quiz) {
             Timer(const Duration(seconds: 2), () {
-              final acquaint = MyDB().getAcquaintance(message.wordID).acquaint;
+              final acquaint = MyDB()
+                  .getAcquaintance(widget.message.wordID)
+                  .acquaint;
               MyDB().upsertAcquaintance(
-                wordId: message.wordID,
+                wordId: widget.message.wordID,
                 acquaint: acquaint + 1,
                 isCorrect: ans.quiz,
               );
-              appearAward(context, message.vocabulary.split(', ').firstOrNull);
+              appearAward(
+                context,
+                widget.message.vocabulary.split(', ').firstOrNull,
+              );
             });
           }
           return ChatBubble(
             message: responseMsg,
             maxWidth: contentWidth,
             child: StreamBuilder(
-              stream:
-                  (String text) async* {
-                    if (ChatBubble.showContents.value) {
-                      await soundAzure(
-                        text,
-                        lang: accent.azure.lang,
-                        sound: voicer,
-                      );
-                      for (int s = 1; s <= text.length; s++) {
-                        yield Text(text.substring(0, s));
-                        await Future.delayed(
-                          s <= 4 ? Durations.short2 : Durations.short1,
-                        );
-                      }
-                    }
-                  }(ans.answer).asBroadcastStream(),
+              stream: (String text) async* {
+                if (ChatBubble.showContents.value) {
+                  await soundAzure(
+                    text,
+                    lang: accent.azure.lang,
+                    sound: voicer,
+                  );
+                  for (int s = 1; s <= text.length; s++) {
+                    yield Text(text.substring(0, s));
+                    await Future.delayed(
+                      s <= 4 ? Durations.short2 : Durations.short1,
+                    );
+                  }
+                }
+              }(ans.answer).asBroadcastStream(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.done) {
                   return ClickableText(
@@ -140,6 +144,20 @@ class RequireChatBubble extends StatelessWidget {
         },
       ),
     );
+  }
+
+  Future<ChatAnswer> requireAns(RequireMessage req) async {
+    final ans = await chatVocabulary(
+      req.vocabulary.split(', ').first,
+      req.content,
+      req.srcMsg.userID == null,
+    );
+    if (!ChatBubble.showContents.value && mounted) {
+      final accent = AppSettings.of(context).accent;
+      final voicer = AppSettings.of(context).voicer;
+      await soundAzure(ans.answer, lang: accent.azure.lang, sound: voicer);
+    }
+    return ans;
   }
 
   Widget waitingContent(double maxWidth, [double width = 100]) {

@@ -31,7 +31,8 @@ Future<List<Vocabulary>> retrievalWord(
   TranslateLocate? locate,
 }) async {
   // final url = Uri.https(baseURL, '/dict/retrieval', {'word': word});
-  final query = 'word=$word${locate != null ? '&lang=${locate.lang}' : ''}';
+  final query =
+      'word=${word.toLowerCase()}${locate != null ? '&lang=${locate.lang}' : ''}';
   const path = '/dict/retrieval';
   final url = Uri.parse('https://$baseURL$path?$query');
   final headers = {

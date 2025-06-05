@@ -218,6 +218,7 @@ class _CollectionPageState extends State<CollectionPage> {
       for (final index in insertIndexes)
         gridState?.insertItem(index, duration: Durations.long1);
     });
+    gridState?.setState(() {});
   }
 
   void flipReverseOrder() {

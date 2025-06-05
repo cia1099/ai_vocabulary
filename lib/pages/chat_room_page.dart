@@ -86,25 +86,23 @@ class _ChatRoomPageState extends State<ChatRoomPage> implements ChatInput {
           trailingActions: [
             ValueListenableBuilder(
               valueListenable: ChatBubble.showContents,
-              builder:
-                  (context, value, child) => Switch.adaptive(
-                    thumbIcon: WidgetStateProperty.resolveWith(
-                      (states) => Icon(
-                        states.contains(WidgetState.selected)
-                            ? CupertinoIcons.eye
-                            : CupertinoIcons.eye_slash,
-                      ),
-                    ),
-                    value: value,
-                    onChanged: (value) => ChatBubble.showContents.value = value,
-                    applyCupertinoTheme: true,
+              builder: (context, value, child) => Switch.adaptive(
+                thumbIcon: WidgetStateProperty.resolveWith(
+                  (states) => Icon(
+                    states.contains(WidgetState.selected)
+                        ? CupertinoIcons.eye
+                        : CupertinoIcons.eye_slash,
                   ),
+                ),
+                value: value,
+                onChanged: (value) => ChatBubble.showContents.value = value,
+                applyCupertinoTheme: true,
+              ),
             ),
           ],
-          material:
-              (_, __) => MaterialAppBarData(
-                backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-              ),
+          material: (_, __) => MaterialAppBarData(
+            backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+          ),
         ),
         body: Column(
           children: [
@@ -121,14 +119,13 @@ class _ChatRoomPageState extends State<ChatRoomPage> implements ChatInput {
                       messages[index].userID != kChatBotUID;
                   return ChatListTile(
                     message: messages[index],
-                    leading:
-                        !isMe
-                            ? CapitalAvatar(
-                              id: widget.word.wordId,
-                              name: widget.word.word,
-                              url: widget.word.asset,
-                            )
-                            : null,
+                    leading: !isMe
+                        ? CapitalAvatar(
+                            id: widget.word.wordId,
+                            name: widget.word.word,
+                            url: widget.word.asset,
+                          )
+                        : null,
                     upgradeMessage: (msg) => messages[index] = msg,
                     sendMessage: (msg) => mounted && sendMessage(msg),
                   );
@@ -137,53 +134,50 @@ class _ChatRoomPageState extends State<ChatRoomPage> implements ChatInput {
             ),
             ValueListenableBuilder(
               valueListenable: showTips,
-              builder:
-                  (context, value, child) => AnimatedContainer(
-                    duration: Durations.medium1,
-                    height: value ? null : 0.0,
-                    color: colorScheme.onInverseSurface,
-                    constraints: BoxConstraints(
-                      maxHeight: screenHeight / 10,
-                      minWidth: double.infinity,
-                    ),
-                    child: child,
-                  ),
+              builder: (context, value, child) => AnimatedContainer(
+                duration: Durations.medium1,
+                height: value ? null : 0.0,
+                color: colorScheme.onInverseSurface,
+                constraints: BoxConstraints(
+                  maxHeight: screenHeight / 10,
+                  minWidth: double.infinity,
+                ),
+                child: child,
+              ),
               child: CarouselView(
                 itemExtent: screenWidth / 2,
-                onTap:
-                    (index) => setState(() {
-                      showTips.value = false;
-                      messages.add(
-                        RequireMessage(
-                          srcMsg: TextMessage(
-                            content: _tips[index],
-                            userID: null, //used to help
-                            wordID: widget.word.wordId,
-                            patterns: [widget.word.word],
-                          ),
-                        ),
-                      );
-                    }),
-                children:
-                    _tips
-                        .map(
-                          (e) => ColoredBox(
-                            color: colorScheme.tertiaryContainer,
-                            child: Container(
-                              alignment: Alignment.center,
-                              padding: const EdgeInsets.only(left: 16),
-                              child: Text(
-                                e,
-                                maxLines: 4,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  color: colorScheme.onTertiaryContainer,
-                                ),
-                              ),
+                onTap: (index) => setState(() {
+                  showTips.value = false;
+                  messages.add(
+                    RequireMessage(
+                      srcMsg: TextMessage(
+                        content: _tips[index],
+                        userID: null, //used to help
+                        wordID: widget.word.wordId,
+                        patterns: [widget.word.word],
+                      ),
+                    ),
+                  );
+                }),
+                children: _tips
+                    .map(
+                      (e) => ColoredBox(
+                        color: colorScheme.tertiaryContainer,
+                        child: Container(
+                          alignment: Alignment.center,
+                          padding: const EdgeInsets.only(left: 16),
+                          child: Text(
+                            e,
+                            maxLines: 4,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: colorScheme.onTertiaryContainer,
                             ),
                           ),
-                        )
-                        .toList(),
+                        ),
+                      ),
+                    )
+                    .toList(),
               ),
             ),
             ChatInputPanel(delegate: this, minHeight: screenHeight / 10),
@@ -232,10 +226,15 @@ class _ChatRoomPageState extends State<ChatRoomPage> implements ChatInput {
 
   bool sendMessage(TextMessage message) {
     setState(() {
-      messages.removeWhere(
+      final index = messages.indexWhere(
         (msg) => msg is RequireMessage && identical(msg.srcMsg, message),
       );
-      messages.add(RequireMessage(srcMsg: message));
+      final require = RequireMessage(srcMsg: message);
+      if (index > -1) {
+        messages[index] = require;
+      } else {
+        messages.add(require);
+      }
     });
     return false; //reset hasError
   }

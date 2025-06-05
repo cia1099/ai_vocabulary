@@ -139,7 +139,7 @@ class RecommendProvider extends WordProvider {
       _studyWords.addAll(words);
       if (_completer.isCompleted) MyDB().notifyListeners();
     } else {
-      final insertIndex = fetchTime * _stepCount % kMaxLength;
+      final insertIndex = fetchTime * _stepCount;
       _studyWords.replaceRange(insertIndex, insertIndex + count, words);
     }
     //when request successfully, update _fetchTime

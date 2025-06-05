@@ -55,6 +55,7 @@ class _MyAppState extends State<MyApp> {
         //TODO: apply global fontsize scale
         // .copyWith(textTheme: Theme.of(context).textTheme.apply(fontSizeFactor: 1.2)),
         builder: (context) => PlatformApp(
+          debugShowCheckedModeBanner: false,
           cupertino: (context, platform) => CupertinoAppData(
             theme: MaterialBasedCupertinoThemeData(
               materialTheme: Theme.of(context).copyWith(

@@ -233,13 +233,25 @@ class _FlashcardState extends State<Flashcard>
 
   Text matchFilterText(String text) {
     final matches = text.matchIndexes(widget.filter);
+    final style = TextStyle(
+      fontWeight: FontWeight.w600,
+      shadows: Theme.of(context).brightness == Brightness.light
+          ? null
+          : List.generate(
+              4,
+              (i) => Shadow(
+                offset: Offset.fromDirection(pi * (1 + 2 * i) / 4, 2),
+                color: Theme.of(context).colorScheme.shadow,
+              ),
+            ),
+    );
     if (matches.isEmpty) {
       return Text(
         text,
         overflow: TextOverflow.ellipsis,
         maxLines: 3,
         textScaler: const TextScaler.linear(2),
-        style: const TextStyle(fontWeight: FontWeight.w600),
+        style: style,
       );
     }
     return Text.rich(
@@ -262,7 +274,7 @@ class _FlashcardState extends State<Flashcard>
       overflow: TextOverflow.ellipsis,
       maxLines: 3,
       textScaler: const TextScaler.linear(2),
-      style: const TextStyle(fontWeight: FontWeight.w600),
+      style: style,
     );
   }
 
