@@ -95,25 +95,21 @@ class RecommendProvider extends WordProvider {
   }
 
   static const kMaxLength = 10;
+  final _stepCount = kMaxLength ~/ 5;
   var _fetchTime = 0;
   Future<void> fetchStudyWords(int index, {bool isReset = false}) async {
     const initCount = 5;
-    if (index % kMaxLength ~/ 2 != _fetchTime) return;
-    final fetchTime = (_fetchTime + 1) % 5;
-    final count = _studyWords.length < kMaxLength && fetchTime == 4
-        ? 1
-        : _studyWords.isNotEmpty && !isReset
-        ? 2
-        : initCount;
+    if (index % kMaxLength ~/ _stepCount != _fetchTime) return;
+    final fetchTime = (_fetchTime + 1) % (kMaxLength ~/ _stepCount);
+    final count = _studyWords.isEmpty || isReset
+        ? initCount
+        : _studyWords.length < kMaxLength
+        ? (kMaxLength - _studyWords.length).clamp(0, _stepCount)
+        : _stepCount;
     await MyDB().isReady;
-    final reviewIDs = MyDB().fetchReviewWordIDs().toList();
-    reviewIDs.removeWhere(
-      (id) => _studyWords.map((w) => w.wordId).contains(id),
-    );
-    final requestIDs = await sampleWordIds(
-      _studyWords.map((w) => w.wordId).toList() + reviewIDs,
-      count,
-    );
+    final reviewIDs = MyDB().fetchReviewWordIDs();
+    final existIDs = _studyWords.map((w) => w.wordId).followedBy(reviewIDs);
+    final requestIDs = await sampleWordIds(existIDs, count);
     // print(
     //   'page = $index, fetchTime = $fetchTime, sampleIDs = ${requestIDs.join(', ')}',
     // );
@@ -122,20 +118,18 @@ class RecommendProvider extends WordProvider {
     //     Duration(seconds: 1),
     //     () => throw Exception('error happen'),
     //   );
+    final undoneReview =
+        context.mounted &&
+        AppSettings.of(context).studyState != StudyStatus.completedReview;
     final candidateWords = (await Future.wait([
       requestWords(requestIDs),
-      fetchWords(reviewIDs, take: count * 2),
+      if (undoneReview) fetchWords(reviewIDs, take: count * 2),
     ])).reduce((a, b) => a + b);
-    final isCompletedReview =
-        context.mounted &&
-        AppSettings.of(context).studyState == StudyStatus.completedReview;
     final selector = WeightedSelector(
       candidateWords,
       candidateWords.map((w) => 1 - calculateRetention(w)),
     );
-    final words = isCompletedReview
-        ? candidateWords.take(count)
-        : selector.sampleN(count);
+    final words = selector.sampleN(count);
     MyDB().insertWords(
       Stream.fromIterable(words.where((w) => requestIDs.contains(w.wordId))),
     );
@@ -145,8 +139,8 @@ class RecommendProvider extends WordProvider {
       _studyWords.addAll(words);
       if (_completer.isCompleted) MyDB().notifyListeners();
     } else {
-      final insertIndex = fetchTime * 2;
-      _studyWords.replaceRange(insertIndex, insertIndex + 2, words);
+      final insertIndex = fetchTime * _stepCount % kMaxLength;
+      _studyWords.replaceRange(insertIndex, insertIndex + count, words);
     }
     //when request successfully, update _fetchTime
     _fetchTime = fetchTime;
@@ -164,7 +158,7 @@ class RecommendProvider extends WordProvider {
   }
 
   Future<void> bottomRequest() async {
-    return fetchStudyWords(_fetchTime * 2);
+    return fetchStudyWords(_fetchTime * _stepCount);
   }
 }
 
