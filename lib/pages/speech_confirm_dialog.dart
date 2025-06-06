@@ -22,12 +22,7 @@ class SpeechConfirmDialog extends StatefulWidget {
 
 class _SpeechConfirmDialogState extends State<SpeechConfirmDialog> {
   final textController = TextEditingController();
-  late var futureRecognition =
-      // Future.value(
-      //   SpeechRecognition(recognize: false, text: ''),
-      // );
-      recognizeSpeech(widget.filePath)
-        ..then((recognition) => textController.text = recognition.text);
+  late var futureRecognition = recognize(widget.filePath);
   var editMode = false;
   final focusNode = FocusNode();
 
@@ -98,20 +93,25 @@ class _SpeechConfirmDialogState extends State<SpeechConfirmDialog> {
                               child: displaySpeech(snapshot, colorScheme),
                             ),
                             playAlign(),
+                            if (snapshot.hasError) refreshAlign(colorScheme),
                           ],
                         ),
                       ),
                     ),
-                    ActionButton(
-                      onPressed: textController.text.isNotEmpty
-                          ? () => Navigator.of(context).pop(
-                              InfoMessage(
-                                content: textController.text,
-                                timeStamp: timeStamp,
-                              ),
-                            )
-                          : null,
-                      topBorder: true,
+                    ListenableBuilder(
+                      listenable: textController,
+                      builder: (context, child) => ActionButton(
+                        onPressed: textController.text.isNotEmpty
+                            ? () => Navigator.of(context).pop(
+                                InfoMessage(
+                                  content: textController.text,
+                                  timeStamp: timeStamp,
+                                ),
+                              )
+                            : null,
+                        topBorder: true,
+                        child: child!,
+                      ),
                       child: const _ActionSheet(
                         title: 'Confirm',
                         iconData: CupertinoIcons.shift,
@@ -141,11 +141,7 @@ class _SpeechConfirmDialogState extends State<SpeechConfirmDialog> {
                         doneRecord: (outputPath) {
                           if (outputPath == null) return;
                           setState(() {
-                            futureRecognition = recognizeSpeech(outputPath)
-                              ..then(
-                                (recognition) =>
-                                    textController.text = recognition.text,
-                              );
+                            futureRecognition = recognize(outputPath);
                           });
                           textController.clear();
                         },
@@ -184,6 +180,12 @@ class _SpeechConfirmDialogState extends State<SpeechConfirmDialog> {
     );
   }
 
+  Future<SpeechRecognition> recognize(String filePath) async {
+    final recognition = await recognizeSpeech(filePath);
+    textController.text = recognition.text;
+    return recognition;
+  }
+
   Widget displaySpeech(
     AsyncSnapshot<SpeechRecognition> snapshot,
     ColorScheme colorScheme,
@@ -201,20 +203,26 @@ class _SpeechConfirmDialogState extends State<SpeechConfirmDialog> {
         ),
       );
     }
-    return CupertinoTextField.borderless(
-      focusNode: focusNode,
-      autofocus: editMode,
-      readOnly: !editMode,
-      controller: textController,
-      placeholder: "Sorry we can't recognize your speech",
-      placeholderStyle: TextStyle(color: colorScheme.onTertiaryContainer),
-      maxLines: null,
-      textAlignVertical: TextAlignVertical.center,
-      textAlign: TextAlign.center,
-      textInputAction: TextInputAction.done,
-      onEditingComplete: () => setState(() {
-        editMode = false;
-      }),
+    return ListenableBuilder(
+      listenable: textController,
+      builder: (context, child) => CupertinoTextField.borderless(
+        focusNode: focusNode,
+        autofocus: editMode,
+        readOnly: !editMode,
+        controller: textController,
+        placeholder:
+            "Sorry we can't recognize your speech. You can either retake it or type it in manually.",
+        placeholderStyle: TextStyle(color: colorScheme.onTertiaryContainer),
+        maxLines: null,
+        textAlignVertical: TextAlignVertical.center,
+        textAlign: textController.text.isEmpty
+            ? TextAlign.start
+            : TextAlign.center,
+        textInputAction: TextInputAction.done,
+        onEditingComplete: () => setState(() {
+          editMode = false;
+        }),
+      ),
     );
   }
 
@@ -227,6 +235,28 @@ class _SpeechConfirmDialogState extends State<SpeechConfirmDialog> {
         padding: EdgeInsets.zero,
         minimumSize: Size(36, 36),
         child: const Icon(CupertinoIcons.play_circle_fill, size: 36),
+      ),
+    ),
+  );
+
+  Widget refreshAlign([ColorScheme? colorScheme]) => Align(
+    alignment: Alignment(1, 1),
+    child: Transform.translate(
+      offset: const Offset(10, 10),
+      child: CupertinoButton(
+        onPressed: () {
+          textController.clear();
+          setState(() {
+            futureRecognition = recognize(widget.filePath);
+          });
+        },
+        padding: EdgeInsets.zero,
+        minimumSize: Size(36, 36),
+        child: Icon(
+          CupertinoIcons.refresh_circled_solid,
+          size: 36,
+          color: colorScheme?.onErrorContainer,
+        ),
       ),
     ),
   );

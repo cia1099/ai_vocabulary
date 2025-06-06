@@ -3,13 +3,13 @@ part of 'chat_room_page.dart';
 class ChatListTile extends StatelessWidget {
   final Message message;
   final Widget? leading;
-  final void Function(TextMessage msg) upgradeMessage;
+  final void Function(Message msg) updateMessage;
   final bool Function(TextMessage msg) sendMessage;
   const ChatListTile({
     super.key,
     required this.message,
     this.leading,
-    required this.upgradeMessage,
+    required this.updateMessage,
     required this.sendMessage,
   });
 
@@ -26,6 +26,8 @@ class ChatListTile extends StatelessWidget {
     final screenWidth = MediaQuery.of(context).size.width;
     final colorScheme = Theme.of(context).colorScheme;
     final myID = UserProvider().currentUser?.uid;
+    final leadingWidth = screenWidth * .1;
+    final contentWidth = screenWidth * (.75 + (leading == null ? .1 : 0));
     switch (message.runtimeType) {
       case InfoMessage:
         return Row(
@@ -59,7 +61,7 @@ class ChatListTile extends StatelessWidget {
             children: [
               if (leading != null && msg.userID != myID)
                 ConstrainedBox(
-                  constraints: BoxConstraints(maxWidth: screenWidth * .1),
+                  constraints: BoxConstraints(maxWidth: leadingWidth),
                   child: leading,
                 ),
               if (msg.hasError)
@@ -71,7 +73,7 @@ class ChatListTile extends StatelessWidget {
                   isSelected: false,
                   style: IconButton.styleFrom(
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    maximumSize: Size.fromWidth(screenWidth * .1),
+                    maximumSize: Size.fromWidth(leadingWidth),
                     minimumSize: Size.fromRadius(screenWidth * .04),
                   ),
                   color: colorScheme.onSurfaceVariant,
@@ -82,7 +84,7 @@ class ChatListTile extends StatelessWidget {
           ),
           child: ChatBubble(
             message: msg,
-            maxWidth: screenWidth * (.75 + (leading == null ? .1 : 0)),
+            maxWidth: contentWidth,
             child: msg.userID == null
                 ? Text(msg.content)
                 : ClickableText(msg.content, patterns: msg.patterns),
@@ -93,14 +95,37 @@ class ChatListTile extends StatelessWidget {
           key: ValueKey(message.timeStamp),
           leading: leading,
           message: message as RequireMessage,
-          upgradeMessage: upgradeMessage,
+          updateMessage: updateMessage,
         );
       default:
-        return Text(
-          message.content,
-          style: TextStyle(color: colorScheme.error),
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [ErrorBanner(message: message)],
         );
     }
+  }
+}
+
+class ErrorBanner extends StatelessWidget {
+  final Message message;
+  const ErrorBanner({super.key, required this.message});
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final maxWidth = MediaQuery.sizeOf(context).width * .75;
+    return Container(
+      constraints: BoxConstraints(maxWidth: maxWidth),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: colorScheme.errorContainer,
+        borderRadius: BorderRadius.circular(kRadialReactionRadius),
+      ),
+      child: Text(
+        message.content,
+        style: TextStyle(color: colorScheme.onErrorContainer),
+      ),
+    );
   }
 }
 

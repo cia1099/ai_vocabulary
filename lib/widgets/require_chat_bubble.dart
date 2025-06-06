@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:ai_vocabulary/app_settings.dart';
 import 'package:ai_vocabulary/effects/show_toast.dart';
+import 'package:ai_vocabulary/pages/chat_room_page.dart' show ErrorBanner;
 import 'package:ai_vocabulary/utils/handle_except.dart';
 import 'package:flutter/material.dart';
 
@@ -15,12 +16,12 @@ import 'chat_bubble.dart';
 class RequireChatBubble extends StatefulWidget {
   final RequireMessage message;
   final Widget? leading;
-  final void Function(TextMessage) upgradeMessage;
+  final void Function(Message) updateMessage;
   const RequireChatBubble({
     super.key,
     required this.message,
     this.leading,
-    required this.upgradeMessage,
+    required this.updateMessage,
   });
 
   @override
@@ -28,17 +29,12 @@ class RequireChatBubble extends StatefulWidget {
 }
 
 class _RequireChatBubbleState extends State<RequireChatBubble> {
-  late final future = chatVocabulary(
-    widget.message.vocabulary.split(', ').first,
-    widget.message.content,
-    widget.message.srcMsg.userID == null,
-  );
+  late final stream = requireAnswer(widget.message);
+  TextMessage? responseMsg;
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.sizeOf(context).width;
     final colorScheme = Theme.of(context).colorScheme;
-    final accent = AppSettings.of(context).accent;
-    final voicer = AppSettings.of(context).voicer;
     final leadingWidth = screenWidth * .1;
     final contentWidth =
         screenWidth * (.75 + (widget.leading == null ? .1 : 0));
@@ -53,17 +49,17 @@ class _RequireChatBubbleState extends State<RequireChatBubble> {
           crossAxisAlignment: WrapCrossAlignment.end,
           spacing: 8,
           children: [
-            if (widget.leading != null)
+            if (widget.leading != null && !req.srcMsg.hasError)
               ConstrainedBox(
                 constraints: BoxConstraints(maxWidth: leadingWidth),
-                child: req.srcMsg.hasError ? null : widget.leading,
+                child: widget.leading,
               ),
             child!,
           ],
         );
       },
-      child: FutureBuilder(
-        future: future,
+      child: StreamBuilder(
+        stream: stream,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return CustomPaint(
@@ -74,79 +70,73 @@ class _RequireChatBubbleState extends State<RequireChatBubble> {
               child: waitingContent(contentWidth),
             );
           }
-          if (snapshot.hasError) {
+          if (snapshot.hasError || responseMsg == null) {
             Future.microtask(() => widget.message.srcMsg.hasError = true);
-            return Container(
-              constraints: BoxConstraints(maxWidth: contentWidth),
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: colorScheme.errorContainer,
-                borderRadius: BorderRadius.circular(kRadialReactionRadius),
-              ),
-              child: Text(
-                messageExceptions(snapshot.error),
-                style: TextStyle(color: colorScheme.onErrorContainer),
-              ),
+            final errorMsg = ErrorMessage(
+              content: messageExceptions(snapshot.error ?? "No response"),
+              srcMsg: widget.message.srcMsg,
             );
-          }
-          final ans = snapshot.data!;
-          final responseMsg = TextMessage(
-            content: ans.answer,
-            timeStamp: ans.created,
-            patterns: widget.message.vocabulary.split(', '),
-            wordID: widget.message.wordID,
-            userID: ans.userId,
-          );
-          widget.upgradeMessage(responseMsg);
-          if (ans.quiz) {
-            Timer(const Duration(seconds: 2), () {
-              final acquaint = MyDB()
-                  .getAcquaintance(widget.message.wordID)
-                  .acquaint;
-              MyDB().upsertAcquaintance(
-                wordId: widget.message.wordID,
-                acquaint: acquaint + 1,
-                isCorrect: ans.quiz,
-              );
-              appearAward(
-                context,
-                widget.message.vocabulary.split(', ').firstOrNull,
-              );
-            });
+            widget.updateMessage(errorMsg);
+            return ErrorBanner(message: errorMsg);
           }
           return ChatBubble(
-            message: responseMsg,
+            message: responseMsg!,
             maxWidth: contentWidth,
-            child: StreamBuilder(
-              stream: (String text) async* {
-                if (ChatBubble.showContents.value) {
-                  await soundAzure(
-                    text,
-                    lang: accent.azure.lang,
-                    sound: voicer,
-                  );
-                  for (int s = 1; s <= text.length; s++) {
-                    yield Text(text.substring(0, s));
-                    await Future.delayed(
-                      s <= 4 ? Durations.short2 : Durations.short1,
-                    );
-                  }
-                }
-              }(ans.answer).asBroadcastStream(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.done) {
-                  return ClickableText(
-                    ans.answer,
-                    patterns: responseMsg.patterns,
-                  );
-                }
-                return snapshot.data ?? waitingContent(contentWidth);
-              },
-            ),
+            child: snapshot.connectionState == ConnectionState.done
+                ? ClickableText(
+                    responseMsg!.content,
+                    patterns: responseMsg!.patterns,
+                  )
+                : snapshot.hasData
+                ? Text(snapshot.data!)
+                : waitingContent(contentWidth),
           );
         },
       ),
     );
+  }
+
+  Stream<String> requireAnswer(RequireMessage req) async* {
+    final ans = await chatVocabulary(
+      req.vocabulary.split(', ').first,
+      req.content,
+      req.srcMsg.userID == null,
+    );
+    responseMsg = TextMessage(
+      content: ans.answer,
+      timeStamp: ans.created,
+      patterns: widget.message.vocabulary.split(', '),
+      wordID: widget.message.wordID,
+      userID: ans.userId,
+    );
+    if (mounted && ChatBubble.showContents.value) {
+      final accent = AppSettings.of(context).accent;
+      final voicer = AppSettings.of(context).voicer;
+      try {
+        await soundAzure(ans.answer, lang: accent.azure.lang, sound: voicer);
+        for (int s = 4; s <= ans.answer.length; s += 2) {
+          yield ans.answer.substring(0, s);
+          // await Future.delayed(s <= 4 ? Durations.short2 : Durations.short1);
+          await Future.delayed(Durations.short2);
+        }
+      } catch (e) {
+        if (mounted) {
+          showToast(context: context, child: Text(messageExceptions(e)));
+        }
+      }
+    }
+    widget.updateMessage(responseMsg!);
+    if (ans.quiz) {
+      Timer(const Duration(seconds: 2), () {
+        final acquaint = MyDB().getAcquaintance(widget.message.wordID).acquaint;
+        MyDB().upsertAcquaintance(
+          wordId: widget.message.wordID,
+          acquaint: acquaint + 1,
+          isCorrect: ans.quiz,
+        );
+        appearAward(context, widget.message.vocabulary.split(', ').firstOrNull);
+      });
+    }
   }
 
   Widget waitingContent(double maxWidth, [double width = 100]) {

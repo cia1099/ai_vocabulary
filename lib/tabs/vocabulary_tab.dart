@@ -139,7 +139,7 @@ class _VocabularyTabState extends State<VocabularyTab>
             ),
             controller: provider.pageController,
             onPageChanged: (index) {
-              // provider.currentWord = provider[index % provider.length];
+              provider.currentWord = provider[index % provider.length];
               provider.clozeSeed = rng.nextInt(256);
               if (provider is RecommendProvider) {
                 provider
@@ -161,7 +161,6 @@ class _VocabularyTabState extends State<VocabularyTab>
               if (error != null) return error;
               final i = index % provider.length;
               final word = provider[i];
-              provider.currentWord = word;
               return SliderPage(key: ValueKey(word.wordId), word: word);
             },
             itemCount:

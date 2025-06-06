@@ -2,7 +2,6 @@ import 'package:ai_vocabulary/database/my_db.dart';
 import 'package:ai_vocabulary/model/message.dart';
 import 'package:ai_vocabulary/model/vocabulary.dart';
 import 'package:ai_vocabulary/provider/user_provider.dart';
-import 'package:ai_vocabulary/utils/shortcut.dart';
 import 'package:ai_vocabulary/widgets/capital_avatar.dart';
 import 'package:ai_vocabulary/widgets/chat_input_panel.dart';
 import 'package:ai_vocabulary/widgets/require_chat_bubble.dart';
@@ -69,6 +68,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> implements ChatInput {
     final colorScheme = Theme.of(context).colorScheme;
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
+    final myID = UserProvider().currentUser?.uid;
     // print(messages.map((e) => e.runtimeType.toString()).join(' '));
     WidgetsBinding.instance.addPostFrameCallback(
       (_) => scrollController.animateTo(
@@ -114,9 +114,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> implements ChatInput {
                 controller: scrollController,
                 itemCount: messages.length,
                 itemBuilder: (context, index) {
-                  final isMe =
-                      messages[index].userID != null &&
-                      messages[index].userID != kChatBotUID;
+                  final isMe = messages[index].userID == myID;
                   return ChatListTile(
                     message: messages[index],
                     leading: !isMe
@@ -126,7 +124,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> implements ChatInput {
                             url: widget.word.asset,
                           )
                         : null,
-                    upgradeMessage: (msg) => messages[index] = msg,
+                    updateMessage: (msg) => messages[index] = msg,
                     sendMessage: (msg) => mounted && sendMessage(msg),
                   );
                 },
@@ -227,7 +225,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> implements ChatInput {
   bool sendMessage(TextMessage message) {
     setState(() {
       final index = messages.indexWhere(
-        (msg) => msg is RequireMessage && identical(msg.srcMsg, message),
+        (msg) => msg is ErrorMessage && identical(msg.srcMsg, message),
       );
       final require = RequireMessage(srcMsg: message);
       if (index > -1) {
