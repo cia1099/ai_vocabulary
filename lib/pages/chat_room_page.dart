@@ -66,8 +66,8 @@ class _ChatRoomPageState extends State<ChatRoomPage> implements ChatInput {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final screenHeight = MediaQuery.of(context).size.height;
-    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.sizeOf(context).height;
+    final screenWidth = MediaQuery.sizeOf(context).width;
     final myID = UserProvider().currentUser?.uid;
     // print(messages.map((e) => e.runtimeType.toString()).join(' '));
     WidgetsBinding.instance.addPostFrameCallback(
@@ -108,24 +108,25 @@ class _ChatRoomPageState extends State<ChatRoomPage> implements ChatInput {
           children: [
             Expanded(
               child: ListView.builder(
-                physics: const AlwaysScrollableScrollPhysics(
-                  parent: ClampingScrollPhysics(),
-                ),
+                physics: ClampingScrollPhysics(),
                 controller: scrollController,
                 itemCount: messages.length,
                 itemBuilder: (context, index) {
                   final isMe = messages[index].userID == myID;
-                  return ChatListTile(
-                    message: messages[index],
-                    leading: !isMe
-                        ? CapitalAvatar(
-                            id: widget.word.wordId,
-                            name: widget.word.word,
-                            url: widget.word.asset,
-                          )
-                        : null,
-                    updateMessage: (msg) => messages[index] = msg,
-                    sendMessage: (msg) => mounted && sendMessage(msg),
+                  return Container(
+                    margin: const EdgeInsets.all(8),
+                    child: createContent(
+                      message: messages[index],
+                      leading: !isMe
+                          ? CapitalAvatar(
+                              id: widget.word.wordId,
+                              name: widget.word.word,
+                              url: widget.word.asset,
+                            )
+                          : null,
+                      updateMessage: (msg) => messages[index] = msg,
+                      sendMessage: (msg) => mounted && sendMessage(msg),
+                    ),
                   );
                 },
               ),

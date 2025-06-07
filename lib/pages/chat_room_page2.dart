@@ -1,29 +1,13 @@
 part of 'chat_room_page.dart';
 
-class ChatListTile extends StatelessWidget {
-  final Message message;
-  final Widget? leading;
-  final void Function(Message msg) updateMessage;
-  final bool Function(TextMessage msg) sendMessage;
-  const ChatListTile({
-    super.key,
-    required this.message,
-    this.leading,
-    required this.updateMessage,
-    required this.sendMessage,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      // width: double.infinity,
-      margin: const EdgeInsets.all(8),
-      child: createContent(message, context: context),
-    );
-  }
-
-  Widget createContent(Message message, {required BuildContext context}) {
-    final screenWidth = MediaQuery.of(context).size.width;
+extension _ChatListTile on _ChatRoomPageState {
+  Widget createContent({
+    required Message message,
+    Widget? leading,
+    required void Function(Message msg) updateMessage,
+    required bool Function(TextMessage msg) sendMessage,
+  }) {
+    final screenWidth = MediaQuery.sizeOf(context).width;
     final colorScheme = Theme.of(context).colorScheme;
     final myID = UserProvider().currentUser?.uid;
     final leadingWidth = screenWidth * .1;
@@ -94,6 +78,7 @@ class ChatListTile extends StatelessWidget {
         return RequireChatBubble(
           key: ValueKey(message.timeStamp),
           leading: leading,
+          controller: scrollController,
           message: message as RequireMessage,
           updateMessage: updateMessage,
         );

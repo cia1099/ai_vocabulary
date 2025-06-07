@@ -16,11 +16,13 @@ import 'chat_bubble.dart';
 class RequireChatBubble extends StatefulWidget {
   final RequireMessage message;
   final Widget? leading;
+  final ScrollController? controller;
   final void Function(Message) updateMessage;
   const RequireChatBubble({
     super.key,
     required this.message,
     this.leading,
+    this.controller,
     required this.updateMessage,
   });
 
@@ -113,16 +115,28 @@ class _RequireChatBubbleState extends State<RequireChatBubble> {
       final accent = AppSettings.of(context).accent;
       final voicer = AppSettings.of(context).voicer;
       try {
+        // await Future.microtask(
+        //   () => soundAzure(ans.answer, lang: accent.azure.lang, sound: voicer),
+        // );
+        await Future.delayed(Durations.short1);
         await soundAzure(ans.answer, lang: accent.azure.lang, sound: voicer);
         for (int s = 4; s <= ans.answer.length; s += 2) {
           yield ans.answer.substring(0, s);
           // await Future.delayed(s <= 4 ? Durations.short2 : Durations.short1);
+          if (!(widget.controller?.position.atEdge ?? true)) {
+            widget.controller?.animateTo(
+              widget.controller!.position.maxScrollExtent,
+              duration: Durations.short4,
+              curve: Curves.ease,
+            );
+          }
           await Future.delayed(Durations.short2);
         }
       } catch (e) {
         if (mounted) {
           showToast(context: context, child: Text(messageExceptions(e)));
         }
+        print(e);
       }
     }
     widget.updateMessage(responseMsg!);
