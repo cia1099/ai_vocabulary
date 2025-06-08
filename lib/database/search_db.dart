@@ -16,27 +16,15 @@ ORDER BY hs.time_stamp DESC;
     return wordMaps.map((json) => Vocabulary.fromJson(json)).toList();
   }
 
-  void insertSearchHistory(int wordID) {
-    const insert =
-        'INSERT INTO history_searches (time_stamp, word_id) VALUES (?, ?)';
+  void upsertSearchHistory(int wordID) {
+    const upsert = '''
+INSERT INTO history_searches (time_stamp, word_id) VALUES (?, ?)
+ON CONFLICT(word_id) DO UPDATE SET time_stamp=excluded.time_stamp;
+''';
     final db = open(OpenMode.readWrite);
     final now = DateTime.now().millisecondsSinceEpoch ~/ 1e3;
-    try {
-      db.execute(insert, [now, wordID]);
-    } on SqliteException catch (e) {
-      debugPrint('SQL error(${e.resultCode}): ${e.message}=($wordID)');
-      const update = 'UPDATE history_searches SET time_stamp=? WHERE word_id=?';
-      db.execute(update, [now, wordID]);
-    }
-    db.dispose();
-  }
+    db.execute(upsert, [now, wordID]);
 
-  void updateHistory(int wordID) {
-    const update = 'UPDATE history_searches SET time_stamp=? WHERE word_id=?';
-    final db = open(OpenMode.readWrite);
-    final now = DateTime.now().millisecondsSinceEpoch ~/ 1e3;
-    db
-      ..execute(update, [now, wordID])
-      ..dispose();
+    db.dispose();
   }
 }

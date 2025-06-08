@@ -6,10 +6,10 @@ import 'package:ai_vocabulary/database/my_db.dart';
 import 'package:ai_vocabulary/effects/dot3indicator.dart';
 import 'package:ai_vocabulary/mock_data.dart';
 import 'package:ai_vocabulary/utils/enums.dart';
+import 'package:ai_vocabulary/utils/function.dart';
 import 'package:ai_vocabulary/utils/handle_except.dart';
 import 'package:ai_vocabulary/utils/load_more_listview.dart';
 import 'package:ai_vocabulary/utils/shortcut.dart';
-import 'package:ai_vocabulary/utils/function.dart';
 import 'package:ai_vocabulary/widgets/align_paragraph.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -63,10 +63,9 @@ class _SearchPageState extends State<SearchPage> {
         leading: const SizedBox.shrink(),
         title: PlatformTextField(
           autofocus: true,
-          hintText:
-              locate != TranslateLocate.none
-                  ? 'support ${locate.native} input'
-                  : 'find it',
+          hintText: locate != TranslateLocate.none
+              ? 'support ${locate.native} input'
+              : 'find it',
           controller: textController,
           textInputAction: TextInputAction.search,
           onChanged: (text) {
@@ -87,29 +86,24 @@ class _SearchPageState extends State<SearchPage> {
               searchFuture = requireMoreWords(p0, 0);
             });
           },
-          cupertino:
-              (_, __) => CupertinoTextFieldData(
-                decoration: BoxDecoration(
-                  border: Border.all(color: colorScheme.primary, width: 2),
-                  borderRadius: BorderRadius.circular(kRadialReactionRadius),
-                ),
-                prefix: const SizedBox.square(dimension: 4),
-                suffix: suffixIcon,
+          cupertino: (_, __) => CupertinoTextFieldData(
+            decoration: BoxDecoration(
+              border: Border.all(color: colorScheme.primary, width: 2),
+              borderRadius: BorderRadius.circular(kRadialReactionRadius),
+            ),
+            prefix: const SizedBox.square(dimension: 4),
+            suffix: suffixIcon,
+          ),
+          material: (_, __) => MaterialTextFieldData(
+            decoration: InputDecoration(
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(kRadialReactionRadius),
+                borderSide: BorderSide(color: colorScheme.primary, width: 2),
               ),
-          material:
-              (_, __) => MaterialTextFieldData(
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(kRadialReactionRadius),
-                    borderSide: BorderSide(
-                      color: colorScheme.primary,
-                      width: 2,
-                    ),
-                  ),
-                  prefix: const SizedBox.square(dimension: 4),
-                  suffixIcon: suffixIcon,
-                ),
-              ),
+              prefix: const SizedBox.square(dimension: 4),
+              suffixIcon: suffixIcon,
+            ),
+          ),
         ),
         trailingActions: [
           PlatformTextButton(
@@ -118,13 +112,11 @@ class _SearchPageState extends State<SearchPage> {
             child: const Text('Cancel'),
           ),
         ],
-        cupertino:
-            (_, _) => CupertinoNavigationBarData(
-              backgroundColor: kCupertinoSheetColor.resolveFrom(context),
-            ),
-        material:
-            (_, _) =>
-                MaterialAppBarData(titleSpacing: 0, leadingWidth: hPadding),
+        cupertino: (_, _) => CupertinoNavigationBarData(
+          backgroundColor: kCupertinoSheetColor.resolveFrom(context),
+        ),
+        material: (_, _) =>
+            MaterialAppBarData(titleSpacing: 0, leadingWidth: hPadding),
       ),
       body: SafeArea(
         child: FutureBuilder(
@@ -147,16 +139,15 @@ class _SearchPageState extends State<SearchPage> {
             }
             return AnimatedSwitcher(
               duration: Durations.short3,
-              transitionBuilder:
-                  (child, animation) => CupertinoDialogTransition(
+              transitionBuilder: (child, animation) =>
+                  CupertinoDialogTransition(
                     animation: animation,
                     scale: .9,
                     child: child,
                   ),
-              child:
-                  textController.text.isEmpty
-                      ? fetchHistorySearch(colorScheme, textTheme, hPadding)
-                      : searchResults(colorScheme, textTheme, hPadding),
+              child: textController.text.isEmpty
+                  ? fetchHistorySearch(colorScheme, textTheme, hPadding)
+                  : searchResults(colorScheme, textTheme, hPadding),
             );
           },
         ),
@@ -177,23 +168,21 @@ class _SearchPageState extends State<SearchPage> {
     textTheme ??= Theme.of(context).textTheme;
     hPadding ??= MediaQuery.sizeOf(context).width / 32;
     colorScheme ??= Theme.of(context).colorScheme;
-    final minInteractiveDimension =
-        isCupertino(context)
-            ? kMinInteractiveDimensionCupertino
-            : kMinInteractiveDimension;
+    final minInteractiveDimension = isCupertino(context)
+        ? kMinInteractiveDimensionCupertino
+        : kMinInteractiveDimension;
     return Container(
       height: minInteractiveDimension,
       margin: EdgeInsets.symmetric(horizontal: hPadding),
       decoration: BoxDecoration(
         border: Border(
-          top:
-              !isTop
-                  ? BorderSide(
-                    color: CupertinoColors.secondarySystemFill.resolveFrom(
-                      context,
-                    ),
-                  )
-                  : BorderSide.none,
+          top: !isTop
+              ? BorderSide(
+                  color: CupertinoColors.secondarySystemFill.resolveFrom(
+                    context,
+                  ),
+                )
+              : BorderSide.none,
         ),
       ),
       child: InkWell(
@@ -279,10 +268,9 @@ class _SearchPageState extends State<SearchPage> {
         return vocabularyItemBuilder(
           word: searchWords[index],
           context: context,
-          onTap:
-              (word) => MyDB().insertWords(Stream.value(word)).then((_) {
-                MyDB().insertSearchHistory(word.wordId);
-              }),
+          onTap: (word) => MyDB().insertWords(Stream.value(word)).then((_) {
+            MyDB().upsertSearchHistory(word.wordId);
+          }),
           isTop: index == 0,
           hPadding: hPadding,
           colorScheme: colorScheme,
@@ -318,23 +306,22 @@ class _SearchPageState extends State<SearchPage> {
         onTap: (word) async {},
       ),
       itemCount: historyWords.length,
-      itemBuilder:
-          (context, index) => vocabularyItemBuilder(
-            word: historyWords[index],
-            context: context,
-            onTap: (word) async => MyDB().updateHistory(word.wordId),
-            isTop: index == 0,
-            leading: Icon(
-              CupertinoIcons.time,
-              color: colorScheme?.outline,
-              size: textTheme?.bodyMedium?.fontSize.scale(
-                textTheme.bodyMedium?.height,
-              ),
-            ),
-            colorScheme: colorScheme,
-            textTheme: textTheme,
-            hPadding: hPadding,
+      itemBuilder: (context, index) => vocabularyItemBuilder(
+        word: historyWords[index],
+        context: context,
+        onTap: (word) async => MyDB().upsertSearchHistory(word.wordId),
+        isTop: index == 0,
+        leading: Icon(
+          CupertinoIcons.time,
+          color: colorScheme?.outline,
+          size: textTheme?.bodyMedium?.fontSize.scale(
+            textTheme.bodyMedium?.height,
           ),
+        ),
+        colorScheme: colorScheme,
+        textTheme: textTheme,
+        hPadding: hPadding,
+      ),
     );
   }
 }

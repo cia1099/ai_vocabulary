@@ -10,20 +10,20 @@ import 'package:ai_vocabulary/model/vocabulary.dart';
 import 'package:ai_vocabulary/provider/user_provider.dart';
 import 'package:ai_vocabulary/utils/regex.dart' show replacePlaceholders;
 import 'package:flutter/foundation.dart';
+import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+import 'package:sqlite3/sqlite3.dart';
 
-import '../model/alphabet.dart';
 import '../model/acquaintance.dart';
+import '../model/alphabet.dart';
 import '../utils/shortcut.dart';
 import 'sql_expression.dart';
-import 'package:path/path.dart' as p;
-import 'package:sqlite3/sqlite3.dart';
 
 part 'acquaint_db.dart';
 part 'chat_msg_db.dart';
 part 'collection_db.dart';
-part 'search_db.dart';
 part 'punch_db.dart';
+part 'search_db.dart';
 
 class MyDB with ChangeNotifier {
   late final String _appDirectory;
@@ -81,14 +81,15 @@ class MyDB with ChangeNotifier {
         debugPrint(
           'SQL error(${e.resultCode}): ${e.message}=(${word.wordId})${word.word}',
         );
-        db
-            .prepareMultiple(deleteVocabulary)
-            .forEach(
-              (rm) =>
-                  rm
-                    ..execute([word.wordId])
-                    ..dispose(),
-            );
+        db.execute("PRAGMA foreign_keys = ON");
+        db.execute(deleteVocabulary, [word.wordId]);
+        // db
+        //     .prepareMultiple(deleteVocabulary)
+        //     .forEach(
+        //       (rm) => rm
+        //         ..execute([word.wordId])
+        //         ..dispose(),
+        //     );
         _insertVocabulary(word, stmts);
       }
     }
@@ -100,7 +101,8 @@ class MyDB with ChangeNotifier {
 
   List<Vocabulary> fetchWords(Iterable<int> wordIds) {
     final wordsCTE = '$fetchWordInID (${wordIds.map((id) => '$id').join(',')})';
-    final fetchWordId = '''
+    final fetchWordId =
+        '''
     WITH words_cte AS ($wordsCTE)
     SELECT words_cte.*, acquaint, last_learned_time FROM words_cte
     LEFT JOIN acquaintances ON words_cte.word_id = acquaintances.word_id

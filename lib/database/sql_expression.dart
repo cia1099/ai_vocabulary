@@ -145,9 +145,8 @@ CREATE TABLE acquaintances (
         user_id TEXT, 
         acquaint INTEGER NOT NULL DEFAULT 0, 
         last_learned_time INTEGER, 
-        PRIMARY KEY (word_id, user_id), 
-        FOREIGN KEY(word_id) REFERENCES words (id),
-        FOREIGN KEY(user_id) REFERENCES users (id),
+        PRIMARY KEY (word_id, user_id),
+        FOREIGN KEY(user_id) REFERENCES users (id) ON DELETE CASCADE,
         CONSTRAINT acquaintance_unique UNIQUE (word_id, user_id)
 );
 CREATE TABLE text_messages (
@@ -158,8 +157,7 @@ CREATE TABLE text_messages (
         content VARCHAR NOT NULL,  
         patterns VARCHAR NOT NULL DEFAULT '',
         PRIMARY KEY (time_stamp, owner_id),
-        FOREIGN KEY(word_id) REFERENCES words (id), 
-        FOREIGN KEY(owner_id) REFERENCES users (id)
+        FOREIGN KEY(owner_id) REFERENCES users (id) ON DELETE CASCADE
 );
 CREATE TABLE collections (
         id INTEGER NOT NULL, 
@@ -169,7 +167,7 @@ CREATE TABLE collections (
         icon INTEGER, 
         color INTEGER, 
         PRIMARY KEY (id, user_id),
-        FOREIGN KEY(user_id) REFERENCES users (id),
+        FOREIGN KEY(user_id) REFERENCES users (id) ON DELETE CASCADE,
         CONSTRAINT collection_key UNIQUE (id, user_id),
         CONSTRAINT collection_name UNIQUE (name, user_id)
 );
@@ -178,15 +176,13 @@ CREATE TABLE collect_words (
         word_id INTEGER NOT NULL,
         collection_id INTEGER DEFAULT 0,
         PRIMARY KEY (word_id, collection_id, user_id),
-        FOREIGN KEY(word_id) REFERENCES words (id),
         FOREIGN KEY(collection_id, user_id) REFERENCES collections (id, user_id) ON DELETE CASCADE,
         CONSTRAINT collect_word_unique UNIQUE (user_id, word_id, collection_id)
 );
 CREATE TABLE history_searches (
         word_id INTEGER NOT NULL,
         time_stamp INTEGER NOT NULL,
-        PRIMARY KEY (word_id), 
-        FOREIGN KEY(word_id) REFERENCES words (id)
+        PRIMARY KEY (word_id)
 );
 CREATE TABLE punch_days (
         date INTEGER NOT NULL,
