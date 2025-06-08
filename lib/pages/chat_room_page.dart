@@ -53,13 +53,12 @@ class _ChatRoomPageState extends State<ChatRoomPage> implements ChatInput {
   void dispose() {
     showTips.dispose();
     scrollController.dispose();
-    MyDB()
-        .insertMessages(
-          Stream.fromIterable(
-            messages.whereType<TextMessage>(),
-          ).where((msg) => msg.userID != null && !msg.hasError),
-        )
-        .then((_) => messages.clear());
+    final insertMsg = messages.whereType<TextMessage>().where(
+      (msg) => msg.userID != null && !msg.hasError,
+    );
+    if (insertMsg.isNotEmpty) {
+      MyDB().insertMessages(Stream.fromIterable(insertMsg));
+    }
     super.dispose();
   }
 

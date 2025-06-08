@@ -190,7 +190,7 @@ class _VocabularyTabState extends State<VocabularyTab>
               color: Theme.of(context).colorScheme.error,
             ),
           ),
-          Text("Scroll up to refresh the page."),
+          Text("Pull down to refresh the page."),
         ],
       );
     }

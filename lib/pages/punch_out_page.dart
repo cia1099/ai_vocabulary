@@ -400,10 +400,12 @@ class _PunchOutPageState extends State<PunchOutPage> {
 Memorize words ✅
 I'm memorizing words with AI Vocabulary, punch with me! https://www.cia1099.cloudns.ch
 ''';
-    final share = await Share.shareXFiles(
-      [XFile(img.path)],
-      text: text,
-      subject: 'I am studying in AI vocabulary',
+    final share = await SharePlus.instance.share(
+      ShareParams(
+        text: text,
+        files: [XFile(img.path)],
+        subject: 'I am studying in AI vocabulary',
+      ),
     );
     switch (share.status) {
       case ShareResultStatus.success:

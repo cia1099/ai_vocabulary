@@ -37,6 +37,7 @@ dependencies:
   flutter_facebook_auth: ^7.1.1
   auth_button_kit: ^1.1.6
   authentication_buttons: ^0.0.5
+  url_launcher: ^6.3.1
 
 dev_dependencies:
   flutter_test:
