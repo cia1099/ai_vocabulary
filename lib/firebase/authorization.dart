@@ -1,9 +1,11 @@
 import 'package:ai_vocabulary/api/dict_api.dart';
+import 'package:ai_vocabulary/firebase/crypto.dart';
 import 'package:ai_vocabulary/model/user.dart';
 import 'package:ai_vocabulary/utils/handle_except.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 Future<ApiResponse> loginByFirebase(String email, String password) {
   return FirebaseAuth.instance
@@ -94,11 +96,49 @@ Future<ApiResponse> signInWithGoogle() async {
         content: token ?? 'User not found',
       );
     },
-    onError:
-        (e) => ApiResponse(
-          status: 501,
-          content: e.message ?? 'Firebase exception',
-        ),
+    onError: (e) =>
+        ApiResponse(status: 501, content: e.message ?? 'Firebase exception'),
+  );
+}
+
+Future<ApiResponse> signInWithApple() async {
+  // Implement a function that generates a nonce. See iOS documentation for how to create a nonce:
+  final rawNonce = createNonce();
+  // Create a SHA-256 hash of the nonce. Consider using the `crypto` package from the pub.dev registry.
+  final hashedNonce = createHashSHA256String(rawNonce);
+  // Use the hash of the nonce to get the idToken. Consider using the `sign_in_with_apple` plugin from the pub.dev registry.
+  final appleAuth = await SignInWithApple.getAppleIDCredential(
+    scopes: [
+      AppleIDAuthorizationScopes.email,
+      AppleIDAuthorizationScopes.fullName,
+    ],
+    nonce: hashedNonce,
+  );
+  final idToken = appleAuth.identityToken;
+  if (idToken == null) {
+    return ApiResponse(status: 501, content: "Failed sign in with Apple");
+  }
+  final fullName = AppleFullPersonName(
+    familyName: appleAuth.familyName,
+    givenName: appleAuth.givenName,
+  );
+  // Use the `rawNonce` and `idToken` to get the credential
+  final credential = AppleAuthProvider.credentialWithIDToken(
+    idToken,
+    rawNonce,
+    fullName,
+  );
+
+  return FirebaseAuth.instance.signInWithCredential(credential).then(
+    (credential) async {
+      final token = await credential.user?.getIdToken();
+      return ApiResponse(
+        status: token == null ? 404 : 200,
+        content: token ?? 'User not found',
+      );
+    },
+    onError: (e) =>
+        ApiResponse(status: 501, content: e.message ?? 'Firebase exception'),
   );
 }
 
@@ -119,11 +159,10 @@ Future<ApiResponse> signInWithFacebook() async {
               content: token ?? 'User not found',
             );
           },
-          onError:
-              (e) => ApiResponse(
-                status: 501,
-                content: e.message ?? 'Firebase exception',
-              ),
+          onError: (e) => ApiResponse(
+            status: 501,
+            content: e.message ?? 'Firebase exception',
+          ),
         );
   }
   return ApiResponse(status: 501, content: "Failed login Facebook");

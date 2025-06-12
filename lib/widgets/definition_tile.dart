@@ -14,6 +14,7 @@ import 'package:text2speech/text2speech.dart';
 import '../api/dict_api.dart';
 import '../model/vocabulary.dart';
 import '../utils/clickable_text_mixin.dart';
+import '../utils/function.dart' show ScaleDouble;
 import 'example_paragraph.dart';
 
 class DefinitionTile extends StatelessWidget {
@@ -39,31 +40,28 @@ class DefinitionTile extends StatelessWidget {
         if (definition.inflection != null)
           Wrap(
             spacing: 8,
-            children:
-                definition.inflection!
-                    .split(", ")
-                    .toSet()
-                    .map(
-                      (e) => Container(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 4,
-                          horizontal: 8,
-                        ),
-                        decoration: BoxDecoration(
-                          color: colorScheme.primaryContainer,
-                          borderRadius: BorderRadius.circular(
-                            textTheme.bodyMedium!.fontSize!,
-                          ),
-                        ),
-                        child: Text(
-                          e,
-                          style: TextStyle(
-                            color: colorScheme.onPrimaryContainer,
-                          ),
-                        ),
+            children: definition.inflection!
+                .split(", ")
+                .toSet()
+                .map(
+                  (e) => Container(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 4,
+                      horizontal: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: colorScheme.primaryContainer,
+                      borderRadius: BorderRadius.circular(
+                        textTheme.bodyMedium!.fontSize!,
                       ),
-                    )
-                    .toList(),
+                    ),
+                    child: Text(
+                      e,
+                      style: TextStyle(color: colorScheme.onPrimaryContainer),
+                    ),
+                  ),
+                )
+                .toList(),
           ),
         // if (definition.translate != null) Text(definition.translate!),
         FutureBuilder(
@@ -72,15 +70,14 @@ class DefinitionTile extends StatelessWidget {
           builder: (context, snapshot) {
             if (snapshot.error is ApiException) {
               return GestureDetector(
-                onTap:
-                    () => Navigator.push(
-                      context,
-                      platformPageRoute(
-                        context: context,
-                        fullscreenDialog: true,
-                        builder: (context) => PaymentPage(),
-                      ),
-                    ),
+                onTap: () => Navigator.push(
+                  context,
+                  platformPageRoute(
+                    context: context,
+                    fullscreenDialog: true,
+                    builder: (context) => PaymentPage(),
+                  ),
+                ),
                 child: Text(
                   'Go to Enable Translation',
                   style: TextStyle(
@@ -98,6 +95,17 @@ class DefinitionTile extends StatelessWidget {
           ...explain.examples.map((example) {
             final explainWord = explain.explain.split(' ');
             return ExampleParagraph(
+              mark: CircleAvatar(
+                backgroundColor: colorScheme.primary,
+                radius: textTheme.bodySmall?.fontSize
+                    .scale(textTheme.bodySmall?.height)
+                    .scale(.5),
+                child: Icon(
+                  CupertinoIcons.photo,
+                  size: textTheme.labelSmall?.fontSize.scale(.9),
+                  color: colorScheme.onPrimary,
+                ),
+              ),
               example: example,
               patterns:
                   definition.inflection?.split(", ") ??
@@ -193,10 +201,9 @@ class _DefinitionParagraphState extends State<DefinitionParagraph>
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
-    final subscript =
-        widget.explain.subscript == null
-            ? ''
-            : '[${widget.explain.subscript!}]\t';
+    final subscript = widget.explain.subscript == null
+        ? ''
+        : '[${widget.explain.subscript!}]\t';
     final spans = clickableWords(subscript + widget.explain.explain);
     final firstSpan = clickableWords(subscript);
     return Text.rich(
@@ -247,24 +254,22 @@ class PartOfSpeechTitle extends StatelessWidget {
             children: [
               Text('🇬🇧${definition.phoneticUk!}', style: textTheme.bodyLarge),
               PlatformWidgetBuilder(
-                material:
-                    (_, child, __) => InkWell(
-                      onTap: playPhonetic(
-                        definition.audioUk,
-                        word: word,
-                        gTTs: gTTS.UK,
-                      ),
-                      child: child,
-                    ),
-                cupertino:
-                    (_, child, __) => GestureDetector(
-                      onTap: playPhonetic(
-                        definition.audioUk,
-                        word: word,
-                        gTTs: gTTS.UK,
-                      ),
-                      child: child,
-                    ),
+                material: (_, child, __) => InkWell(
+                  onTap: playPhonetic(
+                    definition.audioUk,
+                    word: word,
+                    gTTs: gTTS.UK,
+                  ),
+                  child: child,
+                ),
+                cupertino: (_, child, __) => GestureDetector(
+                  onTap: playPhonetic(
+                    definition.audioUk,
+                    word: word,
+                    gTTs: gTTS.UK,
+                  ),
+                  child: child,
+                ),
                 child: Icon(
                   CupertinoIcons.volume_up,
                   size: textTheme.bodyLarge!.fontSize,
@@ -278,16 +283,14 @@ class PartOfSpeechTitle extends StatelessWidget {
             children: [
               Text('🇺🇸${definition.phoneticUs!}', style: textTheme.bodyLarge),
               PlatformWidgetBuilder(
-                material:
-                    (_, child, __) => InkWell(
-                      onTap: playPhonetic(definition.audioUs, word: word),
-                      child: child,
-                    ),
-                cupertino:
-                    (_, child, __) => GestureDetector(
-                      onTap: playPhonetic(definition.audioUs, word: word),
-                      child: child,
-                    ),
+                material: (_, child, __) => InkWell(
+                  onTap: playPhonetic(definition.audioUs, word: word),
+                  child: child,
+                ),
+                cupertino: (_, child, __) => GestureDetector(
+                  onTap: playPhonetic(definition.audioUs, word: word),
+                  child: child,
+                ),
                 child: Icon(
                   CupertinoIcons.volume_up,
                   size: textTheme.bodyLarge!.fontSize,

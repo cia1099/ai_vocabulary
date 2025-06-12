@@ -14,6 +14,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:vector_math/vector_math.dart' show Matrix2;
@@ -254,6 +255,26 @@ class SettingTab extends StatelessWidget {
                   child: Text("Delete Account"),
                 ),
               ],
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: FutureBuilder(
+              future: PackageInfo.fromPlatform(),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  return Container(
+                    alignment: Alignment(0, 0),
+                    padding: EdgeInsets.only(top: 2, bottom: 8),
+                    child: Text(
+                      "Version ${snapshot.data!.version}",
+                      style: textTheme.textStyle.copyWith(
+                        color: Theme.of(context).colorScheme.outline,
+                      ),
+                    ),
+                  );
+                }
+                return SizedBox.shrink();
+              },
             ),
           ),
           SliverPadding(padding: EdgeInsets.only(bottom: 24)),

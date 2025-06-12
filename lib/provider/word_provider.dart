@@ -123,7 +123,12 @@ class RecommendProvider extends WordProvider {
         AppSettings.of(context).studyState != StudyStatus.completedReview;
     final candidateWords = (await Future.wait([
       requestWords(requestIDs),
-      if (undoneReview) fetchWords(reviewIDs, take: count * 2),
+      if (undoneReview)
+        //fetchWords(reviewIDs, take: count * 2),
+        compute(
+          sortByRetention,
+          MyDB().fetchWords(reviewIDs),
+        ).then((list) => list.take(count * 2).toList()),
     ])).reduce((a, b) => a + b);
     final selector = WeightedSelector(
       candidateWords,

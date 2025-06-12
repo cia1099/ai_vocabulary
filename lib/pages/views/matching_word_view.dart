@@ -1,6 +1,7 @@
 import 'package:ai_vocabulary/api/dict_api.dart';
 import 'package:ai_vocabulary/app_settings.dart';
 import 'package:ai_vocabulary/model/vocabulary.dart';
+import 'package:ai_vocabulary/utils/function.dart';
 import 'package:ai_vocabulary/widgets/entry_actions.dart';
 import 'package:ai_vocabulary/widgets/inline_paragraph.dart';
 import 'package:flutter/cupertino.dart';
@@ -54,53 +55,51 @@ class _MatchingWordViewState extends State<MatchingWordView> {
                 TextSpan(text: '\t' * 2),
                 WidgetSpan(
                   child: GestureDetector(
-                    onTap:
-                        () => soundGTTs(
-                          widget.word.word,
-                          AppSettings.of(context).accent.gTTS,
-                        ),
+                    onTap: () => soundGTTs(
+                      widget.word.word,
+                      AppSettings.of(context).accent.gTTS,
+                    ),
                     child: Icon(
                       CupertinoIcons.volume_up,
-                      size: textTheme.titleLarge!.fontSize! * 1.25,
+                      size: textTheme.titleLarge?.fontSize?.scale(1.25),
                     ),
                   ),
                 ),
               ],
-              style: textTheme.titleLarge!.copyWith(
+              style: textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
             ),
           ),
           Wrap(
             spacing: widget.hPadding / 4,
-            children:
-                widget.word.getInflection
-                    .map(
-                      (e) => Container(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 2,
-                          horizontal: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: colorScheme.secondary),
-                          borderRadius: BorderRadius.circular(
-                            textTheme.labelMedium!.fontSize!,
-                          ),
-                        ),
-                        child: Text(
-                          e,
-                          style: textTheme.labelMedium!.apply(
-                            color: colorScheme.secondary,
-                          ),
-                        ),
+            children: widget.word.getInflection
+                .map(
+                  (e) => Container(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 2,
+                      horizontal: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: colorScheme.secondary),
+                      borderRadius: BorderRadius.circular(
+                        textTheme.labelMedium?.fontSize ?? 24,
                       ),
-                    )
-                    .toList(),
+                    ),
+                    child: Text(
+                      e,
+                      style: textTheme.labelMedium?.apply(
+                        color: colorScheme.secondary,
+                      ),
+                    ),
+                  ),
+                )
+                .toList(),
           ),
           SizedBox(height: widget.hPadding / 4),
           ExplanationBoard(word: widget.word, hPadding: widget.hPadding),
           SizedBox(height: widget.hPadding),
-          if (widget.buildExamples != null) widget.buildExamples!(context),
+          ?widget.buildExamples?.call(context),
         ],
       ),
     );
@@ -147,18 +146,17 @@ class _ExplanationBoardState extends State<ExplanationBoard> {
                         });
                       }
                     },
-                    child:
-                        selected == s
-                            ? HighlineText(
-                              s.type,
-                              style: textTheme.navTitleTextStyle,
-                            )
-                            : Text(
-                              s.type,
-                              style: textTheme.navTitleTextStyle.copyWith(
-                                color: unselectColor.resolveFrom(context),
-                              ),
+                    child: selected == s
+                        ? HighlineText(
+                            s.type,
+                            style: textTheme.navTitleTextStyle,
+                          )
+                        : Text(
+                            s.type,
+                            style: textTheme.navTitleTextStyle.copyWith(
+                              color: unselectColor.resolveFrom(context),
                             ),
+                          ),
                   ),
               ],
             ),
@@ -171,14 +169,13 @@ class _ExplanationBoardState extends State<ExplanationBoard> {
         // SizedBox(height: widget.hPadding / 8),
         AnimatedSwitcher(
           duration: Durations.short4,
-          transitionBuilder:
-              (child, animation) => SlideTransition(
-                position: Tween<Offset>(
-                  begin: const Offset(-1, 0),
-                  end: Offset.zero,
-                ).animate(animation),
-                child: ScaleTransition(scale: animation, child: child),
-              ),
+          transitionBuilder: (child, animation) => SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(-1, 0),
+              end: Offset.zero,
+            ).animate(animation),
+            child: ScaleTransition(scale: animation, child: child),
+          ),
           child: Column(
             key: ValueKey(selected.index),
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -188,16 +185,17 @@ class _ExplanationBoardState extends State<ExplanationBoard> {
               if (selected == SelectExplanation.explanation)
                 for (final definition in widget.word.definitions)
                   AlignParagraph.text(
-                    mark: Text(
-                      definition.partOfSpeech,
-                      style: textTheme.textStyle.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ).coloredSpeech(
-                      context: context,
-                      isShortcut: true,
-                      length: 4,
-                    ),
+                    mark:
+                        Text(
+                          definition.partOfSpeech,
+                          style: textTheme.textStyle.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ).coloredSpeech(
+                          context: context,
+                          isShortcut: true,
+                          length: 4,
+                        ),
                     paragraph: definition.index2Explanation(),
                     xInterval: widget.hPadding / 4,
                     paragraphStyle: textTheme.textStyle,

@@ -85,6 +85,7 @@ mixin FirebaseAuthMixin<T extends StatefulWidget> on State<T>
     String? errorMessage;
     final res = await switch (method) {
       AuthenticationMethod.google => signInWithGoogle(),
+      AuthenticationMethod.apple => signInWithApple(),
       AuthenticationMethod.facebook => signInWithFacebook(),
       _ => Future.value(
         ApiResponse(status: 203, content: "Unsupported social login method"),
