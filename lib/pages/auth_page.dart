@@ -3,6 +3,7 @@ import 'dart:math' show pi;
 import 'dart:ui';
 
 import 'package:ai_vocabulary/api/dict_api.dart' show baseURL;
+import 'package:ai_vocabulary/app_route.dart';
 import 'package:ai_vocabulary/app_settings.dart';
 import 'package:ai_vocabulary/effects/show_toast.dart';
 import 'package:ai_vocabulary/effects/transient.dart';
@@ -10,7 +11,6 @@ import 'package:ai_vocabulary/firebase/authorization.dart'
     show signInAnonymously;
 import 'package:ai_vocabulary/firebase/firebase_auth_mixin.dart';
 import 'package:ai_vocabulary/model/user.dart';
-import 'package:ai_vocabulary/app_route.dart';
 import 'package:ai_vocabulary/pages/home_page.dart';
 import 'package:ai_vocabulary/provider/user_provider.dart';
 import 'package:ai_vocabulary/widgets/pull_data_dialog.dart';
@@ -20,6 +20,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
+import 'package:purchases_flutter/purchases_flutter.dart' show Purchases;
 
 part 'auth_page2.dart';
 
@@ -133,8 +134,8 @@ class _AuthPageState extends State<AuthPage>
         context,
         PageRouteBuilder(
           pageBuilder: (context, _, __) => HomePage(),
-          transitionsBuilder:
-              (_, animation, _, child) => CupertinoDialogTransition(
+          transitionsBuilder: (_, animation, _, child) =>
+              CupertinoDialogTransition(
                 animation: animation,
                 scale: .9,
                 child: child,
@@ -178,40 +179,33 @@ class _AuthPageState extends State<AuthPage>
               ),
               child: AnimatedBuilder(
                 animation: _controller,
-                builder:
-                    (context, _) => PlatformTextButton(
-                      onPressed:
-                          _controller.isCompleted
-                              ? () => signInAnonymously(
-                                entryFunc: (user) {
-                                  UserProvider().currentUser = user;
-                                  _onPress(AuthState.home);
-                                },
-                                errorOccur:
-                                    (msg) => showToast(
-                                      context: context,
-                                      alignment: Alignment(0, .85),
-                                      stay: Durations.extralong4 * 2,
-                                      child: Text(
-                                        msg,
-                                        style: TextStyle(
-                                          color:
-                                              Theme.of(
-                                                context,
-                                              ).colorScheme.error,
-                                        ),
-                                      ),
-                                    ),
-                              )
-                              : null,
-                      child: Text(
-                        "Visitor",
-                        style:
-                            _controller.isCompleted
-                                ? TextStyle(color: Colors.white70)
-                                : null,
-                      ),
-                    ),
+                builder: (context, _) => PlatformTextButton(
+                  onPressed: _controller.isCompleted
+                      ? () => signInAnonymously(
+                          entryFunc: (user) {
+                            UserProvider().currentUser = user;
+                            _onPress(AuthState.home);
+                          },
+                          errorOccur: (msg) => showToast(
+                            context: context,
+                            alignment: Alignment(0, .85),
+                            stay: Durations.extralong4 * 2,
+                            child: Text(
+                              msg,
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.error,
+                              ),
+                            ),
+                          ),
+                        )
+                      : null,
+                  child: Text(
+                    "Visitor",
+                    style: _controller.isCompleted
+                        ? TextStyle(color: Colors.white70)
+                        : null,
+                  ),
+                ),
               ),
             ),
             Center(
@@ -243,51 +237,47 @@ class _AuthPageState extends State<AuthPage>
                     ),
                   );
                 },
-                child:
-                    _isLogin
-                        ? LoginForm(
-                          key: loginFormKey,
-                          safeArea: _headerHeight,
-                          onSignUpPressed: () {
-                            _onPress(AuthState.signup);
-                          },
-                          onLogin: (cacheUser) {
-                            if (cacheUser) {
-                              _routeTransition();
-                            } else {
-                              _onPress(AuthState.home);
-                            }
-                          },
-                          initAuthPage: (hasUser) {
-                            if (hasUser || loginFromState.value != null) return;
-                            Future.delayed(
-                              Durations.extralong4,
-                            ).then((_) => loginFromState.value ??= hasUser);
-                          },
-                        )
-                        : SignUpForm(
-                          safeArea: _headerHeight,
-                          onLoginPressed: () {
-                            _onPress(AuthState.login);
-                          },
-                        ),
+                child: _isLogin
+                    ? LoginForm(
+                        key: loginFormKey,
+                        safeArea: _headerHeight,
+                        onSignUpPressed: () {
+                          _onPress(AuthState.signup);
+                        },
+                        onLogin: (cacheUser) {
+                          if (cacheUser) {
+                            _routeTransition();
+                          } else {
+                            _onPress(AuthState.home);
+                          }
+                        },
+                        initAuthPage: (hasUser) {
+                          if (hasUser || loginFromState.value != null) return;
+                          Future.delayed(
+                            Durations.extralong4,
+                          ).then((_) => loginFromState.value ??= hasUser);
+                        },
+                      )
+                    : SignUpForm(
+                        safeArea: _headerHeight,
+                        onLoginPressed: () {
+                          _onPress(AuthState.login);
+                        },
+                      ),
               ),
             ),
             ValueListenableBuilder(
               valueListenable: loginFromState,
-              builder:
-                  (context, value, _) => ExpandingPageAnimation(
-                    containerKey: containerKey,
-                    width:
-                        value != null
-                            ? _expandingWidth
-                            : MediaQuery.sizeOf(context).width,
-                    height:
-                        value != null
-                            ? _expandingHeight
-                            : MediaQuery.sizeOf(context).height,
-                    borderRadius: value != null ? _expandingBorderRadius : 0,
-                  ),
+              builder: (context, value, _) => ExpandingPageAnimation(
+                containerKey: containerKey,
+                width: value != null
+                    ? _expandingWidth
+                    : MediaQuery.sizeOf(context).width,
+                height: value != null
+                    ? _expandingHeight
+                    : MediaQuery.sizeOf(context).height,
+                borderRadius: value != null ? _expandingBorderRadius : 0,
+              ),
             ),
           ],
         ),
@@ -309,21 +299,22 @@ class _AuthPageState extends State<AuthPage>
       parent: _controller,
       curve: Interval(.5, 1, curve: Curves.easeIn),
     );
-    sequenceAnimation['width'] = TweenSequence<double>([
-      TweenSequenceItem(
-        tween: Tween<double>(begin: 0, end: _headerHeight),
-        weight: .5,
-      ),
-      TweenSequenceItem(
-        tween: Tween<double>(begin: _headerHeight, end: _panelWidth),
-        weight: .5,
-      ),
-    ]).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: Interval(0, .5, curve: Curves.ease),
-      ),
-    );
+    sequenceAnimation['width'] =
+        TweenSequence<double>([
+          TweenSequenceItem(
+            tween: Tween<double>(begin: 0, end: _headerHeight),
+            weight: .5,
+          ),
+          TweenSequenceItem(
+            tween: Tween<double>(begin: _headerHeight, end: _panelWidth),
+            weight: .5,
+          ),
+        ]).animate(
+          CurvedAnimation(
+            parent: _controller,
+            curve: Interval(0, .5, curve: Curves.ease),
+          ),
+        );
     sequenceAnimation['height'] = TweenSequence<double>([
       TweenSequenceItem(
         tween: Tween<double>(
@@ -365,15 +356,13 @@ class _AuthPageState extends State<AuthPage>
         weight: .21,
       ),
     ]).animate(_controller);
-    sequenceAnimation['borderRadius'] = Tween<double>(
-      begin: 0,
-      end: kRadialReactionRadius,
-    ).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: Interval(0, .5, curve: Curves.ease),
-      ),
-    );
+    sequenceAnimation['borderRadius'] =
+        Tween<double>(begin: 0, end: kRadialReactionRadius).animate(
+          CurvedAnimation(
+            parent: _controller,
+            curve: Interval(0, .5, curve: Curves.ease),
+          ),
+        );
     return sequenceAnimation;
   }
 }

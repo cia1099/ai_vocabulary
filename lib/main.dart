@@ -4,6 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
+import 'package:purchases_flutter/purchases_flutter.dart';
 
 import 'app_settings.dart';
 import 'firebase_options.dart';
@@ -34,6 +35,7 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
+    initPurchases(Theme.of(context).platform);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       AppSettings.of(context).addListener(handleSettings);
       // ..loadSetting();
@@ -171,5 +173,17 @@ class _MyAppState extends State<MyApp> {
         colorScheme: colorScheme,
       );
     });
+  }
+
+  Future<void> initPurchases(TargetPlatform platform) async {
+    await Purchases.setLogLevel(LogLevel.debug);
+
+    final revenueCatKey = switch (platform) {
+      TargetPlatform.iOS => "appl_BhfSwLRtzObwxuwlHUNddWezqtr",
+      _ => "",
+    };
+
+    final configuration = PurchasesConfiguration(revenueCatKey);
+    await Purchases.configure(configuration);
   }
 }

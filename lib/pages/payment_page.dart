@@ -8,6 +8,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:intl/intl.dart';
+import 'package:purchases_flutter/purchases_flutter.dart';
 
 import '../model/payment_period.dart' show PaymentPeriod;
 import '../widgets/revolve_mock_deal.dart';
@@ -52,9 +53,14 @@ class PaymentPage extends StatefulWidget {
 
 class _PaymentPageState extends State<PaymentPage> {
   PaymentPeriod? selectedPeriod;
-  late var futurePrices = getPayments(
-    Localizations.localeOf(context).toLanguageTag(),
-  );
+  late var futurePrices =
+      getPayments(Localizations.localeOf(context).toLanguageTag()).then((
+        res,
+      ) async {
+        final offers = await Purchases.getOfferings();
+        print(offers.toString());
+        return res;
+      });
 
   @override
   Widget build(BuildContext context) {

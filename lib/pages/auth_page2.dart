@@ -235,6 +235,7 @@ class _LoginFormState extends State<LoginForm> with FirebaseAuthMixin {
   void successfullyLogin([SignInUser? user]) {
     UserProvider().currentUser = user;
     widget.onLogin?.call(cacheUser);
+    if (user != null) Purchases.logIn(user.uid);
   }
 }
 
@@ -273,15 +274,14 @@ class _SignUpFormState extends State<SignUpForm> with FirebaseAuthMixin {
                 child: CallToActionText('Create an account'),
               ),
               TextInputBox(
-                icon:
-                    isCupertino(context)
-                        ? CupertinoIcons.person_crop_square
-                        : Icons.portrait,
+                icon: isCupertino(context)
+                    ? CupertinoIcons.person_crop_square
+                    : Icons.portrait,
                 hintText: 'Name',
                 textInputAction: TextInputAction.next,
                 textCapitalization: TextCapitalization.words,
-                onChanged:
-                    (value) => value.isEmpty ? name = null : name = value,
+                onChanged: (value) =>
+                    value.isEmpty ? name = null : name = value,
                 keyboardType: TextInputType.name,
               ),
               TextInputBox(
@@ -301,18 +301,17 @@ class _SignUpFormState extends State<SignUpForm> with FirebaseAuthMixin {
               ),
               FutureBuilder(
                 future: registerFuture,
-                builder:
-                    (context, snapshot) => Offstage(
-                      offstage:
-                          snapshot.connectionState == ConnectionState.waiting ||
-                          !snapshot.hasData,
-                      child: Text(
-                        "${snapshot.data}",
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.error,
-                        ),
-                      ),
+                builder: (context, snapshot) => Offstage(
+                  offstage:
+                      snapshot.connectionState == ConnectionState.waiting ||
+                      !snapshot.hasData,
+                  child: Text(
+                    "${snapshot.data}",
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
                     ),
+                  ),
+                ),
               ),
               FutureBuilder(
                 future: registerFuture,
@@ -426,50 +425,44 @@ class TextInputBox extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.all(8.0),
       child: StatefulBuilder(
-        builder:
-            (context, setState) => TextFormField(
-              obscureText: isObscure,
-              textInputAction: textInputAction,
-              keyboardType: keyboardType,
-              autofillHints: autofillHints,
-              textCapitalization: textCapitalization,
-              onFieldSubmitted: onFieldSubmitted,
-              onChanged: onChanged,
-              style: const TextStyle(color: Colors.white),
-              decoration: InputDecoration(
-                prefixIcon: Icon(icon, color: Colors.white54),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(30),
-                  borderSide: const BorderSide(color: Colors.white, width: 2.0),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(30),
-                  borderSide: const BorderSide(
-                    color: Colors.white54,
-                    width: 2.0,
-                  ),
-                ),
-                hintText: hintText,
-                hintStyle: const TextStyle(color: Colors.white70),
-                suffixIcon:
-                    obscureText
-                        ? IconButton(
-                          onPressed:
-                              () => setState(() {
-                                isObscure ^= true;
-                              }),
-                          icon: Icon(
-                            isObscure
-                                ? PlatformIcons(context).eyeSlash
-                                : isCupertino(context)
-                                ? CupertinoIcons.eye
-                                : Icons.visibility_outlined,
-                            color: Colors.white54,
-                          ),
-                        )
-                        : null,
-              ),
+        builder: (context, setState) => TextFormField(
+          obscureText: isObscure,
+          textInputAction: textInputAction,
+          keyboardType: keyboardType,
+          autofillHints: autofillHints,
+          textCapitalization: textCapitalization,
+          onFieldSubmitted: onFieldSubmitted,
+          onChanged: onChanged,
+          style: const TextStyle(color: Colors.white),
+          decoration: InputDecoration(
+            prefixIcon: Icon(icon, color: Colors.white54),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(30),
+              borderSide: const BorderSide(color: Colors.white, width: 2.0),
             ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(30),
+              borderSide: const BorderSide(color: Colors.white54, width: 2.0),
+            ),
+            hintText: hintText,
+            hintStyle: const TextStyle(color: Colors.white70),
+            suffixIcon: obscureText
+                ? IconButton(
+                    onPressed: () => setState(() {
+                      isObscure ^= true;
+                    }),
+                    icon: Icon(
+                      isObscure
+                          ? PlatformIcons(context).eyeSlash
+                          : isCupertino(context)
+                          ? CupertinoIcons.eye
+                          : Icons.visibility_outlined,
+                      color: Colors.white54,
+                    ),
+                  )
+                : null,
+          ),
+        ),
       ),
     );
   }
