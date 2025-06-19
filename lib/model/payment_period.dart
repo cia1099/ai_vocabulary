@@ -4,13 +4,13 @@ class PaymentPeriod {
   final String period;
   final double price;
   final Discount? discount;
-  final String? locale;
+  final String currency;
 
   PaymentPeriod({
     required this.period,
     required this.price,
-    required this.discount,
-    required this.locale,
+    required this.currency,
+    this.discount,
   });
 
   factory PaymentPeriod.fromRawJson(String str) =>
@@ -21,16 +21,17 @@ class PaymentPeriod {
   factory PaymentPeriod.fromJson(Map<String, dynamic> json) => PaymentPeriod(
     period: json["period"],
     price: json["price"],
-    discount:
-        json["discount"] == null ? null : Discount.fromJson(json["discount"]),
-    locale: json["locale"],
+    discount: json["discount"] == null
+        ? null
+        : Discount.fromJson(json["discount"]),
+    currency: json["currency"],
   );
 
   Map<String, dynamic> toJson() => {
     "period": period,
     "price": price,
     "discount": discount?.toJson(),
-    "locale": locale,
+    "currency": currency,
   };
 
   @override
@@ -38,7 +39,7 @@ class PaymentPeriod {
     if (identical(this, other)) return true;
     return other is PaymentPeriod &&
         other.period == period &&
-        other.locale == locale;
+        other.currency == currency;
   }
 
   @override

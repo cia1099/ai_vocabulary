@@ -37,7 +37,7 @@ extension Methods on SettingTab {
   bool signOut(BuildContext context) {
     UserProvider().currentUser = null;
     AppSettings.of(context).resetCacheOrSignOut(signOut: true);
-    Purchases.logOut();
+    //Never call log out https://www.revenuecat.com/docs/customers/identifying-customers#logging-out
     Navigator.pushReplacementNamed(context, AppRoute.login);
     return true;
   }

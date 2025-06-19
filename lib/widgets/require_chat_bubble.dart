@@ -111,6 +111,7 @@ class _RequireChatBubbleState extends State<RequireChatBubble> {
       wordID: widget.message.wordID,
       userID: ans.userId,
     );
+    widget.updateMessage(responseMsg!);
     if (mounted && ChatBubble.showContents.value) {
       final accent = AppSettings.of(context).accent;
       final voicer = AppSettings.of(context).voicer;
@@ -137,7 +138,6 @@ class _RequireChatBubbleState extends State<RequireChatBubble> {
       //   print(e);
       // }
     }
-    widget.updateMessage(responseMsg!);
     if (ans.quiz) {
       Timer(const Duration(seconds: 2), () {
         final acquaint = MyDB().getAcquaintance(widget.message.wordID).acquaint;
