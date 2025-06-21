@@ -135,14 +135,7 @@ class ProfileHeader extends StatelessWidget {
                       ],
                     ),
                     PlatformTextButton(
-                      onPressed: () => Navigator.push(
-                        context,
-                        platformPageRoute(
-                          context: context,
-                          fullscreenDialog: true,
-                          builder: (context) => PaymentPage(),
-                        ),
-                      ),
+                      onPressed: pressIdentity(context, user.role),
                       padding: EdgeInsets.zero,
                       child: Text(user.role.capitalize()),
                       material: (_, __) => MaterialTextButtonData(
@@ -167,5 +160,24 @@ class ProfileHeader extends StatelessWidget {
         },
       ),
     );
+  }
+
+  VoidCallback? pressIdentity(BuildContext context, String role) {
+    return switch (role) {
+      "member" => () => Navigator.push(
+        context,
+        platformPageRoute(
+          context: context,
+          fullscreenDialog: true,
+          builder: (context) => PaymentPage(),
+        ),
+      ),
+      "guest" => () => showToast(
+        context: context,
+        alignment: Alignment(0, -.675),
+        child: Text("You have to register first"),
+      ),
+      _ => () {},
+    };
   }
 }

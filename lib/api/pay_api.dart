@@ -23,3 +23,19 @@ Future<int> getTodayShares() async {
   final res = await _httpGet(url, headers: headers);
   return int.parse(res.content);
 }
+
+Future<SignInUser> updateSubscript(Map<String, dynamic> info) async {
+  // final base = "localhost:8000";
+  final url = Uri.https(baseURL, '/dict/update/subscript/attributes');
+  final headers = {
+    "Authorization": "Bearer ${UserProvider().currentUser?.accessToken}",
+    "Content-Type": "application/json",
+  };
+  final res = await http.patch(url, headers: headers, body: jsonEncode(info));
+  if (res.statusCode != 200) {
+    throw HttpException(res.body, uri: url);
+  }
+  final body = ApiResponse.fromRawJson(res.body);
+  if (body.status != 200) throw ApiException(body.content);
+  return SignInUser.fromRawJson(body.content);
+}

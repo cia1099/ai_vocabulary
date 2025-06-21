@@ -235,7 +235,13 @@ class _LoginFormState extends State<LoginForm> with FirebaseAuthMixin {
   void successfullyLogin([SignInUser? user]) {
     UserProvider().currentUser = user;
     widget.onLogin?.call(cacheUser);
-    if (user != null) Purchases.logIn(user.uid);
+    if (user != null && user.email.isNotEmpty) {
+      Purchases.logIn(user.uid).then((login) async {
+        final info = login.customerInfo.entitlements.active.values.firstOrNull;
+        final customer = await updateSubscript(info?.toJson() ?? {});
+        UserProvider().currentUser = customer;
+      });
+    }
   }
 }
 

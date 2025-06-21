@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:math' show pi;
 import 'dart:ui';
 
-import 'package:ai_vocabulary/api/dict_api.dart' show baseURL;
+import 'package:ai_vocabulary/api/dict_api.dart' show baseURL, updateSubscript;
 import 'package:ai_vocabulary/app_route.dart';
 import 'package:ai_vocabulary/app_settings.dart';
 import 'package:ai_vocabulary/effects/show_toast.dart';
