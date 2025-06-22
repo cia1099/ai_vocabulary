@@ -146,7 +146,7 @@ Future<String> definitionTranslation(
       .timeout(kHttpTimeOut);
   if (res.statusCode == 200) {
     return ApiResponse.fromRawJson(utf8.decode(res.bodyBytes)).content;
-  } else if (res.statusCode == 403) {
+  } else if (res.statusCode == 406) {
     throw ApiException("Permission deny");
   } else {
     throw HttpException(res.body, uri: url);

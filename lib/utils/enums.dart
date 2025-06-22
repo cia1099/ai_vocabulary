@@ -29,7 +29,7 @@ enum AzureVoicer {
 }
 
 enum TranslateLocate {
-  none("en-US", "none"),
+  none("en-US", "English"),
   zhCN('zh-CN', "简体中文"),
   zhTW('zh-TW', "繁體中文"),
   jaJP('ja-JP', "日本語"),

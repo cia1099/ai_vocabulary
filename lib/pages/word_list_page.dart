@@ -2,10 +2,10 @@ import 'package:ai_vocabulary/app_route.dart';
 import 'package:ai_vocabulary/app_settings.dart';
 import 'package:ai_vocabulary/model/vocabulary.dart';
 import 'package:ai_vocabulary/pages/vocabulary_page.dart';
-import 'package:ai_vocabulary/utils/handle_except.dart';
 import 'package:ai_vocabulary/utils/phonetic.dart' show playPhonetic;
 import 'package:ai_vocabulary/utils/shortcut.dart';
 import 'package:ai_vocabulary/widgets/entry_actions.dart';
+import 'package:ai_vocabulary/widgets/translate_request.dart';
 import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -30,7 +30,6 @@ class WordListPage extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
     final accent = AppSettings.of(context).accent;
-    final locate = AppSettings.of(context).translator;
     final reachTarget = ModalRoute.of(context)?.settings.arguments as bool?;
     return PlatformScaffold(
       appBar: PlatformAppBar(
@@ -61,7 +60,6 @@ class WordListPage extends StatelessWidget {
                 // if (index >= words.length) return const SizedBox();
                 final word = words[index];
                 final phonetics = word.getPhonetics(accent);
-                var fTranslate = word.requireSpeechAndTranslation(locate);
                 return Column(
                   children: [
                     Offstage(
@@ -119,69 +117,13 @@ class WordListPage extends StatelessWidget {
                           ),
                         ],
                       ),
-                      subtitle: StatefulBuilder(
-                        builder: (context, setState) {
-                          return FutureBuilder(
-                            future: fTranslate,
-                            initialData: word.getSpeechAndTranslation,
-                            builder: (context, snapshot) {
-                              final isWaiting =
-                                  snapshot.connectionState ==
-                                  ConnectionState.waiting;
-                              return Text.rich(
-                                TextSpan(
-                                  children: [
-                                    if (isWaiting)
-                                      WidgetSpan(
-                                        child:
-                                            CircularProgressIndicator.adaptive(),
-                                      ),
-                                    if (snapshot.hasError && !isWaiting)
-                                      WidgetSpan(
-                                        child: Padding(
-                                          padding: const EdgeInsets.only(
-                                            right: 4,
-                                          ),
-                                          child: GestureDetector(
-                                            onTap: () => setState(() {
-                                              fTranslate = word
-                                                  .requireSpeechAndTranslation(
-                                                    locate,
-                                                  );
-                                            }),
-                                            child: Icon(
-                                              PlatformIcons(context).refresh,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    TextSpan(
-                                      text: snapshot.hasError
-                                          ? messageExceptions(snapshot.error)
-                                          : snapshot.data,
-                                    ),
-                                  ],
-                                ),
-                                maxLines: words.length < 10 ? 2 : 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: textTheme.bodyLarge?.apply(
-                                  color: snapshot.hasError
-                                      ? colorScheme.error
-                                      : null,
-                                ),
-                              );
-                            },
-                          );
-                        },
+                      subtitle: TranslateRequest(
+                        request: word.requireSpeechAndTranslation,
+                        initialData: word.getSpeechAndTranslation,
+                        maxLines: words.length < 10 ? 2 : 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: textTheme.bodyLarge,
                       ),
-                      // Wrap(
-                      //     spacing: 8,
-                      //     children: word.definitions
-                      //         .map((d) => Text(
-                      //               speechShortcut(d.partOfSpeech),
-                      //               style: textTheme.bodyLarge,
-                      //             ))
-                      //         .toList()),
                       onTap: () => Navigator.of(context).push(
                         platformPageRoute(
                           context: context,

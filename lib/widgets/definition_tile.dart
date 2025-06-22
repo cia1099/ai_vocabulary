@@ -2,9 +2,11 @@ import 'dart:math' show pi;
 
 import 'package:ai_vocabulary/app_settings.dart';
 import 'package:ai_vocabulary/pages/payment_page.dart';
+import 'package:ai_vocabulary/utils/enums.dart';
 import 'package:ai_vocabulary/utils/phonetic.dart' show playPhonetic;
 import 'package:ai_vocabulary/utils/shortcut.dart';
 import 'package:ai_vocabulary/widgets/inline_paragraph.dart';
+import 'package:ai_vocabulary/widgets/translate_request.dart';
 import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -31,7 +33,6 @@ class DefinitionTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
-    final translator = AppSettings.of(context).translator;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -63,33 +64,30 @@ class DefinitionTile extends StatelessWidget {
                 )
                 .toList(),
           ),
-        // if (definition.translate != null) Text(definition.translate!),
-        FutureBuilder(
-          future: definitionTranslation(definition.id, translator),
-          initialData: definition.translate,
-          builder: (context, snapshot) {
-            if (snapshot.error is ApiException) {
-              return GestureDetector(
-                onTap: () => Navigator.push(
-                  context,
-                  platformPageRoute(
-                    context: context,
-                    fullscreenDialog: true,
-                    builder: (context) => PaymentPage(),
-                  ),
-                ),
-                child: Text(
-                  'Go to Enable Translation',
-                  style: TextStyle(
-                    color: colorScheme.secondary,
-                    decoration: TextDecoration.underline,
-                  ),
-                ),
-              );
-            }
-            return Text(snapshot.data ?? '');
-          },
-        ),
+        if (AppSettings.of(context).translator != TranslateLocate.none)
+          TranslateRequest(
+            request: (locate) => definitionTranslation(definition.id, locate),
+            initialData: definition.translate,
+            errorHandler: (error) => error is ApiException
+                ? GestureDetector(
+                    onTap: () => Navigator.push(
+                      context,
+                      platformPageRoute(
+                        context: context,
+                        fullscreenDialog: true,
+                        builder: (context) => PaymentPage(),
+                      ),
+                    ),
+                    child: Text(
+                      'Go to Enable Translation',
+                      style: TextStyle(
+                        color: colorScheme.secondary,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  )
+                : null,
+          ),
         for (final explain in definition.explanations) ...[
           DefinitionParagraph(explain: explain),
           ...explain.examples.map((example) {
