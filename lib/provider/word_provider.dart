@@ -94,11 +94,11 @@ class RecommendProvider extends WordProvider {
     });
   }
 
-  static const kMaxLength = 10;
-  final _stepCount = kMaxLength ~/ 5;
+  static const kMaxLength = 16;
+  final _stepCount = kMaxLength ~/ 4; //must be divide to kMaxLength
   var _fetchTime = 0;
   Future<void> fetchStudyWords(int index, {bool isReset = false}) async {
-    const initCount = 5;
+    final initCount = 2 * _stepCount; //at least leader double step
     if (index % kMaxLength ~/ _stepCount != _fetchTime) return;
     final fetchTime = (_fetchTime + 1) % (kMaxLength ~/ _stepCount);
     final count = _studyWords.isEmpty || isReset
