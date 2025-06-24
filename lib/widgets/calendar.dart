@@ -63,58 +63,53 @@ class _CalendarState extends State<Calendar> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               PlatformIconButton(
-                onPressed:
-                    () => pageController.nextPage(
-                      duration: Durations.medium1,
-                      curve: Curves.fastOutSlowIn,
-                    ),
-                material:
-                    (_, __) => MaterialIconButtonData(
-                      style: IconButton.styleFrom(
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      ),
-                    ),
+                onPressed: () => pageController.nextPage(
+                  duration: Durations.medium1,
+                  curve: Curves.fastOutSlowIn,
+                ),
+                material: (_, __) => MaterialIconButtonData(
+                  style: IconButton.styleFrom(
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                ),
                 padding: EdgeInsets.zero,
                 icon: const Icon(CupertinoIcons.chevron_back),
               ),
               PlatformTextButton(
-                onPressed:
-                    () => showPlatformModalSheet(
-                      context: context,
-                      builder:
-                          (context) => Container(
-                            height: 216,
-                            padding: const EdgeInsets.only(top: 6),
-                            margin: EdgeInsets.only(
-                              bottom: MediaQuery.of(context).viewInsets.bottom,
-                            ),
-                            color: CupertinoColors.systemBackground.resolveFrom(
-                              context,
-                            ),
-                            child: CupertinoDatePicker(
-                              mode: CupertinoDatePickerMode.monthYear,
-                              initialDateTime: DateTime(year, month),
-                              maximumDate: DateTime(now.year, now.month),
-                              onDateTimeChanged: (date) {
-                                final index =
-                                    (now.year - date.year) * 12 +
-                                    (now.month - date.month);
-                                pageController.animateToPage(
-                                  index,
-                                  duration: Durations.medium1,
-                                  curve: Curves.fastOutSlowIn,
-                                );
-                              },
-                            ),
-                          ),
+                onPressed: () => showPlatformModalSheet(
+                  context: context,
+                  builder: (context) => Container(
+                    height: 216,
+                    padding: const EdgeInsets.only(top: 6),
+                    margin: EdgeInsets.only(
+                      bottom: MediaQuery.of(context).viewInsets.bottom,
                     ),
+                    color: CupertinoColors.systemBackground.resolveFrom(
+                      context,
+                    ),
+                    child: CupertinoDatePicker(
+                      mode: CupertinoDatePickerMode.monthYear,
+                      initialDateTime: DateTime(year, month),
+                      maximumDate: DateTime(now.year, now.month),
+                      onDateTimeChanged: (date) {
+                        final index =
+                            (now.year - date.year) * 12 +
+                            (now.month - date.month);
+                        pageController.animateToPage(
+                          index,
+                          duration: Durations.medium1,
+                          curve: Curves.fastOutSlowIn,
+                        );
+                      },
+                    ),
+                  ),
+                ),
                 padding: EdgeInsets.zero,
-                material:
-                    (_, __) => MaterialTextButtonData(
-                      style: TextButton.styleFrom(
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      ),
-                    ),
+                material: (_, __) => MaterialTextButtonData(
+                  style: TextButton.styleFrom(
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                ),
                 child: Wrap(
                   spacing: 8,
                   children: [
@@ -124,79 +119,80 @@ class _CalendarState extends State<Calendar> {
                 ),
               ),
               PlatformIconButton(
-                onPressed:
-                    isPresentMonth
-                        ? null
-                        : () => pageController.previousPage(
-                          duration: Durations.medium1,
-                          curve: Curves.fastOutSlowIn,
-                        ),
-                material:
-                    (_, __) => MaterialIconButtonData(
-                      style: IconButton.styleFrom(
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                onPressed: isPresentMonth
+                    ? null
+                    : () => pageController.previousPage(
+                        duration: Durations.medium1,
+                        curve: Curves.fastOutSlowIn,
                       ),
-                    ),
+                material: (_, __) => MaterialIconButtonData(
+                  style: IconButton.styleFrom(
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                ),
                 padding: EdgeInsets.zero,
                 icon: const Icon(CupertinoIcons.chevron_forward),
               ),
             ],
           ),
         ),
-        Table(
-          // border: const TableBorder.symmetric(outside: BorderSide()),
-          children: [
-            TableRow(
-              decoration: const BoxDecoration(
-                border: Border(bottom: BorderSide()),
-              ),
-              children: weekday.map((d) => Center(child: Text(d))).toList(),
-            ),
-            for (var anchor = 0; anchor < maxAnchor;)
+        Expanded(
+          child: Table(
+            // border: const TableBorder.symmetric(outside: BorderSide()),
+            children: [
               TableRow(
-                children: List.generate(7, (_) {
-                  final bodyMedium = Theme.of(context).textTheme.bodyMedium!;
-                  final textHeight = bodyMedium.height! * bodyMedium.fontSize!;
-                  final cellHeight =
-                      (widget.height - kTextTabBarHeight - textHeight) /
-                      (maxAnchor / 7).ceil();
-                  final cell =
-                      anchor > maxAnchor || anchor < offset
-                          ? const SizedBox.shrink()
-                          : Container(
+                decoration: const BoxDecoration(
+                  border: Border(bottom: BorderSide()),
+                ),
+                children: weekday.map((d) => Center(child: Text(d))).toList(),
+              ),
+              for (var anchor = 0; anchor < maxAnchor;)
+                TableRow(
+                  children: List.generate(7, (_) {
+                    final bodyMedium = Theme.of(context).textTheme.bodyMedium!;
+                    final textHeight =
+                        bodyMedium.height! * bodyMedium.fontSize!;
+                    final cellHeight =
+                        (widget.height - kTextTabBarHeight - textHeight) /
+                        (maxAnchor / 7).ceil();
+                    final cell = anchor > maxAnchor || anchor < offset
+                        ? const SizedBox.shrink()
+                        : Container(
                             // height: cellHeight,
                             alignment: const Alignment(0, -1),
                             constraints: BoxConstraints(maxHeight: cellHeight),
-                            decoration:
-                                anchor < 7
-                                    ? null
-                                    : BoxDecoration(
-                                      border: Border(
-                                        top: BorderSide(
-                                          color: colorScheme.outlineVariant,
-                                        ),
+                            decoration: anchor < 7
+                                ? null
+                                : BoxDecoration(
+                                    border: Border(
+                                      top: BorderSide(
+                                        color: colorScheme.outlineVariant,
                                       ),
                                     ),
+                                  ),
                             child: FittedBox(
                               fit: BoxFit.none,
-                              child:
-                                  widget.delegate == null
-                                      ? Text('${anchor - offset + 1}')
-                                      : widget.delegate!.dateItemBuilder(
-                                        DateTime(
-                                          year,
-                                          month,
-                                          anchor - offset + 1,
-                                        ),
-                                        cellHeight,
+                              child: widget.delegate == null
+                                  ? Text(
+                                      '${anchor - offset + 1}',
+                                      style: bodyMedium,
+                                    )
+                                  : widget.delegate!.dateItemBuilder(
+                                      DateTime(
+                                        year,
+                                        month,
+                                        anchor - offset + 1,
                                       ),
+                                      cellHeight,
+                                    ),
                             ),
                           );
-                  anchor++;
-                  return cell;
-                }),
-              ),
-          ],
+                    anchor++;
+                    return cell;
+                  }),
+                ),
+            ],
+          ),
         ),
       ],
     );

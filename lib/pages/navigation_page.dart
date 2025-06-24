@@ -55,34 +55,34 @@ class _NavigationPageState extends State<NavigationPage> {
     final colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
       body:
-      // PageView.builder(
-      //   controller: widget.tabController,
-      //   itemBuilder: (context, index) => switch (index) {
-      //     1 => const AlphabetListTab(),
-      //     2 => const ChartTab(),
-      //     3 => const SettingTab(),
-      //     _ => const VocabularyTab(),
-      //   },
-      //   itemCount: 4,
-      //   physics: const NeverScrollableScrollPhysics(),
-      // ),
-      IndexedStack(
-        index: _index,
-        children: [
-          MediaQuery.removeViewInsets(
-            context: context,
-            removeBottom: true,
-            child: VocabularyTab(onTabChanged: widget.onTabChanged),
+          // PageView.builder(
+          //   controller: widget.tabController,
+          //   itemBuilder: (context, index) => switch (index) {
+          //     1 => const AlphabetListTab(),
+          //     2 => const ChartTab(),
+          //     3 => const SettingTab(),
+          //     _ => const VocabularyTab(),
+          //   },
+          //   itemCount: 4,
+          //   physics: const NeverScrollableScrollPhysics(),
+          // ),
+          IndexedStack(
+            index: _index,
+            children: [
+              MediaQuery.removeViewInsets(
+                context: context,
+                removeBottom: true,
+                child: VocabularyTab(onTabChanged: widget.onTabChanged),
+              ),
+              MediaQuery.removeViewInsets(
+                context: context,
+                removeBottom: true,
+                child: const AlphabetListTab(),
+              ),
+              ChartTab(key: _index == 2 ? ValueKey(_index) : null),
+              const SettingTab(),
+            ],
           ),
-          MediaQuery.removeViewInsets(
-            context: context,
-            removeBottom: true,
-            child: const AlphabetListTab(),
-          ),
-          ChartTab(key: _index == 2 ? ValueKey(_index) : null),
-          const SettingTab(),
-        ],
-      ),
       bottomNavigationBar: BottomAppBar(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         height: kBottomNavigationBarHeight,
@@ -105,22 +105,22 @@ class _NavigationPageState extends State<NavigationPage> {
 
               return PlatformIconButton(
                 padding: EdgeInsets.zero,
-                onPressed:
-                    _index == index
-                        ? index != 0
-                            ? null
-                            : () => AppSettings.of(
-                              context,
-                            ).wordProvider?.pageController.animateToPage(
-                              0,
-                              duration: Durations.medium3,
-                              curve: Curves.easeIn,
-                            )
-                        : () => setState(() {
-                          _index = index;
-                          widget.onTabChanged?.call(index);
-                          // widget.tabController.jumpToPage(index);
-                        }),
+                onPressed: _index == index
+                    ? index != 0
+                          ? null
+                          : () => AppSettings.of(context)
+                                .wordProvider
+                                ?.pageController
+                                .animateToPage(
+                                  0,
+                                  duration: Durations.medium3,
+                                  curve: Curves.easeIn,
+                                )
+                    : () => setState(() {
+                        _index = index;
+                        widget.onTabChanged?.call(index);
+                        // widget.tabController.jumpToPage(index);
+                      }),
                 icon: Column(
                   children: [
                     Theme(
@@ -137,26 +137,31 @@ class _NavigationPageState extends State<NavigationPage> {
                     //     ? Expanded(
                     //         child: Lottie.asset('assets/lottie/chart.json'))
                     //     : bottomItems[index].icon,
-                    Text(
-                      '${bottomItems[index].label}',
-                      style: TextStyle(
-                        color: colorScheme.primary.withValues(
-                          alpha: _index == index ? 1 : .4,
+                    Expanded(
+                      child: FittedBox(
+                        child: Text(
+                          '${bottomItems[index].label}',
+                          style: TextStyle(
+                            color: colorScheme.primary.withValues(
+                              alpha: _index == index ? 1 : .4,
+                            ),
+                            fontWeight: _index == index
+                                ? FontWeight.w600
+                                : null,
+                          ),
                         ),
-                        fontWeight: _index == index ? FontWeight.w600 : null,
                       ),
                     ),
                   ],
                 ),
-                material:
-                    (_, __) => MaterialIconButtonData(
-                      tooltip: bottomItems[index].tooltip,
-                      style: IconButton.styleFrom(
-                        padding: EdgeInsets.zero,
-                        // minimumSize: const Size.square(50),
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      ),
-                    ),
+                material: (_, __) => MaterialIconButtonData(
+                  tooltip: bottomItems[index].tooltip,
+                  style: IconButton.styleFrom(
+                    padding: EdgeInsets.zero,
+                    // minimumSize: const Size.square(50),
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                ),
                 // cupertino: (_, __) => CupertinoIconButtonData(minSize: 50),
               );
             }),
@@ -165,15 +170,14 @@ class _NavigationPageState extends State<NavigationPage> {
       ),
       resizeToAvoidBottomInset: false,
       floatingActionButton: FloatingActionButton(
-        onPressed:
-            () => Navigator.push(
-              context,
-              platformPageRoute(
-                context: context,
-                fullscreenDialog: true,
-                builder: (context) => const CollectionPage(),
-              ),
-            ),
+        onPressed: () => Navigator.push(
+          context,
+          platformPageRoute(
+            context: context,
+            fullscreenDialog: true,
+            builder: (context) => const CollectionPage(),
+          ),
+        ),
         mini: true,
         shape: const CircleBorder(),
         elevation: 1,

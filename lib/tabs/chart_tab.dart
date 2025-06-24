@@ -56,7 +56,10 @@ class ChartTab extends StatelessWidget {
               builder: (context, snapshot) => Stack(
                 alignment: const Alignment(0, -.25),
                 children: [
-                  RememberChart(trainingRate: snapshot.data),
+                  MediaQuery(
+                    data: MediaQueryData(textScaler: TextScaler.noScaling),
+                    child: RememberChart(trainingRate: snapshot.data),
+                  ),
                   if (snapshot.connectionState == ConnectionState.waiting)
                     const CircularProgressIndicator.adaptive(),
                 ],

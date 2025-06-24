@@ -41,24 +41,26 @@ class _ExampleParagraphState extends State<ExampleParagraph>
     );
     final accent = AppSettings.of(context).accent;
     final voicer = AppSettings.of(context).voicer;
+    final textScaler = MediaQuery.textScalerOf(context);
     return AlignParagraph(
       xInterval: 4,
       mark: Padding(
         padding: const EdgeInsets.only(left: 8),
         child: GestureDetector(
-          onTap:
-              () => showPlatformDialog(
-                context: context,
-                builder: (context) => ImagenDialog(widget.example),
-              ),
+          onTap: () => showPlatformDialog(
+            context: context,
+            builder: (context) => ImagenDialog(widget.example),
+          ),
           child:
               widget.mark ??
-              Icon(
-                CupertinoIcons.circle_fill,
-                size: textTheme.bodySmall?.fontSize.scale(
-                  textTheme.bodySmall?.height,
+              CircleAvatar(
+                backgroundColor: colorScheme.primary,
+                radius: textScaler.scale(
+                  textTheme.bodySmall?.fontSize
+                          .scale(textTheme.bodySmall?.height)
+                          .scale(.4) ??
+                      .0,
                 ),
-                color: colorScheme.primary,
               ),
         ),
       ),
@@ -74,42 +76,38 @@ class _ExampleParagraphState extends State<ExampleParagraph>
             const TextSpan(text: '\t\t'),
             WidgetSpan(
               child: PlatformWidgetBuilder(
-                material:
-                    (_, child, __) => InkWell(
-                      onTap:
-                          () => soundAzure(
-                            widget.example,
-                            lang: accent.azure.lang,
-                            sound: voicer,
-                          ).onError(
-                            (e, _) =>
-                                context.mounted
-                                    ? showToast(
-                                      context: context,
-                                      child: Text(messageExceptions(e)),
-                                    )
-                                    : null,
-                          ),
-                      child: child,
-                    ),
-                cupertino:
-                    (_, child, __) => GestureDetector(
-                      onTap:
-                          () => soundAzure(
-                            widget.example,
-                            lang: accent.azure.lang,
-                            sound: voicer,
-                          ).onError(
-                            (e, _) =>
-                                context.mounted
-                                    ? showToast(
-                                      context: context,
-                                      child: Text(messageExceptions(e)),
-                                    )
-                                    : null,
-                          ),
-                      child: child,
-                    ),
+                material: (_, child, __) => InkWell(
+                  onTap: () =>
+                      soundAzure(
+                        widget.example,
+                        lang: accent.azure.lang,
+                        sound: voicer,
+                      ).onError(
+                        (e, _) => context.mounted
+                            ? showToast(
+                                context: context,
+                                child: Text(messageExceptions(e)),
+                              )
+                            : null,
+                      ),
+                  child: child,
+                ),
+                cupertino: (_, child, __) => GestureDetector(
+                  onTap: () =>
+                      soundAzure(
+                        widget.example,
+                        lang: accent.azure.lang,
+                        sound: voicer,
+                      ).onError(
+                        (e, _) => context.mounted
+                            ? showToast(
+                                context: context,
+                                child: Text(messageExceptions(e)),
+                              )
+                            : null,
+                      ),
+                  child: child,
+                ),
                 child: Icon(
                   CupertinoIcons.volume_up,
                   size: textTheme.bodyLarge?.fontSize.scale(

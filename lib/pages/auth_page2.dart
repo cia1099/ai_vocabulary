@@ -204,16 +204,20 @@ class _LoginFormState extends State<LoginForm> with FirebaseAuthMixin {
                 ),
                 DetermineVisibility(
                   // scrollDirection: Axis.horizontal,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: <Widget>[
-                      CallToActionText("Don't have an account?"),
-                      CallToActionButton(
-                        onPressed: widget.onSignUpPressed,
-                        text: 'Sign Up',
-                        color: headerSignUpColor,
-                      ),
-                    ],
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(minWidth: double.infinity),
+                    child: Wrap(
+                      alignment: WrapAlignment.spaceEvenly,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: <Widget>[
+                        CallToActionText("Don't have an account?"),
+                        CallToActionButton(
+                          onPressed: widget.onSignUpPressed,
+                          text: 'Sign Up',
+                          color: headerSignUpColor,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],
@@ -338,24 +342,20 @@ class _SignUpFormState extends State<SignUpForm> with FirebaseAuthMixin {
                 },
               ),
               DetermineVisibility(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    const Expanded(
-                      flex: 3,
-                      child: Center(
-                        child: CallToActionText('Already have an account?'),
-                      ),
-                    ),
-                    Expanded(
-                      flex: 1,
-                      child: CallToActionButton(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minWidth: double.infinity),
+                  child: Wrap(
+                    alignment: WrapAlignment.spaceEvenly,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: <Widget>[
+                      CallToActionText('Already have an account?'),
+                      CallToActionButton(
                         text: 'Sign in',
                         onPressed: widget.onLoginPressed,
                         color: headerLoginColor,
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ],

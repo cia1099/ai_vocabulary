@@ -74,61 +74,64 @@ class _PaymentPageState extends State<PaymentPage> {
         children: [
           Padding(
             padding: EdgeInsets.all(hPadding),
-            child: Column(
-              spacing: hPadding * 2,
-              // crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text.rich(
-                  TextSpan(
-                    text: 'Start improving your ',
+            child: SingleChildScrollView(
+              child: Column(
+                spacing: hPadding * 2,
+                // crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text.rich(
+                    TextSpan(
+                      text: 'Start improving your ',
+                      children: [
+                        TextSpan(
+                          text: 'vocabulary',
+                          style: TextStyle(color: colorScheme.primary),
+                        ),
+                      ],
+                    ),
+                    textAlign: TextAlign.center,
+                    style: textTheme.navLargeTitleTextStyle,
+                  ),
+                  Wrap(
+                    runSpacing: hPadding,
                     children: [
-                      TextSpan(
-                        text: 'vocabulary',
-                        style: TextStyle(color: colorScheme.primary),
-                      ),
+                      ...PaymentPage.benefits.map((b) => benefitItems(b)),
                     ],
                   ),
-                  textAlign: TextAlign.center,
-                  style: textTheme.navLargeTitleTextStyle,
-                ),
-                Wrap(
-                  runSpacing: hPadding,
-                  children: [
-                    ...PaymentPage.benefits.map((b) => benefitItems(b)),
-                  ],
-                ),
-                FutureBuilder(
-                  future: futurePrices,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return CircularProgressIndicator.adaptive();
-                    }
-                    if (snapshot.hasError) {
-                      return Text(
-                        messageExceptions(snapshot.error),
-                        style: TextStyle(color: colorScheme.error),
-                      );
-                    }
-                    final payments = snapshot.data!;
-                    return Wrap(
-                      children: [
-                        for (var i = 0; i < payments.length; i++)
-                          GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                packageToPurchase = packages[i];
-                              });
-                            },
-                            child: Payment(
-                              period: payments[i],
-                              isSelect: packageToPurchase == packages[i],
+                  FutureBuilder(
+                    future: futurePrices,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return CircularProgressIndicator.adaptive();
+                      }
+                      if (snapshot.hasError) {
+                        return Text(
+                          messageExceptions(snapshot.error),
+                          style: TextStyle(color: colorScheme.error),
+                        );
+                      }
+                      final payments = snapshot.data!;
+                      return Wrap(
+                        children: [
+                          for (var i = 0; i < payments.length; i++)
+                            GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  packageToPurchase = packages[i];
+                                });
+                              },
+                              child: Payment(
+                                period: payments[i],
+                                isSelect: packageToPurchase == packages[i],
+                              ),
                             ),
-                          ),
-                      ],
-                    );
-                  },
-                ),
-              ],
+                        ],
+                      );
+                    },
+                  ),
+                  SizedBox(height: 68),
+                ],
+              ),
             ),
           ),
           Positioned(

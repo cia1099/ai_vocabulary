@@ -25,10 +25,9 @@ class DefinitionSliders extends StatefulWidget {
 
 class _DefinitionSlidersState extends State<DefinitionSliders>
     with TickerProviderStateMixin, ClickableTextStateMixin {
-  late final tabController =
-      widget.definitions.length > 1
-          ? TabController(length: widget.definitions.length, vsync: this)
-          : null;
+  late final tabController = widget.definitions.length > 1
+      ? TabController(length: widget.definitions.length, vsync: this)
+      : null;
   final controller = PageController(initialPage: 0);
 
   @override
@@ -58,12 +57,12 @@ class _DefinitionSlidersState extends State<DefinitionSliders>
         children: [
           tabController != null
               ? RotatedBox(
-                quarterTurns: 1,
-                child: TabPageSelector(
-                  controller: tabController,
-                  selectedColor: colorScheme.primary,
-                ),
-              )
+                  quarterTurns: 1,
+                  child: TabPageSelector(
+                    controller: tabController,
+                    selectedColor: colorScheme.primary,
+                  ),
+                )
               : const SizedBox.square(dimension: 12),
           Expanded(
             child: LayoutBuilder(
@@ -105,79 +104,81 @@ class _DefinitionSlidersState extends State<DefinitionSliders>
                       remainText = splitText.substring(lastSpace);
                       splitText = splitText.substring(0, lastSpace);
                     }
-                    return Stack(
-                      children: [
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              definition.partOfSpeech,
-                              style: titleStyle,
-                            ).coloredSpeech(context: context),
-                            Text.rich(
-                              TextSpan(
-                                children: [
-                                  ...clickableWords(splitText),
-                                  if (overflowIndex > 0) ...[
-                                    TextSpan(text: '$remainText...'),
-                                    TextSpan(
-                                      text: 'more',
-                                      style: style.copyWith(
-                                        fontWeight: FontWeight.w600,
-                                        color: colorScheme.primary,
+                    return MediaQuery(
+                      //prevent system scale
+                      data: MediaQueryData(textScaler: TextScaler.noScaling),
+                      child: Stack(
+                        children: [
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                definition.partOfSpeech,
+                                style: titleStyle,
+                              ).coloredSpeech(context: context),
+                              Text.rich(
+                                TextSpan(
+                                  children: [
+                                    ...clickableWords(splitText),
+                                    if (overflowIndex > 0) ...[
+                                      TextSpan(text: '$remainText...'),
+                                      TextSpan(
+                                        text: 'more',
+                                        style: style.copyWith(
+                                          fontWeight: FontWeight.w600,
+                                          color: colorScheme.primary,
+                                        ),
+                                        recognizer: TapGestureRecognizer()
+                                          ..onTap = () {
+                                            requireFittingHeight(
+                                              TextSpan(
+                                                text: text,
+                                                style: style,
+                                              ),
+                                              constraints.maxWidth,
+                                            );
+                                          },
                                       ),
-                                      recognizer:
-                                          TapGestureRecognizer()
-                                            ..onTap = () {
-                                              requireFittingHeight(
-                                                TextSpan(
-                                                  text: text,
-                                                  style: style,
-                                                ),
-                                                constraints.maxWidth,
-                                              );
-                                            },
-                                    ),
+                                    ],
                                   ],
-                                ],
+                                ),
+                                style: style,
+                                maxLines: maxLines,
+                                overflow: TextOverflow.ellipsis,
                               ),
-                              style: style,
-                              maxLines: maxLines,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ],
-                        ),
-                        if (overflowIndex < 0 &&
-                            constraints.maxHeight >
-                                DefinitionSliders.kDefaultHeight)
-                          Align(
-                            alignment: const Alignment(1, 1),
-                            child: PlatformTextButton(
-                              onPressed: () {
-                                widget.getMore(
-                                  DefinitionSliders.kDefaultHeight,
-                                );
-                              },
+                            ],
+                          ),
+                          if (overflowIndex < 0 &&
+                              constraints.maxHeight >
+                                  DefinitionSliders.kDefaultHeight)
+                            Align(
                               alignment: const Alignment(1, 1),
-                              padding: EdgeInsets.zero,
-                              child: Text(
-                                'hide',
-                                style: style.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                  color: colorScheme.primary,
+                              child: PlatformTextButton(
+                                onPressed: () {
+                                  widget.getMore(
+                                    DefinitionSliders.kDefaultHeight,
+                                  );
+                                },
+                                alignment: const Alignment(1, 1),
+                                padding: EdgeInsets.zero,
+                                child: Text(
+                                  'hide',
+                                  style: style.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                    color: colorScheme.primary,
+                                  ),
+                                ),
+                                material: (_, __) => MaterialTextButtonData(
+                                  style: TextButton.styleFrom(
+                                    tapTargetSize:
+                                        MaterialTapTargetSize.shrinkWrap,
+                                  ),
                                 ),
                               ),
-                              material:
-                                  (_, __) => MaterialTextButtonData(
-                                    style: TextButton.styleFrom(
-                                      tapTargetSize:
-                                          MaterialTapTargetSize.shrinkWrap,
-                                    ),
-                                  ),
                             ),
-                          ),
-                      ],
+                        ],
+                      ),
                     );
                   },
                   itemCount: widget.definitions.length,

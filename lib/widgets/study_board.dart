@@ -51,63 +51,68 @@ class _StudyBoardState extends State<StudyBoard> with WidgetsBindingObserver {
       ),
       child: ValueListenableBuilder(
         valueListenable: AppSettings.of(context).targetStudy,
-        builder:
-            (context, targetStudy, _) => ListenableBuilder(
-              listenable: MyDB(),
-              builder:
-                  (context, child) => FutureBuilder(
-                    future: MyDB().isReady,
-                    builder: (context, snapshot) {
-                      final studyCount =
-                          snapshot.data == true
-                              ? MyDB().fetchStudyCounts()
-                              : StudyCount();
-                      return Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Text("Review today"),
-                              Text(
-                                '${studyCount.reviewCount}/${targetStudy.reviewCount}',
-                                style: textTheme.headlineSmall,
-                              ),
-                            ],
-                          ),
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Text("New today"),
-                              Text(
-                                '${studyCount.newCount}/${targetStudy.newCount}',
-                                style: textTheme.headlineSmall,
-                              ),
-                            ],
-                          ),
-                          child!,
-                        ],
-                      );
-                    },
-                  ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+        builder: (context, targetStudy, _) => ListenableBuilder(
+          listenable: MyDB(),
+          builder: (context, child) => FutureBuilder(
+            future: MyDB().isReady,
+            builder: (context, snapshot) {
+              final studyCount = snapshot.data == true
+                  ? MyDB().fetchStudyCounts()
+                  : StudyCount();
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  const Text("Learning today"),
-                  ValueListenableBuilder(
-                    valueListenable: elapsedMinute,
-                    builder: (context, value, _) {
-                      final hour = value ~/ 60;
-                      final elapsedHour = hour > 0 ? '${hour}h' : '';
-                      return Text(
-                        '$elapsedHour${value % 60}min',
-                        style: textTheme.headlineSmall,
-                      );
-                    },
+                  Flexible(
+                    child: FittedBox(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text("Review today"),
+                          Text(
+                            '${studyCount.reviewCount}/${targetStudy.reviewCount}',
+                            style: textTheme.headlineSmall,
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
+                  Flexible(
+                    child: FittedBox(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text("New today"),
+                          Text(
+                            '${studyCount.newCount}/${targetStudy.newCount}',
+                            style: textTheme.headlineSmall,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Flexible(child: FittedBox(child: child!)),
                 ],
+              );
+            },
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text("Learning today"),
+              ValueListenableBuilder(
+                valueListenable: elapsedMinute,
+                builder: (context, value, _) {
+                  final hour = value ~/ 60;
+                  final elapsedHour = hour > 0 ? '${hour}h' : '';
+                  return Text(
+                    '$elapsedHour${value % 60}min',
+                    style: textTheme.headlineSmall,
+                  );
+                },
               ),
-            ),
+            ],
+          ),
+        ),
       ),
     );
   }

@@ -31,6 +31,7 @@ class AlignParagraph extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bodyText = paragraphStyle ?? Theme.of(context).textTheme.bodyMedium!;
+    final textScaler = MediaQuery.textScalerOf(context);
     // CupertinoTheme.of(context).textTheme.textStyle; //CupertinoTextStyle don't has height
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -40,12 +41,16 @@ class AlignParagraph extends StatelessWidget {
           alignment: const Alignment(0, 0),
           // height: bodyText?.fontSize.scale(bodyText.height),
           constraints: BoxConstraints(
-            minHeight: bodyText.fontSize.scale(bodyText.height) ?? .0,
+            minHeight: textScaler.scale(
+              bodyText.fontSize.scale(bodyText.height) ?? .0,
+            ),
           ),
           margin: EdgeInsets.only(right: xInterval ?? .0),
           child: mark,
         ),
-        Expanded(child: DefaultTextStyle(style: bodyText, child: paragraph)),
+        Expanded(
+          child: DefaultTextStyle(style: bodyText, child: paragraph),
+        ),
       ],
     );
   }

@@ -66,3 +66,7 @@ extension SpeechColoredText on Text {
     );
   }
 }
+
+const kAppleJson = '''
+{"word_id": 810, "frequency": 0.5, "word": "apple", "asset": "http://www.cia1099.cloudns.ch/dict/dictionary/img/thumb/apple.jpg", "definitions": [{"part_of_speech": "noun", "explanations": [{"explain": "a hard, round fruit with a smooth green, red or yellow skin", "subscript": "countable, uncountable", "examples": ["apple juice"]}], "audio_us": "http://www.cia1099.cloudns.ch/dict/dictionary/audio/apple__us_1.mp3", "phonetic_uk": "/\u02c8\u00e6p.\u0259l/", "inflection": "apple, apples", "phonetic_us": "/\u02c8\u00e6p(\u0259)l/", "synonyms": null, "antonyms": null, "audio_uk": "http://www.cia1099.cloudns.ch/dict/dictionary/audio/apple__gb_1.mp3", "definition_id": 992}]}
+''';

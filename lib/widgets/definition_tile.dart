@@ -33,6 +33,7 @@ class DefinitionTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    final textScaler = MediaQuery.textScalerOf(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -95,12 +96,17 @@ class DefinitionTile extends StatelessWidget {
             return ExampleParagraph(
               mark: CircleAvatar(
                 backgroundColor: colorScheme.primary,
-                radius: textTheme.bodySmall?.fontSize
-                    .scale(textTheme.bodySmall?.height)
-                    .scale(.5),
+                radius: textScaler.scale(
+                  textTheme.bodySmall?.fontSize
+                          .scale(textTheme.bodySmall?.height)
+                          .scale(.4) ??
+                      24,
+                ),
                 child: Icon(
                   CupertinoIcons.photo,
-                  size: textTheme.labelSmall?.fontSize.scale(.9),
+                  size: textScaler.scale(
+                    textTheme.labelSmall?.fontSize.scale(.75) ?? 24,
+                  ),
                   color: colorScheme.onPrimary,
                 ),
               ),
