@@ -14,14 +14,14 @@ Future<String> putSharedApp(String appID) async {
   }
 }
 
-Future<int> getTodayShares() async {
+Future<String> getTodayShares() async {
   final url = Uri.https(baseURL, '/dict/today/shares');
   final headers = {
     "Authorization": "Bearer ${UserProvider().currentUser?.accessToken}",
   };
 
   final res = await _httpGet(url, headers: headers);
-  return int.parse(res.content);
+  return res.content;
 }
 
 Future<SignInUser> updateSubscript(Map<String, dynamic> info) async {

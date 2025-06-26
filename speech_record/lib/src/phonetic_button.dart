@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:record/record.dart';
 
@@ -30,7 +31,8 @@ class _PhoneticButtonState extends State<PhoneticButton> {
   final pcmBuffer = <int>[];
   var isPress = false;
   final recorder = AudioRecorder();
-  late var futurePermission = Future.value(true); //recorder.hasPermission();
+  late var futurePermission =
+      kReleaseMode ? recorder.hasPermission() : Future.value(true);
 
   @override
   Widget build(BuildContext context) {

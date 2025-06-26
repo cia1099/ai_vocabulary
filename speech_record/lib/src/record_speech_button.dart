@@ -2,9 +2,10 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:record/record.dart';
 import 'package:path/path.dart' as p;
+import 'package:record/record.dart';
 
 import '../speech_record.dart';
 
@@ -35,7 +36,8 @@ class RecordSpeechButton extends StatefulWidget {
 class _RecordSpeechButtonState extends State<RecordSpeechButton> {
   StreamSubscription? tapProtection;
   final record = AudioRecorder();
-  late var futurePermission = Future.value(true); //record.hasPermission();
+  late var futurePermission =
+      kReleaseMode ? record.hasPermission() : Future.value(true);
 
   @override
   void initState() {

@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:ui' as ui;
 
 import 'package:ai_vocabulary/api/dict_api.dart';
@@ -21,7 +20,6 @@ import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:image/image.dart' as image;
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
-import 'package:path/path.dart' as p;
 import 'package:share_plus/share_plus.dart';
 
 class PunchOutPage extends StatefulWidget {
@@ -75,7 +73,7 @@ class _PunchOutPageState extends State<PunchOutPage> {
                   overAndUnderCenterOpacity: .9,
                   itemExtent: screenWidth * .75,
                   childDelegate: ListWheelChildBuilderDelegate(
-                    childCount: 4,
+                    childCount: 7,
                     builder: (context, index) => AspectRatio(
                       aspectRatio: aspect,
                       child: RotatedBox(
@@ -103,7 +101,12 @@ class _PunchOutPageState extends State<PunchOutPage> {
                                 ),
                                 Expanded(
                                   flex: 1,
-                                  child: cardPanel(colorScheme),
+                                  child: MediaQuery(
+                                    data: MediaQueryData(
+                                      textScaler: TextScaler.noScaling,
+                                    ),
+                                    child: cardPanel(colorScheme),
+                                  ),
                                 ),
                               ],
                             ),
@@ -202,6 +205,7 @@ class _PunchOutPageState extends State<PunchOutPage> {
     final textTheme = Theme.of(context).textTheme;
     final cupertinoTextTheme = CupertinoTheme.of(context).textTheme;
     final locale = Localizations.localeOf(context).toLanguageTag();
+    final textScaler = MediaQuery.textScalerOf(context);
     return Wrap(
       direction: Axis.vertical,
       crossAxisAlignment: WrapCrossAlignment.center,
@@ -222,12 +226,12 @@ class _PunchOutPageState extends State<PunchOutPage> {
               ).gradient(context),
             ),
             child: FutureBuilder(
-              future: getTodayShares().onError((_, __) => 0),
-              initialData: 0,
+              future: getTodayShares().onError(
+                (_, __) => "Get tokens for sharing",
+              ),
+              initialData: "Get tokens for sharing",
               builder: (context, snapshot) {
-                final msg = snapshot.data! == 0
-                    ? "Get 6 tokens for sharing"
-                    : "Share to other app for more tokens";
+                final msg = snapshot.data!;
                 return Text.rich(
                   TextSpan(
                     text: msg,
@@ -274,6 +278,7 @@ class _PunchOutPageState extends State<PunchOutPage> {
                   children: [
                     Wrap(
                       spacing: 8,
+                      crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
                         Text(
                           'My token',
@@ -304,7 +309,7 @@ class _PunchOutPageState extends State<PunchOutPage> {
                           ),
                           child: Icon(
                             CupertinoIcons.question_circle,
-                            size: 20,
+                            size: textScaler.scale(20),
                             color: colorScheme.onInverseSurface,
                           ),
                         ),
@@ -393,17 +398,24 @@ class _PunchOutPageState extends State<PunchOutPage> {
     });
     if (paintData == null) return debugPrint("Can't paint boundary");
 
-    final imgPath = p.join(MyDB().appDirectory, 'punch_out.jpg');
-    final img = await File(imgPath).writeAsBytes(paintData.buffer.asInt8List());
+    // final imgPath = p.join(MyDB().appDirectory, 'punch_out.jpg');
+    // final img = await File(imgPath).writeAsBytes(paintData.buffer.asInt8List());
     const text = '''
 #AI Vocabulary Punch Card# Day
 Memorize words ✅
-I'm memorizing words with AI Vocabulary, punch with me! https://www.cia1099.cloudns.ch
+I'm memorizing words with AI Vocabulary, punch with me! https://ai-vocabulary.com
 ''';
     final share = await SharePlus.instance.share(
       ShareParams(
         text: text,
-        files: [XFile(img.path)],
+        files: [
+          XFile.fromData(
+            paintData,
+            mimeType: "image/jpg",
+            name: "punch_card.jpg",
+          ),
+        ],
+        //[XFile(img.path, bytes: await img.readAsBytes())],
         subject: 'I am studying in AI vocabulary',
       ),
     );
@@ -426,7 +438,7 @@ I'm memorizing words with AI Vocabulary, punch with me! https://www.cia1099.clou
       default:
         print('Dismiss punch out');
     }
-    img.delete();
+    // img.delete();
   }
 }
 
