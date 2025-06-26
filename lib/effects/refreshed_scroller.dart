@@ -96,14 +96,14 @@ class _RefreshedScrollerState extends State<RefreshedScroller> {
     final loadFuture = widget.refresh(at == _RefreshAt.top);
     yield loadFuture;
     //Avoid bounce to next page, I don't know why the bounce can do that
-    if (scrollController.hasClients &&
-        scrollController.position.pixels.abs() > widget.thresholdExtent) {
-      scrollController.position.moveTo(
-        scrollController.offset,
-        duration: Durations.long1,
-        curve: Curves.bounceOut,
-      );
-    }
+    // if (scrollController.hasClients &&
+    //     scrollController.position.pixels.abs() > widget.thresholdExtent) {
+    //   scrollController.position.moveTo(
+    //     scrollController.offset,
+    //     duration: Durations.long1,
+    //     curve: Curves.bounceOut,
+    //   );
+    // }
     await loadFuture.then(
       (_) => Future.value(),
       onError: (_) => Future.delayed(Durations.extralong4),

@@ -7,6 +7,7 @@ import 'package:ai_vocabulary/provider/word_provider.dart';
 import 'package:ai_vocabulary/utils/handle_except.dart';
 import 'package:ai_vocabulary/utils/shortcut.dart';
 import 'package:ai_vocabulary/widgets/entry_actions.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -81,6 +82,7 @@ class _VocabularyTabState extends State<VocabularyTab>
                   children: [
                     RefreshedScroller(
                       controller: review.pageController,
+                      thresholdExtent: 150,
                       refresh: (atTop) async {
                         final hasError = !await review.isReady.onError(
                           (_, _) => false,
@@ -97,6 +99,7 @@ class _VocabularyTabState extends State<VocabularyTab>
                     ),
                     RefreshedScroller(
                       controller: recommend.pageController,
+                      thresholdExtent: 180,
                       refresh: (atTop) async {
                         final hasError = !await recommend.isReady.onError(
                           (_, _) => false,
@@ -107,8 +110,17 @@ class _VocabularyTabState extends State<VocabularyTab>
                             registerFunc,
                           );
                         }
+                        if (hasError) return;
 
-                        return hasError ? null : recommend.bottomRequest();
+                        return recommend.length < RecommendProvider.kMaxLength
+                            ? recommend.bottomRequest()
+                            : recommend.resetWords().whenComplete(
+                                () => recommend.pageController.animateToPage(
+                                  0,
+                                  duration: Durations.long2,
+                                  curve: Curves.ease,
+                                ),
+                              );
                       },
                       bottomAlignment: Alignment(0, .9),
                       child: sliders(provider: recommend),
@@ -139,20 +151,21 @@ class _VocabularyTabState extends State<VocabularyTab>
             ),
             controller: provider.pageController,
             onPageChanged: (index) {
-              provider.currentWord = provider[index % provider.length];
+              provider.currentWord = provider[index];
+              //[index % provider.length];
               provider.clozeSeed = rng.nextInt(256);
               if (provider is RecommendProvider) {
                 provider
                     .fetchStudyWords(index)
-                    .then((_) {
-                      if (index == RecommendProvider.kMaxLength) {
-                        Future.delayed(Durations.long2, () {
-                          provider.pageController.jumpToPage(0);
-                        });
-                      } else if (index == provider.length) {
-                        print('at max page');
-                      }
-                    })
+                    // .then((_) {
+                    //   if (index == RecommendProvider.kMaxLength) {
+                    //     Future.delayed(Durations.long2, () {
+                    //       provider.pageController.jumpToPage(0);
+                    //     });
+                    //   } else if (index == provider.length) {
+                    //     print('at max page');
+                    //   }
+                    // })
                     .catchError((_) {});
               }
             },
@@ -161,11 +174,41 @@ class _VocabularyTabState extends State<VocabularyTab>
               if (error != null) return error;
               final i = index % provider.length;
               final word = provider[i];
-              return SliderPage(key: ValueKey(word.wordId), word: word);
+              final textTheme = CupertinoTheme.of(context).textTheme;
+              return Stack(
+                children: [
+                  SliderPage(key: ValueKey(word.wordId), word: word),
+                  if (provider is RecommendProvider &&
+                      index == provider.length - 1)
+                    Align(
+                      alignment: Alignment(.1, .95),
+                      child: Wrap(
+                        crossAxisAlignment: WrapCrossAlignment.end,
+                        spacing: 4,
+                        children: [
+                          Text(
+                            "Next round",
+                            style: textTheme.dateTimePickerTextStyle.apply(
+                              color: textTheme.tabLabelTextStyle.color
+                                  ?.withAlpha(180),
+                            ),
+                            textScaler: TextScaler.noScaling,
+                          ),
+                          Icon(
+                            CupertinoIcons.chevron_down,
+                            color: textTheme.tabLabelTextStyle.color?.withAlpha(
+                              180,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                ],
+              );
             },
-            itemCount:
-                (provider.length + (provider is RecommendProvider ? 1 : 0))
-                    .clamp(1, kMaxInt64),
+            itemCount: provider.length.clamp(1, kMaxInt64),
+            // (provider.length + (provider is RecommendProvider ? 1 : 0))
+            //     .clamp(1, kMaxInt64),
           ),
         );
       },

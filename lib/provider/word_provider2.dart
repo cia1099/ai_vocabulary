@@ -11,13 +11,14 @@ class RecommendProvider extends WordProvider {
     });
   }
 
-  static const kMaxLength = 16;
+  static const kMaxLength = 12;
   final _stepCount = kMaxLength ~/ 4; //must be divide to kMaxLength
   var _fetchTime = 0;
   Future<void> fetchStudyWords(int index, {bool isReset = false}) async {
     final initCount = 2 * _stepCount; //at least leader double step
     if (index % kMaxLength ~/ _stepCount != _fetchTime) return;
     final fetchTime = (_fetchTime + 1) % (kMaxLength ~/ _stepCount);
+    if (fetchTime == 0) return;
     final count = _studyWords.isEmpty || isReset
         ? initCount
         : _studyWords.length < kMaxLength
@@ -44,7 +45,11 @@ class RecommendProvider extends WordProvider {
         //fetchWords(reviewIDs, take: count * 2),
         compute(
           sortByRetention,
-          MyDB().fetchWords(reviewIDs),
+          MyDB().fetchWords(
+            reviewIDs.where(
+              (id) => !_studyWords.any((word) => word.wordId == id),
+            ),
+          ),
         ).then((list) => list.take(count * 2).toList()),
     ])).reduce((a, b) => a + b);
     final selector = WeightedSelector(
@@ -52,18 +57,19 @@ class RecommendProvider extends WordProvider {
       candidateWords.map((w) => 1 - calculateRetention(w)),
     );
     final words = selector.sampleN(count);
-    MyDB().insertWords(
-      Stream.fromIterable(words.where((w) => requestIDs.contains(w.wordId))),
-    );
+    // MyDB().insertWords(
+    //   Stream.fromIterable(words.where((w) => requestIDs.contains(w.wordId))),
+    // );//Not necessary because loadWordList in fetchWord will write to database
     if (isReset) _studyWords.clear();
 
     if (_studyWords.length < kMaxLength) {
       _studyWords.addAll(words);
       if (_completer.isCompleted) MyDB().notifyListeners();
-    } else {
-      final insertIndex = fetchTime * _stepCount;
-      _studyWords.replaceRange(insertIndex, insertIndex + count, words);
     }
+    // else {
+    //   final insertIndex = fetchTime * _stepCount;
+    //   _studyWords.replaceRange(insertIndex, insertIndex + count, words);
+    // }
     //when request successfully, update _fetchTime
     _fetchTime = fetchTime;
   }
