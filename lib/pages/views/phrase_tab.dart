@@ -86,6 +86,7 @@ class PhraseTab extends StatelessWidget {
                             (example) => ExampleParagraph(
                               example: example,
                               patterns:
+                                  //TODO: need seemless match phrase
                                   phrase.phrase.split(' ').expand((w) sync* {
                                     for (final s in w.split("/")) yield s;
                                   }).toList() +

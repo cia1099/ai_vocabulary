@@ -54,8 +54,6 @@ class _MyAppState extends State<MyApp> {
       settings: PlatformSettingsData(iosUsesMaterialWidgets: true),
       builder: (context) => PlatformTheme(
         materialLightTheme: appTheme,
-        //TODO: apply global fontsize scale
-        // .copyWith(textTheme: Theme.of(context).textTheme.apply(fontSizeFactor: 1.2)),
         builder: (context) => PlatformApp(
           debugShowCheckedModeBanner: false,
           cupertino: (context, platform) => CupertinoAppData(

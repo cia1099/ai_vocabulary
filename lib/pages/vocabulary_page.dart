@@ -1,7 +1,7 @@
 import 'package:ai_vocabulary/api/dict_api.dart';
+import 'package:ai_vocabulary/app_route.dart';
 import 'package:ai_vocabulary/app_settings.dart';
 import 'package:ai_vocabulary/model/vocabulary.dart';
-import 'package:ai_vocabulary/app_route.dart';
 import 'package:ai_vocabulary/pages/chat_room_page.dart';
 import 'package:ai_vocabulary/pages/views/phrase_tab.dart';
 import 'package:ai_vocabulary/painters/bubble_shape.dart';
@@ -9,8 +9,8 @@ import 'package:ai_vocabulary/widgets/definition_tile.dart';
 import 'package:ai_vocabulary/widgets/entry_actions.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:path/path.dart' as p;
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
+import 'package:path/path.dart' as p;
 
 import '../painters/title_painter.dart';
 
@@ -34,7 +34,8 @@ class _VocabularyPageState extends State<VocabularyPage> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final example = widget.word.getExamples.firstOrNull;
-      if (example != null) {
+      final routeName = ModalRoute.of(context)?.settings.name;
+      if (example != null && routeName != null) {
         final accent = AppSettings.of(context).accent;
         final voicer = AppSettings.of(context).voicer;
         Future.delayed(
@@ -59,36 +60,35 @@ class _VocabularyPageState extends State<VocabularyPage> {
         child: DefaultTabController(
           length: 2,
           child: NestedScrollView(
-            headerSliverBuilder:
-                (context, innerBoxIsScrolled) => [
-                  SliverOverlapAbsorber(
-                    handle: NestedScrollView.sliverOverlapAbsorberHandleFor(
-                      context,
-                    ),
-                    sliver: SliverAppBar(
-                      expandedHeight: headerHeight + kToolbarHeight + 48,
-                      toolbarHeight: kToolbarHeight + 48,
-                      pinned: true,
-                      flexibleSpace: VocabularyHead(
-                        headerHeight: headerHeight,
-                        word: widget.word,
-                        backTap: widget.nextTap,
-                        bottom: TabBar.secondary(
-                          isScrollable: true,
-                          tabAlignment: TabAlignment.start,
-                          tabs: [
-                            Tab(
-                              text: "Definition",
-                              iconMargin: EdgeInsets.only(top: 8),
-                            ),
-                            TabPhrase(futurePhrases: futurePhrases),
-                          ],
+            headerSliverBuilder: (context, innerBoxIsScrolled) => [
+              SliverOverlapAbsorber(
+                handle: NestedScrollView.sliverOverlapAbsorberHandleFor(
+                  context,
+                ),
+                sliver: SliverAppBar(
+                  expandedHeight: headerHeight + kToolbarHeight + 48,
+                  toolbarHeight: kToolbarHeight + 48,
+                  pinned: true,
+                  flexibleSpace: VocabularyHead(
+                    headerHeight: headerHeight,
+                    word: widget.word,
+                    backTap: widget.nextTap,
+                    bottom: TabBar.secondary(
+                      isScrollable: true,
+                      tabAlignment: TabAlignment.start,
+                      tabs: [
+                        Tab(
+                          text: "Definition",
+                          iconMargin: EdgeInsets.only(top: 8),
                         ),
-                      ),
-                      leading: const SizedBox(),
+                        TabPhrase(futurePhrases: futurePhrases),
+                      ],
                     ),
                   ),
-                ],
+                  leading: const SizedBox(),
+                ),
+              ),
+            ],
             body: Stack(
               children: [
                 TabBarView(
@@ -121,8 +121,8 @@ class _VocabularyPageState extends State<VocabularyPage> {
                           platformPageRoute(
                             context: context,
                             settings: RouteSettings(name: path),
-                            builder:
-                                (context) => ChatRoomPage(word: widget.word),
+                            builder: (context) =>
+                                ChatRoomPage(word: widget.word),
                           ),
                         );
                       },
@@ -177,25 +177,23 @@ class VocabularyHead extends StatelessWidget {
               height: height + kToolbarHeight,
               child: ClipRRect(
                 child: CustomPaint(
-                  painter:
-                      h > 0
-                          ? RadialGradientPainter(
-                            colorScheme: Theme.of(context).colorScheme,
-                          )
-                          : null,
+                  painter: h > 0
+                      ? RadialGradientPainter(
+                          colorScheme: Theme.of(context).colorScheme,
+                        )
+                      : null,
                   child: Stack(
                     children: [
                       CustomSingleChildLayout(
                         delegate: BackgroundLayoutDelegate(headerHeight),
                         child: Container(
                           decoration: BoxDecoration(
-                            image:
-                                word.asset != null
-                                    ? DecorationImage(
-                                      fit: BoxFit.cover,
-                                      image: NetworkImage(word.asset!),
-                                    )
-                                    : null,
+                            image: word.asset != null
+                                ? DecorationImage(
+                                    fit: BoxFit.cover,
+                                    image: NetworkImage(word.asset!),
+                                  )
+                                : null,
                             // color: Colors.blue.withOpacity(0.5),
                             borderRadius: BorderRadius.circular(
                               borderRadius.transform(h),

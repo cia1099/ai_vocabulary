@@ -149,6 +149,11 @@ class DefinitionTile extends StatelessWidget {
     TextTheme textTheme,
     ColorScheme colorScheme,
   ) {
+    final textPainter = TextPainter(
+      text: TextSpan(text: "Synonyms  :", style: textTheme.titleSmall),
+      textScaler: MediaQuery.textScalerOf(context),
+      textDirection: TextDirection.ltr,
+    )..layout();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -168,7 +173,12 @@ class DefinitionTile extends StatelessWidget {
           ),
         if (definition.synonyms != null && definition.antonyms != null)
           Padding(
-            padding: const EdgeInsets.only(left: 80, top: 4, bottom: 4),
+            // padding: const EdgeInsets.only(left: 80, top: 4, bottom: 4),
+            padding: EdgeInsets.only(
+              left: textPainter.width,
+              top: 4,
+              bottom: 4,
+            ),
             child: DottedLine(dashColor: colorScheme.outline),
           ),
         if (definition.antonyms != null)

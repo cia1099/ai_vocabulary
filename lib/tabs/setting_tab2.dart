@@ -43,19 +43,41 @@ extension Methods on SettingTab {
   }
 
   void shareApp() {
-    const text = """
-Boost your English with smart, AI-powered vocabulary learning. Tailored quizzes, personalized review, and real-time feedback — right in your pocket.
-Download and try now!
-""";
+    //     const text = """
+    // Boost your English with smart, AI-powered vocabulary learning. Tailored quizzes, personalized review, and real-time feedback — right in your pocket.
+    // Download and try now!
+    // """;
     SharePlus.instance.share(
       ShareParams(
-        text: text,
+        // text: text,
         subject: "AI Vocabulary",
-        // uri: Uri.parse(
-        //   "https://www.cia1099.cloudns.ch/dict/auth/cover/edge.png",
-        // ),
+        uri: Uri.https("ai-vocabulary.com"),
       ),
     );
+  }
+
+  void restorePurchase(BuildContext context) async {
+    try {
+      final customerInfo = await Purchases.restorePurchases();
+      final info = customerInfo.entitlements.active.values.firstOrNull?.toJson()
+        ?..addAll({"gas": 200.0});
+      if (info == null) throw HttpException("No transaction found");
+      final user = await updateSubscript(info);
+      UserProvider().currentUser = user;
+    } catch (e) {
+      if (context.mounted) {
+        showToast(context: context, child: Text(messageExceptions(e)));
+      }
+    }
+  }
+
+  void requestReview() async {
+    final inAppReview = InAppReview.instance;
+    if (await inAppReview.isAvailable()) {
+      inAppReview.requestReview();
+    } else {
+      inAppReview.openStoreListing(appStoreId: '你的 App Store ID');
+    }
   }
 }
 

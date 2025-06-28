@@ -74,7 +74,7 @@ class _ExampleParagraphState extends State<ExampleParagraph>
                   patterns: widget.patterns,
                 ),
               ),
-              const TextSpan(text: '\t\t'),
+              // const TextSpan(text: '\t\t'),
               WidgetSpan(
                 child: PlatformWidgetBuilder(
                   material: (_, child, __) => InkWell(
@@ -109,10 +109,15 @@ class _ExampleParagraphState extends State<ExampleParagraph>
                         ),
                     child: child,
                   ),
-                  child: Icon(
-                    CupertinoIcons.volume_up,
-                    size: textTheme.bodyLarge?.fontSize.scale(
-                      textTheme.bodyLarge?.height,
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                      left: style?.fontSize?.scale(.5) ?? 0,
+                    ),
+                    child: Icon(
+                      CupertinoIcons.volume_up,
+                      size: textTheme.bodyLarge?.fontSize.scale(
+                        textTheme.bodyLarge?.height,
+                      ),
                     ),
                   ),
                 ),
