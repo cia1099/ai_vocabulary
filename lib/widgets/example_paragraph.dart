@@ -64,61 +64,63 @@ class _ExampleParagraphState extends State<ExampleParagraph>
               ),
         ),
       ),
-      paragraph: Text.rich(
-        TextSpan(
-          children: [
-            TextSpan(
-              children: clickableWords(
-                widget.example,
-                patterns: widget.patterns,
+      paragraph: SelectionArea(
+        child: Text.rich(
+          TextSpan(
+            children: [
+              TextSpan(
+                children: clickableWords(
+                  widget.example,
+                  patterns: widget.patterns,
+                ),
               ),
-            ),
-            const TextSpan(text: '\t\t'),
-            WidgetSpan(
-              child: PlatformWidgetBuilder(
-                material: (_, child, __) => InkWell(
-                  onTap: () =>
-                      soundAzure(
-                        widget.example,
-                        lang: accent.azure.lang,
-                        sound: voicer,
-                      ).onError(
-                        (e, _) => context.mounted
-                            ? showToast(
-                                context: context,
-                                child: Text(messageExceptions(e)),
-                              )
-                            : null,
-                      ),
-                  child: child,
-                ),
-                cupertino: (_, child, __) => GestureDetector(
-                  onTap: () =>
-                      soundAzure(
-                        widget.example,
-                        lang: accent.azure.lang,
-                        sound: voicer,
-                      ).onError(
-                        (e, _) => context.mounted
-                            ? showToast(
-                                context: context,
-                                child: Text(messageExceptions(e)),
-                              )
-                            : null,
-                      ),
-                  child: child,
-                ),
-                child: Icon(
-                  CupertinoIcons.volume_up,
-                  size: textTheme.bodyLarge?.fontSize.scale(
-                    textTheme.bodyLarge?.height,
+              const TextSpan(text: '\t\t'),
+              WidgetSpan(
+                child: PlatformWidgetBuilder(
+                  material: (_, child, __) => InkWell(
+                    onTap: () =>
+                        soundAzure(
+                          widget.example,
+                          lang: accent.azure.lang,
+                          sound: voicer,
+                        ).onError(
+                          (e, _) => context.mounted
+                              ? showToast(
+                                  context: context,
+                                  child: Text(messageExceptions(e)),
+                                )
+                              : null,
+                        ),
+                    child: child,
+                  ),
+                  cupertino: (_, child, __) => GestureDetector(
+                    onTap: () =>
+                        soundAzure(
+                          widget.example,
+                          lang: accent.azure.lang,
+                          sound: voicer,
+                        ).onError(
+                          (e, _) => context.mounted
+                              ? showToast(
+                                  context: context,
+                                  child: Text(messageExceptions(e)),
+                                )
+                              : null,
+                        ),
+                    child: child,
+                  ),
+                  child: Icon(
+                    CupertinoIcons.volume_up,
+                    size: textTheme.bodyLarge?.fontSize.scale(
+                      textTheme.bodyLarge?.height,
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
+          style: style,
         ),
-        style: style,
       ),
       paragraphStyle: style,
     );

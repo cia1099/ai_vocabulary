@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:ai_vocabulary/model/user.dart';
+import 'package:flutter/material.dart';
 
 class UserProvider {
   SignInUser? _user;
@@ -13,7 +14,7 @@ class UserProvider {
 
   SignInUser? get currentUser => _user;
   set currentUser(SignInUser? user) {
-    print('Access Token: ${user?.accessToken}');
+    debugPrint('Access Token: ${user?.accessToken}');
     _user = user;
     _userState.add(_user);
   }

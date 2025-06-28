@@ -53,47 +53,45 @@ class _ChatBubbleState extends State<ChatBubble> with ShowContentMixin {
       ),
       padding: const EdgeInsets.only(right: 8, left: 8, top: 8),
       decoration: ShapeDecoration(
-        color:
-            isMe
-                ? colorScheme.secondaryContainer
-                : colorScheme.surfaceContainerHigh,
+        color: isMe
+            ? colorScheme.secondaryContainer
+            : colorScheme.surfaceContainerHigh,
         shape: ChatBubbleShape(isMe: isMe),
       ),
       child: Stack(
         children: [
           Container(
             margin: EdgeInsets.only(bottom: iconSize * 1.414),
-            child:
-                showContent
-                    ? MediaQuery(
-                      data: const MediaQueryData(
-                        textScaler: TextScaler.linear(1.414),
-                      ),
-                      child: widget.child,
-                    )
-                    : Theme(
-                      data: ThemeData(
-                        iconTheme: IconThemeData(
-                          color: colorScheme.onSurface.withValues(alpha: .6),
-                          size: iconSize * 1.6,
-                        ),
-                      ),
-                      child: Wrap(
-                        alignment: WrapAlignment.end,
-                        children: [
-                          const Icon(CupertinoIcons.waveform_path_ecg),
-                          Transform.scale(
-                            scaleX: 1.3,
-                            child: const Icon(CupertinoIcons.waveform_path),
-                          ),
-                          Transform.flip(
-                            flipX: true,
-                            // flipY: true,
-                            child: const Icon(CupertinoIcons.waveform_path_ecg),
-                          ),
-                        ],
+            child: showContent
+                ? MediaQuery(
+                    data: const MediaQueryData(
+                      textScaler: TextScaler.linear(1.414),
+                    ),
+                    child: widget.child,
+                  )
+                : Theme(
+                    data: ThemeData(
+                      iconTheme: IconThemeData(
+                        color: colorScheme.onSurface.withValues(alpha: .6),
+                        size: iconSize * 1.6,
                       ),
                     ),
+                    child: Wrap(
+                      alignment: WrapAlignment.end,
+                      children: [
+                        const Icon(CupertinoIcons.waveform_path_ecg),
+                        Transform.scale(
+                          scaleX: 1.3,
+                          child: const Icon(CupertinoIcons.waveform_path),
+                        ),
+                        Transform.flip(
+                          flipX: true,
+                          // flipY: true,
+                          child: const Icon(CupertinoIcons.waveform_path_ecg),
+                        ),
+                      ],
+                    ),
+                  ),
           ),
           Positioned(
             left: 4,
@@ -105,41 +103,37 @@ class _ChatBubbleState extends State<ChatBubble> with ShowContentMixin {
                 PlatformIconButton(
                   onPressed: () => soundContent(widget.message),
                   padding: EdgeInsets.zero,
-                  material:
-                      (_, __) => MaterialIconButtonData(
-                        style: IconButton.styleFrom(
-                          padding: EdgeInsets.zero,
-                          minimumSize: Size.square(iconSize),
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        ),
-                      ),
-                  cupertino:
-                      (_, __) => CupertinoIconButtonData(minSize: iconSize),
+                  material: (_, __) => MaterialIconButtonData(
+                    style: IconButton.styleFrom(
+                      padding: EdgeInsets.zero,
+                      minimumSize: Size.square(iconSize),
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                  ),
+                  cupertino: (_, __) =>
+                      CupertinoIconButtonData(minSize: iconSize),
                   icon: Builder(
-                    builder:
-                        (context) => Icon(
-                          CupertinoIcons.play_circle,
-                          size: iconSize,
-                          color: DefaultTextStyle.of(context).style.color,
-                        ),
+                    builder: (context) => Icon(
+                      CupertinoIcons.play_circle,
+                      size: iconSize,
+                      color: DefaultTextStyle.of(context).style.color,
+                    ),
                   ),
                 ),
                 PlatformTextButton(
-                  onPressed:
-                      () => setState(() {
-                        showContent ^= true;
-                      }),
+                  onPressed: () => setState(() {
+                    showContent ^= true;
+                  }),
                   padding: EdgeInsets.zero,
-                  material:
-                      (_, __) => MaterialTextButtonData(
-                        style: TextButton.styleFrom(
-                          padding: EdgeInsets.zero,
-                          minimumSize: Size.square(iconSize),
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        ),
-                      ),
-                  cupertino:
-                      (_, __) => CupertinoTextButtonData(minSize: iconSize),
+                  material: (_, __) => MaterialTextButtonData(
+                    style: TextButton.styleFrom(
+                      padding: EdgeInsets.zero,
+                      minimumSize: Size.square(iconSize),
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                  ),
+                  cupertino: (_, __) =>
+                      CupertinoTextButtonData(minSize: iconSize),
                   child: Icon(
                     showContent ? CupertinoIcons.eye_slash : CupertinoIcons.eye,
                     size: iconSize,
@@ -175,10 +169,9 @@ class _ChatBubbleState extends State<ChatBubble> with ShowContentMixin {
       lang: accent.azure.lang,
       sound: voicer,
     ).onError(
-      (e, _) =>
-          mounted
-              ? showToast(context: context, child: Text(messageExceptions(e)))
-              : null,
+      (e, _) => mounted
+          ? showToast(context: context, child: Text(messageExceptions(e)))
+          : null,
     );
   }
 }
@@ -200,13 +193,15 @@ class _ClickableTextState extends State<ClickableText>
     with ClickableTextStateMixin {
   @override
   Widget build(BuildContext context) {
-    return Text.rich(
-      TextSpan(
-        children: [
-          TextSpan(
-            children: clickableWords(widget.text, patterns: widget.patterns),
-          ),
-        ],
+    return SelectionArea(
+      child: Text.rich(
+        TextSpan(
+          children: [
+            TextSpan(
+              children: clickableWords(widget.text, patterns: widget.patterns),
+            ),
+          ],
+        ),
       ),
     );
   }

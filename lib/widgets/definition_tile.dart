@@ -210,22 +210,24 @@ class _DefinitionParagraphState extends State<DefinitionParagraph>
         : '[${widget.explain.subscript!}]\t';
     final spans = clickableWords(subscript + widget.explain.explain);
     final firstSpan = clickableWords(subscript);
-    return Text.rich(
-      TextSpan(
-        children: [
-          if (widget.explain.subscript != null)
+    return SelectionArea(
+      child: Text.rich(
+        TextSpan(
+          children: [
+            if (widget.explain.subscript != null)
+              TextSpan(
+                children: spans.getRange(0, firstSpan.length).toList(),
+                style: textTheme.bodyLarge!.apply(color: colorScheme.primary),
+              ),
             TextSpan(
-              children: spans.getRange(0, firstSpan.length).toList(),
-              style: textTheme.bodyLarge!.apply(color: colorScheme.primary),
+              children: spans.getRange(firstSpan.length, spans.length).toList(),
+              style: textTheme.bodyLarge!.copyWith(
+                fontWeight: FontWeight.bold,
+                height: 1.25,
+              ),
             ),
-          TextSpan(
-            children: spans.getRange(firstSpan.length, spans.length).toList(),
-            style: textTheme.bodyLarge!.copyWith(
-              fontWeight: FontWeight.bold,
-              height: 1.25,
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

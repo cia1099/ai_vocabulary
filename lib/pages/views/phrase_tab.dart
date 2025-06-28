@@ -49,12 +49,11 @@ class PhraseTab extends StatelessWidget {
                     left: hPadding,
                     right: hPadding,
                   ),
-                  margin:
-                      index == phrases.length - 1
-                          ? const EdgeInsets.only(
-                            bottom: kBottomNavigationBarHeight,
-                          )
-                          : null,
+                  margin: index == phrases.length - 1
+                      ? const EdgeInsets.only(
+                          bottom: kBottomNavigationBarHeight,
+                        )
+                      : null,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -87,7 +86,9 @@ class PhraseTab extends StatelessWidget {
                             (example) => ExampleParagraph(
                               example: example,
                               patterns:
-                                  phrase.phrase.split(' ') +
+                                  phrase.phrase.split(' ').expand((w) sync* {
+                                    for (final s in w.split("/")) yield s;
+                                  }).toList() +
                                   (definition.inflection?.split(", ") ??
                                       <String>[]),
                             ),

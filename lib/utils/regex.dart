@@ -46,8 +46,7 @@ extension SlidingWindow on String {
 
   int _matchFirstIndex(String pattern) {
     if (pattern.isEmpty || length < pattern.length) return -1;
-    var i = 0;
-    for (; i < length - pattern.length + 1; i++) {
+    for (var i = 0; i < length - pattern.length + 1; i++) {
       if (this[i] == pattern[0]) {
         var ii = i + 1;
         for (int j = 1; j < pattern.length; j++) {
@@ -59,7 +58,7 @@ extension SlidingWindow on String {
         if (ii - i == pattern.length)
           return i;
         else
-          i = ii + 1;
+          i = ii - 1;
       }
     }
     return -1;
