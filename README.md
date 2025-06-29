@@ -2,6 +2,16 @@
 
 An AI application in flutter.
 
+# Build Release
+```sh
+flutter build ios --release --no-tree-shake-icons
+```
+* check whether git has commit in the folder
+```sh
+git ls-files assets/
+git log --stat assets/
+```
+
 # Good Codes
 * [lib/pages/speech_confirm_dialog.dart](lib/pages/speech_confirm_dialog.dart)\
 Resolve InkWell issue when the page without Scaffold, the alternative way is to wrap Material widget.\

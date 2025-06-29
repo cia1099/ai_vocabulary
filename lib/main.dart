@@ -2,6 +2,7 @@ import 'package:ai_vocabulary/app_route.dart';
 import 'package:ai_vocabulary/pages/auth_page.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
@@ -174,7 +175,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> initPurchases(TargetPlatform platform) async {
-    await Purchases.setLogLevel(LogLevel.debug);
+    if (kDebugMode) await Purchases.setLogLevel(LogLevel.debug);
 
     final revenueCatKey = switch (platform) {
       TargetPlatform.iOS => "appl_BhfSwLRtzObwxuwlHUNddWezqtr",
