@@ -94,8 +94,8 @@ extension HelperString on String {
   }
 }
 
-int iso8601DurationToMonths(String iso) {
-  final regex = RegExp(r'^P(?:(\d+)Y)?(?:(\d+)M)?$');
+double iso8601DurationToMonths(String iso) {
+  final regex = RegExp(r'^P(?:(\d+)Y)?(?:(\d+)M)?(?:(\d+)W)?$');
   final match = regex.firstMatch(iso);
 
   if (match == null) {
@@ -104,6 +104,7 @@ int iso8601DurationToMonths(String iso) {
 
   final years = int.tryParse(match.group(1) ?? '0') ?? 0;
   final months = int.tryParse(match.group(2) ?? '0') ?? 0;
+  final weeks = int.tryParse(match.group(3) ?? '0') ?? 0;
 
-  return years * 12 + months;
+  return years * 12 + months + weeks / 4;
 }

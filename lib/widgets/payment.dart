@@ -30,39 +30,50 @@ class Payment extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(period.title, style: textTheme.navTitleTextStyle),
-                    if (period.discount != null)
-                      Text.rich(
-                        TextSpan(
-                          children: [
-                            for (final entry
-                                in period.subtitle!.split(', ').asMap().entries)
-                              TextSpan(
-                                children: [
-                                  if (entry.key > 0) TextSpan(text: ", "),
-                                  TextSpan(
-                                    text: entry.value,
-                                    style: TextStyle(
-                                      decoration: entry.key == 0
-                                          ? TextDecoration.lineThrough
-                                          : null,
-                                      color: entry.key == 1
-                                          ? colorScheme.primary
-                                          : null,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                          ],
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(period.title, style: textTheme.navTitleTextStyle),
+                      if (period.description != null)
+                        Text(
+                          period.description!,
+                          textScaler: TextScaler.linear(.9),
+                          style: TextStyle(color: colorScheme.onSurfaceVariant),
                         ),
-                        textScaler: TextScaler.linear(.9),
-                        style: TextStyle(color: colorScheme.onSurfaceVariant),
-                      ),
-                  ],
+                      if (period.discount != null)
+                        Text.rich(
+                          TextSpan(
+                            children: [
+                              for (final entry
+                                  in period.subtitle!
+                                      .split(', ')
+                                      .asMap()
+                                      .entries)
+                                TextSpan(
+                                  children: [
+                                    if (entry.key > 0) TextSpan(text: ", "),
+                                    TextSpan(
+                                      text: entry.value,
+                                      style: TextStyle(
+                                        decoration: entry.key == 0
+                                            ? TextDecoration.lineThrough
+                                            : null,
+                                        color: entry.key == 1
+                                            ? colorScheme.primary
+                                            : null,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                            ],
+                          ),
+                          textScaler: TextScaler.linear(.9),
+                          style: TextStyle(color: colorScheme.onSurfaceVariant),
+                        ),
+                    ],
+                  ),
                 ),
                 Column(
                   mainAxisAlignment: MainAxisAlignment.center,

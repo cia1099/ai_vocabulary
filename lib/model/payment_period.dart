@@ -3,14 +3,16 @@ import 'dart:convert';
 class PaymentPeriod {
   final String period;
   final double price;
-  final Discount? discount;
   final String currency;
+  final Discount? discount;
+  final String? description;
 
   PaymentPeriod({
     required this.period,
     required this.price,
     required this.currency,
     this.discount,
+    this.description,
   });
 
   factory PaymentPeriod.fromRawJson(String str) =>
@@ -25,6 +27,7 @@ class PaymentPeriod {
         ? null
         : Discount.fromJson(json["discount"]),
     currency: json["currency"],
+    description: json["description"],
   );
 
   Map<String, dynamic> toJson() => {
@@ -32,6 +35,7 @@ class PaymentPeriod {
     "price": price,
     "discount": discount?.toJson(),
     "currency": currency,
+    "description": description,
   };
 
   @override

@@ -187,19 +187,25 @@ class _PaymentPageState extends State<PaymentPage> {
         PackageType.annual => "year",
         _ => "day",
       };
-      Map<String, dynamic>? discount;
-      if (package.packageType != PackageType.monthly) {
-        final months = iso8601DurationToMonths(product.subscriptionPeriod!);
-        final origin = monthlyPrice * months;
-        final save = (origin - product.price) / origin;
-        discount = {"origin": origin, "save": save};
-      }
-      payments.add({
+      final payment = {
         "period": period,
         "price": product.price,
         "currency": product.currencyCode,
-        "discount": discount,
-      });
+      };
+      final discounts = product.discounts;
+      if (discounts != null && discounts.isNotEmpty) {
+        final trial = discounts.first;
+        final days = (iso8601DurationToMonths(trial.period) * 30).floor();
+        payment["description"] = "First $days days are free, cancel anytime";
+      }
+      if (package.packageType == PackageType.annual) {
+        final months = iso8601DurationToMonths(product.subscriptionPeriod!);
+        final origin = monthlyPrice * months;
+        final save = (origin - product.price) / origin;
+        payment["discount"] = {"origin": origin, "save": save};
+      }
+
+      payments.add(payment);
     }
     return payments.map((p) => PaymentPeriod.fromJson(p)).toList();
   }
