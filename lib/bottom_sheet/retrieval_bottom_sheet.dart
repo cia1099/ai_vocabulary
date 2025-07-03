@@ -168,6 +168,7 @@ class _RetrievalBottomSheetState extends State<RetrievalBottomSheet>
                             itemCount: words.length,
                             onPageChanged: (value) {
                               tabController?.animateTo(value);
+                              autoSound?.cancel();
                               autoSound = Timer(
                                 Durations.medium1,
                                 () => soundGTTs(words[value].word, accent.gTTS),

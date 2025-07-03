@@ -14,6 +14,7 @@ class GestureRoutePage extends StatefulWidget {
   final Widget pushPage;
   final String? routeName;
   final bool draggable;
+  static VoidCallback? onRoute;
 
   @override
   State<GestureRoutePage> createState() => _GestureRoutePageState();
@@ -64,10 +65,8 @@ class _GestureRoutePageState extends State<GestureRoutePage>
             child: PlatformScaffold(
               appBar: PlatformAppBar(
                 title: const Text('Cloze Quiz'),
-                cupertino:
-                    (_, __) => CupertinoNavigationBarData(
-                      transitionBetweenRoutes: false,
-                    ),
+                cupertino: (_, __) =>
+                    CupertinoNavigationBarData(transitionBetweenRoutes: false),
               ),
               body: const Center(
                 child: Text(
@@ -102,15 +101,15 @@ class _GestureRoutePageState extends State<GestureRoutePage>
   }
 
   Route createRoute() {
+    GestureRoutePage.onRoute?.call();
     return PageRouteBuilder(
       pageBuilder: (context, animation, secondaryAnimation) => widget.pushPage,
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         final tween = offsetTween.chain(CurveTween(curve: Curves.ease));
 
-        final offsetAnimation =
-            !animation.isForwardOrCompleted
-                ? animation.drive(tween)
-                : (_controller..forward()).drive(tween);
+        final offsetAnimation = !animation.isForwardOrCompleted
+            ? animation.drive(tween)
+            : (_controller..forward()).drive(tween);
         return SlideTransition(position: offsetAnimation, child: child);
       },
       settings: RouteSettings(name: widget.routeName),

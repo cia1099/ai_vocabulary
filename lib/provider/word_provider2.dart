@@ -78,7 +78,7 @@ class RecommendProvider extends WordProvider {
     if (!_completer.isCompleted) return;
     _fetchTime = 0;
     await fetchStudyWords(0, isReset: true);
-    // currentWord = _studyWords.firstOrNull; //PageView itemBuilder has set currentWord
+    currentWord = _studyWords.firstOrNull;
     if (!await isReady.onError((_, _) => false)) {
       //reset _completer to rebuild FutureBuilder to replace initialized error
       _completer = Completer<bool>()..complete(true);
@@ -94,6 +94,7 @@ class ReviewProvider extends WordProvider {
   final Iterable<int>? reviewIDs;
   ReviewProvider([this.reviewIDs]) {
     fetchReviewWords().onError(_completer.completeError).whenComplete(() {
+      currentWord = _studyWords.firstOrNull;
       if (!_completer.isCompleted) {
         _completer.complete(true);
       }

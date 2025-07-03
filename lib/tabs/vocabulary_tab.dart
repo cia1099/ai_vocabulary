@@ -1,9 +1,12 @@
+import 'dart:async' show Timer;
 import 'dart:math';
 
+import 'package:ai_vocabulary/api/dict_api.dart' show soundGTTs;
 import 'package:ai_vocabulary/database/my_db.dart';
 import 'package:ai_vocabulary/effects/refreshed_scroller.dart';
 import 'package:ai_vocabulary/pages/slider_page.dart';
 import 'package:ai_vocabulary/provider/word_provider.dart';
+import 'package:ai_vocabulary/utils/gesture_route_page.dart';
 import 'package:ai_vocabulary/utils/handle_except.dart';
 import 'package:ai_vocabulary/utils/shortcut.dart';
 import 'package:ai_vocabulary/widgets/entry_actions.dart';
@@ -34,6 +37,8 @@ class _VocabularyTabState extends State<VocabularyTab>
   late final recommend = RecommendProvider(context: context);
   final review = ReviewProvider();
   final rng = Random();
+  final autoDelay = Durations.extralong4 * 1.5;
+  Timer? autoSound;
 
   @override
   Widget build(BuildContext context) {
@@ -74,15 +79,17 @@ class _VocabularyTabState extends State<VocabularyTab>
                   onPageChanged: (value) {
                     tabController.animateTo(value);
                     widget.onTabChanged?.call((value + 1) & 1);
-                    AppSettings.of(context).wordProvider = value == 0
-                        ? review
-                        : recommend;
+                    final provider = value == 0 ? review : recommend;
+                    AppSettings.of(context).wordProvider = provider;
+                    if (provider.currentWord != null) {
+                      newSound(provider.currentWord!.word);
+                    }
                   },
                   physics: const NeverScrollableScrollPhysics(),
                   children: [
                     RefreshedScroller(
                       controller: review.pageController,
-                      thresholdExtent: 150,
+                      // thresholdExtent: 150,
                       refresh: (atTop) async {
                         final hasError = !await review.isReady.onError(
                           (_, _) => false,
@@ -99,7 +106,7 @@ class _VocabularyTabState extends State<VocabularyTab>
                     ),
                     RefreshedScroller(
                       controller: recommend.pageController,
-                      thresholdExtent: 180,
+                      // thresholdExtent: 180,
                       refresh: (atTop) async {
                         final hasError = !await recommend.isReady.onError(
                           (_, _) => false,
@@ -152,21 +159,12 @@ class _VocabularyTabState extends State<VocabularyTab>
             controller: provider.pageController,
             onPageChanged: (index) {
               provider.currentWord = provider[index];
-              //[index % provider.length];
               provider.clozeSeed = rng.nextInt(256);
               if (provider is RecommendProvider) {
-                provider
-                    .fetchStudyWords(index)
-                    // .then((_) {
-                    //   if (index == RecommendProvider.kMaxLength) {
-                    //     Future.delayed(Durations.long2, () {
-                    //       provider.pageController.jumpToPage(0);
-                    //     });
-                    //   } else if (index == provider.length) {
-                    //     print('at max page');
-                    //   }
-                    // })
-                    .catchError((_) {});
+                provider.fetchStudyWords(index).catchError((_) {});
+              }
+              if (provider.currentWord != null) {
+                newSound(provider.currentWord!.word);
               }
             },
             itemBuilder: (context, index) {
@@ -174,10 +172,18 @@ class _VocabularyTabState extends State<VocabularyTab>
               if (error != null) return error;
               final i = index % provider.length;
               final word = provider[i];
+              autoSound ??= Timer(
+                autoDelay,
+                () => soundGTTs(word.word, AppSettings.of(context).accent.gTTS),
+              );
               final textTheme = CupertinoTheme.of(context).textTheme;
               return Stack(
                 children: [
-                  SliderPage(key: ValueKey(word.wordId), word: word),
+                  SliderPage(
+                    key: ValueKey(word.wordId),
+                    word: word,
+                    autoSound: autoSound,
+                  ),
                   if (provider is RecommendProvider &&
                       index == provider.length - 1)
                     Align(
@@ -212,6 +218,15 @@ class _VocabularyTabState extends State<VocabularyTab>
           ),
         );
       },
+    );
+  }
+
+  void newSound(String text) {
+    final accent = AppSettings.of(context).accent;
+    autoSound?.cancel();
+    autoSound = Timer(
+      autoDelay,
+      () => soundGTTs(text, accent.gTTS).onError((e, _) {}),
     );
   }
 
@@ -262,11 +277,13 @@ class _VocabularyTabState extends State<VocabularyTab>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       AppSettings.of(context).wordProvider = recommend;
     });
+    GestureRoutePage.onRoute = () => autoSound?.cancel();
   }
 
   @override
   void dispose() {
     tabController.dispose();
+    GestureRoutePage.onRoute = null;
     super.dispose();
   }
 }

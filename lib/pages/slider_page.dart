@@ -2,7 +2,6 @@ import 'dart:async' show Timer;
 import 'dart:math';
 import 'dart:typed_data';
 
-import 'package:ai_vocabulary/api/dict_api.dart' show soundGTTs;
 import 'package:ai_vocabulary/app_route.dart';
 import 'package:ai_vocabulary/app_settings.dart';
 import 'package:ai_vocabulary/database/my_db.dart';
@@ -26,10 +25,11 @@ import '../widgets/remember_retention.dart';
 import 'chat_room_page.dart';
 
 class SliderPage extends StatefulWidget {
-  const SliderPage({required Key key, required this.word}) : super(key: key);
+  const SliderPage({required Key key, required this.word, this.autoSound})
+    : super(key: key);
 
   final Vocabulary word;
-  static VoidCallback? stopSound;
+  final Timer? autoSound;
   @override
   State<SliderPage> createState() => _SliderPageState();
 }
@@ -37,28 +37,8 @@ class SliderPage extends StatefulWidget {
 class _SliderPageState extends State<SliderPage> {
   Acquaintance? acquaintance;
   late final titleKey = GlobalObjectKey<SliderTitleState>(widget.key!);
-  Timer? autoSound;
-  @override
-  void initState() {
-    autoSound = Timer(
-      Durations.extralong4 * 3,
-      () => soundGTTs(widget.word.word, AppSettings.of(context).accent.gTTS),
-    );
-    //TODO: used inherited widget to rebuild gesture_route_page.dart
-    SliderPage.stopSound = () {
-      print("stop ${widget.word.word}");
-      stopSound();
-    };
-    super.initState();
-  }
 
-  @override
-  void dispose() {
-    stopSound();
-    super.dispose();
-  }
-
-  void stopSound() => autoSound?.cancel();
+  void stopSound() => widget.autoSound?.cancel();
 
   @override
   Widget build(BuildContext context) {

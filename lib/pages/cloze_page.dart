@@ -11,6 +11,7 @@ import 'package:ai_vocabulary/utils/regex.dart';
 import 'package:ai_vocabulary/widgets/entry_actions.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
 import '../app_route.dart';
@@ -57,11 +58,10 @@ class _ClozePageState extends State<ClozePage> {
     final entry = widget.entry ?? word.generateClozeEntry();
     final explain = entry.key;
     final example = entry.value;
-    final phonetic =
-        word.definitions
-            .where((d) => d.explanations.any((e) => e.explain == explain))
-            .map((d) => Phonetic('${d.phoneticUs}', d.audioUs))
-            .first;
+    final phonetic = word.definitions
+        .where((d) => d.explanations.any((e) => e.explain == explain))
+        .map((d) => Phonetic('${d.phoneticUs}', d.audioUs))
+        .first;
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
     final hPadding = MediaQuery.sizeOf(context).width / 16;
@@ -69,21 +69,17 @@ class _ClozePageState extends State<ClozePage> {
     return PlatformScaffold(
       appBar: PlatformAppBar(
         title: const Text('Cloze Quiz'),
-        material:
-            (_, __) => MaterialAppBarData(
-              actions:
-                  routeName == AppRoute.quiz
-                      ? [EntryActions(wordID: word.wordId)]
-                      : null,
-            ),
-        cupertino:
-            (_, __) => CupertinoNavigationBarData(
-              transitionBetweenRoutes: false,
-              trailing:
-                  routeName == AppRoute.quiz
-                      ? EntryActions(wordID: word.wordId)
-                      : null,
-            ),
+        material: (_, __) => MaterialAppBarData(
+          actions: routeName == AppRoute.quiz
+              ? [EntryActions(wordID: word.wordId)]
+              : null,
+        ),
+        cupertino: (_, __) => CupertinoNavigationBarData(
+          transitionBetweenRoutes: false,
+          trailing: routeName == AppRoute.quiz
+              ? EntryActions(wordID: word.wordId)
+              : null,
+        ),
       ),
       // PreferredSize(
       //     preferredSize: const Size.fromHeight(kToolbarHeight),
@@ -139,24 +135,23 @@ class _ClozePageState extends State<ClozePage> {
                 alignment: Alignment.centerLeft,
                 child: AnimatedBuilder(
                   animation: tip,
-                  builder:
-                      (context, child) => Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              tip.value,
-                              style: textTheme.bodyLarge!.apply(
-                                color:
-                                    tip.value == defaultTip
-                                        ? null
-                                        : CupertinoColors.destructiveRed
-                                            .resolveFrom(context),
-                              ),
-                            ),
+                  builder: (context, child) => Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          tip.value,
+                          style: textTheme.bodyLarge!.apply(
+                            color: tip.value == defaultTip
+                                ? null
+                                : CupertinoColors.destructiveRed.resolveFrom(
+                                    context,
+                                  ),
                           ),
-                          child!,
-                        ],
+                        ),
                       ),
+                      child!,
+                    ],
+                  ),
                   child: Container(
                     constraints: BoxConstraints(maxHeight: 30),
                     decoration: BoxDecoration(
@@ -187,9 +182,8 @@ class _ClozePageState extends State<ClozePage> {
               Center(
                 child: ValueListenableBuilder(
                   valueListenable: showPhonetic,
-                  builder:
-                      (context, value, child) =>
-                          FadeOutConceal(fadeOutState: value, child: child),
+                  builder: (context, value, child) =>
+                      FadeOutConceal(fadeOutState: value, child: child),
                   child: Text(phonetic.phonetic, style: textTheme.bodyLarge),
                 ),
               ),
@@ -207,47 +201,31 @@ class _ClozePageState extends State<ClozePage> {
     bool autofocus = true,
   }) {
     return splitWords(text).map((s) {
-        if (matches.contains(s) || matches.contains(s.toLowerCase())) {
-          final wordPainter = TextPainter(
-            text: TextSpan(text: s),
-            maxLines: 1,
-            textDirection: TextDirection.ltr,
-          )..layout(maxWidth: double.maxFinite);
+      if (matches.contains(s) || matches.contains(s.toLowerCase())) {
+        final wordPainter = TextPainter(
+          text: TextSpan(text: s),
+          maxLines: 1,
+          textDirection: TextDirection.ltr,
+        )..layout(maxWidth: double.maxFinite);
 
-          final check = ValueNotifier(true);
-          return WidgetSpan(
-            child: ValueListenableBuilder(
-              valueListenable: check,
-              builder: (context, _, __) {
-                return TextFormField(
-                  autofocus: autofocus,
-                  focusNode: focusNode,
-                  keyboardType: TextInputType.text,
-                  onChanged: (input) {
-                    tip.value = defaultTip;
-                    if (input.contains(RegExp(r'\s+'))) {
-                      inputController.text = input.replaceAll(
-                        RegExp(r'\s+'),
-                        '',
-                      );
-                      final answer = verifyAnswer(s, matches);
-                      if (answer == 'Correct') {
-                        Navigator.of(context).popAndPushNamed(
-                          AppRoute.entryVocabulary,
-                          result: AppRoute.quiz,
-                        );
-                      } else {
-                        tip.value = answer;
-                      }
-                    }
-                    check.value = s.contains(RegExp(inputController.text));
-                  },
-                  style: TextStyle(
-                    color:
-                        check.value ? colorScheme.primary : colorScheme.error,
-                  ),
-                  onFieldSubmitted: (_) {
-                    focusNode.requestFocus();
+        final check = ValueNotifier(true);
+        return WidgetSpan(
+          child: ValueListenableBuilder(
+            valueListenable: check,
+            builder: (context, _, __) {
+              return TextFormField(
+                autofocus: autofocus,
+                autocorrect: false,
+                enableSuggestions: false,
+                focusNode: focusNode,
+                keyboardType: TextInputType.text,
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z ]')),
+                ],
+                onChanged: (input) {
+                  tip.value = defaultTip;
+                  if (input.contains(RegExp(r'\s+'))) {
+                    inputController.text = input.replaceAll(RegExp(r'\s+'), '');
                     final answer = verifyAnswer(s, matches);
                     if (answer == 'Correct') {
                       Navigator.of(context).popAndPushNamed(
@@ -257,43 +235,59 @@ class _ClozePageState extends State<ClozePage> {
                     } else {
                       tip.value = answer;
                     }
-                  },
-                  controller: inputController,
-                  decoration: InputDecoration(
-                    contentPadding: const EdgeInsets.only(bottom: 4, left: 4),
-                    constraints: BoxConstraints.tightFor(
-                      width: wordPainter.width * 1.6,
-                      height: wordPainter.height * 2,
-                    ),
-                  ),
-                );
-              },
-            ),
-          );
-        }
-        return TextSpan(text: s);
-      }).toList()
-      ..add(
-        TextSpan(
-          text: '\t\t',
-          children: [
-            WidgetSpan(
-              child: GestureDetector(
-                onTap: () {
-                  final accent = AppSettings.of(context).accent;
-                  final voicer = AppSettings.of(context).voicer;
-                  soundAzure(
-                    text,
-                    lang: accent.azure.lang,
-                    sound: voicer,
-                  ).onError((_, __) => soundGTTs(text, accent.gTTS));
+                  }
+                  check.value = s.contains(RegExp(inputController.text));
                 },
-                child: Icon(CupertinoIcons.volume_up),
-              ),
+                style: TextStyle(
+                  color: check.value ? colorScheme.primary : colorScheme.error,
+                ),
+                onFieldSubmitted: (_) {
+                  focusNode.requestFocus();
+                  final answer = verifyAnswer(s, matches);
+                  if (answer == 'Correct') {
+                    Navigator.of(context).popAndPushNamed(
+                      AppRoute.entryVocabulary,
+                      result: AppRoute.quiz,
+                    );
+                  } else {
+                    tip.value = answer;
+                  }
+                },
+                controller: inputController,
+                decoration: InputDecoration(
+                  contentPadding: const EdgeInsets.only(bottom: 4, left: 4),
+                  constraints: BoxConstraints.tightFor(
+                    width: wordPainter.width * 1.6,
+                    height: wordPainter.height * 2,
+                  ),
+                ),
+              );
+            },
+          ),
+        );
+      }
+      return TextSpan(text: s);
+    }).toList()..add(
+      TextSpan(
+        text: '\t\t',
+        children: [
+          WidgetSpan(
+            child: GestureDetector(
+              onTap: () {
+                final accent = AppSettings.of(context).accent;
+                final voicer = AppSettings.of(context).voicer;
+                soundAzure(
+                  text,
+                  lang: accent.azure.lang,
+                  sound: voicer,
+                ).onError((_, __) => soundGTTs(text, accent.gTTS));
+              },
+              child: Icon(CupertinoIcons.volume_up),
             ),
-          ],
-        ),
-      );
+          ),
+        ],
+      ),
+    );
   }
 
   String verifyAnswer(String correctWord, Iterable<String> matches) {
