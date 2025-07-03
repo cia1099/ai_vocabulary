@@ -1,10 +1,14 @@
+import 'dart:async' show Timer;
 import 'dart:math';
 import 'dart:typed_data';
 
+import 'package:ai_vocabulary/api/dict_api.dart' show soundGTTs;
 import 'package:ai_vocabulary/app_route.dart';
 import 'package:ai_vocabulary/app_settings.dart';
 import 'package:ai_vocabulary/database/my_db.dart';
 import 'package:ai_vocabulary/model/acquaintance.dart';
+import 'package:ai_vocabulary/pages/report_page.dart';
+import 'package:ai_vocabulary/pages/vocabulary_page.dart';
 import 'package:ai_vocabulary/utils/phonetic.dart' show playPhonetic;
 import 'package:ai_vocabulary/widgets/capital_avatar.dart';
 import 'package:ai_vocabulary/widgets/entry_actions.dart';
@@ -25,7 +29,7 @@ class SliderPage extends StatefulWidget {
   const SliderPage({required Key key, required this.word}) : super(key: key);
 
   final Vocabulary word;
-
+  static VoidCallback? stopSound;
   @override
   State<SliderPage> createState() => _SliderPageState();
 }
@@ -33,6 +37,28 @@ class SliderPage extends StatefulWidget {
 class _SliderPageState extends State<SliderPage> {
   Acquaintance? acquaintance;
   late final titleKey = GlobalObjectKey<SliderTitleState>(widget.key!);
+  Timer? autoSound;
+  @override
+  void initState() {
+    autoSound = Timer(
+      Durations.extralong4 * 3,
+      () => soundGTTs(widget.word.word, AppSettings.of(context).accent.gTTS),
+    );
+    //TODO: used inherited widget to rebuild gesture_route_page.dart
+    SliderPage.stopSound = () {
+      print("stop ${widget.word.word}");
+      stopSound();
+    };
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    stopSound();
+    super.dispose();
+  }
+
+  void stopSound() => autoSound?.cancel();
 
   @override
   Widget build(BuildContext context) {
@@ -124,7 +150,10 @@ class _SliderPageState extends State<SliderPage> {
                   // foregroundColor: colorScheme.onSurfaceVariant,
                   backgroundColor: colorScheme.surfaceContainer,
                 ),
-                onPressed: () => Navigator.pushNamed(context, AppRoute.quiz),
+                onPressed: () {
+                  stopSound();
+                  Navigator.pushNamed(context, AppRoute.quiz);
+                },
                 icon: Icon(
                   CupertinoIcons.square_arrow_right_fill,
                   color: colorScheme.onSurfaceVariant,
@@ -177,7 +206,10 @@ class _SliderPageState extends State<SliderPage> {
             child: AspectRatio(
               aspectRatio: 1,
               child: GestureDetector(
-                onTap: () => Navigator.pushNamed(context, AppRoute.quiz),
+                onTap: () {
+                  stopSound();
+                  Navigator.pushNamed(context, AppRoute.quiz);
+                },
                 child: RememberRetention(acquaintance: acquaintance),
               ),
             ),
@@ -209,6 +241,7 @@ class _SliderPageState extends State<SliderPage> {
             children: [
               PlatformIconButton(
                 onPressed: () {
+                  stopSound();
                   // Navigator.pushNamed(context, '/shit');
                   final routeName = ModalRoute.of(context)?.settings.name;
                   final path = p.join(
@@ -237,7 +270,18 @@ class _SliderPageState extends State<SliderPage> {
               ),
               FavoriteStar(wordID: widget.word.wordId, size: iconSize),
               PlatformIconButton(
-                onPressed: () => Navigator.pushNamed(context, AppRoute.report),
+                onPressed: () {
+                  stopSound();
+                  Navigator.push(
+                    context,
+                    platformPageRoute(
+                      context: context,
+                      settings: RouteSettings(name: AppRoute.report),
+                      builder: (context) => ReportPage(word: widget.word),
+                    ),
+                  );
+                },
+                //Navigator.pushNamed(context, AppRoute.report),
                 padding: EdgeInsets.zero,
                 icon: Transform(
                   alignment: const Alignment(0, 0),
@@ -251,7 +295,18 @@ class _SliderPageState extends State<SliderPage> {
                 ),
               ),
               GestureDetector(
-                onTap: () => Navigator.pushNamed(context, AppRoute.vocabulary),
+                onTap: () {
+                  stopSound();
+                  Navigator.push(
+                    context,
+                    platformPageRoute(
+                      context: context,
+                      settings: RouteSettings(name: AppRoute.vocabulary),
+                      builder: (context) => VocabularyPage(word: widget.word),
+                    ),
+                  );
+                },
+                // Navigator.pushNamed(context, AppRoute.vocabulary),
                 child: CapitalAvatar(
                   name: widget.word.word,
                   id: widget.word.wordId,

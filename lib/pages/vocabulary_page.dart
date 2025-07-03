@@ -1,3 +1,5 @@
+import 'dart:async' show Timer;
+
 import 'package:ai_vocabulary/api/dict_api.dart';
 import 'package:ai_vocabulary/app_route.dart';
 import 'package:ai_vocabulary/app_settings.dart';
@@ -28,6 +30,12 @@ class VocabularyPage extends StatefulWidget {
 
 class _VocabularyPageState extends State<VocabularyPage> {
   late final futurePhrases = getPhrases(widget.word.wordId);
+  Timer? autoSound;
+  @override
+  void dispose() {
+    autoSound?.cancel();
+    super.dispose();
+  }
 
   @override
   void initState() {
@@ -38,7 +46,7 @@ class _VocabularyPageState extends State<VocabularyPage> {
       if (example != null && routeName != null) {
         final accent = AppSettings.of(context).accent;
         final voicer = AppSettings.of(context).voicer;
-        Future.delayed(
+        autoSound = Timer(
           Durations.medium1,
           () => soundAzure(
             example,

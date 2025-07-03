@@ -174,7 +174,7 @@ class _LoginFormState extends State<LoginForm> with FirebaseAuthMixin {
                                   AuthenticationMethod.google,
                                   if (isCupertino(context))
                                     AuthenticationMethod.apple,
-                                  AuthenticationMethod.facebook,
+                                  // AuthenticationMethod.facebook,
                                 ]
                                 .map(
                                   (method) => ConstrainedBox(

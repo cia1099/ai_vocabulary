@@ -24,6 +24,7 @@ class _RetrievalBottomSheetState extends State<RetrievalBottomSheet>
     with TickerProviderStateMixin {
   late var futureWords = fetchWords();
   TabController? tabController;
+  Timer? autoSound;
 
   Future<List<Vocabulary>> fetchWords() async {
     final locate = AppSettings.of(context).translator;
@@ -38,6 +39,7 @@ class _RetrievalBottomSheetState extends State<RetrievalBottomSheet>
   @override
   void dispose() {
     tabController?.dispose();
+    autoSound?.cancel();
     super.dispose();
   }
 
@@ -59,142 +61,141 @@ class _RetrievalBottomSheetState extends State<RetrievalBottomSheet>
         maxChildSize: .9,
         snapSizes: const [.32, .9],
         initialChildSize: .32,
-        builder:
-            (context, scrollController) => PlatformWidgetBuilder(
-              material: (_, child, ___) => child,
-              cupertino:
-                  (_, child, ___) => CupertinoPopupSurface(child: child!),
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  final sheetHeight = constraints.maxHeight;
-                  final scale = ((sheetHeight - .32 * screenHeight) /
+        builder: (context, scrollController) => PlatformWidgetBuilder(
+          material: (_, child, ___) => child,
+          cupertino: (_, child, ___) => CupertinoPopupSurface(child: child!),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final sheetHeight = constraints.maxHeight;
+              final scale =
+                  ((sheetHeight - .32 * screenHeight) /
                           (.9 - .32) /
                           screenHeight)
                       .clamp(0.0, 1.0);
-                  return Column(
-                    // crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SingleChildScrollView(
-                        controller: scrollController,
-                        physics: const ClampingScrollPhysics(),
-                        child: Container(
-                          height: 40,
-                          padding: EdgeInsets.only(
-                            top: 16,
-                            right: hPadding / 2,
-                            left: hPadding / 2,
-                            bottom: 8,
-                          ),
-                          child: Stack(
+              return Column(
+                // crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SingleChildScrollView(
+                    controller: scrollController,
+                    physics: const ClampingScrollPhysics(),
+                    child: Container(
+                      height: 40,
+                      padding: EdgeInsets.only(
+                        top: 16,
+                        right: hPadding / 2,
+                        left: hPadding / 2,
+                        bottom: 8,
+                      ),
+                      child: Stack(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  const SizedBox(width: 24),
-                                  const Icon(
-                                    CupertinoIcons.chevron_up_chevron_down,
-                                  ),
-                                  GestureDetector(
-                                    onTap: Navigator.of(context).pop,
-                                    child: const Icon(
-                                      CupertinoIcons.xmark_circle_fill,
-                                    ),
-                                  ),
-                                ],
+                              const SizedBox(width: 24),
+                              const Icon(
+                                CupertinoIcons.chevron_up_chevron_down,
                               ),
-                              FutureBuilder(
-                                future: futureWords,
-                                builder: (context, snapshot) {
-                                  final words = snapshot.data;
-                                  if (words == null || words.length < 2) {
-                                    return const SizedBox();
-                                  }
-
-                                  tabController ??= TabController(
-                                    length: words.length,
-                                    vsync: this,
-                                  );
-                                  return TabPageSelector(
-                                    controller: tabController,
-                                  );
-                                },
+                              GestureDetector(
+                                onTap: Navigator.of(context).pop,
+                                child: const Icon(
+                                  CupertinoIcons.xmark_circle_fill,
+                                ),
                               ),
                             ],
                           ),
-                        ),
-                      ),
-                      Flexible(
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: hPadding),
-                          child: FutureBuilder(
+                          FutureBuilder(
                             future: futureWords,
                             builder: (context, snapshot) {
                               final words = snapshot.data;
-                              if (snapshot.hasError) {
-                                final error = snapshot.error;
-                                if (error is TimeoutException) {
-                                  return Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      const Text(
-                                        "Can't detect network or request has been timeout",
-                                      ),
-                                      PlatformTextButton(
-                                        onPressed:
-                                            () => setState(() {
-                                              futureWords = fetchWords();
-                                            }),
-                                        child: const Text("Reload"),
-                                      ),
-                                    ],
-                                  );
-                                } else {
-                                  return Center(
-                                    child: Text(
-                                      messageExceptions(error),
-                                      style: TextStyle(
-                                        color:
-                                            Theme.of(
-                                              context,
-                                            ).colorScheme.onErrorContainer,
-                                      ),
-                                    ),
-                                  );
-                                }
+                              if (words == null || words.length < 2) {
+                                return const SizedBox();
                               }
-                              if (words == null)
-                                return Center(
-                                  child: PlatformCircularProgressIndicator(),
-                                );
 
-                              return PageView.builder(
-                                itemCount: words.length,
-                                onPageChanged:
-                                    (value) => tabController?.animateTo(value),
-                                itemBuilder: (context, index) {
-                                  final word = words[index];
-                                  return MatchingWordView(
-                                    word: word,
-                                    hPadding: hPadding,
-                                    buildExamples:
-                                        (_) => buildExamples(
-                                          scale,
-                                          word,
-                                          hPadding,
-                                        ),
-                                  );
-                                },
+                              tabController ??= TabController(
+                                length: words.length,
+                                vsync: this,
                               );
+                              return TabPageSelector(controller: tabController);
                             },
                           ),
-                        ),
+                        ],
                       ),
-                    ],
-                  );
-                },
-              ),
-            ),
+                    ),
+                  ),
+                  Flexible(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: hPadding),
+                      child: FutureBuilder(
+                        future: futureWords,
+                        builder: (context, snapshot) {
+                          final words = snapshot.data;
+                          if (snapshot.hasError) {
+                            final error = snapshot.error;
+                            if (error is TimeoutException) {
+                              return Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Text(
+                                    "Can't detect network or request has been timeout",
+                                  ),
+                                  PlatformTextButton(
+                                    onPressed: () => setState(() {
+                                      futureWords = fetchWords();
+                                    }),
+                                    child: const Text("Reload"),
+                                  ),
+                                ],
+                              );
+                            } else {
+                              return Center(
+                                child: Text(
+                                  messageExceptions(error),
+                                  style: TextStyle(
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onErrorContainer,
+                                  ),
+                                ),
+                              );
+                            }
+                          }
+                          if (words == null)
+                            return Center(
+                              child: PlatformCircularProgressIndicator(),
+                            );
+                          final accent = AppSettings.of(context).accent;
+                          return PageView.builder(
+                            itemCount: words.length,
+                            onPageChanged: (value) {
+                              tabController?.animateTo(value);
+                              autoSound = Timer(
+                                Durations.medium1,
+                                () => soundGTTs(words[value].word, accent.gTTS),
+                              );
+                            },
+                            itemBuilder: (context, index) {
+                              final word = words[index];
+                              autoSound ??= Timer(
+                                Durations.medium1,
+                                () => soundGTTs(word.word, accent.gTTS),
+                              );
+                              return MatchingWordView(
+                                word: word,
+                                hPadding: hPadding,
+                                buildExamples: (_) =>
+                                    buildExamples(scale, word, hPadding),
+                              );
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
       ),
     );
   }
@@ -225,8 +226,9 @@ class _RetrievalBottomSheetState extends State<RetrievalBottomSheet>
                       mark: Text(
                         '${i + 1}.',
                         style: TextStyle(
-                          color:
-                              Theme.of(context).colorScheme.onPrimaryContainer,
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onPrimaryContainer,
                         ),
                       ),
                       example: example,

@@ -28,18 +28,6 @@ class MatchingWordView extends StatefulWidget {
 
 class _MatchingWordViewState extends State<MatchingWordView> {
   @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final accent = AppSettings.of(context).accent;
-      Future.delayed(
-        Durations.medium1,
-        () => soundGTTs(widget.word.word, accent.gTTS),
-      );
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
