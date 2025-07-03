@@ -13,7 +13,10 @@ extension ChatMsgDB on MyDB {
     return resultSet.map((row) => TextMessage.fromJson(row));
   }
 
-  Future<void> insertMessages(Stream<TextMessage> messages) async {
+  Future<void> insertMessages({
+    required Stream<TextMessage> messages,
+    required Vocabulary word,
+  }) async {
     final ownerID = UserProvider().currentUser?.uid;
     final upsert =
         '''
@@ -26,7 +29,12 @@ ON CONFLICT (time_stamp, owner_id) DO NOTHING;
     db.execute(upsert);
     final resultSet = db.select("SELECT changes() AS inserted");
     final inserted = (resultSet.firstOrNull?['inserted'] ?? 0) as int;
+    final hasWord =
+        (db.select(isExistWord, [word.wordId]).firstOrNull?['exist'] ?? 0)
+            as int >
+        0;
     db.dispose();
+    if (!hasWord) await insertWords(Stream.value(word));
     if (inserted > 0) {
       notifyListeners();
     }

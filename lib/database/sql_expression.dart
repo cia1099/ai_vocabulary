@@ -7,11 +7,12 @@ const insertExplanation =
 const insertExample =
     r'INSERT INTO examples (word_id, explanation_id, example) VALUES (?, ?, ?)';
 const insertAsset = r'INSERT INTO assets (word_id, filename) VALUES (?, ?)';
-
 // DELETE FROM assets WHERE word_id=?;
 // DELETE FROM examples WHERE word_id=?;
 // DELETE FROM explanations WHERE word_id=?;
 // DELETE FROM definitions WHERE word_id=?;
+const isExistWord =
+    r'SELECT EXISTS (SELECT 1 FROM words WHERE id = ?) AS exist';
 const deleteVocabulary = '''
 DELETE FROM words WHERE id=?;
 ''';

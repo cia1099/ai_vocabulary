@@ -57,7 +57,10 @@ class _ChatRoomPageState extends State<ChatRoomPage> implements ChatInput {
       (msg) => msg.userID != null && !msg.hasError,
     );
     if (insertMsg.isNotEmpty) {
-      MyDB().insertMessages(Stream.fromIterable(insertMsg));
+      MyDB().insertMessages(
+        messages: Stream.fromIterable(insertMsg),
+        word: widget.word,
+      );
     }
     super.dispose();
   }
