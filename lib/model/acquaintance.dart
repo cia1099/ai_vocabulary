@@ -36,8 +36,8 @@ class Acquaintance {
 }
 
 class StudyCount {
-  int newCount;
-  int reviewCount;
+  final int newCount;
+  final int reviewCount;
 
   StudyCount({this.newCount = 0, this.reviewCount = 0});
 

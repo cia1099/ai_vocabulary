@@ -99,7 +99,10 @@ class MySettings extends ChangeNotifier {
 
   int get reviewCount => targetStudy.value.reviewCount;
   set reviewCount(int count) {
-    targetStudy.value = StudyCount(newCount: learnCount, reviewCount: count);
+    targetStudy.value = StudyCount(
+      newCount: learnCount,
+      reviewCount: count.clamp(0, MyDB().fetchReviewWordIDs().length),
+    );
   }
 
   int get learnCount => targetStudy.value.newCount;
@@ -199,6 +202,7 @@ class MySettings extends ChangeNotifier {
     };
     _hideSliderTitle = json["hide_slider_title"];
     targetStudy.value = StudyCount.fromJson(json["target_study"]);
+    reviewCount = reviewCount; // clamp maximum by fetchReviewWordIDs
     _defaultExplanation = SelectExplanation.values[json["default_explanation"]];
     _voicer = AzureVoicer.values.elementAt(json["voicer"] ?? 0);
     _accent = Accent.values.elementAt(json["accent"] ?? 0);

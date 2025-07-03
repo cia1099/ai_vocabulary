@@ -108,7 +108,7 @@ class ReviewProvider extends WordProvider {
     _studyWords
       ..clear()
       ..addAll(words);
-    // currentWord = _studyWords.firstOrNull; //PageView itemBuilder has set currentWord
+    // currentWord = _studyWords.firstOrNull; //PageView onPageChange has set currentWord
     if (_completer.isCompleted && !await isReady.onError((_, _) => false)) {
       //reset initialized error
       _completer = Completer<bool>()..complete(true);

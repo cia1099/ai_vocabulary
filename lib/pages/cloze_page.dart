@@ -26,7 +26,7 @@ class ClozePage extends StatefulWidget {
 }
 
 class _ClozePageState extends State<ClozePage> {
-  final defaultTip = 'Press enter or space to submit answer';
+  final defaultTip = 'Press enter to submit answer';
   late final tip = ValueNotifier(defaultTip);
   final inputController = TextEditingController();
   final focusNode = FocusNode();
@@ -201,15 +201,18 @@ class _ClozePageState extends State<ClozePage> {
     bool autofocus = true,
   }) {
     return splitWords(text).map((s) {
-      if (matches.contains(s) || matches.contains(s.toLowerCase())) {
+      if (matches.contains(s.toLowerCase())) {
+        final textScaler = MediaQuery.textScalerOf(context);
         final wordPainter = TextPainter(
           text: TextSpan(text: s),
           maxLines: 1,
+          textScaler: textScaler,
           textDirection: TextDirection.ltr,
         )..layout(maxWidth: double.maxFinite);
 
         final check = ValueNotifier(true);
         return WidgetSpan(
+          alignment: PlaceholderAlignment.middle,
           child: ValueListenableBuilder(
             valueListenable: check,
             builder: (context, _, __) {
@@ -220,22 +223,22 @@ class _ClozePageState extends State<ClozePage> {
                 focusNode: focusNode,
                 keyboardType: TextInputType.text,
                 inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z ]')),
+                  FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z]')),
                 ],
                 onChanged: (input) {
                   tip.value = defaultTip;
-                  if (input.contains(RegExp(r'\s+'))) {
-                    inputController.text = input.replaceAll(RegExp(r'\s+'), '');
-                    final answer = verifyAnswer(s, matches);
-                    if (answer == 'Correct') {
-                      Navigator.of(context).popAndPushNamed(
-                        AppRoute.entryVocabulary,
-                        result: AppRoute.quiz,
-                      );
-                    } else {
-                      tip.value = answer;
-                    }
-                  }
+                  // if (input.contains(RegExp(r'\s+'))) {
+                  //   inputController.text = input.replaceAll(RegExp(r'\s+'), '');
+                  //   final answer = verifyAnswer(s, matches);
+                  //   if (answer == 'Correct') {
+                  //     Navigator.of(context).popAndPushNamed(
+                  //       AppRoute.entryVocabulary,
+                  //       result: AppRoute.quiz,
+                  //     );
+                  //   } else {
+                  //     tip.value = answer;
+                  //   }
+                  // }
                   check.value = s.contains(RegExp(inputController.text));
                 },
                 style: TextStyle(
@@ -254,11 +257,17 @@ class _ClozePageState extends State<ClozePage> {
                   }
                 },
                 controller: inputController,
+                maxLines: 1,
+                maxLength: s.length,
                 decoration: InputDecoration(
-                  contentPadding: const EdgeInsets.only(bottom: 4, left: 4),
+                  contentPadding: EdgeInsets.only(
+                    top: wordPainter.height * 1.25,
+                    left: 4,
+                  ),
+                  border: UnderlineInputBorder(),
                   constraints: BoxConstraints.tightFor(
                     width: wordPainter.width * 1.6,
-                    height: wordPainter.height * 2,
+                    // height: wordPainter.height,
                   ),
                 ),
               );
@@ -291,7 +300,7 @@ class _ClozePageState extends State<ClozePage> {
   }
 
   String verifyAnswer(String correctWord, Iterable<String> matches) {
-    if (inputController.text.toLowerCase() == correctWord.toLowerCase()) {
+    if (inputController.text == correctWord) {
       MyDB().upsertAcquaintance(
         wordId: widget.word.wordId,
         acquaint: ++widget.word.acquaint,
@@ -303,6 +312,9 @@ class _ClozePageState extends State<ClozePage> {
     if (matches.contains(inputController.text)) {
       final index = matches.toList().indexOf(correctWord);
       if (index < 2) {
+        if (index < 0) {
+          return "Check Capitalization";
+        }
         return 'Check Subject and Plural form';
       } else {
         return 'Check Tense and Participle forms';

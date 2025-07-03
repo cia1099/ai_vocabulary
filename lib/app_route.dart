@@ -12,7 +12,6 @@ import 'package:flutter_web_frame/flutter_web_frame.dart';
 import 'app_settings.dart';
 import 'database/my_db.dart';
 import 'effects/transient.dart';
-import 'pages/report_page.dart';
 
 class AppRoute<T> extends PageRoute<T> {
   //with CupertinoRouteTransitionMixin<T> {
@@ -54,8 +53,6 @@ class AppRoute<T> extends PageRoute<T> {
     switch (path) {
       case AppRoute.quiz:
         return QuizShuttle(word: currentWord!);
-      case AppRoute.vocabulary:
-        return VocabularyPage(word: currentWord!);
       case AppRoute.entryVocabulary:
         return VocabularyPage(
           word: currentWord!,
@@ -106,8 +103,6 @@ class AppRoute<T> extends PageRoute<T> {
                   }
                 },
         );
-      case AppRoute.report:
-        return ReportPage(word: currentWord!);
       case AppRoute.login:
         return AuthPage();
       default:
@@ -198,12 +193,11 @@ bool fromEntry(String? routeName) {
 enum StudyRouters implements Comparable<String> {
   // home('/'), // You shouldn't navigate to home, because it's root page
   entryVocabulary(AppRoute.entryVocabulary),
-  // cloze(AppRoute.cloze),
   quiz(AppRoute.quiz),
   reviewWords(AppRoute.reviewWords),
-  todayWords(AppRoute.todayWords),
-  vocabulary(AppRoute.vocabulary),
-  report(AppRoute.report);
+  todayWords(AppRoute.todayWords);
+  // vocabulary(AppRoute.vocabulary),
+  // report(AppRoute.report);
   // chatRoom('/chat/room'),
   // menuPopup('/menu/popup'),
   // searchWords('/search/words');
