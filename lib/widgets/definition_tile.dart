@@ -1,7 +1,8 @@
 import 'dart:math' show pi;
 
 import 'package:ai_vocabulary/app_settings.dart';
-import 'package:ai_vocabulary/pages/payment_page.dart';
+import 'package:ai_vocabulary/provider/user_provider.dart' show UserProvider;
+import 'package:ai_vocabulary/tabs/setting_tab.dart';
 import 'package:ai_vocabulary/utils/enums.dart';
 import 'package:ai_vocabulary/utils/phonetic.dart' show playPhonetic;
 import 'package:ai_vocabulary/utils/shortcut.dart';
@@ -71,13 +72,9 @@ class DefinitionTile extends StatelessWidget {
             initialData: definition.translate,
             errorHandler: (error) => error is ApiException
                 ? GestureDetector(
-                    onTap: () => Navigator.push(
+                    onTap: pressIdentity(
                       context,
-                      platformPageRoute(
-                        context: context,
-                        fullscreenDialog: true,
-                        builder: (context) => PaymentPage(),
-                      ),
+                      UserProvider().currentUser?.role,
                     ),
                     child: Text(
                       'Go to Enable Translation',

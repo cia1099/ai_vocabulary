@@ -5,8 +5,8 @@ import 'package:ai_vocabulary/app_settings.dart';
 import 'package:ai_vocabulary/database/my_db.dart';
 import 'package:ai_vocabulary/model/message.dart';
 import 'package:ai_vocabulary/painters/bubble_shape.dart';
+import 'package:ai_vocabulary/provider/user_provider.dart';
 import 'package:ai_vocabulary/utils/clickable_text_mixin.dart';
-import 'package:ai_vocabulary/utils/shortcut.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
@@ -35,8 +35,8 @@ class ChatBubble extends StatefulWidget {
 }
 
 class _ChatBubbleState extends State<ChatBubble> with ShowContentMixin {
-  late final isMe =
-      widget.message.userID != null && widget.message.userID != kChatBotUID;
+  late final isMe = widget.message.userID == UserProvider().currentUser?.uid;
+  //!= null && widget.message.userID != kChatBotUID;
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +62,7 @@ class _ChatBubbleState extends State<ChatBubble> with ShowContentMixin {
         children: [
           Container(
             margin: EdgeInsets.only(bottom: iconSize * 1.414),
-            child: showContent
+            child: showContent || widget.child is! ClickableText
                 ? MediaQuery(
                     data: const MediaQueryData(
                       textScaler: TextScaler.linear(1.414),
@@ -101,7 +101,9 @@ class _ChatBubbleState extends State<ChatBubble> with ShowContentMixin {
               spacing: 8,
               children: [
                 PlatformIconButton(
-                  onPressed: () => soundContent(widget.message),
+                  onPressed: widget.child is ClickableText
+                      ? () => soundContent(widget.message)
+                      : null,
                   padding: EdgeInsets.zero,
                   material: (_, __) => MaterialIconButtonData(
                     style: IconButton.styleFrom(

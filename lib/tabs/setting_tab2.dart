@@ -183,23 +183,24 @@ class ProfileHeader extends StatelessWidget {
       ),
     );
   }
+}
 
-  VoidCallback? pressIdentity(BuildContext context, String role) {
-    return switch (role) {
-      "member" => () => Navigator.push(
-        context,
-        platformPageRoute(
-          context: context,
-          fullscreenDialog: true,
-          builder: (context) => PaymentPage(),
-        ),
-      ),
-      "guest" => () => showToast(
+VoidCallback? pressIdentity(BuildContext context, [String? role]) {
+  return switch (role) {
+    "member" => () => Navigator.push(
+      context,
+      platformPageRoute(
         context: context,
-        alignment: Alignment(0, -.675),
-        child: Text("You have to register first"),
+        fullscreenDialog: true,
+        builder: (context) => PaymentPage(),
       ),
-      _ => () {},
-    };
-  }
+    ),
+    "guest" => () => showToast(
+      context: context,
+      alignment: Alignment(0, -.675),
+      child: Text("You have to register first"),
+    ),
+    null => null,
+    _ => () {},
+  };
 }

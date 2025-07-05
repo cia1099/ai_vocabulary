@@ -90,7 +90,7 @@ class _RequireChatBubbleState extends State<RequireChatBubble> {
                     patterns: responseMsg!.patterns,
                   )
                 : snapshot.hasData
-                ? Text(snapshot.data!)
+                ? snapshot.data!
                 : waitingContent(contentWidth),
           );
         },
@@ -98,7 +98,7 @@ class _RequireChatBubbleState extends State<RequireChatBubble> {
     );
   }
 
-  Stream<String> requireAnswer(RequireMessage req) async* {
+  Stream<Widget> requireAnswer(RequireMessage req) async* {
     final ans = await chatVocabulary(
       req.vocabulary.split(', ').first,
       req.content,
@@ -112,14 +112,16 @@ class _RequireChatBubbleState extends State<RequireChatBubble> {
       userID: ans.userId,
     );
     widget.updateMessage(responseMsg!);
-    if (mounted && ChatBubble.showContents.value) {
-      final accent = AppSettings.of(context).accent;
-      final voicer = AppSettings.of(context).voicer;
-      // TODO: Try release mode whether it forcibly catch error
-      // try { //Here catch will alway make it occur
-      await soundAzure(ans.answer, lang: accent.azure.lang, sound: voicer);
-      for (int s = 4; s <= ans.answer.length; s += 2) {
-        yield ans.answer.substring(0, s);
+    // yield SizedBox(width: 100, child: const DotDotDotIndicator(size: 20));
+    try {
+      if (mounted) {
+        final accent = AppSettings.of(context).accent;
+        final voicer = AppSettings.of(context).voicer;
+        await soundAzure(ans.answer, lang: accent.azure.lang, sound: voicer);
+      }
+      final showContent = ChatBubble.showContents.value;
+      for (int s = 4; s <= ans.answer.length && showContent; s += 2) {
+        yield Text(ans.answer.substring(0, s));
         // await Future.delayed(s <= 4 ? Durations.short2 : Durations.short1);
         if (!(widget.controller?.position.atEdge ?? true)) {
           widget.controller?.animateTo(
@@ -130,14 +132,13 @@ class _RequireChatBubbleState extends State<RequireChatBubble> {
         }
         await Future.delayed(Durations.short2);
       }
-      // }
-      // catch (e) {
-      //   if (mounted) {
-      //     showToast(context: context, child: Text(messageExceptions(e)));
-      //   }
-      //   print(e);
-      // }
+    } catch (e) {
+      if (mounted) {
+        showToast(context: context, child: Text(messageExceptions(e)));
+      }
+      debugPrint("$e");
     }
+
     if (ans.quiz) {
       Timer(const Duration(seconds: 2), () {
         final acquaint = MyDB().getAcquaintance(widget.message.wordID).acquaint;
