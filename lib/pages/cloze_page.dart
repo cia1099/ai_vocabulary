@@ -58,10 +58,7 @@ class _ClozePageState extends State<ClozePage> {
     final entry = widget.entry ?? word.generateClozeEntry();
     final explain = entry.key;
     final example = entry.value;
-    final phonetic = word.definitions
-        .where((d) => d.explanations.any((e) => e.explain == explain))
-        .map((d) => Phonetic('${d.phoneticUs}', d.audioUs))
-        .first;
+    final phonetic = word.getPhonetics(AppSettings.of(context).accent).first;
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
     final hPadding = MediaQuery.sizeOf(context).width / 16;
@@ -82,114 +79,123 @@ class _ClozePageState extends State<ClozePage> {
         ),
       ),
       // PreferredSize(
-      //     preferredSize: const Size.fromHeight(kToolbarHeight),
-      //     child: Stack(
-      //       children: [
-      //         PlatformAppBar(
-      //           title: const Text('Cloze Quiz'),
-      //           material: (_, __) => MaterialAppBarData(
-      //             backgroundColor:
-      //                 Theme.of(context).colorScheme.inversePrimary,
-      //           ),
+      //   preferredSize: const Size.fromHeight(kToolbarHeight),
+      //   child: Stack(
+      //     children: [
+      //       PlatformAppBar(
+      //         title: const Text('Cloze Quiz'),
+      //         material: (_, __) => MaterialAppBarData(
+      //           backgroundColor: Theme.of(
+      //             context,
+      //           ).colorScheme.inversePrimary,
       //         ),
-      //         Positioned(
-      //             bottom: kAppBarPadding,
-      //             right: 16,
-      //             child: EntryActions(wordID: word.wordId)),
-      //       ],
-      //     )),
-      body: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.all(hPadding),
-          child: Column(
-            // direction: Axis.vertical,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: hPadding,
-            children: [
-              Text(
-                explain,
-                style: textTheme.bodyLarge!.copyWith(
-                  fontWeight: FontWeight.bold,
-                  height: 1.25,
-                ),
-              ),
-              Text.rich(
-                TextSpan(
-                  children: generateCloze(
-                    example,
-                    word.getMatchingPatterns,
-                    Theme.of(context).colorScheme,
-                    autofocus: routeName == AppRoute.quiz,
+      //       ),
+      //       Positioned(
+      //         bottom: kAppBarPadding,
+      //         right: 16,
+      //         child: EntryActions(wordID: word.wordId),
+      //       ),
+      //     ],
+      //   ),
+      // ),
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            padding: EdgeInsets.symmetric(horizontal: hPadding),
+            child: Column(
+              // direction: Axis.vertical,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: hPadding,
+              children: [
+                Text(
+                  explain,
+                  style: textTheme.bodyLarge!.copyWith(
+                    fontWeight: FontWeight.bold,
+                    height: 1.25,
                   ),
                 ),
-                style: textTheme.bodyLarge,
-              ),
-              Container(
-                height: 80,
-                // width: hPadding * 14,
-                padding: EdgeInsets.symmetric(horizontal: hPadding / 2),
-                decoration: BoxDecoration(
-                  color: colorScheme.secondaryContainer.withValues(alpha: .8),
-                  borderRadius: BorderRadius.circular(16),
+                Text.rich(
+                  TextSpan(
+                    children: generateCloze(
+                      example,
+                      word.getMatchingPatterns,
+                      Theme.of(context).colorScheme,
+                      autofocus: routeName == AppRoute.quiz,
+                    ),
+                  ),
+                  style: textTheme.bodyLarge,
                 ),
-                alignment: Alignment.centerLeft,
-                child: AnimatedBuilder(
-                  animation: tip,
-                  builder: (context, child) => Row(
-                    children: [
-                      Expanded(
+                Container(
+                  height: 80,
+                  // width: hPadding * 14,
+                  padding: EdgeInsets.symmetric(horizontal: hPadding / 2),
+                  decoration: BoxDecoration(
+                    color: colorScheme.secondaryContainer.withValues(alpha: .8),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  alignment: Alignment.centerLeft,
+                  child: AnimatedBuilder(
+                    animation: tip,
+                    builder: (context, child) => Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            tip.value,
+                            style: textTheme.bodyLarge!.apply(
+                              color: tip.value == defaultTip
+                                  ? null
+                                  : CupertinoColors.destructiveRed.resolveFrom(
+                                      context,
+                                    ),
+                            ),
+                          ),
+                        ),
+                        child!,
+                      ],
+                    ),
+                    child: Container(
+                      constraints: BoxConstraints(maxHeight: 30),
+                      decoration: BoxDecoration(
+                        color: colorScheme.surfaceContainerLowest.withAlpha(
+                          0x50,
+                        ),
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: PlatformTextButton(
+                        onPressed: () {
+                          playPhonetic(phonetic.audioUrl, word: word.word)();
+                          showPhonetic.value = ConcealState.unhide;
+                          timer?.cancel();
+                          timer = Timer(const Duration(seconds: 3), () {
+                            showPhonetic.value = ConcealState.hide;
+                          });
+                        },
+                        padding: EdgeInsets.symmetric(
+                          horizontal: hPadding / 1.5,
+                        ),
                         child: Text(
-                          tip.value,
-                          style: textTheme.bodyLarge!.apply(
-                            color: tip.value == defaultTip
-                                ? null
-                                : CupertinoColors.destructiveRed.resolveFrom(
-                                    context,
-                                  ),
+                          'Tip',
+                          style: textTheme.bodySmall?.apply(
+                            color: colorScheme.primary,
                           ),
                         ),
                       ),
-                      child!,
-                    ],
-                  ),
-                  child: Container(
-                    constraints: BoxConstraints(maxHeight: 30),
-                    decoration: BoxDecoration(
-                      color: colorScheme.surfaceContainerLowest.withAlpha(0x50),
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    child: PlatformTextButton(
-                      onPressed: () {
-                        playPhonetic(phonetic.audioUrl, word: word.word)();
-                        showPhonetic.value = ConcealState.unhide;
-                        timer?.cancel();
-                        timer = Timer(const Duration(seconds: 3), () {
-                          showPhonetic.value = ConcealState.hide;
-                        });
-                      },
-                      padding: EdgeInsets.symmetric(horizontal: hPadding / 1.5),
-                      child: Text(
-                        'Tip',
-                        style: textTheme.bodySmall?.apply(
-                          color: colorScheme.primary,
-                        ),
-                      ),
                     ),
                   ),
                 ),
-              ),
-              Expanded(child: SizedBox.shrink()),
-              Center(
-                child: ValueListenableBuilder(
-                  valueListenable: showPhonetic,
-                  builder: (context, value, child) =>
-                      FadeOutConceal(fadeOutState: value, child: child),
-                  child: Text(phonetic.phonetic, style: textTheme.bodyLarge),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
+          Align(
+            alignment: Alignment(0, 1),
+            child: ValueListenableBuilder(
+              valueListenable: showPhonetic,
+              builder: (context, value, child) =>
+                  FadeOutConceal(fadeOutState: value, child: child),
+              child: Text(phonetic.phonetic, style: textTheme.bodyLarge),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -201,7 +207,7 @@ class _ClozePageState extends State<ClozePage> {
     bool autofocus = true,
   }) {
     return splitWords(text).map((s) {
-      if (matches.contains(s.toLowerCase())) {
+      if (matches.contains(s) || matches.contains(s.toLowerCase())) {
         final textScaler = MediaQuery.textScalerOf(context);
         final wordPainter = TextPainter(
           text: TextSpan(text: s),
