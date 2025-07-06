@@ -1,18 +1,23 @@
-import 'dart:async' show Timer;
+import 'dart:async' show Timer, TimeoutException;
+import 'dart:io' show HttpException;
 
 import 'package:ai_vocabulary/api/dict_api.dart';
 import 'package:ai_vocabulary/app_route.dart';
 import 'package:ai_vocabulary/app_settings.dart';
+import 'package:ai_vocabulary/effects/show_toast.dart';
 import 'package:ai_vocabulary/model/vocabulary.dart';
 import 'package:ai_vocabulary/pages/chat_room_page.dart';
 import 'package:ai_vocabulary/pages/views/phrase_tab.dart';
 import 'package:ai_vocabulary/painters/bubble_shape.dart';
+import 'package:ai_vocabulary/utils/handle_except.dart';
 import 'package:ai_vocabulary/widgets/definition_tile.dart';
 import 'package:ai_vocabulary/widgets/entry_actions.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:path/path.dart' as p;
+import 'package:retry/retry.dart';
 
 import '../painters/title_painter.dart';
 
@@ -40,19 +45,33 @@ class _VocabularyPageState extends State<VocabularyPage> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((delay) {
       final example = widget.word.getExamples.firstOrNull;
       final routeName = ModalRoute.of(context)?.settings.name;
       if (example != null && routeName != null) {
         final accent = AppSettings.of(context).accent;
         final voicer = AppSettings.of(context).voicer;
+        var attempt = 3;
+        final retry = RetryOptions(maxAttempts: attempt--, maxDelay: delay);
         autoSound = Timer(
           Durations.medium1,
-          () => soundAzure(
-            example,
-            lang: accent.azure.lang,
-            sound: voicer,
-          ).onError((_, _) {}),
+          () => retry
+              .retry(
+                () =>
+                    soundAzure(example, lang: accent.azure.lang, sound: voicer),
+                retryIf: (e) => e is TimeoutException,
+                onRetry: (e) {
+                  if (!kReleaseMode || attempt == 0) {
+                    showToast(
+                      context: context,
+                      child: Text(
+                        "${messageExceptions(e)}. auto try (${3 - attempt--}) again",
+                      ),
+                    );
+                  }
+                },
+              )
+              .onError<HttpException>((_, _) {}),
         );
       }
     });

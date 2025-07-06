@@ -86,6 +86,7 @@ class AppRoute<T> extends PageRoute<T> {
           nextTap: provider == null
               ? null
               : () {
+                  provider.clearRemind();
                   if (AppSettings.of(context).studyState ==
                       StudyStatus.onTarget) {
                     Navigator.pushAndRemoveUntil(

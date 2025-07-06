@@ -8,6 +8,7 @@ import 'package:ai_vocabulary/utils/load_word_route.dart';
 import 'package:ai_vocabulary/utils/phonetic.dart' show playPhonetic;
 import 'package:ai_vocabulary/utils/regex.dart';
 import 'package:ai_vocabulary/utils/shortcut.dart';
+import 'package:ai_vocabulary/utils/sliver/input_row_delegate.dart';
 import 'package:ai_vocabulary/widgets/flashcard.dart';
 import 'package:ai_vocabulary/widgets/translate_request.dart';
 import 'package:dotted_line/dotted_line.dart';
@@ -34,6 +35,7 @@ class _FavoriteWordsPageState extends State<FavoriteWordsPage> {
   late var words = widget.words;
   late List<GlobalObjectKey> capitalKeys;
   ColorScheme? markScheme;
+  final focusNode = FocusNode();
 
   Future<Iterable<Vocabulary>> get fetchDB async {
     final wordIDs = MyDB().fetchWordIDsByMarkID(widget.mark.id);
@@ -52,6 +54,8 @@ class _FavoriteWordsPageState extends State<FavoriteWordsPage> {
   void dispose() {
     MyDB().removeListener(filterListener);
     capitalKeys.clear();
+    focusNode.dispose();
+    textController.dispose();
     super.dispose();
   }
 
@@ -149,26 +153,23 @@ class _FavoriteWordsPageState extends State<FavoriteWordsPage> {
                               enableBackgroundFilterBlur: false,
                             ),
                           ),
-                          SliverResizingHeader(
-                            minExtentPrototype: SizedBox.fromSize(
-                              size: const Size.fromHeight(
-                                kTextTabBarHeight + 10,
+                          SliverPersistentHeader(
+                            pinned: true,
+                            delegate: InputRowDelegate(
+                              maxHeight: kTextTabBarHeight + 10,
+                              context: context,
+                              focusNode: focusNode,
+                              child: FilterInputBar(
+                                padding: EdgeInsets.only(
+                                  bottom: 10,
+                                  right: hPadding,
+                                  left: hPadding,
+                                ),
+                                focusNode: focusNode,
+                                controller: textController,
+                                hintText: 'Filter word',
+                                onChanged: (p0) => filterWord(p0),
                               ),
-                            ),
-                            maxExtentPrototype: SizedBox.fromSize(
-                              size: const Size.fromHeight(
-                                kTextTabBarHeight + 10,
-                              ),
-                            ),
-                            child: FilterInputBar(
-                              padding: EdgeInsets.only(
-                                bottom: 10,
-                                right: hPadding,
-                                left: hPadding,
-                              ),
-                              controller: textController,
-                              hintText: 'Filter word',
-                              onChanged: (p0) => filterWord(p0),
                             ),
                           ),
                         ],

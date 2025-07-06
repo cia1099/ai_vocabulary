@@ -14,8 +14,8 @@ String messageExceptions([Object? error, StackTrace? stackTrace]) {
   return switch (error) {
     HttpException e => convertFastAPIDetail(e.message),
     ApiException e => 'API error: ${e.message}',
-    TimeoutException e =>
-      '${e.runtimeType}: ${e.message ?? 'Network request is timeout'}',
+    TimeoutException _ => "Opps! Network didn't respond in time",
+    // '${e.runtimeType}: ${e.message ?? 'Network request is timeout'}',
     HandshakeException e => '${e.runtimeType}: ${e.message}',
     http.ClientException e => '${e.runtimeType}: ${e.message}',
     SocketException e => '${e.runtimeType}: ${e.message}',

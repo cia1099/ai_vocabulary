@@ -62,9 +62,11 @@ abstract class WordProvider {
 
   List<Vocabulary> remindWords() {
     final reminds = _remindWords.toList();
-    _remindWords.clear();
+    // _remindWords.clear();//Compiler will optimize all reference no any clone collection can be created
     return reminds;
   }
+
+  void clearRemind() => _remindWords.clear();
 
   void nextStudyWord() {
     Future.delayed(Durations.extralong4, () {

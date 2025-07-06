@@ -70,7 +70,7 @@ class _AlphabetListTabState extends State<AlphabetListTab> {
               child: FilterInputBar(
                 enabled: snapshot.connectionState != ConnectionState.waiting,
                 padding: const EdgeInsets.only(bottom: 4, left: 8, right: 8),
-                backgroundColor: colorScheme.surface,
+                backgroundColor: colorScheme.surfaceContainerLow,
                 hintText: 'Which word',
                 controller: textController,
                 onChanged: (name) => filterName(name),

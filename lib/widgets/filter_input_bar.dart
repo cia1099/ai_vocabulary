@@ -34,106 +34,101 @@ class _FilterInputBarState extends State<FilterInputBar> {
     final colorScheme = Theme.of(context).colorScheme;
     return LayoutBuilder(
       builder: (context, constraints) {
-        final hPadding =
-            widget.padding == null
-                ? .0
-                : (widget.padding!.left + widget.padding!.right);
-        final vPadding =
-            widget.padding == null
-                ? .0
-                : (widget.padding!.top + widget.padding!.bottom);
+        final hPadding = widget.padding == null
+            ? .0
+            : (widget.padding!.left + widget.padding!.right);
+        final vPadding = widget.padding == null
+            ? .0
+            : (widget.padding!.top + widget.padding!.bottom);
         return Container(
           color: widget.backgroundColor,
           padding: widget.padding,
           width: constraints.maxWidth,
           child: ListenableBuilder(
             listenable: focus,
-            builder:
-                (context, child) => Wrap(
-                  children: [
-                    AnimatedContainer(
-                      duration: Durations.short4,
-                      width:
-                          constraints.maxWidth -
-                          hPadding -
-                          (focus.hasFocus ? 64 : 0),
-                      height: (constraints.maxHeight - vPadding).clamp(
-                        .0,
-                        double.infinity,
+            builder: (context, child) => Wrap(
+              children: [
+                AnimatedContainer(
+                  duration: Durations.short4,
+                  width:
+                      constraints.maxWidth -
+                      hPadding -
+                      (focus.hasFocus ? 64 : 0),
+                  height: (constraints.maxHeight - vPadding).clamp(
+                    .0,
+                    double.infinity,
+                  ),
+                  decoration: BoxDecoration(
+                    color: colorScheme.onInverseSurface,
+                    borderRadius: BorderRadius.circular(
+                      kRadialReactionRadius / 2,
+                    ),
+                  ),
+                  child: PlatformTextField(
+                    enabled: widget.enabled,
+                    hintText: widget.hintText,
+                    controller: textController,
+                    focusNode: focus,
+                    onChanged: widget.onChanged,
+                    textInputAction: TextInputAction.search,
+                    cupertino: (_, __) => CupertinoTextFieldData(
+                      decoration: const BoxDecoration(
+                        color: Colors.transparent,
                       ),
-                      decoration: BoxDecoration(
-                        color: colorScheme.onInverseSurface,
-                        borderRadius: BorderRadius.circular(
-                          kRadialReactionRadius / 2,
-                        ),
-                      ),
-                      child: PlatformTextField(
-                        enabled: widget.enabled,
-                        hintText: widget.hintText,
-                        controller: textController,
-                        focusNode: focus,
-                        onChanged: widget.onChanged,
-                        textInputAction: TextInputAction.search,
-                        cupertino:
-                            (_, __) => CupertinoTextFieldData(
-                              decoration: const BoxDecoration(
-                                color: Colors.transparent,
-                              ),
-                              prefix: Icon(
-                                CupertinoIcons.equal_square,
-                                color: CupertinoColors.systemGrey4.resolveFrom(
-                                  context,
-                                ),
-                              ),
-                            ),
-                        material:
-                            (_, __) => MaterialTextFieldData(
-                              decoration: InputDecoration(
-                                // fillColor: Colors.transparent,
-                                prefix: Icon(
-                                  Icons.filter_alt_outlined,
-                                  color: CupertinoColors.systemGrey4
-                                      .resolveFrom(context),
-                                ),
-                                border: const OutlineInputBorder(
-                                  borderSide: BorderSide.none,
-                                ),
-                              ),
-                            ),
+                      prefix: Icon(
+                        CupertinoIcons.equal_square,
+                        color: CupertinoColors.systemGrey4.resolveFrom(context),
                       ),
                     ),
-                    AnimatedSize(
-                      duration: Durations.short4,
-                      child: SizedBox(
-                        width: focus.hasFocus ? 64 : 0,
-                        height: (constraints.maxHeight - vPadding).clamp(
-                          .0,
-                          double.maxFinite,
-                        ),
-                        child: PlatformTextButton(
-                          padding: EdgeInsets.zero,
-                          onPressed: () {
-                            textController.clear();
-                            focus.unfocus();
-                            widget.onChanged?.call('');
-                          },
-                          material:
-                              (_, __) => MaterialTextButtonData(
-                                style: IconButton.styleFrom(
-                                  padding: EdgeInsets.zero,
-                                  tapTargetSize:
-                                      MaterialTapTargetSize.shrinkWrap,
-                                ),
-                              ),
-                          child: Text(
-                            'Cancel',
-                            style: TextStyle(color: colorScheme.inverseSurface),
+                    material: (_, __) => MaterialTextFieldData(
+                      decoration: InputDecoration(
+                        // fillColor: Colors.transparent,
+                        prefix: Icon(
+                          Icons.filter_alt_outlined,
+                          color: CupertinoColors.systemGrey4.resolveFrom(
+                            context,
                           ),
                         ),
+                        border: const OutlineInputBorder(
+                          borderSide: BorderSide.none,
+                        ),
                       ),
                     ),
-                  ],
+                  ),
                 ),
+                AnimatedSize(
+                  duration: Durations.short4,
+                  child: SizedBox(
+                    width: focus.hasFocus ? 64 : 0,
+                    height: (constraints.maxHeight - vPadding).clamp(
+                      .0,
+                      double.maxFinite,
+                    ),
+                    child: PlatformTextButton(
+                      padding: EdgeInsets.zero,
+                      onPressed: () {
+                        textController.clear();
+                        focus.unfocus();
+                        widget.onChanged?.call('');
+                      },
+                      material: (_, __) => MaterialTextButtonData(
+                        style: IconButton.styleFrom(
+                          padding: EdgeInsets.zero,
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                      ),
+                      child: FittedBox(
+                        fit: BoxFit.fitWidth,
+                        child: Text(
+                          'Cancel',
+                          style: TextStyle(color: colorScheme.inverseSurface),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         );
       },

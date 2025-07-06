@@ -99,41 +99,31 @@ class WordListPage extends StatelessWidget {
           title: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text.rich(
-                TextSpan(
-                  children: [
-                    TextSpan(
-                      text: word.word,
-                      // style: textTheme.headlineSmall,
-                      style: textTheme.titleMedium
-                          ?.copyWith(fontWeight: FontWeight.w600)
-                          .apply(fontSizeFactor: 1.414),
-                    ),
-                    TextSpan(text: '\t' * 2),
-                    TextSpan(
-                      text: phonetics.firstOrNull?.phonetic,
-                      style: TextStyle(color: colorScheme.onSurfaceVariant),
-                    ),
-                  ],
-                ),
-                overflow: TextOverflow.ellipsis,
-                style: textTheme.titleMedium,
-              ),
-              RichText(
-                text: TextSpan(
-                  children: [
-                    WidgetSpan(
-                      child: GestureDetector(
-                        onTap: playPhonetic(
-                          null,
-                          word: word.word,
-                          gTTs: accent.gTTS,
-                        ),
-                        child: const Icon(CupertinoIcons.volume_up),
+              Expanded(
+                child: Text.rich(
+                  TextSpan(
+                    children: [
+                      TextSpan(
+                        text: word.word,
+                        // style: textTheme.headlineSmall,
+                        style: textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.w600)
+                            .apply(fontSizeFactor: 1.414),
                       ),
-                    ),
-                  ],
+                      TextSpan(text: '\t' * 2),
+                      TextSpan(
+                        text: phonetics.firstOrNull?.phonetic,
+                        style: TextStyle(color: colorScheme.onSurfaceVariant),
+                      ),
+                    ],
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                  style: textTheme.titleMedium,
                 ),
+              ),
+              GestureDetector(
+                onTap: playPhonetic(null, word: word.word, gTTs: accent.gTTS),
+                child: const Icon(CupertinoIcons.volume_up),
               ),
             ],
           ),

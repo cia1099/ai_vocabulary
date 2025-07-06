@@ -4,7 +4,9 @@ import 'package:ai_vocabulary/app_settings.dart';
 import 'package:ai_vocabulary/effects/show_toast.dart';
 import 'package:ai_vocabulary/pages/chat_room_page.dart' show ErrorBanner;
 import 'package:ai_vocabulary/utils/handle_except.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:retry/retry.dart';
 
 import '../api/dict_api.dart';
 import '../database/my_db.dart';
@@ -112,12 +114,30 @@ class _RequireChatBubbleState extends State<RequireChatBubble> {
       userID: ans.userId,
     );
     widget.updateMessage(responseMsg!);
-    // yield SizedBox(width: 100, child: const DotDotDotIndicator(size: 20));
+    yield SizedBox(width: 100, child: const DotDotDotIndicator(size: 20));
     try {
       if (mounted) {
         final accent = AppSettings.of(context).accent;
         final voicer = AppSettings.of(context).voicer;
-        await soundAzure(ans.answer, lang: accent.azure.lang, sound: voicer);
+        var attempt = 3;
+        final retry = RetryOptions(
+          maxDelay: Durations.short1,
+          maxAttempts: attempt--,
+        );
+        await retry.retry(
+          () => soundAzure(ans.answer, lang: accent.azure.lang, sound: voicer),
+          retryIf: (e) => e is TimeoutException,
+          onRetry: (e) {
+            if (!kReleaseMode || attempt == 0) {
+              showToast(
+                context: context,
+                child: Text(
+                  "${messageExceptions(e)}. auto try (${3 - attempt--}) again",
+                ),
+              );
+            }
+          },
+        );
       }
       final showContent = ChatBubble.showContents.value;
       for (int s = 4; s <= ans.answer.length && showContent; s += 2) {

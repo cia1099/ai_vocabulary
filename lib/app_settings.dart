@@ -141,7 +141,7 @@ class MySettings extends ChangeNotifier {
     if (_canTransition(newStatus)) {
       _studyState.value = newStatus;
     } else if (studyState != newStatus) {
-      debugPrint("Invaild transition: $_studyState → $newStatus");
+      debugPrint("Invalid transition: $_studyState → $newStatus");
     }
   }
 
