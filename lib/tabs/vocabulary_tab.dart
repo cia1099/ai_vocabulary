@@ -146,6 +146,7 @@ class _VocabularyTabState extends State<VocabularyTab>
     return FutureBuilder(
       future: provider.isReady,
       builder: (context, snapshot) {
+        final isDisplay = AppSettings.of(context).wordProvider == provider;
         return ListenableBuilder(
           listenable: MyDB(),
           builder: (context, child) => PageView.builder(
@@ -163,7 +164,7 @@ class _VocabularyTabState extends State<VocabularyTab>
               if (provider is RecommendProvider) {
                 provider.fetchStudyWords(index).catchError((_) {});
               }
-              if (provider.currentWord != null) {
+              if (provider.currentWord != null && isDisplay) {
                 newSound(provider.currentWord!.word);
               }
             },
