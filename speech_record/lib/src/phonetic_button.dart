@@ -19,7 +19,7 @@ class PhoneticButton extends StatefulWidget {
 
   final double height;
   final Duration protectLatency;
-  final VoidCallback? startRecordHint;
+  final Future<void> Function()? startRecordHint;
   final void Function(List<int> wavBytes)? doneRecord;
 
   @override
@@ -59,7 +59,7 @@ class _PhoneticButtonState extends State<PhoneticButton> {
           onTapDown: (details) {
             setState(() => isPress = true);
             tapProtection = Timer(widget.protectLatency, () async {
-              widget.startRecordHint?.call();
+              await widget.startRecordHint?.call();
               final recordStream = await recorder.startStream(
                   const RecordConfig(
                       encoder: AudioEncoder.pcm16bits,

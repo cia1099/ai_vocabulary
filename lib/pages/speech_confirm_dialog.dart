@@ -147,7 +147,7 @@ class _SpeechConfirmDialogState extends State<SpeechConfirmDialog> {
                         },
                         startRecordHint: () => immediatelyPlay(
                           'assets/sounds/speech_to_text_listening.m4r',
-                        ),
+                        ).then((_) => Future.delayed(Durations.medium4)),
                         child: ActionButton(
                           onPressed: enableRecord ? () {} : null,
                           topBorder: true,

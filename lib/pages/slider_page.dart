@@ -155,8 +155,9 @@ class _SliderPageState extends State<SliderPage> {
           right: (screenWidth - 105 * 1.82) / 2,
           child: PhoneticButton(
             height: 105,
-            startRecordHint: () =>
-                immediatelyPlay('assets/sounds/speech_to_text_listening.m4r'),
+            startRecordHint: () => immediatelyPlay(
+              'assets/sounds/speech_to_text_listening.m4r',
+            ).then((_) => Future.delayed(Durations.medium4)),
             doneRecord: (bytes) {
               bytesPlay(Uint8List.fromList(bytes), 'audio/wav');
               titleKey.currentState?.inputSpeech(bytes);

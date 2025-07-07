@@ -57,10 +57,9 @@ class _ChatInputPanelState extends State<ChatInputPanel> {
           minWidth: double.infinity,
         ),
         color: colorScheme.onInverseSurface,
-        child:
-            isKeyboard
-                ? keyboardInputs(colorScheme)
-                : speechInputs(colorScheme),
+        child: isKeyboard
+            ? keyboardInputs(colorScheme)
+            : speechInputs(colorScheme),
       ),
     );
   }
@@ -70,10 +69,9 @@ class _ChatInputPanelState extends State<ChatInputPanel> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         PlatformIconButton(
-          onPressed:
-              () => setState(() {
-                isKeyboard ^= true;
-              }),
+          onPressed: () => setState(() {
+            isKeyboard ^= true;
+          }),
           icon: const Icon(CupertinoIcons.keyboard),
         ),
         Expanded(
@@ -90,10 +88,9 @@ class _ChatInputPanelState extends State<ChatInputPanel> {
                 return '${now.millisecondsSinceEpoch}.wav';
               },
               doneRecord: widget.delegate.doneRecord,
-              startRecordHint:
-                  () => immediatelyPlay(
-                    'assets/sounds/speech_to_text_listening.m4r',
-                  ),
+              startRecordHint: () => immediatelyPlay(
+                'assets/sounds/speech_to_text_listening.m4r',
+              ).then((_) => Future.delayed(Durations.medium4)),
               blinkShape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(kRadialReactionRadius),
               ),
@@ -142,12 +139,11 @@ class _ChatInputPanelState extends State<ChatInputPanel> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         PlatformIconButton(
-          onPressed:
-              () => setState(() {
-                textController.clear();
-                focusNode.unfocus();
-                isKeyboard ^= true;
-              }),
+          onPressed: () => setState(() {
+            textController.clear();
+            focusNode.unfocus();
+            isKeyboard ^= true;
+          }),
           icon: const Icon(Icons.record_voice_over_outlined),
         ),
         Expanded(
@@ -159,53 +155,45 @@ class _ChatInputPanelState extends State<ChatInputPanel> {
               focusNode: focusNode,
               maxLines: null,
               controller: textController,
-              cupertino:
-                  (_, __) => CupertinoTextFieldData(
-                    decoration: BoxDecoration(
-                      border: Border.all(color: colorScheme.primary, width: 2),
-                      borderRadius: BorderRadius.circular(
-                        kRadialReactionRadius,
-                      ),
-                    ),
-                    suffix: suffixIcon,
-                  ),
-              material:
-                  (_, __) => MaterialTextFieldData(
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(
-                          kRadialReactionRadius,
-                        ),
-                        borderSide: BorderSide(
-                          color: colorScheme.primary,
-                          width: 2,
-                        ),
-                      ),
-                      suffixIcon: suffixIcon,
+              cupertino: (_, __) => CupertinoTextFieldData(
+                decoration: BoxDecoration(
+                  border: Border.all(color: colorScheme.primary, width: 2),
+                  borderRadius: BorderRadius.circular(kRadialReactionRadius),
+                ),
+                suffix: suffixIcon,
+              ),
+              material: (_, __) => MaterialTextFieldData(
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(kRadialReactionRadius),
+                    borderSide: BorderSide(
+                      color: colorScheme.primary,
+                      width: 2,
                     ),
                   ),
+                  suffixIcon: suffixIcon,
+                ),
+              ),
             ),
           ),
         ),
         AnimatedBuilder(
           animation: textController,
-          builder:
-              (context, icon) => PlatformIconButton(
-                onPressed:
-                    textController.text.isEmpty
-                        ? null
-                        : () {
-                          focusNode.unfocus();
-                          widget.delegate.onSubmit(
-                            InfoMessage(
-                              content: textController.text,
-                              // timeStamp: DateTime.now().millisecondsSinceEpoch
-                            ),
-                          );
-                          textController.clear();
-                        },
-                icon: icon,
-              ),
+          builder: (context, icon) => PlatformIconButton(
+            onPressed: textController.text.isEmpty
+                ? null
+                : () {
+                    focusNode.unfocus();
+                    widget.delegate.onSubmit(
+                      InfoMessage(
+                        content: textController.text,
+                        // timeStamp: DateTime.now().millisecondsSinceEpoch
+                      ),
+                    );
+                    textController.clear();
+                  },
+            icon: icon,
+          ),
           child: const Icon(CupertinoIcons.paperplane),
         ),
       ],

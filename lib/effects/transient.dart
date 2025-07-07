@@ -23,13 +23,12 @@ class CupertinoDialogTransition extends StatelessWidget {
         curve: Curves.easeInOut,
         reverseCurve: Curves.easeInOutBack,
       ),
-      child:
-          animation.status == AnimationStatus.reverse
-              ? child
-              : ScaleTransition(
-                scale: Tween(begin: scale, end: 1.0).animate(animation),
-                child: child,
-              ),
+      child: animation.status == AnimationStatus.reverse
+          ? child
+          : ScaleTransition(
+              scale: Tween(begin: scale, end: 1.0).animate(animation),
+              child: child,
+            ),
     );
   }
 }
@@ -60,22 +59,24 @@ Widget generateImageLoader(
     duration: Durations.extralong1,
     switchInCurve: Curves.easeInOut,
     switchOutCurve: Curves.easeIn,
-    transitionBuilder:
-        (child, animation) => FadeTransition(opacity: animation, child: child),
-    child:
-        frame == null
-            ? const Center(
-              child: Wrap(
-                direction: Axis.vertical,
-                alignment: WrapAlignment.center,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                spacing: 8,
-                children: [
-                  CircularProgressIndicator.adaptive(),
-                  Text('Image is generating, please wait...'),
-                ],
-              ),
-            )
-            : child,
+    transitionBuilder: (child, animation) =>
+        FadeTransition(opacity: animation, child: child),
+    child: frame == null
+        ? const Center(
+            child: Wrap(
+              direction: Axis.vertical,
+              alignment: WrapAlignment.center,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: 8,
+              children: [
+                CircularProgressIndicator.adaptive(),
+                Text(
+                  'Image is generating, please wait...',
+                  textScaler: TextScaler.noScaling,
+                ),
+              ],
+            ),
+          )
+        : child,
   );
 }

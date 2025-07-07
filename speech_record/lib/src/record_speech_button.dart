@@ -14,7 +14,7 @@ class RecordSpeechButton extends StatefulWidget {
   final String appDirectory;
   final Duration protectLatency;
   final String Function() createWavFileName;
-  final VoidCallback? startRecordHint;
+  final Future<void> Function()? startRecordHint;
   final void Function(String? outputPath) doneRecord;
   final ShapeBorder? blinkShape;
 
@@ -73,7 +73,7 @@ class _RecordSpeechButtonState extends State<RecordSpeechButton> {
                     onDone: () async {
                       final filename = widget.createWavFileName();
                       final audioDir = p.join(widget.appDirectory, 'audio');
-                      widget.startRecordHint?.call();
+                      await widget.startRecordHint?.call();
                       await record.start(
                           const RecordConfig(encoder: AudioEncoder.wav),
                           path: p.join(audioDir, filename));

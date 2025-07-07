@@ -70,13 +70,13 @@ class _ImagenDialogState extends State<ImagenDialog> {
                           //     wasSynchronouslyLoaded,
                           //   );
                           // },
-                          errorBuilder:
-                              (context, error, stackTrace) => Text(
-                                messageExceptions(error),
-                                style: textTheme.titleLarge?.apply(
-                                  color: colorScheme.error,
-                                ),
-                              ),
+                          errorBuilder: (context, error, stackTrace) => Text(
+                            messageExceptions(error),
+                            style: textTheme.titleLarge?.apply(
+                              color: colorScheme.error,
+                            ),
+                            textScaler: TextScaler.noScaling,
+                          ),
                         ),
                       ),
                       Expanded(
@@ -86,10 +86,8 @@ class _ImagenDialogState extends State<ImagenDialog> {
                           color: colorScheme.primaryContainer,
                           child: SelectableText(
                             widget.prompt,
-                            style:
-                                textTheme.titleLarge!..apply(
-                                  color: colorScheme.onPrimaryContainer,
-                                ),
+                            style: textTheme.titleLarge!
+                              ..apply(color: colorScheme.onPrimaryContainer),
                           ),
                         ),
                       ),
@@ -101,8 +99,8 @@ class _ImagenDialogState extends State<ImagenDialog> {
             Align(
               alignment: const Alignment(0, 1.1),
               child: PlatformIconButton(
-                onPressed:
-                    () => imageProvider.evict().then((_) => setState(() {})),
+                onPressed: () =>
+                    imageProvider.evict().then((_) => setState(() {})),
                 material: (_, __) => MaterialIconButtonData(iconSize: 48),
                 cupertino: (_, __) => CupertinoIconButtonData(minSize: 48),
                 cupertinoIcon: Icon(
