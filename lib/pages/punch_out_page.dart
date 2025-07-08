@@ -18,6 +18,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:image/image.dart' as image;
+import 'package:in_app_review/in_app_review.dart';
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
 import 'package:share_plus/share_plus.dart';
@@ -51,7 +52,22 @@ class _PunchOutPageState extends State<PunchOutPage> {
             backgroundColor: snapshot.data?.surfaceContainer,
             appBar: PlatformAppBar(
               backgroundColor: snapshot.data?.inversePrimary,
+              leading: PlatformTextButton(
+                padding: EdgeInsets.zero,
+                onPressed: () async {
+                  final inAppReview = InAppReview.instance;
+                  if (await inAppReview.isAvailable()) {
+                    await inAppReview.requestReview();
+                  }
+                  if (context.mounted) Navigator.maybePop(context);
+                },
+                child: Text(
+                  "Close",
+                  style: TextStyle(color: snapshot.data?.primary),
+                ),
+              ),
             ),
+
             body: child,
           ),
         );

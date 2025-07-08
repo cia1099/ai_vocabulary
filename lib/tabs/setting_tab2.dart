@@ -72,12 +72,7 @@ extension Methods on SettingTab {
   }
 
   void requestReview() async {
-    final inAppReview = InAppReview.instance;
-    if (await inAppReview.isAvailable()) {
-      inAppReview.requestReview();
-    } else {
-      inAppReview.openStoreListing(appStoreId: '你的 App Store ID');
-    }
+    await InAppReview.instance.openStoreListing(appStoreId: '6747282773');
   }
 }
 
