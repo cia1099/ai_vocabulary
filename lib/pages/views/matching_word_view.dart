@@ -31,64 +31,67 @@ class _MatchingWordViewState extends State<MatchingWordView> {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
-    return SingleChildScrollView(
-      physics: const BouncingScrollPhysics(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          RichText(
-            text: TextSpan(
-              text: widget.word.word,
-              children: [
-                TextSpan(text: '\t' * 2),
-                WidgetSpan(
-                  child: GestureDetector(
-                    onTap: () => soundGTTs(
-                      widget.word.word,
-                      AppSettings.of(context).accent.gTTS,
-                    ),
-                    child: Icon(
-                      CupertinoIcons.volume_up,
-                      size: textTheme.titleLarge?.fontSize?.scale(1.25),
+    return SafeArea(
+      top: false,
+      child: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            RichText(
+              text: TextSpan(
+                text: widget.word.word,
+                children: [
+                  TextSpan(text: '\t' * 2),
+                  WidgetSpan(
+                    child: GestureDetector(
+                      onTap: () => soundGTTs(
+                        widget.word.word,
+                        AppSettings.of(context).accent.gTTS,
+                      ),
+                      child: Icon(
+                        CupertinoIcons.volume_up,
+                        size: textTheme.titleLarge?.fontSize?.scale(1.25),
+                      ),
                     ),
                   ),
+                ],
+                style: textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
                 ),
-              ],
-              style: textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
               ),
             ),
-          ),
-          Wrap(
-            spacing: widget.hPadding / 4,
-            children: widget.word.getInflection
-                .map(
-                  (e) => Container(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 2,
-                      horizontal: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: colorScheme.secondary),
-                      borderRadius: BorderRadius.circular(
-                        textTheme.labelMedium?.fontSize ?? 24,
+            Wrap(
+              spacing: widget.hPadding / 4,
+              children: widget.word.getInflection
+                  .map(
+                    (e) => Container(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 2,
+                        horizontal: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: colorScheme.secondary),
+                        borderRadius: BorderRadius.circular(
+                          textTheme.labelMedium?.fontSize ?? 24,
+                        ),
+                      ),
+                      child: Text(
+                        e,
+                        style: textTheme.labelMedium?.apply(
+                          color: colorScheme.secondary,
+                        ),
                       ),
                     ),
-                    child: Text(
-                      e,
-                      style: textTheme.labelMedium?.apply(
-                        color: colorScheme.secondary,
-                      ),
-                    ),
-                  ),
-                )
-                .toList(),
-          ),
-          SizedBox(height: widget.hPadding / 4),
-          ExplanationBoard(word: widget.word, hPadding: widget.hPadding),
-          SizedBox(height: widget.hPadding),
-          ?widget.buildExamples?.call(context),
-        ],
+                  )
+                  .toList(),
+            ),
+            SizedBox(height: widget.hPadding / 4),
+            ExplanationBoard(word: widget.word, hPadding: widget.hPadding),
+            SizedBox(height: widget.hPadding),
+            ?widget.buildExamples?.call(context),
+          ],
+        ),
       ),
     );
   }

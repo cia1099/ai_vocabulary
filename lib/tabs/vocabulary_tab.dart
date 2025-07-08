@@ -37,7 +37,7 @@ class _VocabularyTabState extends State<VocabularyTab>
   late final recommend = RecommendProvider(context: context);
   final review = ReviewProvider();
   final rng = Random();
-  final autoDelay = Durations.extralong4 * 1.5;
+  final autoDelay = Durations.extralong4 * 2.25;
   Timer? autoSound;
 
   @override
@@ -111,23 +111,36 @@ class _VocabularyTabState extends State<VocabularyTab>
                         final hasError = !await recommend.isReady.onError(
                           (_, _) => false,
                         );
-                        registerFunc() => hasError ? setState(() {}) : null;
-                        if (atTop) {
-                          return recommend.resetWords().whenComplete(
-                            registerFunc,
+                        void registerFunc() {
+                          if (hasError && atTop) setState(() {});
+                          if (atTop || hasError) return;
+                          recommend.pageController.animateToPage(
+                            0,
+                            duration: Durations.long2,
+                            curve: Curves.ease,
                           );
                         }
-                        if (hasError) return;
 
-                        return recommend.length < RecommendProvider.kMaxLength
-                            ? recommend.bottomRequest()
-                            : recommend.resetWords().whenComplete(
-                                () => recommend.pageController.animateToPage(
-                                  0,
-                                  duration: Durations.long2,
-                                  curve: Curves.ease,
-                                ),
-                              );
+                        return recommend
+                            .fetchStudyWords()
+                            .whenComplete(registerFunc)
+                            .then((_) => newSound(recommend.currentWord?.word));
+                        // if (atTop) {
+                        //   // return recommend.resetWords().whenComplete(
+                        //   //   registerFunc,
+                        //   // );
+                        // }
+                        // if (hasError) return;
+
+                        // // return recommend.length < RecommendProvider.kMaxLength
+                        // //     ? recommend.bottomRequest()
+                        // //     : recommend.resetWords().whenComplete(
+                        // //         () => recommend.pageController.animateToPage(
+                        // //           0,
+                        // //           duration: Durations.long2,
+                        // //           curve: Curves.ease,
+                        // //         ),
+                        // //       );
                       },
                       bottomAlignment: Alignment(0, .9),
                       child: sliders(provider: recommend),
@@ -161,9 +174,9 @@ class _VocabularyTabState extends State<VocabularyTab>
             onPageChanged: (index) {
               provider.currentWord = provider[index];
               provider.clozeSeed = rng.nextInt(256);
-              if (provider is RecommendProvider) {
-                provider.fetchStudyWords(index).catchError((_) {});
-              }
+              // if (provider is RecommendProvider) {
+              //   // provider.oldFetchStudyWords(index).catchError((_) {});
+              // }
               if (provider.currentWord != null && isDisplay) {
                 newSound(provider.currentWord!.word);
               }
@@ -222,7 +235,8 @@ class _VocabularyTabState extends State<VocabularyTab>
     );
   }
 
-  void newSound(String text) {
+  void newSound(String? text) {
+    if (text == null) return;
     final accent = AppSettings.of(context).accent;
     autoSound?.cancel();
     autoSound = Timer(

@@ -37,10 +37,10 @@ class _ClozePageState extends State<ClozePage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final routeName = ModalRoute.of(context)?.settings.name;
-      if (routeName == AppRoute.quiz) {
-        focusNode.requestFocus();
-      }
+      // final routeName = ModalRoute.of(context)?.settings.name;
+      // if (routeName == AppRoute.quiz) {
+      focusNode.requestFocus();
+      // }
     });
   }
 
@@ -224,6 +224,7 @@ class _ClozePageState extends State<ClozePage> {
             builder: (context, _, __) {
               return TextFormField(
                 autofocus: autofocus,
+                enabled: autofocus,
                 autocorrect: false,
                 enableSuggestions: false,
                 focusNode: focusNode,

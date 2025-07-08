@@ -54,7 +54,7 @@ class _VocabularyPageState extends State<VocabularyPage> {
         var attempt = 3;
         final retry = RetryOptions(maxAttempts: attempt--, maxDelay: delay);
         autoSound = Timer(
-          Durations.medium1,
+          Durations.extralong4 * 1.5,
           () => retry
               .retry(
                 () =>

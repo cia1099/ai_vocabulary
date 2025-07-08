@@ -110,23 +110,23 @@ class _ImagenDialogState extends State<ImagenDialog> {
                 icon: Icon(CupertinoIcons.refresh_circled_solid),
               ),
             ),
-            Align(
-              alignment: const FractionalOffset(1.05, -.025),
-              child: PlatformIconButton(
-                onPressed: Navigator.of(context).pop,
-                material: (_, __) => MaterialIconButtonData(iconSize: 48),
-                cupertino: (_, __) => CupertinoIconButtonData(minSize: 48),
-                cupertinoIcon: Icon(
-                  CupertinoIcons.xmark_circle_fill,
-                  size: 48,
-                  color: colorScheme.onSurfaceVariant.withAlpha(200),
-                ),
-                icon: Icon(
-                  CupertinoIcons.xmark_circle_fill,
-                  color: colorScheme.onSurfaceVariant.withAlpha(200),
-                ),
-              ),
-            ),
+            // Align(
+            //   alignment: const FractionalOffset(1.05, -.025),
+            //   child: PlatformIconButton(
+            //     onPressed: Navigator.of(context).pop,
+            //     material: (_, __) => MaterialIconButtonData(iconSize: 48),
+            //     cupertino: (_, __) => CupertinoIconButtonData(minSize: 48),
+            //     cupertinoIcon: Icon(
+            //       CupertinoIcons.xmark_circle_fill,
+            //       size: 48,
+            //       color: colorScheme.onSurfaceVariant.withAlpha(200),
+            //     ),
+            //     icon: Icon(
+            //       CupertinoIcons.xmark_circle_fill,
+            //       color: colorScheme.onSurfaceVariant.withAlpha(200),
+            //     ),
+            //   ),
+            // ),
           ],
         ),
       ),

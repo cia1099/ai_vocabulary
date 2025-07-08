@@ -77,6 +77,7 @@ class _SliderPageState extends State<SliderPage> {
     //     textbutton!.height;
     // print(textbutton);
     // print('remain height = $remainHeight');
+    final titleHeight = .3 * MediaQuery.sizeOf(context).height;
     return Stack(
       children: [
         Padding(
@@ -91,7 +92,9 @@ class _SliderPageState extends State<SliderPage> {
               LearnedLabel(lastLearnedTime: acquaintance?.lastLearnedTime),
               Container(
                 // color: Colors.green,
-                constraints: BoxConstraints.tightFor(height: 250 - 80 - dH),
+                constraints: BoxConstraints.tightFor(
+                  height: titleHeight - 80 - dH,
+                ),
                 child: SliderTitle(key: titleKey, word: widget.word),
               ),
               Container(
@@ -262,7 +265,6 @@ class _SliderPageState extends State<SliderPage> {
                     ),
                   );
                 },
-                //Navigator.pushNamed(context, AppRoute.report),
                 padding: EdgeInsets.zero,
                 icon: Transform(
                   alignment: const Alignment(0, 0),
@@ -287,7 +289,6 @@ class _SliderPageState extends State<SliderPage> {
                     ),
                   );
                 },
-                // Navigator.pushNamed(context, AppRoute.vocabulary),
                 child: CapitalAvatar(
                   name: widget.word.word,
                   id: widget.word.wordId,

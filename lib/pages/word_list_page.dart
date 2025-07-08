@@ -52,9 +52,11 @@ class WordListPage extends StatelessWidget {
                   //   }
                   //   return dimensions.viewportMainAxisExtent / 10;
                   // },
-                  itemCount: words.length, //+ (words.length < 10 ? 1 : 0),
+                  itemCount: words.length + 1, //+ (words.length < 10 ? 1 : 0),
                   itemBuilder: (context, index) {
-                    // if (index >= words.length) return const SizedBox();
+                    if (index >= words.length) {
+                      return const SizedBox(height: kBottomNavigationBarHeight);
+                    }
                     final word = words[index];
                     return itemBuilder(context, index, word);
                   },

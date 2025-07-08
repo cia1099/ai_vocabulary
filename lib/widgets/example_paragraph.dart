@@ -49,6 +49,7 @@ class _ExampleParagraphState extends State<ExampleParagraph>
         child: GestureDetector(
           onTap: () => showPlatformDialog(
             context: context,
+            barrierDismissible: true,
             builder: (context) => ImagenDialog(widget.example),
           ),
           child:

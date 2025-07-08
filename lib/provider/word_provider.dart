@@ -85,6 +85,11 @@ abstract class WordProvider {
       });
     }
   }
+
+  void _onError(Object e, [StackTrace? s]) {
+    _completer.completeError(e, s);
+    currentWord = null;
+  }
 }
 
 Future<List<Vocabulary>> fetchWords(Iterable<int> wordIDs, {int? take}) async {

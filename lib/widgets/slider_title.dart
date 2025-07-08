@@ -33,14 +33,19 @@ class SliderTitleState extends State<SliderTitle>
     return Stack(
       alignment: const Alignment(0, -1),
       children: [
-        Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        Wrap(
+          // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          alignment: WrapAlignment.center,
+          runAlignment: WrapAlignment.spaceEvenly,
           children: [
-            Text(
-              widget.word.word,
-              style: textTheme.displayMedium,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+            Container(
+              alignment: Alignment(0, 0),
+              child: Text(
+                widget.word.word,
+                style: textTheme.displayMedium,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
             Wrap(
               spacing: 8,
