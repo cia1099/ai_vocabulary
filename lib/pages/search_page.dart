@@ -1,11 +1,13 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:ai_vocabulary/app_route.dart';
 import 'package:ai_vocabulary/app_settings.dart';
 import 'package:ai_vocabulary/database/my_db.dart';
 import 'package:ai_vocabulary/effects/dot3indicator.dart';
 import 'package:ai_vocabulary/mock_data.dart';
 import 'package:ai_vocabulary/utils/enums.dart';
+import 'package:ai_vocabulary/utils/formatter.dart';
 import 'package:ai_vocabulary/utils/function.dart';
 import 'package:ai_vocabulary/utils/handle_except.dart';
 import 'package:ai_vocabulary/utils/load_more_listview.dart';
@@ -14,13 +16,14 @@ import 'package:ai_vocabulary/widgets/align_paragraph.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart' show SpinKitFadingCircle;
 
 import '../api/dict_api.dart';
-import '../app_route.dart';
 import '../effects/transient.dart';
 import '../model/vocabulary.dart';
 import 'vocabulary_page.dart';
+
+part 'search_page2.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
@@ -37,7 +40,9 @@ class _SearchPageState extends State<SearchPage> {
       onTap: () {
         textController.clear();
         preventQuickChange?.cancel();
-        requireMoreWords('', 0).catchError((_) => false);
+        setState(() {
+          searchFuture = requireMoreWords('', 0);
+        });
       },
       child: const Icon(CupertinoIcons.delete_left_fill),
     ),
@@ -49,6 +54,7 @@ class _SearchPageState extends State<SearchPage> {
   @override
   void dispose() {
     preventQuickChange?.cancel();
+    textController.dispose();
     super.dispose();
   }
 
@@ -68,19 +74,17 @@ class _SearchPageState extends State<SearchPage> {
               : 'find it',
           controller: textController,
           textInputAction: TextInputAction.search,
+          inputFormatters: [EnglishLowerCaseConstraintFormatter()],
           onChanged: (text) {
             preventQuickChange?.cancel();
-            preventQuickChange = Timer(
-              Durations.medium4,
-              () => requireMoreWords(text, 0).catchError((e) {
-                setState(() {
-                  searchFuture = Future.error(e);
-                });
-                return false;
-              }),
-            );
+            preventQuickChange = Timer(Durations.medium4, () {
+              setState(() {
+                searchFuture = requireMoreWords(text, 0);
+              });
+            });
           },
           onSubmitted: (p0) {
+            if (searchWords.isNotEmpty) return;
             preventQuickChange?.cancel();
             setState(() {
               searchFuture = requireMoreWords(p0, 0);
@@ -107,7 +111,7 @@ class _SearchPageState extends State<SearchPage> {
         ),
         trailingActions: [
           PlatformTextButton(
-            onPressed: Navigator.of(context).pop,
+            onPressed: Navigator.of(context).maybePop,
             padding: const EdgeInsets.symmetric(horizontal: 4),
             child: const Text('Cancel'),
           ),
@@ -122,32 +126,56 @@ class _SearchPageState extends State<SearchPage> {
         child: FutureBuilder(
           future: searchFuture,
           builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
+            final isWaiting =
+                snapshot.connectionState == ConnectionState.waiting;
+            if (isWaiting && searchWords.isEmpty) {
               return Center(
                 child: SpinKitFadingCircle(color: colorScheme.secondary),
               );
             }
             if (snapshot.hasError) {
-              return Center(
-                child: Text(
-                  messageExceptions(snapshot.error),
-                  style: TextStyle(
-                    color: CupertinoColors.destructiveRed.resolveFrom(context),
+              return Stack(
+                children: [
+                  Center(
+                    child: Text(
+                      messageExceptions(snapshot.error),
+                      style: TextStyle(
+                        color: CupertinoColors.destructiveRed.resolveFrom(
+                          context,
+                        ),
+                      ),
+                    ),
                   ),
-                ),
+                  Positioned.fill(
+                    child: _WaitingCurtain(
+                      isWaiting: isWaiting,
+                      duration: Durations.long4,
+                    ),
+                  ),
+                ],
               );
             }
-            return AnimatedSwitcher(
-              duration: Durations.short3,
-              transitionBuilder: (child, animation) =>
-                  CupertinoDialogTransition(
-                    animation: animation,
-                    scale: .9,
-                    child: child,
+            return Stack(
+              children: [
+                AnimatedSwitcher(
+                  duration: Durations.short3,
+                  transitionBuilder: (child, animation) =>
+                      CupertinoDialogTransition(
+                        animation: animation,
+                        scale: .9,
+                        child: child,
+                      ),
+                  child: textController.text.isEmpty
+                      ? fetchHistorySearch(colorScheme, textTheme, hPadding)
+                      : searchResults(colorScheme, textTheme, hPadding),
+                ),
+                Positioned.fill(
+                  child: _WaitingCurtain(
+                    isWaiting: isWaiting,
+                    duration: Durations.short3 * 2,
                   ),
-              child: textController.text.isEmpty
-                  ? fetchHistorySearch(colorScheme, textTheme, hPadding)
-                  : searchResults(colorScheme, textTheme, hPadding),
+                ),
+              ],
             );
           },
         ),
@@ -232,6 +260,11 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   Future<bool> requireMoreWords(String text, int page) async {
+    if (text.isEmpty) {
+      requiredPage = 0;
+      searchWords.clear();
+      return false;
+    }
     final locate = AppSettings.of(context).translator;
     final words = await searchWord(word: text, locate: locate, page: page);
     final hasMore = words.isNotEmpty;
@@ -321,74 +354,6 @@ class _SearchPageState extends State<SearchPage> {
         colorScheme: colorScheme,
         textTheme: textTheme,
         hPadding: hPadding,
-      ),
-    );
-  }
-}
-
-class _SearchNotFound extends StatelessWidget {
-  const _SearchNotFound({
-    // super.key,
-    this.typing = '',
-  });
-  final String typing;
-
-  @override
-  Widget build(BuildContext context) {
-    final cupertinoTextTheme = CupertinoTheme.of(context).textTheme;
-    final hPadding = MediaQuery.sizeOf(context).width / 32;
-    final textTheme = Theme.of(context).textTheme;
-    final colorScheme = Theme.of(context).colorScheme;
-    return Container(
-      // color: Colors.red,
-      margin: EdgeInsets.symmetric(
-        horizontal: hPadding,
-        vertical: hPadding * 2,
-      ),
-      child: MediaQuery(
-        data: const MediaQueryData(textScaler: TextScaler.linear(sqrt2)),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Sorry no related results found',
-              style: cupertinoTextTheme.navTitleTextStyle,
-            ),
-            Text(
-              typing,
-              style: cupertinoTextTheme.dateTimePickerTextStyle.apply(
-                color: colorScheme.onTertiaryContainer,
-              ),
-            ),
-            AlignParagraph(
-              mark: Icon(CupertinoIcons.circle_fill, size: hPadding / 2),
-              paragraph: Text(
-                'Please verify the input text for any errors.',
-                style: cupertinoTextTheme.textStyle,
-              ),
-              xInterval: hPadding / 2,
-              paragraphStyle: textTheme.bodyMedium?.apply(heightFactor: sqrt2),
-            ),
-            AlignParagraph(
-              mark: Icon(CupertinoIcons.circle_fill, size: hPadding / 2),
-              paragraph: Text(
-                'Please attempt a different search term.',
-                style: cupertinoTextTheme.textStyle,
-              ),
-              xInterval: hPadding / 2,
-              paragraphStyle: textTheme.bodyMedium?.apply(heightFactor: sqrt2),
-            ),
-            AlignParagraph(
-              mark: Icon(CupertinoIcons.circle_fill, size: hPadding / 2),
-              paragraph: Text(
-                'Please consider a more common text.',
-                style: cupertinoTextTheme.textStyle,
-              ),
-              xInterval: hPadding / 2,
-              paragraphStyle: textTheme.bodyMedium?.apply(heightFactor: sqrt2),
-            ),
-          ],
-        ),
       ),
     );
   }

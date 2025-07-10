@@ -1,10 +1,12 @@
 import 'package:flutter/painting.dart';
 
 Iterable<String> splitWords(String text) {
+  /**
+   * ?=X means symbol(X) matches word behind. e.g and, match (,)
+   * ?<=X means symbol(X) matched word before. e,g. -and match (-)
+   */
   return text
-      .split(
-        RegExp(r'(?=\s+|[,.!?、"=\[\]\(\)\/])|(?<=\s+|[,.!?、"=\[\]\(\)\/])'),
-      )
+      .split(RegExp(r'(?=\s+|[,.!?、";=\[\]\(\)\/])|(?<=\s+|[",-=\[\]\(\)\/])'))
       .expand((word) sync* {
         final match = RegExp(r"(\w+)?('s|'re|'d|'ve|'m|'ll)").firstMatch(word);
         if (match != null) {

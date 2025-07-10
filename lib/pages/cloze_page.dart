@@ -46,9 +46,11 @@ class _ClozePageState extends State<ClozePage> {
 
   @override
   void dispose() {
+    timer?.cancel();
     focusNode.dispose();
     inputController.dispose();
     tip.dispose();
+    showPhonetic.dispose();
     super.dispose();
   }
 
@@ -246,7 +248,7 @@ class _ClozePageState extends State<ClozePage> {
                   //     tip.value = answer;
                   //   }
                   // }
-                  check.value = s.contains(RegExp(inputController.text));
+                  check.value = s.contains(RegExp("^$input"));
                 },
                 style: TextStyle(
                   color: check.value ? colorScheme.primary : colorScheme.error,

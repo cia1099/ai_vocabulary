@@ -1,23 +1,19 @@
-import 'dart:async' show Timer, TimeoutException;
+import 'dart:async' show Timer;
 import 'dart:io' show HttpException;
 
 import 'package:ai_vocabulary/api/dict_api.dart';
 import 'package:ai_vocabulary/app_route.dart';
 import 'package:ai_vocabulary/app_settings.dart';
-import 'package:ai_vocabulary/effects/show_toast.dart';
 import 'package:ai_vocabulary/model/vocabulary.dart';
 import 'package:ai_vocabulary/pages/chat_room_page.dart';
 import 'package:ai_vocabulary/pages/views/phrase_tab.dart';
 import 'package:ai_vocabulary/painters/bubble_shape.dart';
-import 'package:ai_vocabulary/utils/handle_except.dart';
 import 'package:ai_vocabulary/widgets/definition_tile.dart';
 import 'package:ai_vocabulary/widgets/entry_actions.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:path/path.dart' as p;
-import 'package:retry/retry.dart';
 
 import '../painters/title_painter.dart';
 
@@ -35,6 +31,7 @@ class VocabularyPage extends StatefulWidget {
 
 class _VocabularyPageState extends State<VocabularyPage> {
   late final futurePhrases = getPhrases(widget.word.wordId);
+  var futureSound = Future<void>.value();
   Timer? autoSound;
   @override
   void dispose() {
@@ -45,34 +42,28 @@ class _VocabularyPageState extends State<VocabularyPage> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((delay) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       final example = widget.word.getExamples.firstOrNull;
       final routeName = ModalRoute.of(context)?.settings.name;
       if (example != null && routeName != null) {
         final accent = AppSettings.of(context).accent;
         final voicer = AppSettings.of(context).voicer;
-        var attempt = 3;
-        final retry = RetryOptions(maxAttempts: attempt--, maxDelay: delay);
-        autoSound = Timer(
-          Durations.extralong4 * 1.5,
-          () => retry
-              .retry(
-                () =>
-                    soundAzure(example, lang: accent.azure.lang, sound: voicer),
-                retryIf: (e) => e is TimeoutException,
-                onRetry: (e) {
-                  if (!kReleaseMode || attempt == 0) {
-                    showToast(
-                      context: context,
-                      child: Text(
-                        "${messageExceptions(e)}. auto try (${3 - attempt--}) again",
-                      ),
-                    );
-                  }
-                },
-              )
-              .onError<HttpException>((_, _) {}),
-        );
+        autoSound = Timer(Durations.extralong4 * 1.5, () {
+          setState(() {
+            futureSound =
+                soundAzure(example, lang: accent.azure.lang, sound: voicer)
+                // .catchError((e, _) {
+                //   if (mounted) {
+                //     showToast(
+                //       context: context,
+                //       alignment: Alignment(0, .75),
+                //       child: Text(messageExceptions(e)),
+                //     );
+                //   }
+                // })
+                .onError<HttpException>((_, _) {});
+          });
+        });
       }
     });
   }
@@ -112,7 +103,15 @@ class _VocabularyPageState extends State<VocabularyPage> {
                       ],
                     ),
                   ),
-                  leading: const SizedBox(),
+                  leading: FutureBuilder(
+                    future: futureSound,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return CircularProgressIndicator.adaptive();
+                      }
+                      return const SizedBox();
+                    },
+                  ),
                 ),
               ),
             ],
@@ -124,24 +123,21 @@ class _VocabularyPageState extends State<VocabularyPage> {
                     PhraseTab(futurePhrases: futurePhrases, hPadding: hPadding),
                   ],
                 ),
-                Align(
-                  alignment: const FractionalOffset(.5, 1),
-                  child: Offstage(
-                    offstage: widget.nextTap == null,
+                if (widget.nextTap != null)
+                  Align(
+                    alignment: const FractionalOffset(.5, 1),
                     child: PlatformElevatedButton(
                       onPressed: widget.nextTap,
                       child: const Text('Next'),
                     ),
                   ),
-                ),
-                Align(
-                  alignment: const FractionalOffset(.95, .95),
-                  child: Offstage(
-                    offstage: routeName == null,
+                if (routeName != null)
+                  Align(
+                    alignment: const FractionalOffset(.95, .95),
                     child: FloatingActionButton(
                       onPressed: () {
                         final path = p.join(
-                          p.dirname(routeName ?? ''),
+                          p.dirname(routeName),
                           AppRoute.chatRoom,
                         );
                         Navigator.of(context).push(
@@ -164,7 +160,6 @@ class _VocabularyPageState extends State<VocabularyPage> {
                       ),
                     ),
                   ),
-                ),
               ],
             ),
           ),

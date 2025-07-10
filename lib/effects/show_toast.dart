@@ -15,11 +15,10 @@ void _showToast({
   final key = GlobalKey();
   final overlayEntry = OverlayEntry(
     // opaque: true,
-    builder:
-        (context) => Align(
-          alignment: alignment,
-          child: _AnimatedFadeInOut(key: key, duration: duration, child: child),
-        ),
+    builder: (context) => Align(
+      alignment: alignment,
+      child: _AnimatedFadeInOut(key: key, duration: duration, child: child),
+    ),
   );
   Overlay.of(context).insert(overlayEntry);
   Future.delayed(stay, () {
@@ -70,7 +69,7 @@ void appearAward(BuildContext context, String? word) {
   showToast(
     context: context,
     stay: const Duration(milliseconds: 1500),
-    alignment: const Alignment(0, .4),
+    alignment: const Alignment(0, .75),
     child: Row(
       children: [
         Lottie.asset('assets/lottie/coin.json'),
