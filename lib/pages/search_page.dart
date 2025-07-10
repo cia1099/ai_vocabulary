@@ -155,6 +155,7 @@ class _SearchPageState extends State<SearchPage> {
                 ],
               );
             }
+
             return Stack(
               children: [
                 AnimatedSwitcher(
@@ -167,7 +168,12 @@ class _SearchPageState extends State<SearchPage> {
                       ),
                   child: textController.text.isEmpty
                       ? fetchHistorySearch(colorScheme, textTheme, hPadding)
-                      : searchResults(colorScheme, textTheme, hPadding),
+                      : searchResults(
+                          snapshot.data!,
+                          colorScheme,
+                          textTheme,
+                          hPadding,
+                        ),
                 ),
                 Positioned.fill(
                   child: _WaitingCurtain(
@@ -282,14 +288,15 @@ class _SearchPageState extends State<SearchPage> {
     return hasMore;
   }
 
-  Widget searchResults([
+  Widget searchResults(
+    bool hasResults, [
     ColorScheme? colorScheme,
     TextTheme? textTheme,
     double? hPadding,
   ]) {
     hPadding ??= MediaQuery.sizeOf(context).width / 32;
     textTheme ??= Theme.of(context).textTheme;
-    if (searchWords.isEmpty) {
+    if (!hasResults) {
       return _SearchNotFound(typing: textController.text);
     }
     return LoadMoreListView.builder(
