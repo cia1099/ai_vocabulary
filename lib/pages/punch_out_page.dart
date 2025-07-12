@@ -336,8 +336,11 @@ class _PunchOutPageState extends State<PunchOutPage> {
                       builder: (context, snapshot) {
                         if (snapshot.connectionState ==
                             ConnectionState.waiting) {
-                          return CircularProgressIndicator.adaptive(
-                            backgroundColor: colorScheme.onInverseSurface,
+                          return AspectRatio(
+                            aspectRatio: 1,
+                            child: CircularProgressIndicator.adaptive(
+                              backgroundColor: colorScheme.onInverseSurface,
+                            ),
                           );
                         }
                         final consumeTokens = snapshot.data;

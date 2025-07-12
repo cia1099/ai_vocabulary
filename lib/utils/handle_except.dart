@@ -64,7 +64,14 @@ class DummyDialog extends StatelessWidget {
               type: MaterialType.transparency,
               child: Stack(
                 children: [
-                  const Center(child: CircularProgressIndicator.adaptive()),
+                  Center(
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints.loose(
+                        Size.fromRadius(kIndicatorRadius),
+                      ),
+                      child: CircularProgressIndicator.adaptive(),
+                    ),
+                  ),
                   Align(
                     alignment: const Alignment(0, 1),
                     child: Text(

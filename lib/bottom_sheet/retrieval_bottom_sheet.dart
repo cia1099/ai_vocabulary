@@ -62,7 +62,15 @@ class _RetrievalBottomSheetState extends State<RetrievalBottomSheet>
         snapSizes: const [.32, .9],
         initialChildSize: .32,
         builder: (context, scrollController) => PlatformWidgetBuilder(
-          material: (_, child, ___) => child,
+          material: (_, child, ___) => Card(
+            margin: EdgeInsets.zero,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadiusGeometry.vertical(
+                top: Radius.circular(kRadialReactionRadius * 1.6),
+              ),
+            ),
+            child: child,
+          ),
           cupertino: (_, child, ___) => CupertinoPopupSurface(child: child!),
           child: LayoutBuilder(
             builder: (context, constraints) {
@@ -161,7 +169,7 @@ class _RetrievalBottomSheetState extends State<RetrievalBottomSheet>
                           }
                           if (words == null)
                             return Center(
-                              child: PlatformCircularProgressIndicator(),
+                              child: CircularProgressIndicator.adaptive(),
                             );
                           final accent = AppSettings.of(context).accent;
                           return PageView.builder(

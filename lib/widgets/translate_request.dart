@@ -1,4 +1,5 @@
 import 'package:ai_vocabulary/utils/enums.dart';
+import 'package:ai_vocabulary/utils/shortcut.dart' show kIndicatorRadius;
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart'
     show PlatformIcons;
@@ -46,7 +47,14 @@ class _TranslateRequestState extends State<TranslateRequest> {
           TextSpan(
             children: [
               if (isWaiting)
-                WidgetSpan(child: CircularProgressIndicator.adaptive()),
+                WidgetSpan(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints.loose(
+                      Size.fromRadius(kIndicatorRadius),
+                    ),
+                    child: CircularProgressIndicator.adaptive(),
+                  ),
+                ),
               if (snapshot.hasError && !isWaiting)
                 WidgetSpan(
                   child: Padding(

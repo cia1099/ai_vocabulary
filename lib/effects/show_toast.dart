@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter_platform_widgets/flutter_platform_widgets.dart'
+    show PlatformWidget;
 import 'package:lottie/lottie.dart';
 
 void _showToast({
@@ -17,7 +19,15 @@ void _showToast({
     // opaque: true,
     builder: (context) => Align(
       alignment: alignment,
-      child: _AnimatedFadeInOut(key: key, duration: duration, child: child),
+      child: _AnimatedFadeInOut(
+        key: key,
+        duration: duration,
+        child: PlatformWidget(
+          cupertino: (_, _) => child,
+          material: (_, _) =>
+              Material(type: MaterialType.transparency, child: child),
+        ),
+      ),
     ),
   );
   Overlay.of(context).insert(overlayEntry);

@@ -107,7 +107,7 @@ class _VocabularyPageState extends State<VocabularyPage> {
                     future: futureSound,
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
-                        return CircularProgressIndicator.adaptive();
+                        return const CupertinoActivityIndicator();
                       }
                       return const SizedBox();
                     },

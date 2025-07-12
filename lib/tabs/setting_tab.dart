@@ -13,7 +13,6 @@ import 'package:ai_vocabulary/utils/function.dart';
 import 'package:ai_vocabulary/utils/handle_except.dart';
 import 'package:ai_vocabulary/utils/shortcut.dart';
 import 'package:ai_vocabulary/widgets/action_button.dart';
-import 'package:ai_vocabulary/widgets/segment_explanation.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -27,6 +26,7 @@ import 'package:vector_math/vector_math.dart' show Matrix2;
 import '../app_settings.dart';
 import '../utils/enums.dart';
 import '../widgets/count_picker_tile.dart';
+import '../widgets/segment_explanation.dart';
 
 part 'setting_tab2.dart';
 
@@ -70,6 +70,7 @@ class SettingTab extends StatelessWidget {
                     children: [
                       for (final q in Quiz.values)
                         Row(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
                             Radio.adaptive(
                               value: q,
@@ -113,32 +114,10 @@ class SettingTab extends StatelessWidget {
                 ),
                 PlatformListTile(
                   title: Text("Accent"),
-                  trailing: StatefulBuilder(
-                    builder: (context, setState) => Wrap(
-                      spacing: 8,
-                      children: [
-                        for (final accent in Accent.values)
-                          Row(
-                            children: [
-                              Radio.adaptive(
-                                value: accent,
-                                activeColor: Theme.of(
-                                  context,
-                                ).colorScheme.primary,
-                                groupValue: AppSettings.of(context).accent,
-                                onChanged: (accent) => setState(() {
-                                  AppSettings.of(context).accent = accent!;
-                                }),
-                              ),
-                              Text(
-                                accent.flag,
-                                textScaler: TextScaler.linear(2),
-                              ),
-                            ],
-                          ),
-                      ],
-                    ),
-                  ),
+                  cupertino: (_, _) =>
+                      CupertinoListTileData(trailing: AccentSelector()),
+                  material: (_, _) =>
+                      MaterialListTileData(subtitle: AccentSelector()),
                 ),
                 CountPickerTile(
                   titlePattern: 'Review ,?, words, a, day',

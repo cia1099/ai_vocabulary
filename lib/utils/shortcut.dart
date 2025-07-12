@@ -32,6 +32,7 @@ const kMaxInt64 = 9223372036854775807;
 const kUncategorizedName = 'uncategorized';
 // const kcollapsedSliverHeight = 64.0;
 const kExpandedSliverAppBarHeight = 112.0;
+const kIndicatorRadius = 10.0;
 const kStretchModes = [
   StretchMode.zoomBackground,
   StretchMode.blurBackground,

@@ -180,6 +180,39 @@ class ProfileHeader extends StatelessWidget {
   }
 }
 
+class AccentSelector extends StatefulWidget {
+  const AccentSelector({super.key});
+
+  @override
+  State<AccentSelector> createState() => _AccentSelectorState();
+}
+
+class _AccentSelectorState extends State<AccentSelector> {
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: 8,
+      children: [
+        for (final accent in Accent.values)
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Radio.adaptive(
+                value: accent,
+                activeColor: Theme.of(context).colorScheme.primary,
+                groupValue: AppSettings.of(context).accent,
+                onChanged: (accent) => setState(() {
+                  AppSettings.of(context).accent = accent!;
+                }),
+              ),
+              Text(accent.flag, textScaler: TextScaler.linear(2)),
+            ],
+          ),
+      ],
+    );
+  }
+}
+
 VoidCallback? pressIdentity(BuildContext context, [String? role]) {
   return switch (role) {
     "member" => () => Navigator.push(

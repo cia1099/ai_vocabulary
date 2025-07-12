@@ -175,6 +175,7 @@ class FavoriteStar extends StatelessWidget {
     showPlatformModalSheet(
       context: context,
       builder: (context) => ManageCollectionSheet(wordID: wordID),
+      material: MaterialModalSheetData(scrollControlDisabledMaxHeightRatio: 1),
     );
   }
 }

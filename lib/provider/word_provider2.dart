@@ -23,7 +23,6 @@ class RecommendProvider extends WordProvider {
     final undoneReview =
         context.mounted &&
         AppSettings.of(context).studyState != StudyStatus.completedReview;
-    _studyWords.clear();
     final candidateWords = (await Future.wait([
       requestWords(requestIDs),
       if (undoneReview)
@@ -41,6 +40,7 @@ class RecommendProvider extends WordProvider {
       candidateWords.map((w) => 1 - calculateRetention(w)),
     );
     final words = selector.sampleN(count);
+    _studyWords.clear();
     _studyWords.addAll(words);
     currentWord = _studyWords.firstOrNull;
 
@@ -59,7 +59,7 @@ class ReviewProvider extends WordProvider {
     });
   }
 
-  static const kMaxLength = 2;
+  static const kMaxLength = 4;
   Future<void> fetchReviewWords() async {
     await MyDB().isReady;
     final existIDs = _studyWords.map((w) => w.wordId);
