@@ -26,6 +26,12 @@ String messageExceptions([Object? error, StackTrace? stackTrace]) {
     FormatException e => '${e.runtimeType}: ${e.message}',
     AssertionError e => '${e.runtimeType}: ${e.message}',
     SqliteException e => 'SQL error(${e.resultCode}): ${e.message}',
+    NetworkImageLoadException e => switch (e.statusCode) {
+      402 => "You don't have enough tokens",
+      406 => "Permission deny",
+      _ =>
+        "We're having trouble reaching the server. Please check your connection.",
+    },
     _ => error.toString(),
   };
 }

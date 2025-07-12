@@ -97,9 +97,10 @@ class _VocabularyTabState extends State<VocabularyTab>
                         registerFunc() => hasError
                             ? setState(() {})
                             : MyDB().notifyListeners();
-                        return review.fetchReviewWords().whenComplete(
-                          registerFunc,
-                        );
+                        return (atTop
+                                ? review.resetReviews
+                                : review.fetchReviewWords)()
+                            .whenComplete(registerFunc);
                       },
                       bottomAlignment: Alignment(0, .9),
                       child: sliders(provider: review),

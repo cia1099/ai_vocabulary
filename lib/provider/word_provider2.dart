@@ -52,19 +52,28 @@ class ReviewProvider extends WordProvider {
   final Iterable<int>? reviewIDs;
   ReviewProvider([this.reviewIDs]) {
     fetchReviewWords().onError(_onError).whenComplete(() {
-      // currentWord = _studyWords.firstOrNull;
+      currentWord = _studyWords.firstOrNull;
       if (!_completer.isCompleted) {
         _completer.complete(true);
       }
     });
   }
 
+  static const kMaxLength = 2;
   Future<void> fetchReviewWords() async {
     await MyDB().isReady;
-    final requireIDs = reviewIDs ?? MyDB().fetchReviewWordIDs();
-    _studyWords.clear();
+    final existIDs = _studyWords.map((w) => w.wordId);
+    final requireIDs =
+        reviewIDs ??
+        MyDB().fetchReviewWordIDs().where((id) => !existIDs.contains(id));
     final words = await fetchWords(requireIDs);
-    _studyWords.addAll(words);
+    final count = reviewIDs?.length ?? kMaxLength;
+    _studyWords.addAll(words.take(count));
+  }
+
+  Future<void> resetReviews() async {
+    _studyWords.clear();
+    await fetchReviewWords().onError(_onError);
     currentWord = _studyWords.firstOrNull;
     if (_completer.isCompleted && !await isReady.onError((_, _) => false)) {
       //reset initialized error
