@@ -1,5 +1,8 @@
 import 'dart:typed_data';
 
+import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
+
 Uint8List convertPcmToWav(Iterable<int> pcmData,
     {int sampleRate = 44100, int channels = 2}) {
   int byteRate = sampleRate * channels * 2;
@@ -22,4 +25,25 @@ Uint8List convertPcmToWav(Iterable<int> pcmData,
   header.setUint32(40, dataSize, Endian.little);
 
   return Uint8List.fromList([...header.buffer.asUint8List(), ...pcmData]);
+}
+
+Future<bool> grantMicrophonePermission() async {
+  var status = await Permission.microphone.status;
+
+  if (status.isDenied) {
+    // 第一次请求或被拒绝后再次请求, only android has isDenied
+    // Permission.microphone.request() equivalent to record.hasPermission() at first time
+    if (await Permission.microphone.request().isGranted) {
+      debugPrint('🎙️ 麦克风权限已授权！');
+    } else {
+      debugPrint('❌ 麦克风权限被拒绝');
+    }
+  } else if (status.isPermanentlyDenied) {
+    // 用户点了“永不再问”, ios only has permanently deny no chance to request again
+    debugPrint('🚫 永久拒绝，需要引导去设置');
+    openAppSettings();
+  } else {
+    debugPrint('✅ 麦克风权限已获得');
+  }
+  return status.isGranted;
 }

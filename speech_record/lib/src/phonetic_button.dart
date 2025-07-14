@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:record/record.dart';
 
@@ -30,9 +29,8 @@ class _PhoneticButtonState extends State<PhoneticButton> {
   Timer? tapProtection;
   final pcmBuffer = <int>[];
   var isPress = false;
-  final recorder = AudioRecorder();
-  late var futurePermission =
-      kReleaseMode ? recorder.hasPermission() : Future.value(true);
+  var recorder = AudioRecorder();
+  late var futurePermission = recorder.hasPermission();
 
   @override
   Widget build(BuildContext context) {
@@ -44,14 +42,17 @@ class _PhoneticButtonState extends State<PhoneticButton> {
     return FutureBuilder(
       future: futurePermission,
       builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return const CircularProgressIndicator.adaptive();
-        }
-        if (snapshot.data != null && snapshot.data == false) {
+        if (!snapshot.hasData || snapshot.data == false) {
           return CupertinoButton.tinted(
-            onPressed: () => setState(() {
-              futurePermission = recorder.hasPermission();
-            }),
+            onPressed: () async {
+              final isGranted = await grantMicrophonePermission();
+              if (!isGranted) return;
+              setState(() {
+                recorder.dispose();
+                recorder = AudioRecorder();
+                futurePermission = recorder.hasPermission();
+              });
+            },
             child: const Text('Allow microphone'),
           );
         }

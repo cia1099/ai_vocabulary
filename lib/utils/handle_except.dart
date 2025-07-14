@@ -28,7 +28,7 @@ String messageExceptions([Object? error, StackTrace? stackTrace]) {
     SqliteException e => 'SQL error(${e.resultCode}): ${e.message}',
     NetworkImageLoadException e => switch (e.statusCode) {
       402 => "You don't have enough tokens",
-      406 => "Permission deny",
+      406 => "You must register to access this feature",
       _ =>
         "We're having trouble reaching the server. Please check your connection.",
     },

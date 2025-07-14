@@ -86,6 +86,9 @@ android {
     }
 }
 ```
+For Android config files:
+* `android/app/build.gradle.kts` build setting
+* `android/app/src/main/AndroidManifest.xml` permission
 
 ### iOS configuration
 enable Firebase to iOS project, you should open `ios/<project>.xcworkerspace` in Xcode. Set `minimum Deployment` to **13** and <kbd>Product</kbd>&rarr;<kbd>Scheme</kbd>&rarr;<kbd>Edit...</kbd>, add a below argument to `Arguments Passed On Launch` in Run for Firebase Analysis.

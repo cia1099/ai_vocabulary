@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart' as p;
 import 'package:record/record.dart';
@@ -35,9 +34,8 @@ class RecordSpeechButton extends StatefulWidget {
 
 class _RecordSpeechButtonState extends State<RecordSpeechButton> {
   StreamSubscription? tapProtection;
-  final record = AudioRecorder();
-  late var futurePermission =
-      kReleaseMode ? record.hasPermission() : Future.value(true);
+  var record = AudioRecorder();
+  late var futurePermission = record.hasPermission();
 
   @override
   void initState() {
@@ -62,9 +60,15 @@ class _RecordSpeechButtonState extends State<RecordSpeechButton> {
           customBorder: widget.blinkShape,
           onDoubleTap: snapshot.data == true
               ? null
-              : () => setState(() {
+              : () async {
+                  final isGranted = await grantMicrophonePermission();
+                  if (!isGranted) return;
+                  setState(() {
+                    record.dispose();
+                    record = AudioRecorder();
                     futurePermission = record.hasPermission();
-                  }),
+                  });
+                },
           onTapDown: snapshot.data == true
               ? (_) {
                   tapProtection =
@@ -94,21 +98,45 @@ class _RecordSpeechButtonState extends State<RecordSpeechButton> {
                 }
               : null,
           child: AbsorbPointer(
-            child: StreamBuilder(
-                stream: record.onStateChanged(),
-                builder: (context, snapshot) => AnimatedSwitcher(
-                      duration: widget.protectLatency * .5,
-                      child: snapshot.data != RecordState.record
-                          ? widget.child
-                          : ConstrainedBox(
-                              constraints: const BoxConstraints(
-                                  minHeight: kMinInteractiveDimension,
-                                  minWidth: double.infinity),
-                              child: amplitudeListener(),
-                            ),
-                      transitionBuilder: (child, animation) =>
-                          FadeTransition(opacity: animation, child: child),
-                    )),
+            child: snapshot.data != true
+                ? CupertinoButton(
+                    onPressed: null,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const FittedBox(
+                          fit: BoxFit.none,
+                          alignment: Alignment(-1, 0),
+                          clipBehavior: Clip.antiAlias,
+                          child: Text(
+                            "double-click to enable",
+                          ),
+                        ),
+                        Builder(builder: (context) {
+                          final style = DefaultTextStyle.of(context).style;
+                          final textScaler = MediaQuery.textScalerOf(context);
+                          return Icon(
+                            CupertinoIcons.mic_off,
+                            size: textScaler.scale(style.fontSize ?? 24),
+                          );
+                        }),
+                      ],
+                    ))
+                : StreamBuilder(
+                    stream: record.onStateChanged(),
+                    builder: (context, snapshot) => AnimatedSwitcher(
+                          duration: widget.protectLatency * .5,
+                          child: snapshot.data != RecordState.record
+                              ? widget.child
+                              : ConstrainedBox(
+                                  constraints: const BoxConstraints(
+                                      minHeight: kMinInteractiveDimension,
+                                      minWidth: double.infinity),
+                                  child: amplitudeListener(),
+                                ),
+                          transitionBuilder: (child, animation) =>
+                              FadeTransition(opacity: animation, child: child),
+                        )),
           ),
         ),
       ),
