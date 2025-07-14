@@ -86,7 +86,7 @@ android {
     }
 }
 ```
-For Android config files:
+#### For Android config files:
 * `android/app/build.gradle.kts` build setting
 * `android/app/src/main/AndroidManifest.xml` permission
 
@@ -105,6 +105,10 @@ Use Xcode to edit the URL Type:
 
 see [document](https://firebase.google.com/docs/auth/ios/google-signin?hl=en&authuser=0)\
 Note: If you suffer ios CocoaPods problem, you could just remove `ios/Podfile.lock`.
+
+#### For iOS config files:
+* `ios/Podfile` build setting
+* `ios/Runner/Info.plist` permission
 
 
 

@@ -53,15 +53,27 @@ dev_dependencies:
   integration_test:
     sdk: flutter
   icons_launcher: ^3.0.1
+  flutter_native_splash: ^2.4.6
 
+# dart run icons_launcher:create
 icons_launcher:
   image_path: "assets/icon.png"
   platforms:
     android:
+      #android suggest website
+# https://romannurik.github.io/AndroidAssetStudio/icons-launcher.html
       enable: true
       adaptive_background_color: '#f3c4be'
+      adaptive_foreground_image: 'assets/icon_round.png'
+      adaptive_round_image: 'assets/icon_round.png'
     ios:
       enable: true
+# dart run flutter_native_splash:create
+flutter_native_splash:
+  color: "ffffff"
+  # image: assets/icon.png
+  android: true
+  ios: true
 
 dart_code_metrics:
   rules:
