@@ -1,5 +1,8 @@
 #!/bin/zsh
 fd bump_version.dart && ff build ios --release --no-tree-shake-icons
+# Android
+ff clean&&ff pub get&& ff build appbundle --release --no-tree-shake-icons
+# iOS
 # 先 Archive
 # xcodebuild -workspace ios/Runner.xcworkspace -scheme Runner -configuration Release -archivePath build/ios/archive/Runner.xcarchive -destination "generic/platform=iOS" archive DEVELOPMENT_TEAM=A74NS5RT64
 # 再 Export 成 ipa (Fail in this step)

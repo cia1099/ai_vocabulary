@@ -51,9 +51,6 @@ abstract class WordProvider {
   // reminder
   static final _remindWords = <Vocabulary>{};
   bool shouldRemind([bool reachTarget = false]) {
-    if (currentWord != null) {
-      _remindWords.add(currentWord!);
-    }
     return _remindWords.isNotEmpty &&
             _remindWords.length % kRemindLength == 0 ||
         _remindWords.length >= length ||
@@ -67,6 +64,12 @@ abstract class WordProvider {
   }
 
   void clearRemind() => _remindWords.clear();
+  bool addRemind() {
+    if (currentWord != null) {
+      return _remindWords.add(currentWord!);
+    }
+    return false;
+  }
 
   void nextStudyWord() {
     Future.delayed(Durations.extralong4, () {

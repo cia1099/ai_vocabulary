@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:ai_vocabulary/app_settings.dart' show AppSettings;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -76,6 +77,8 @@ void showToast({
 
 void appearAward(BuildContext context, String? word) {
   final colorScheme = Theme.of(context).colorScheme;
+  final provider = AppSettings.of(context).wordProvider;
+  provider?.addRemind();
   showToast(
     context: context,
     stay: const Duration(milliseconds: 1500),
