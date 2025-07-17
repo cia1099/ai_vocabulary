@@ -46,22 +46,18 @@ class _PuzzleWordState extends State<PuzzleWord> {
       appBar: PlatformAppBar(
         title: Text("Puzzle Quiz"),
         backgroundColor: Theme.of(context).colorScheme.surface,
-        material:
-            (_, __) => MaterialAppBarData(
-              actions:
-                  routeName == AppRoute.quiz
-                      ? [EntryActions(wordID: word.wordId)]
-                      : null,
-            ),
-        cupertino:
-            (_, __) => CupertinoNavigationBarData(
-              transitionBetweenRoutes: false,
-              trailing:
-                  routeName == AppRoute.quiz
-                      ? EntryActions(wordID: word.wordId)
-                      : null,
-              border: Border(),
-            ),
+        material: (_, __) => MaterialAppBarData(
+          actions: routeName == AppRoute.quiz
+              ? [EntryActions(wordID: word.wordId)]
+              : null,
+        ),
+        cupertino: (_, __) => CupertinoNavigationBarData(
+          transitionBetweenRoutes: false,
+          trailing: routeName == AppRoute.quiz
+              ? EntryActions(wordID: word.wordId)
+              : null,
+          border: Border(),
+        ),
       ),
       body: SafeArea(
         child: Column(
@@ -83,11 +79,8 @@ class _PuzzleWordState extends State<PuzzleWord> {
                       ).coloredSpeech(context: context),
                       ValueListenableBuilder(
                         valueListenable: showPhonetic,
-                        builder:
-                            (context, show, child) => FadeOutConceal(
-                              fadeOutState: show,
-                              child: child,
-                            ),
+                        builder: (context, show, child) =>
+                            FadeOutConceal(fadeOutState: show, child: child),
                         child: Text(
                           '${definition.phoneticUs}',
                           style: textTheme.bodyLarge,
@@ -135,38 +128,29 @@ class _PuzzleWordState extends State<PuzzleWord> {
             _Puzzle(
               cardSize: kToolbarHeight, //64.0,
               puzzle: puzzle,
-              charBuilder:
-                  (context, index) => ValueListenableBuilder(
-                    valueListenable: showFault,
-                    builder:
-                        (context, show, _) => Text(
-                          puzzle[index].toUpperCase(),
-                          style: textTheme.labelLarge?.apply(
-                            color:
-                                show && isFaultCharacter(index)
-                                    ? CupertinoColors.systemRed.resolveFrom(
-                                      context,
-                                    )
-                                    : Colors.black,
-                          ),
-                          textScaler: TextScaler.linear(2.4),
-                        ),
+              charBuilder: (context, index) => ValueListenableBuilder(
+                valueListenable: showFault,
+                builder: (context, show, _) => Text(
+                  puzzle[index].toUpperCase(),
+                  style: textTheme.labelLarge?.apply(
+                    color: show && isFaultCharacter(index)
+                        ? CupertinoColors.systemRed.resolveFrom(context)
+                        : Colors.black,
                   ),
+                  textScaler: TextScaler.linear(2.4),
+                ),
+              ),
             ),
             Container(
               margin: EdgeInsets.only(top: hPadding * 3),
-              constraints: BoxConstraints(minWidth: 100, minHeight: 100),
+              constraints: BoxConstraints(minWidth: 150, minHeight: 100),
               child: PlatformWidgetBuilder(
-                cupertino:
-                    (_, child, _) => CupertinoButton.tinted(
-                      onPressed: submitAnswer,
-                      child: child!,
-                    ),
-                material:
-                    (_, child, _) => FilledButton.tonal(
-                      onPressed: submitAnswer,
-                      child: child,
-                    ),
+                cupertino: (_, child, _) => CupertinoButton.tinted(
+                  onPressed: submitAnswer,
+                  child: child!,
+                ),
+                material: (_, child, _) =>
+                    FilledButton.tonal(onPressed: submitAnswer, child: child),
                 child: Text('Submit'),
               ),
             ),
@@ -227,29 +211,27 @@ class _PuzzleState extends State<_Puzzle> {
       width: cardSize * puzzle.length,
       child: ReorderableListView.builder(
         scrollDirection: Axis.horizontal,
-        itemExtentBuilder:
-            (index, dimensions) =>
-                (dimensions.viewportMainAxisExtent / puzzle.length).clamp(
-                  0,
-                  cardSize,
-                ),
-        itemBuilder:
-            (context, index) => ReorderableDragStartListener(
-              key: ValueKey(index),
-              index: index,
-              child: Container(
-                alignment: Alignment(0, 0),
-                decoration: BoxDecoration(
-                  color: CupertinoColors.systemYellow.resolveFrom(context),
-                  borderRadius: BorderRadius.circular(4),
-                  border: Border.symmetric(
-                    horizontal: BorderSide(color: colorScheme.outline),
-                    vertical: BorderSide(width: .5, color: colorScheme.outline),
-                  ),
-                ),
-                child: FittedBox(child: widget.charBuilder(context, index)),
+        itemExtentBuilder: (index, dimensions) =>
+            (dimensions.viewportMainAxisExtent / puzzle.length).clamp(
+              0,
+              cardSize,
+            ),
+        itemBuilder: (context, index) => ReorderableDragStartListener(
+          key: ValueKey(index),
+          index: index,
+          child: Container(
+            alignment: Alignment(0, 0),
+            decoration: BoxDecoration(
+              color: CupertinoColors.systemYellow.resolveFrom(context),
+              borderRadius: BorderRadius.circular(4),
+              border: Border.symmetric(
+                horizontal: BorderSide(color: colorScheme.outline),
+                vertical: BorderSide(width: .5, color: colorScheme.outline),
               ),
             ),
+            child: FittedBox(child: widget.charBuilder(context, index)),
+          ),
+        ),
         itemCount: puzzle.length,
         onReorder: (oldIndex, newIndex) {
           if (oldIndex < newIndex) {

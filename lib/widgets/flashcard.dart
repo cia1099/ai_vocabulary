@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:ai_vocabulary/bottom_sheet/edit_flashcard_sheet.dart';
 import 'package:ai_vocabulary/database/my_db.dart';
 import 'package:ai_vocabulary/model/collections.dart';
+import 'package:ai_vocabulary/utils/function.dart';
 import 'package:ai_vocabulary/utils/load_word_route.dart';
 import 'package:ai_vocabulary/utils/regex.dart';
 import 'package:flutter/cupertino.dart';
@@ -125,40 +126,40 @@ class _FlashcardState extends State<Flashcard>
 
   List<Widget> contextActions() {
     final colorScheme = Theme.of(context).colorScheme;
+    final style = CupertinoTheme.of(context).textTheme.textStyle;
     return [
       CupertinoContextMenuAction(
         onPressed: () {
           final editName = TextEditingController(text: widget.mark.name);
+          final content = Form(
+            autovalidateMode: AutovalidateMode.onUserInteraction,
+            // onChanged: () {
+            //   if (!Form.of(primaryFocus!.context!).validate())
+            //     editName.clear();
+            // },
+            child: CupertinoTextFormFieldRow(
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Mark cannot be anonymous';
+                }
+                return null;
+              },
+              controller: editName,
+              style: style,
+              autofocus: true,
+              minLines: 1,
+              maxLines: 3,
+              decoration: BoxDecoration(
+                color: colorScheme.surfaceDim,
+                borderRadius: BorderRadius.circular(kRadialReactionRadius / 2),
+                border: Border.all(color: colorScheme.outlineVariant),
+              ),
+            ),
+          );
           showCupertinoModalPopup(
             context: context,
             builder: (context) => PlatformAlertDialog(
               title: const Text('Rename the mark'),
-              content: Form(
-                autovalidateMode: AutovalidateMode.onUserInteraction,
-                // onChanged: () {
-                //   if (!Form.of(primaryFocus!.context!).validate())
-                //     editName.clear();
-                // },
-                child: CupertinoTextFormFieldRow(
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Mark cannot be anonymous';
-                    }
-                    return null;
-                  },
-                  controller: editName,
-                  autofocus: true,
-                  minLines: 1,
-                  maxLines: 3,
-                  decoration: BoxDecoration(
-                    color: colorScheme.surfaceDim,
-                    borderRadius: BorderRadius.circular(
-                      kRadialReactionRadius / 2,
-                    ),
-                    border: Border.all(color: colorScheme.outlineVariant),
-                  ),
-                ),
-              ),
               actions: [
                 PlatformDialogAction(
                   onPressed: Navigator.of(context).pop,
@@ -185,6 +186,16 @@ class _FlashcardState extends State<Flashcard>
                   child: const Text('Done'),
                 ),
               ],
+              cupertino: (_, _) => CupertinoAlertDialogData(content: content),
+              material: (_, _) => MaterialAlertDialogData(
+                content: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxHeight:
+                        style.fontSize?.scale(style.height ?? 1).scale(4) ?? 64,
+                  ),
+                  child: content,
+                ),
+              ),
             ),
           ).then((_) {
             if (mounted) Navigator.of(context).pop();
