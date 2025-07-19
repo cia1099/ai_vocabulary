@@ -179,6 +179,7 @@ class _MyAppState extends State<MyApp> {
 
     final revenueCatKey = switch (platform) {
       TargetPlatform.iOS => "appl_BhfSwLRtzObwxuwlHUNddWezqtr",
+      TargetPlatform.android => "goog_AgjIXnZbhaZFktUJAWLuQcmNCaQ",
       _ => "",
     };
 

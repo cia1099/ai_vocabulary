@@ -198,6 +198,11 @@ class _PaymentPageState extends State<PaymentPage> {
         final days = (iso8601DurationToMonths(trial.period) * 30).floor();
         payment["description"] = "First $days days are free, cancel anytime";
       }
+      final freePhase = product.defaultOption?.freePhase;
+      if (freePhase != null) {
+        final days = freePhase.billingPeriod!.value;
+        payment["description"] = "First $days days are free, cancel anytime";
+      }
       if (package.packageType == PackageType.annual) {
         final months = iso8601DurationToMonths(product.subscriptionPeriod!);
         final origin = monthlyPrice * months;
