@@ -1,7 +1,7 @@
 name: ai_vocabulary
 description: "A new Flutter project."
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
-version: 1.0.6+5
+version: 1.0.7+1
 
 environment:
   sdk: ^3.8.0
@@ -79,10 +79,16 @@ flutter_launcher_icons:
   adaptive_icon_foreground: assets/icon.png
 # dart run flutter_native_splash:create
 flutter_native_splash:
-  color: "ffffff"
-  # image: assets/icon.png
   android: true
+  android_12:
+    color: "#f3c4be"
+    image: assets/icon_round.png
+    branding: assets/brand.png
   ios: true
+  color: "#000000"
+# You should used background_splash.dart to screenshot one then edit this .png in Xcode.
+  # background_image_ios: assets/background.png #This attribute is useless
+  image: assets/launch_logo.png
 
 dart_code_metrics:
   rules:

@@ -104,7 +104,7 @@ Future<List<Vocabulary>> fetchWords(Iterable<int> wordIDs, {int? take}) async {
     sortByRetention,
     await loadWordList(wordIDs).last,
   );
-  return words.sublist(0, take?.clamp(0, words.length));
+  return take == null ? words : words.take(take).toList();
 }
 
 List<Vocabulary> sortByRetention(Iterable<Vocabulary> words) {

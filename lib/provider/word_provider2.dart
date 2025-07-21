@@ -17,7 +17,10 @@ class RecommendProvider extends WordProvider {
     final reviewIDs = MyDB().fetchReviewWordIDs();
     final existIDs = _studyWords.map((w) => w.wordId).followedBy(reviewIDs);
     const count = kMaxLength;
-    final requestIDs = await sampleWordIds(existIDs, count);
+    final requestIDs = await sampleWordIds(
+      existIDs,
+      count,
+    ).timeout(kHttpTimeOut);
 
     // throw Exception('error happen');
     final undoneReview =
@@ -33,7 +36,7 @@ class RecommendProvider extends WordProvider {
               (id) => !_studyWords.any((word) => word.wordId == id),
             ),
           ),
-        ).then((list) => list.take(count * 2).toList()),
+        ).timeout(kHttpTimeOut).then((list) => list.take(count * 2).toList()),
     ])).reduce((a, b) => a + b);
     final selector = WeightedSelector(
       candidateWords,
@@ -66,9 +69,9 @@ class ReviewProvider extends WordProvider {
     final requireIDs =
         reviewIDs ??
         MyDB().fetchReviewWordIDs().where((id) => !existIDs.contains(id));
-    final words = await fetchWords(requireIDs);
     final count = reviewIDs?.length ?? kMaxLength;
-    _studyWords.addAll(words.take(count));
+    final words = await fetchWords(requireIDs, take: count);
+    _studyWords.addAll(words);
   }
 
   Future<void> resetReviews() async {

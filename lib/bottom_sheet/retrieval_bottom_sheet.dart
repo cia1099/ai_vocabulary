@@ -62,8 +62,8 @@ class _RetrievalBottomSheetState extends State<RetrievalBottomSheet>
         snapSizes: const [.32, .9],
         initialChildSize: .32,
         builder: (context, scrollController) => PlatformWidgetBuilder(
-          material: (_, child, ___) => Card(
-            margin: EdgeInsets.zero,
+          material: (_, child, ___) => Material(
+            type: MaterialType.card,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadiusGeometry.vertical(
                 top: Radius.circular(kRadialReactionRadius * 1.6),
