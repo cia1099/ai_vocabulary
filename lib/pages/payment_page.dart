@@ -1,4 +1,5 @@
 import 'package:ai_vocabulary/api/dict_api.dart' show updateSubscript;
+import 'package:ai_vocabulary/model/entitlement_info.dart';
 import 'package:ai_vocabulary/provider/user_provider.dart';
 import 'package:ai_vocabulary/utils/function.dart';
 import 'package:ai_vocabulary/utils/handle_except.dart';
@@ -162,9 +163,11 @@ class _PaymentPageState extends State<PaymentPage> {
 
   void paymentProcess() async {
     if (packageToPurchase == null) return;
-    final customerInfo = await Purchases.purchasePackage(packageToPurchase!);
-    final info = customerInfo.entitlements.active.values.firstOrNull?.toJson()
-      ?..addAll({"gas": 200.0});
+    final purchaseResult = await Purchases.purchasePackage(packageToPurchase!);
+    final info =
+        purchaseResult.customerInfo.entitlements.active.values.firstOrNull
+            ?.toJson()
+          ?..addAll({"gas": 200.0});
     final user = await updateSubscript(info ?? {});
     UserProvider().currentUser = user;
     if (mounted) Navigator.maybePop(context);

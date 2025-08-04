@@ -10,6 +10,7 @@ import 'package:ai_vocabulary/effects/transient.dart';
 import 'package:ai_vocabulary/firebase/authorization.dart'
     show signInAnonymously;
 import 'package:ai_vocabulary/firebase/firebase_auth_mixin.dart';
+import 'package:ai_vocabulary/model/entitlement_info.dart';
 import 'package:ai_vocabulary/model/user.dart';
 import 'package:ai_vocabulary/pages/home_page.dart';
 import 'package:ai_vocabulary/provider/user_provider.dart';

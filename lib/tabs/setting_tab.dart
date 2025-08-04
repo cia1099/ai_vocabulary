@@ -5,6 +5,7 @@ import 'package:ai_vocabulary/api/dict_api.dart';
 import 'package:ai_vocabulary/app_route.dart';
 import 'package:ai_vocabulary/effects/show_toast.dart';
 import 'package:ai_vocabulary/firebase/authorization.dart' show signOutFirebase;
+import 'package:ai_vocabulary/model/entitlement_info.dart';
 import 'package:ai_vocabulary/pages/color_select_page.dart';
 import 'package:ai_vocabulary/pages/payment_page.dart';
 import 'package:ai_vocabulary/pages/punch_out_page.dart';

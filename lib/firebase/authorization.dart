@@ -75,17 +75,13 @@ Future<void> resetFirebasePassword(
 
 Future<ApiResponse> signInWithGoogle() async {
   // Trigger the authentication flow
-  final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+  final googleUser = await GoogleSignIn.instance.authenticate();
 
   // Obtain the auth details from the request
-  final GoogleSignInAuthentication? googleAuth =
-      await googleUser?.authentication;
+  final googleAuth = googleUser.authentication;
 
   // Create a new credential
-  final credential = GoogleAuthProvider.credential(
-    accessToken: googleAuth?.accessToken,
-    idToken: googleAuth?.idToken,
-  );
+  final credential = GoogleAuthProvider.credential(idToken: googleAuth.idToken);
 
   // Once signed in, return the UserCredential
   return FirebaseAuth.instance.signInWithCredential(credential).then(
