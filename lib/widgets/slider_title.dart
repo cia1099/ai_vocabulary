@@ -23,6 +23,7 @@ class SliderTitle extends StatefulWidget {
 class SliderTitleState extends State<SliderTitle>
     with AutomaticKeepAliveClientMixin {
   var streamSyllables = Stream.value(<Syllable>[]);
+  var errorDelay = Future<void>.value();
   var isCorrect = false;
 
   @override
@@ -86,7 +87,7 @@ class SliderTitleState extends State<SliderTitle>
           child: StreamBuilder<List<Syllable>>(
             stream: streamSyllables,
             builder: (context, snapshot) {
-              Widget content;
+              Widget? content;
               if (snapshot.connectionState == ConnectionState.waiting) {
                 content = const Wrap(
                   direction: Axis.vertical,
@@ -103,6 +104,13 @@ class SliderTitleState extends State<SliderTitle>
                     backgroundColor: kCupertinoSheetColor.resolveFrom(context),
                   ),
                 );
+                errorDelay = Future.delayed(Durations.medium4 * 3, () {
+                  if (mounted) {
+                    setState(() {
+                      streamSyllables = Stream.value(<Syllable>[]);
+                    });
+                  }
+                });
               } else {
                 content = _tackleRecognition(
                   snapshot.data,
@@ -129,6 +137,7 @@ class SliderTitleState extends State<SliderTitle>
   void inputSpeech(List<int> bytes) {
     setState(() {
       streamSyllables = () async* {
+        await errorDelay;
         yield await pronunciationWord(bytes: bytes, word: widget.word.word);
         await Future.delayed(Durations.extralong4 * 2);
         yield <Syllable>[];
