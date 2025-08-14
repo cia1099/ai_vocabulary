@@ -8,6 +8,7 @@ import 'package:ai_vocabulary/database/my_db.dart';
 import 'package:ai_vocabulary/model/acquaintance.dart';
 import 'package:ai_vocabulary/pages/report_page.dart';
 import 'package:ai_vocabulary/pages/vocabulary_page.dart';
+import 'package:ai_vocabulary/utils/function.dart';
 import 'package:ai_vocabulary/utils/phonetic.dart' show playPhonetic;
 import 'package:ai_vocabulary/widgets/capital_avatar.dart';
 import 'package:ai_vocabulary/widgets/entry_actions.dart';
@@ -104,8 +105,8 @@ class _SliderPageState extends State<SliderPage> {
                 child: Wrap(
                   children: phonetics
                       .map(
-                        (p) => RichText(
-                          text: TextSpan(
+                        (p) => Text.rich(
+                          TextSpan(
                             children: [
                               TextSpan(text: '\t' * 4),
                               TextSpan(text: p.phonetic),
@@ -116,12 +117,18 @@ class _SliderPageState extends State<SliderPage> {
                                     p.audioUrl,
                                     word: widget.word.word,
                                   ),
-                                  child: const Icon(CupertinoIcons.volume_up),
+                                  child: Icon(
+                                    CupertinoIcons.volume_up,
+                                    size: textTheme.titleLarge?.fontSize.scale(
+                                      textTheme.titleLarge?.height,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ],
                             style: textTheme.titleLarge,
                           ),
+                          overflow: TextOverflow.ellipsis,
                         ),
                       )
                       .toList(),

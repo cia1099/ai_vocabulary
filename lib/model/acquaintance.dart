@@ -52,8 +52,8 @@ class StudyCount {
   );
 
   Map<String, dynamic> toJson() => {
-    "new_count": newCount,
-    "review_count": reviewCount,
+    "new_count": newCount.clamp(5, double.maxFinite),
+    "review_count": reviewCount.clamp(5, double.maxFinite),
   };
 
   @override

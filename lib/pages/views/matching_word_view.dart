@@ -38,8 +38,8 @@ class _MatchingWordViewState extends State<MatchingWordView> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            RichText(
-              text: TextSpan(
+            Text.rich(
+              TextSpan(
                 text: widget.word.word,
                 children: [
                   TextSpan(text: '\t' * 2),
@@ -51,7 +51,9 @@ class _MatchingWordViewState extends State<MatchingWordView> {
                       ),
                       child: Icon(
                         CupertinoIcons.volume_up,
-                        size: textTheme.titleLarge?.fontSize?.scale(1.25),
+                        size: textTheme.titleLarge?.fontSize?.scale(
+                          textTheme.titleLarge?.height,
+                        ),
                       ),
                     ),
                   ),
@@ -60,6 +62,8 @@ class _MatchingWordViewState extends State<MatchingWordView> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
             Wrap(
               spacing: widget.hPadding / 4,

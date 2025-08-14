@@ -2,6 +2,7 @@ import 'package:ai_vocabulary/app_route.dart';
 import 'package:ai_vocabulary/app_settings.dart';
 import 'package:ai_vocabulary/model/vocabulary.dart';
 import 'package:ai_vocabulary/pages/vocabulary_page.dart';
+import 'package:ai_vocabulary/utils/function.dart';
 import 'package:ai_vocabulary/utils/phonetic.dart' show playPhonetic;
 import 'package:ai_vocabulary/widgets/entry_actions.dart';
 import 'package:ai_vocabulary/widgets/translate_request.dart';
@@ -81,6 +82,7 @@ class WordListPage extends StatelessWidget {
 
   Widget itemBuilder(BuildContext context, int index, Vocabulary word) {
     final hPadding = MediaQuery.sizeOf(context).width / 32;
+    final textScaler = MediaQuery.textScalerOf(context);
     final dividerTheme = Theme.of(context).dividerTheme;
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
@@ -125,7 +127,15 @@ class WordListPage extends StatelessWidget {
               ),
               GestureDetector(
                 onTap: playPhonetic(null, word: word.word, gTTs: accent.gTTS),
-                child: const Icon(CupertinoIcons.volume_up),
+                child: Icon(
+                  CupertinoIcons.volume_up,
+                  size: textScaler.scale(
+                    textTheme.titleMedium?.fontSize?.scale(
+                          textTheme.titleMedium?.height,
+                        ) ??
+                        1.0,
+                  ),
+                ),
               ),
             ],
           ),

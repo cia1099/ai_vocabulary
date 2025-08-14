@@ -300,7 +300,7 @@ class _ClozePageState extends State<ClozePage> {
                   sound: voicer,
                 ).onError((_, __) => soundGTTs(text, accent.gTTS));
               },
-              child: Icon(CupertinoIcons.volume_up),
+              child: const Icon(CupertinoIcons.volume_up),
             ),
           ),
         ],

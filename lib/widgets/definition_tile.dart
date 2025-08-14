@@ -253,6 +253,7 @@ class PartOfSpeechTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final style = textTheme.bodyLarge;
     return Wrap(
       spacing: 8,
       crossAxisAlignment: WrapCrossAlignment.center,
@@ -262,54 +263,62 @@ class PartOfSpeechTitle extends StatelessWidget {
           style: textTheme.titleLarge!.copyWith(fontWeight: FontWeight.bold),
         ).coloredSpeech(context: context),
         if (definition.phoneticUk != null)
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text('🇬🇧${definition.phoneticUk!}', style: textTheme.bodyLarge),
-              PlatformWidgetBuilder(
-                material: (_, child, __) => InkWell(
-                  onTap: playPhonetic(
-                    definition.audioUk,
-                    word: word,
-                    gTTs: gTTS.UK,
+          Text.rich(
+            style: style,
+            TextSpan(
+              children: [
+                TextSpan(text: '🇬🇧${definition.phoneticUk!}\t'),
+                WidgetSpan(
+                  child: PlatformWidgetBuilder(
+                    material: (_, child, __) => InkWell(
+                      onTap: playPhonetic(
+                        definition.audioUk,
+                        word: word,
+                        gTTs: gTTS.UK,
+                      ),
+                      child: child,
+                    ),
+                    cupertino: (_, child, __) => GestureDetector(
+                      onTap: playPhonetic(
+                        definition.audioUk,
+                        word: word,
+                        gTTs: gTTS.UK,
+                      ),
+                      child: child,
+                    ),
+                    child: Icon(
+                      CupertinoIcons.volume_up,
+                      size: style?.fontSize?.scale(style.height).scale(.85),
+                    ),
                   ),
-                  child: child,
                 ),
-                cupertino: (_, child, __) => GestureDetector(
-                  onTap: playPhonetic(
-                    definition.audioUk,
-                    word: word,
-                    gTTs: gTTS.UK,
-                  ),
-                  child: child,
-                ),
-                child: Icon(
-                  CupertinoIcons.volume_up,
-                  size: textTheme.bodyLarge!.fontSize,
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         if (definition.phoneticUs != null)
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text('🇺🇸${definition.phoneticUs!}', style: textTheme.bodyLarge),
-              PlatformWidgetBuilder(
-                material: (_, child, __) => InkWell(
-                  onTap: playPhonetic(definition.audioUs, word: word),
-                  child: child,
+          Text.rich(
+            style: style,
+            TextSpan(
+              children: [
+                TextSpan(text: '🇺🇸${definition.phoneticUs!}\t'),
+                WidgetSpan(
+                  child: PlatformWidgetBuilder(
+                    material: (_, child, __) => InkWell(
+                      onTap: playPhonetic(definition.audioUs, word: word),
+                      child: child,
+                    ),
+                    cupertino: (_, child, __) => GestureDetector(
+                      onTap: playPhonetic(definition.audioUs, word: word),
+                      child: child,
+                    ),
+                    child: Icon(
+                      CupertinoIcons.volume_up,
+                      size: style?.fontSize?.scale(style.height).scale(.85),
+                    ),
+                  ),
                 ),
-                cupertino: (_, child, __) => GestureDetector(
-                  onTap: playPhonetic(definition.audioUs, word: word),
-                  child: child,
-                ),
-                child: Icon(
-                  CupertinoIcons.volume_up,
-                  size: textTheme.bodyLarge!.fontSize,
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
       ],
     );
