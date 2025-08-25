@@ -61,7 +61,7 @@ class _FavoriteWordsPageState extends State<FavoriteWordsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final hPadding = MediaQuery.of(context).size.width / 32;
+    final hPadding = MediaQuery.sizeOf(context).width / 32;
     words.sort((a, b) => a.word.compareTo(b.word));
     final capitals = words.map((e) => e.word[0].toUpperCase()).toSet();
     capitalKeys = capitals.map((e) => GlobalObjectKey(e)).toList();

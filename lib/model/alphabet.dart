@@ -1,7 +1,6 @@
-import 'package:azlistview/azlistview.dart';
 import 'package:intl/intl.dart';
 
-class AlphabetModel extends ISuspensionBean {
+class AlphabetModel {
   final int id;
   final String name;
   final int lastTimeStamp;
@@ -13,8 +12,6 @@ class AlphabetModel extends ISuspensionBean {
     required this.lastTimeStamp,
     this.avatarUrl,
   });
-  @override
-  String getSuspensionTag() => name.substring(0, 1).toUpperCase();
 
   String get subtitle {
     final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
@@ -57,8 +54,15 @@ bool isInCurrentWeek(int timestamp) {
   // 星期天到星期六，`now.weekday % 7` 处理当周第一天
 
   // 4. 计算当前星期的结束日期（星期六 23:59:59.999）
-  final endOfWeek = startOfWeek.add(const Duration(
-      days: 6, hours: 23, minutes: 59, seconds: 59, milliseconds: 999));
+  final endOfWeek = startOfWeek.add(
+    const Duration(
+      days: 6,
+      hours: 23,
+      minutes: 59,
+      seconds: 59,
+      milliseconds: 999,
+    ),
+  );
 
   // 5. 判断目标日期是否在当前星期内
   return targetDate.isAfter(startOfWeek) && targetDate.isBefore(endOfWeek);

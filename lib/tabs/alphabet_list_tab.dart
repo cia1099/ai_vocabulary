@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:ai_vocabulary/database/my_db.dart';
 import 'package:ai_vocabulary/pages/chat_room_page.dart';
 import 'package:ai_vocabulary/pages/vocabulary_page.dart';
@@ -5,11 +7,11 @@ import 'package:ai_vocabulary/utils/load_word_route.dart';
 import 'package:ai_vocabulary/utils/shortcut.dart';
 import 'package:ai_vocabulary/widgets/capital_avatar.dart';
 import 'package:ai_vocabulary/widgets/filter_input_bar.dart';
-import 'package:azlistview/azlistview.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
+import 'package:sliver_tools/sliver_tools.dart';
 
 import '../app_route.dart';
 import '../model/alphabet.dart';
@@ -25,126 +27,92 @@ class AlphabetListTab extends StatefulWidget {
 class _AlphabetListTabState extends State<AlphabetListTab> {
   final _selectedId = <int>{};
   final textController = TextEditingController();
-  final scrollController = ScrollController();
   var editable = false;
+  late List<GlobalObjectKey> capitalKeys;
 
-  List<AlphabetModel> azContacts = [];
+  List<AlphabetModel> contacts = [];
   late var futureContacts = fetchContacts();
 
   @override
   Widget build(BuildContext context) {
+    final hPadding = MediaQuery.sizeOf(context).width / 32;
     final colorScheme = Theme.of(context).colorScheme;
     return PlatformScaffold(
-      body: CustomScrollView(
-        physics: const NeverScrollableScrollPhysics(),
-        controller: scrollController,
-        slivers: [
-          PlatformSliverAppBar(
-            stretch: true,
-            backgroundColor: kCupertinoSheetColor.resolveFrom(context),
-            cupertino: (_, __) => CupertinoSliverAppBarData(
-              title: const Text('Chats'),
-              trailing: buildTrail(),
-              transitionBetweenRoutes: false,
-            ),
-            material: (_, __) => MaterialSliverAppBarData(
-              pinned: true,
-              actions: [buildTrail()],
-              expandedHeight: kExpandedSliverAppBarHeight,
-              flexibleSpace: FlexibleSpaceBar(
-                title: const Text('Chats'),
-                titlePadding: const EdgeInsets.only(left: 16, bottom: 16),
-                background: DecoratedBox(
-                  decoration: BoxDecoration(color: colorScheme.surface),
+      body: FutureBuilder(
+        future: futureContacts,
+        builder: (context, snapshot) {
+          final isWaiting = snapshot.connectionState == ConnectionState.waiting;
+          final capitals = contacts.map((e) => e.name[0].toUpperCase()).toSet();
+          capitalKeys = capitals.map((e) => GlobalObjectKey(e)).toList();
+          return Stack(
+            children: [
+              CustomScrollView(
+                physics: const AlwaysScrollableScrollPhysics(
+                  parent: BouncingScrollPhysics(),
                 ),
-              ),
-            ),
-          ),
-          FutureBuilder(
-            future: futureContacts,
-            builder: (context, snapshot) => SliverResizingHeader(
-              minExtentPrototype: const SizedBox.shrink(),
-              maxExtentPrototype: SizedBox.fromSize(
-                size: const Size.fromHeight(kTextTabBarHeight + 4),
-              ),
-              child: FilterInputBar(
-                enabled: snapshot.connectionState != ConnectionState.waiting,
-                padding: const EdgeInsets.only(bottom: 4, left: 8, right: 8),
-                backgroundColor: colorScheme.surfaceContainerLow,
-                hintText: 'Which word',
-                controller: textController,
-                onChanged: (name) => filterName(name),
-              ),
-            ),
-          ),
-          SliverFillRemaining(
-            child: NotificationListener<ScrollNotification>(
-              onNotification: (notification) {
-                final pos = notification.metrics.pixels.clamp(
-                  double.negativeInfinity,
-                  scrollController.position.maxScrollExtent,
-                );
-                scrollController.position.moveTo(pos, clamp: false);
-                return true;
-              },
-              child: FutureBuilder(
-                future: futureContacts,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(
-                      child: CircularProgressIndicator.adaptive(),
-                    );
-                  }
-                  SuspensionUtil.sortListBySuspensionTag(azContacts);
-                  SuspensionUtil.setShowSuspensionStatus(azContacts);
-                  return LayoutBuilder(
-                    builder: (context, constraints) => AzListView(
-                      physics: const AlwaysScrollableScrollPhysics(
-                        parent: BouncingScrollPhysics(),
-                      ),
-                      padding: const EdgeInsets.only(
-                        bottom: kBottomNavigationBarHeight,
-                      ),
-                      data: azContacts,
-                      itemCount: azContacts.length,
-                      itemBuilder: (context, index) =>
-                          _buildAzListItem(azContacts[index]),
-                      susItemHeight: 35,
-                      susItemBuilder: (context, index) {
-                        final textTheme = Theme.of(context).textTheme;
-                        final tag = azContacts[index].getSuspensionTag();
-                        return Container(
-                          alignment: Alignment.centerLeft,
-                          height: 35,
-                          color: colorScheme.surfaceContainerHigh,
-                          child: Padding(
-                            padding: const EdgeInsets.only(left: 16),
-                            child: Text(
-                              tag,
-                              style: textTheme.titleLarge!,
-                              // ..copyWith(fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                        );
-                      },
-                      indexBarItemHeight:
-                          (constraints.maxHeight - kBottomNavigationBarHeight) /
-                          26,
-                      indexBarData: azContacts
-                          .map((e) => e.getSuspensionTag())
-                          .toSet()
-                          .toList(),
-                      // List.generate(26, (index) => String.fromCharCode(index + 65)),
-                      indexBarOptions: IndexBarOptions(
-                        textStyle: TextStyle(color: colorScheme.primary),
+                slivers: [
+                  PlatformSliverAppBar(
+                    stretch: true,
+                    backgroundColor: kCupertinoSheetColor.resolveFrom(context),
+                    cupertino: (_, __) => CupertinoSliverAppBarData(
+                      title: const Text('Chats'),
+                      trailing: buildTrail(),
+                      transitionBetweenRoutes: false,
+                    ),
+                    material: (_, __) => MaterialSliverAppBarData(
+                      pinned: true,
+                      actions: [buildTrail()],
+                      expandedHeight: kExpandedSliverAppBarHeight,
+                      flexibleSpace: FlexibleSpaceBar(
+                        title: const Text('Chats'),
+                        titlePadding: const EdgeInsets.only(
+                          left: 16,
+                          bottom: 16,
+                        ),
+                        background: DecoratedBox(
+                          decoration: BoxDecoration(color: colorScheme.surface),
+                        ),
                       ),
                     ),
-                  );
-                },
+                  ),
+                  SliverResizingHeader(
+                    minExtentPrototype: const SizedBox.shrink(),
+                    maxExtentPrototype: SizedBox.fromSize(
+                      size: const Size.fromHeight(kTextTabBarHeight + 4),
+                    ),
+                    child: FilterInputBar(
+                      enabled:
+                          snapshot.connectionState != ConnectionState.waiting,
+                      padding: const EdgeInsets.only(
+                        bottom: 4,
+                        left: 8,
+                        right: 8,
+                      ),
+                      backgroundColor: colorScheme.surfaceContainerLow,
+                      hintText: 'Which word',
+                      controller: textController,
+                      onChanged: (name) => filterName(name),
+                    ),
+                  ),
+                  if (isWaiting)
+                    SliverFillRemaining(
+                      child: const Center(
+                        child: CircularProgressIndicator.adaptive(),
+                      ),
+                    )
+                  else
+                    ...takeSections(),
+                ],
               ),
-            ),
-          ),
-        ],
+              Positioned(
+                right: hPadding / 2,
+                top: kToolbarHeight * 3.6,
+                bottom: 0,
+                child: indexBar(),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -165,6 +133,48 @@ class _AlphabetListTabState extends State<AlphabetListTab> {
     );
   }
 
+  Iterable<Widget> takeSections() {
+    final colorScheme = Theme.of(context).colorScheme;
+    final hPadding = MediaQuery.sizeOf(context).width / 32;
+    return Iterable.generate(capitalKeys.length, (i) {
+      final capital = capitalKeys[i].value;
+      final sectionContacts = contacts
+          .where((w) => w.name[0].toUpperCase() == capital)
+          .toList();
+      return MultiSliver(
+        pushPinnedChildren: true,
+        children: [
+          SliverPinnedHeader(
+            key: capitalKeys[i],
+            child: Container(
+              height: kTextTabBarHeight * math.sqrt1_2,
+              padding: EdgeInsets.symmetric(horizontal: hPadding),
+              decoration: BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(
+                    strokeAlign: -1,
+                    color: colorScheme.outlineVariant,
+                  ),
+                ),
+                color: colorScheme.surfaceContainerHigh,
+              ),
+              alignment: const Alignment(-1, 1),
+              child: Text(
+                capital.toString(),
+                textScaler: TextScaler.linear((1 + math.sqrt(5)) / 2),
+              ),
+            ),
+          ),
+          SliverList.builder(
+            itemBuilder: (context, index) =>
+                _buildAzListItem(sectionContacts[index]),
+            itemCount: sectionContacts.length,
+          ),
+        ],
+      );
+    });
+  }
+
   Widget _buildAzListItem(AlphabetModel item) {
     return PlatformListTile(
       title: MediaQuery(
@@ -177,6 +187,7 @@ class _AlphabetListTabState extends State<AlphabetListTab> {
         constraints: const BoxConstraints(maxWidth: 68),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.end,
+          // mainAxisSize: MainAxisSize.min,
           spacing: 4,
           // alignment: WrapAlignment.spaceBetween,
           // crossAxisAlignment: WrapCrossAlignment.center,
@@ -221,6 +232,35 @@ class _AlphabetListTabState extends State<AlphabetListTab> {
         leadingSize: 68,
         padding: const EdgeInsets.only(left: 8, right: 25),
       ),
+    );
+  }
+
+  Widget indexBar() {
+    final textTheme = Theme.of(context).textTheme;
+    return Wrap(
+      direction: Axis.vertical,
+      alignment: WrapAlignment.center,
+      spacing: textTheme.bodyMedium!.fontSize! / 4,
+      children: capitalKeys
+          .map(
+            (key) => PlatformTextButton(
+              onPressed: () {
+                Scrollable.ensureVisible(key.currentContext!);
+              },
+              padding: EdgeInsets.zero,
+              material: (_, __) => MaterialTextButtonData(
+                style: TextButton.styleFrom(
+                  minimumSize: Size.square(textTheme.bodyMedium!.fontSize!),
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+              ),
+              cupertino: (_, __) => CupertinoTextButtonData(
+                minSize: textTheme.bodyMedium?.fontSize,
+              ),
+              child: Text(key.value.toString()),
+            ),
+          )
+          .toList(),
     );
   }
 
@@ -281,13 +321,13 @@ class _AlphabetListTabState extends State<AlphabetListTab> {
       (contact) => contact.name.toLowerCase().contains(query.toLowerCase()),
     );
     setState(() {
-      azContacts = queryContacts.toList();
+      contacts = queryContacts.toList();
     });
   }
 
   Future<Iterable<AlphabetModel>> fetchContacts() {
     return MyDB().fetchAlphabetModels().then((iter) {
-      azContacts = iter.toList();
+      contacts = iter.toList();
       return iter;
     });
   }
