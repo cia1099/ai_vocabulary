@@ -1,3 +1,5 @@
+import 'package:ai_vocabulary/utils/shortcut.dart' show kMaxAcquaintance;
+
 const insertWord = r'INSERT INTO words (id, word) VALUES (?, ?)';
 const insertDefinition = '''
 INSERT INTO definitions (word_id, id, part_of_speech, inflection, phonetic_us, phonetic_uk, audio_us, audio_uk, synonyms, antonyms) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING definitions.id
@@ -29,7 +31,8 @@ LEFT OUTER JOIN examples ON examples.explanation_id = explanations.id
 WHERE def.word_id IN
 ''';
 
-const avgFib = '''
+final avgFib =
+    '''
 WITH RECURSIVE Fibonacci(id, acquaint, n, a, b) AS (
     SELECT word_id, acquaint, 0, 1, 1 
     FROM acquaintances 
@@ -37,7 +40,7 @@ WITH RECURSIVE Fibonacci(id, acquaint, n, a, b) AS (
     UNION ALL 
     SELECT id, acquaint, n + 1, b, a + b 
     FROM Fibonacci 
-    WHERE n + 1 <= acquaint
+    WHERE n + 1 <= acquaint AND acquaint < $kMaxAcquaintance
 ),
 fibCTE AS (
     SELECT id, MAX(a) AS fib 
