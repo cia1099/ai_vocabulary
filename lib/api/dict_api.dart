@@ -25,7 +25,7 @@ part 'storage_api.dart';
 const baseURL = 'www.cia1099.cloudns.ch';
 // const baseURL = '127.0.0.1:8000';
 const punchCardUrl = "https://$baseURL/dict/imagen/punch/card";
-const kHttpTimeOut = Duration(seconds: 5);
+const kHttpTimeOut = Duration(minutes: 1);
 
 Future<List<Vocabulary>> retrievalWord(
   String word, {

@@ -102,6 +102,7 @@ class _RequireChatBubbleState extends State<RequireChatBubble> {
     final accent = AppSettings.of(context).accent;
     final voicer = AppSettings.of(context).voicer;
     var hasError = false;
+    // final tic = DateTime.now();
     final ans = await chatVocabulary(
       req.vocabulary.split(', ').first,
       req.content,
@@ -113,6 +114,8 @@ class _RequireChatBubbleState extends State<RequireChatBubble> {
         showToast(context: context, child: Text(messageExceptions(e)));
       },
     );
+    // final toc = DateTime.now();
+    // print("elapsed total time = ${toc.difference(tic).inMilliseconds / 1e3}");
     responseMsg = TextMessage(
       content: ans.answer,
       timeStamp: ans.created,

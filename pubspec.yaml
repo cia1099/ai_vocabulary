@@ -1,7 +1,7 @@
 name: ai_vocabulary
-description: "A new Flutter project."
+description: "AI teacher help you learn vocabulary"
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
-version: 1.0.8+9
+version: 1.0.9+2
 
 environment:
   sdk: ^3.8.0
