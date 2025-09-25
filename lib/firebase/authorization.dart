@@ -75,8 +75,14 @@ Future<void> resetFirebasePassword(
 
 Future<ApiResponse> signInWithGoogle() async {
   // Trigger the authentication flow
-  final googleUser = await GoogleSignIn.instance.authenticate();
-
+  final signIn = GoogleSignIn.instance;
+  const webClientId =
+      "752023164439-gmg01f56d0i02bcdcemfglcdpnkmmn2a.apps.googleusercontent.com";
+  await signIn.initialize(serverClientId: webClientId);
+  final googleUser = await signIn.authenticate();
+  // .catchError((e) {
+  //   print("Error Occur: $e");
+  // });
   // Obtain the auth details from the request
   final googleAuth = googleUser.authentication;
 
